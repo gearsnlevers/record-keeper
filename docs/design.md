@@ -23,6 +23,7 @@ A separate, versioned repository, delivered to a repository the way Repo Concier
 | Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
 | Settings | one file, `.github/record-keeper.yml`: the pin, the folder, the owners, extra front matter keys |
+| Essence compactor | optional, a later release: finds records whose subject has moved on and proposes a generalized record to supersede them (see "The essence compactor") |
 
 It is not a replacement for review. It checks whether a record is what was accepted, never whether it is right, and it does not check whether the code follows the record (see "Later").
 
@@ -34,7 +35,7 @@ Decided in record 0001; in short:
 - Accepting writes a seal: a SHA-256 over the **sealed region**, the whole record except the keys `status`, `date` and `seal` and the sections `Known deviations` and `Errata`. The seal is a front matter key, so it travels with a record that is copied to another repository.
 - After that a record may only change its status to `superseded by NNNN` or `deprecated`, gain or lose a `Known deviations` note, or gain an erratum.
 - An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal and adds an `Errata` entry with the previous seal, the new seal and the reason, approved by an owner of the records. The entries form a chain from the first seal to the current one.
-- A changed decision is a new record. Numbers are never reused, and a record is never deleted or renamed.
+- A changed decision is a new record, which may replace several. Numbers are never reused, and a record is never deleted or renamed.
 
 ## The layers
 
@@ -72,6 +73,49 @@ When it finds a violation:
 
 The ways to resolve one are the ones the protocol names: a revert, an erratum, or a `Known deviations` note.
 
+## The essence compactor
+
+Introduced by the maintainer on 2026-10-28. A record is written about a moment, and the moment passes. frodo-cli's record 0030 says that interactive mode never prompts for what 4.x accepted, and spells out the realm default and the credential sources that count. Once 5 is fully released and the work moves to 6, "4.x" and "5.x" mean nothing to a newcomer, but the rule underneath is as true as ever: **a new version keeps what the previous one accepted, and a deliberate break is documented**. A record that has outlived its subject is noise: the Concierge's plan gate lists it under "Decisions that apply" and can hold a request for conflicting with it, and PR triage can flag a change for opposing it. The compactor keeps the set of records alive by finding such records and offering to replace them with their essence.
+
+### Two ideas
+
+- **The impact window** is where a record still constrains a change. For each branch the repository maintains (`main`, and release branches if the settings list them) the window is `open` (the record applies), `closing` (its premise is ending, for example the version it protects has shipped), `closed` (what it covers is gone, or the premise has gone), or `unknown`. A record is only compacted when its window is closed on every branch where it is in force: a maintenance branch that still runs 4.x keeps record 0030 alive there.
+- **The essence** is the lasting rule that a time-bound record is an instance of, stated without versions, counts, names of options or other values that will move. The rest of the record, the instances, belongs in code, tests and documentation, and stays readable in the superseded record.
+
+### Compaction is a supersession
+
+A sealed record is never rewritten, so the compactor never edits one. It proposes a **new record** that states the essence and supersedes the old one (or several old ones into a single new one). The old record stays in the repository with its status `superseded by NNNN`, and the new one names it in a `supersedes:` key that the validator cross-checks (each listed record must be `superseded by` this number). Where an accepted record already states the essence, the proposal has no new record: it only supersedes, or deprecates when nothing lasting remains.
+
+### Three steps
+
+1. **Scan** (plain code, no model). For each record and branch it gathers signals with their evidence: an `applies-to` glob that matches no file; a version or branch named in the record that the repository has moved past; cited issues and pull requests that are closed; paths that nobody has touched for a long time; a growing `Known deviations` section. A signal is not a verdict. A record with no signal is not assessed. The scan alone is useful: it keeps one issue, "Records to review", that lists the candidates with their evidence.
+2. **Assessment** (a read-only agent, optional). For a candidate it reads the record, the code it covers on each branch, the related records and the history, and answers: the window per branch; the essence in one sentence; whether another record already holds it; what the generalization would lose.
+3. **Proposal** (a draft pull request). The agent drafts the new record in the format the validator enforces (a rule rather than a value, at most 60 lines, no versions or counts) as `proposed`. It never writes a status or a seal. A maintainer who agrees runs `record-keeper accept NNNN`, plain code that sets the status, writes the seal, and sets the old records to `superseded by NNNN`; a maintainer who disagrees closes the pull request, and the compactor remembers (in its state on the log branch, not in any record) and does not propose that record again until it or the code it covers changes, or a review date set in the settings has passed.
+
+Outcomes of a review: **supersede with a generalized record**; **supersede or deprecate without a new record** because the essence is already held or nothing lasting remains; **keep**, with a reason, because the window is still open on a maintained branch. A record is never deleted and never rewritten.
+
+### A worked example (the shape, not a proposal)
+
+Record 0030 states the rule as "4.x versus 5.x" and adds instances: the realm is never counted as missing, and a list of credential sources makes a command complete. The scan would flag it once the repository's version has moved past the line it names. The assessment would find the essence and the instances. A generalized record could read:
+
+- A command line that ran successfully under the previous major version runs successfully under this one and does not prompt.
+- A prompt or other new behaviour only takes the place of input the previous major version rejected.
+- A deliberate break is documented where users look for upgrade notes, and decided in a record of its own.
+- A test for new behaviour names the old command line that failed; a test for what must not change names the one that ran.
+
+What it loses: the realm default and the credential sources. Those are instances of the rule: they belong in the code, in the tests and in the usage documentation, and the superseded record keeps them for anyone who needs the history.
+
+### Guardrails
+
+- **The agent is read-only and never merges.** It opens a draft pull request. Status, seal and supersession are written by plain code on a maintainer's command, so that the model is never the one that changes what binds.
+- **A proposal shows its work:** the evidence from the scan, the essence, the window per branch, what is lost, and the records it replaces. A generalization that no check or reviewer could apply ("keep things compatible") is a worse record than the one it replaces; the agent is told to keep a rule only if a reviewer can check a change against it, and to propose keeping the record when it cannot.
+- **It is off by default and costs credits only when it assesses**, with a budget and a limit on proposals per period. Report-only mode needs no model and no secret.
+- **It never touches a record that is `proposed`**, and it does not compact records shared between repositories until the kit can carry a change to all the copies.
+
+### Declared windows
+
+A record that is time-bound from the start can say so. An optional `window:` key, part of the sealed region because it is part of the decision, states when the record stops applying, for example "until the 4.x line is no longer maintained". The skill asks for it when the decision names a version, a migration or a date. The scan reads it as a signal and the agent as evidence; the validator does not interpret it. A later step could make it executable like the `checks:` of "Later".
+
 ## Configuration
 
 One file in the consuming repository, `.github/record-keeper.yml`:
@@ -83,6 +127,8 @@ channel: stable
 folder: docs/decisions            # or decisions/ at the root when docs/ is generated
 owners: ['@org/records-owners']   # the people who approve an erratum; also written to CODEOWNERS
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
+branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
+compactor: off                    # off, report (the scan only), or assist (the agent drafts proposals)
 ```
 
 The three existing validators differ only in such extras (frodo-lib has a `repos` key and handling for shared records; the Concierge has an e-mail check). The kit keeps the shared core and makes the extras settings, so a repository that needs one asks for it and does not fork the script.
@@ -122,6 +168,8 @@ Today the Concierge validates its records with its own script and its own tests;
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
 | M6 | frodo-lib and frodo-cli adopt it | their validators and the weekly comparison deleted |
+| M7 | The compactor scan: signals, the `window:` key, the "Records to review" issue, `supersedes:` and `accept` | report mode |
+| M8 | The compactor agent: assessment and draft proposals | assist mode |
 
 The first release is M1 to M3: layers 1 to 4.
 
@@ -132,6 +180,7 @@ Taken by the maintainer on 2026-10-28:
 - The reaction to a violation is a **revert pull request that a person merges**, not a bypass bot. A direct revert can be reconsidered later.
 - The first release includes **the nightly audit and the log**, not only the check. The revert pull request follows.
 - **The Concierge adopts first**, the Frodo repositories after.
+- **The essence compactor** is part of the kit: it finds records whose subject has moved on and proposes a generalized record that supersedes them (the maintainer's idea, same day).
 
 Proposed here, to be confirmed or changed in review:
 
@@ -139,7 +188,10 @@ Proposed here, to be confirmed or changed in review:
 - Typos are corrected by an **erratum with a seal chain**, approved by an owner, with no size heuristic.
 - The incident log is a **file on a separate branch**, so that no bot writes to the default branch.
 - The updater is **duplicated** for the first release.
-- The kit is plain **Node.js with no dependencies**, like the Concierge's scripts.
+- The kit is plain **Node.js with no dependencies**, like the Concierge's scripts. The compactor's agent is the one exception, an optional gh-aw workflow like the Concierge's gates.
+- The compactor comes **after the first release**, **report mode first** (the scan and the issue, no model), then assist mode.
+- The compactor **never rewrites a record**: it supersedes, and plain code writes the status and the seal on a maintainer's command.
+- The **`window:` key** and the **`supersedes:` key** are part of the kit's record format.
 
 Open:
 
@@ -147,10 +199,13 @@ Open:
 - A **licence**: the other repositories of the organisation have none.
 - Who the **owners** are: the people whose review an erratum needs. The organisation has two owners.
 - Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
+- Where the compactor's agent runs and with which credentials: the Concierge's gates use a gh-aw engine and a secret; a repository that adopts the kit would need the same for assist mode.
+- How often the scan runs, and how strict the signals are. A first guess is monthly, with the thresholds in the settings.
+- Whether the compactor handles the shared records of frodo-cli and frodo-lib, which are the same files in both repositories, or leaves them until the kit carries shared records.
 
 ## Later
 
-- **Executable checks.** A record may list a command in a `checks:` key that tests whether the code follows it. The audit runs them and reports a failure as a deviation, which is not a tampering. Records without checks stay advisory, as today, where PR triage reads them.
+- **Executable checks.** A record may list a command in a `checks:` key that tests whether the code follows it. The audit runs them and reports a failure as a deviation, which is not a tampering. Records without checks stay advisory, as today, where PR triage reads them. A `window-check:` in the same style could say by exit code whether a record still applies.
 - **One updater for any kit**, extracted from the Concierge's and this one's.
 - **A generated index.** The index in each records README is hand-written and validated; it could be generated from the records.
 - **Shared records** across repositories as a feature of the kit, replacing the folder of core records that frodo-cli and frodo-lib keep in step by hand.
@@ -160,4 +215,5 @@ Open:
 - **A false sense of safety.** A sealed record is the one that was accepted, not a correct one. The records are still read by people.
 - **Cost of the erratum.** Fixing a typo needs a pull request and an owner. If that proves too heavy, the answer is a smaller protocol decided in a new record, not a quiet exception.
 - **The audit's own trust.** It depends on the last audited commit it stored; if that store is lost, the first run audits the whole history again.
+- **A lossy generalization.** A model can state the essence too broadly to be checkable, or too narrowly and miss why the record mattered. The proposal shows what it loses, a person accepts it, and the superseded record stays in the history.
 - **Adoption pain.** Sealing existing records is a one-time pull request per repository, and the records of the Frodo repositories are numerous.

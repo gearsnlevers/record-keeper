@@ -20,7 +20,7 @@ A decision record binds people and agents once it is accepted, and the rule that
 - A record is `proposed` while it is discussed. Accepting it is the maintainers' act, made in the pull request that sets the status and writes the seal. Only an accepted record binds.
 - The seal is a SHA-256 over the sealed region, written in the front matter as `seal:`. The sealed region is the record without the keys `status`, `date` and `seal`, and without the sections `Known deviations` and `Errata`.
 - After acceptance only these changes are allowed: the status becomes `superseded by NNNN` or `deprecated`; a `Known deviations` note is added, edited or removed; an erratum is added. Any other change to a record is a violation, however small.
-- A changed decision is a new record that names the one it replaces. Numbers are never reused, and a record is never deleted or renamed.
+- A changed decision is a new record that names the records it replaces, one or several, and each of them becomes `superseded by` it. Numbers are never reused, and a record is never deleted or renamed.
 - An erratum is the only way to correct sealed text, such as a typo or a broken link. It is a pull request that changes the text and the seal and adds an entry to `Errata` with the previous seal, the new seal and the reason. A person who owns the records approves it. The entries form a chain from the first seal to the current one, and a break in the chain is a violation.
 - The checks decide whether the sealed region changed and whether the change is allowed. They never judge what a record says.
 - A violation is reported and never repaired in place. The repair is a revert that a person merges, a `Known deviations` note that explains it, or an erratum.
