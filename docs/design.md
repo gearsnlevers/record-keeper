@@ -20,7 +20,8 @@ A separate, versioned repository, delivered to a repository the way Repo Concier
 | ---- | ---------- |
 | Templates | the records folder skeleton: the `README.md` with the rules, the record template, the index |
 | Validator | one script, `record-keeper.mjs`, with `validate`, `seal`, `check-pr` and `audit`; no dependencies |
-| Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater |
+| Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater, and `Records setup check` |
+| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the records folder, a ruleset that does not require `Records integrity`, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
 | Settings | one file, `.github/record-keeper.yml`: the pin, the folder, the owners, extra front matter keys |
 | Essence compactor | optional, a later release: finds records whose subject has moved on, or that say one thing in many places, and proposes a generalized or consolidated record to supersede them (see "The essence compactor") |
@@ -143,6 +144,23 @@ Common to all three: numbers are never reused, and a record is never deleted. Th
 
 Editing in place is not allowed. The one exception is already in the protocol, the erratum: a typo or a broken link is corrected with an approved entry that chains the seals.
 
+## Where the records live
+
+The folder is a setting (`folder:`), because repositories differ: a repository whose `docs/` is generated output cannot keep records there. The default is `docs/decisions`, the usual convention and the first place the Concierge's gates look; the gates fall back to `decisions/` at the root, and the first folder with a `README.md` wins, never both. Other deployments may choose differently.
+
+**For the maintainer's own repositories the location is one, `docs/decisions`** (the maintainer asked on 2026-10-28 for them all to be the same; the target is proposed here, see Decisions). Every repository already keeps its records there except frodo-lib, which keeps them in `decisions/` because its release step runs `npm run doc` and commits `docs`, and typedoc empties its output folder first. The fix is on lib's side and is small: generate the API documentation into a temporary folder and copy it into `docs/` with everything outside `docs/decisions` replaced. That is one repository to change, where the root `decisions/` would mean moving every other one and breaking the links to their records.
+
+## Records shared by several repositories
+
+Some records bind more than one repository. Frodo calls them *core* records and keeps the same file in a `core/` folder of each repository it binds, numbered apart from the local records and cited as "core NNNN" (core 0018 explains why: the gates read only the repository they run in, and one cross-repository decision cost three pull requests before). The kit keeps that design and makes it checkable. Its vocabulary is **shared**, not core: the folder is `shared/` inside the records folder, the citation is "shared NNNN", and the name is a setting. *Core* suggests importance, but the folder mixes contracts between repositories (the library is the brain, the public API is only the facade) with policies that merely apply in each repository (which packaging allowlist, which recording framework), while some local records are more fundamental than either. What sets a record apart is how many repositories it binds.
+
+- **Scope is the `repos:` key.** A record that binds one repository is a local record and never goes into `shared/`. A local record becomes shared by a new shared record that supersedes it; it does not move.
+- **`repos:` is authoritative.** A copy exists in exactly the repositories it lists. The check flags a missing copy and an unlisted copy, in every listed repository and not in a hard-coded pair. Today the Frodo records do not follow this: core 0008 binds frodo-cli and the tap but frodo-lib holds a copy, and core 0018 lists cli and lib but the tap holds a copy. Because `repos:` is part of the sealed text, correcting it is an erratum, or the copy is removed from the repository it does not bind.
+- **Copies are verified by seal and by status.** Identical copies have identical seals. A difference opens an incident issue in the repository that finds it, instead of a red run nobody reads, and a status that differs between copies is tolerated for a grace period (a replaced record is updated repository by repository) and then reported.
+- **Numbers are allocated across the listed repositories.** `record-keeper new --shared` takes the next number that is free in every repository it lists, including open pull requests, so that two pull requests cannot both claim the same one.
+- **Mirror pull requests come later.** A shared record is decided once, in the repository where it originates; the kit then opens a mirror pull request in each other repository that `repos:` lists, and a maintainer merges each. This is what core 0018 turned down as too costly to build (a sync workflow to write and keep); the kit writes it once for everyone. It needs a token that can open pull requests in the other repositories.
+- **Compaction of a shared record** is proposed once and carried to every copy by the same mirror pull requests.
+
 ## Configuration
 
 One file in the consuming repository, `.github/record-keeper.yml`:
@@ -151,7 +169,8 @@ One file in the consuming repository, `.github/record-keeper.yml`:
 source: gearsnlevers/record-keeper
 version: v1.0.0
 channel: stable
-folder: docs/decisions            # or decisions/ at the root when docs/ is generated
+folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
+shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
 owners: ['@org/records-owners']   # the people who approve an erratum; also written to CODEOWNERS
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
@@ -175,7 +194,7 @@ Today the Concierge validates its records with its own script and its own tests;
 
 1. **Repo Concierge first.** It seals its existing records in one pull request that adds only `seal:` keys, installs the kit, and deletes its own validator. It is the first consumer and the test of the migration.
 2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
-3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review.
+3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and in frodo-lib it also moves the records to `docs/decisions` together with the documentation-generation change above, so that the links to the old paths break once and not three times. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
 
 ## Prerequisites and what is not verified
 
@@ -191,12 +210,13 @@ Today the Concierge validates its records with its own script and its own tests;
 | M0 | This design, record 0001 and the repository | reviewed and accepted |
 | M1 | The library: parse, seal, compare, validate, with tests | `record-keeper.mjs` with `validate` and `seal` |
 | M2 | The pull request check and the audit with the log | the two workflows, the incident issue and the log branch |
-| M3 | Release and updater | a first release that a repository can install |
+| M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
-| M6 | frodo-lib and frodo-cli adopt it | their validators and the weekly comparison deleted |
+| M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed, lib's records moved |
 | M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `supersedes:`, `accept` and `resolve` | report mode |
 | M8 | The compactor agent: assessment and draft proposals | assist mode |
+| M9 | Shared records: number allocation across repositories and the mirror pull requests | one decision, mirrored |
 
 The first release is M1 to M3: layers 1 to 4.
 
@@ -207,6 +227,9 @@ Taken by the maintainer on 2026-10-28:
 - The reaction to a violation is a **revert pull request that a person merges**, not a bypass bot. A direct revert can be reconsidered later.
 - The first release includes **the nightly audit and the log**, not only the check. The revert pull request follows.
 - **The Concierge adopts first**, the Frodo repositories after.
+- **Records that bind several repositories are called *shared***, not core, with the folder name a setting. Frodo renames `core/` to `shared/` when it adopts the kit, in the same change that seals the records.
+- **The kit opens the mirror pull requests** for a shared record, as a later feature; merging stays with a person.
+- **The records of the maintainer's repositories all live in one location.** Others may configure theirs.
 - **The essence compactor** is part of the kit: it finds records whose subject has moved on and proposes a generalized record that supersedes them (the maintainer's idea, same day).
 
 Proposed here, to be confirmed or changed in review:
@@ -215,6 +238,8 @@ Proposed here, to be confirmed or changed in review:
 - Typos are corrected by an **erratum with a seal chain**, approved by an owner, with no size heuristic.
 - The incident log is a **file on a separate branch**, so that no bot writes to the default branch.
 - The updater is **duplicated** for the first release.
+- The unified location is **`docs/decisions`**, and frodo-lib changes how it generates its documentation so that typedoc leaves `docs/decisions` alone.
+- The first release includes a **setup check**, the kit's counterpart of the Concierge's deployment check; it was in the original idea and had been left out of this design.
 - The kit is plain **Node.js with no dependencies**, like the Concierge's scripts. The compactor's agent is the one exception, an optional gh-aw workflow like the Concierge's gates.
 - The compactor comes **after the first release**, **report mode first** (the scan and the issue, no model), then assist mode.
 - The compactor **never rewrites a record**: it supersedes, and plain code writes the status and the seal on a maintainer's command.
