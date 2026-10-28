@@ -148,7 +148,7 @@ Editing in place is not allowed. The one exception is already in the protocol, t
 
 The folder is a setting (`folder:`), because repositories differ: a repository whose `docs/` is generated output cannot keep records there. The default is `docs/decisions`, the usual convention and the first place the Concierge's gates look; the gates fall back to `decisions/` at the root, and the first folder with a `README.md` wins, never both. Other deployments may choose differently.
 
-**For the maintainer's own repositories the location is one, `docs/decisions`** (the maintainer asked on 2026-10-28 for them all to be the same; the target is proposed here, see Decisions). Every repository already keeps its records there except frodo-lib, which keeps them in `decisions/` because its release step runs `npm run doc` and commits `docs`, and typedoc empties its output folder first. The fix is on lib's side and is small: generate the API documentation into a temporary folder and copy it into `docs/` with everything outside `docs/decisions` replaced. That is one repository to change, where the root `decisions/` would mean moving every other one and breaking the links to their records.
+**For the maintainer's own repositories the location is one, `docs/decisions`** (the maintainer asked on 2026-10-28 for them all to be the same), with **one exception for now: frodo-lib**. Every repository already keeps its records in `docs/decisions` except frodo-lib, which keeps them in `decisions/` because its release step runs `npm run doc` and commits `docs`, and typedoc empties its output folder first. Frodo-lib therefore sets `folder: decisions`, and the kit works there unchanged. Ending the exception needs a small change on lib's side, which is not part of adopting the kit: generate the API documentation into a temporary folder and copy it into `docs/` with everything outside `docs/decisions` replaced. When that is done, lib moves its records and the exception goes. The alternative, the root `decisions/` for everyone, would have moved every other repository and broken the links to their records.
 
 ## Records shared by several repositories
 
@@ -194,7 +194,7 @@ Today the Concierge validates its records with its own script and its own tests;
 
 1. **Repo Concierge first.** It seals its existing records in one pull request that adds only `seal:` keys, installs the kit, and deletes its own validator. It is the first consumer and the test of the migration.
 2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
-3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and in frodo-lib it also moves the records to `docs/decisions` together with the documentation-generation change above, so that the links to the old paths break once and not three times. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
+3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and frodo-lib, which stays on `decisions/` for now, only gets the rename. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
 
 ## Prerequisites and what is not verified
 
@@ -213,7 +213,7 @@ Today the Concierge validates its records with its own script and its own tests;
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
-| M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed, lib's records moved |
+| M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed to `shared/` |
 | M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `supersedes:`, `accept` and `resolve` | report mode |
 | M8 | The compactor agent: assessment and draft proposals | assist mode |
 | M9 | Shared records: number allocation across repositories and the mirror pull requests | one decision, mirrored |
@@ -229,7 +229,7 @@ Taken by the maintainer on 2026-10-28:
 - **The Concierge adopts first**, the Frodo repositories after.
 - **Records that bind several repositories are called *shared***, not core, with the folder name a setting. Frodo renames `core/` to `shared/` when it adopts the kit, in the same change that seals the records.
 - **The kit opens the mirror pull requests** for a shared record, as a later feature; merging stays with a person.
-- **The records of the maintainer's repositories all live in one location.** Others may configure theirs.
+- **The records of the maintainer's repositories all live in one location**, `docs/decisions`, **except frodo-lib for now**, which keeps `decisions/` until its documentation generation stops emptying `docs/`. Others may configure theirs.
 - **The essence compactor** is part of the kit: it finds records whose subject has moved on and proposes a generalized record that supersedes them (the maintainer's idea, same day).
 
 Proposed here, to be confirmed or changed in review:
@@ -238,7 +238,7 @@ Proposed here, to be confirmed or changed in review:
 - Typos are corrected by an **erratum with a seal chain**, approved by an owner, with no size heuristic.
 - The incident log is a **file on a separate branch**, so that no bot writes to the default branch.
 - The updater is **duplicated** for the first release.
-- The unified location is **`docs/decisions`**, and frodo-lib changes how it generates its documentation so that typedoc leaves `docs/decisions` alone.
+- The unified location is **`docs/decisions`**. Frodo-lib is an exception for now (decided by the maintainer), and ending the exception is a change to lib's documentation generation that the kit does not depend on.
 - The first release includes a **setup check**, the kit's counterpart of the Concierge's deployment check; it was in the original idea and had been left out of this design.
 - The kit is plain **Node.js with no dependencies**, like the Concierge's scripts. The compactor's agent is the one exception, an optional gh-aw workflow like the Concierge's gates.
 - The compactor comes **after the first release**, **report mode first** (the scan and the issue, no model), then assist mode.
