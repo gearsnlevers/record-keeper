@@ -23,7 +23,7 @@ A separate, versioned repository, delivered to a repository the way Repo Concier
 | Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater, and `Records setup check` |
 | Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the records folder, a ruleset that does not require `Records integrity`, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
-| Settings | one file, `.github/record-keeper.yml`: the pin, the folder, the owners, extra front matter keys |
+| Pin and settings | two files, as the Concierge has: `.github/record-keeper.yml` is the pin and belongs to the updater; `.github/record-keeper/settings.yml` holds the folder, the owners and the other settings and belongs to the maintainers |
 | Essence compactor | optional, a later release: finds records whose subject has moved on, or that say one thing in many places, and proposes a generalized or consolidated record to supersede them (see "The essence compactor") |
 
 It is not a replacement for review. It checks whether a record is what was accepted, never whether it is right, and it does not check whether the code follows the record (see "Later").
@@ -163,12 +163,19 @@ Some records bind more than one repository. Frodo calls them *core* records and 
 
 ## Configuration
 
-One file in the consuming repository, `.github/record-keeper.yml`:
+Two files in the consuming repository, because they have different owners. The pin is written by the updater on its own branch; the settings are edited by hand. The Concierge keeps them apart for the same reason (`.github/concierge.yml` and `.github/agentic-workflows/settings.yml`, its record 0023: a repository tunes the gates with optional files and never by editing managed ones).
+
+`.github/record-keeper.yml`, the pin, written by the updater and never edited by hand:
 
 ```yaml
 source: gearsnlevers/record-keeper
 version: v1.0.0
 channel: stable
+```
+
+`.github/record-keeper/settings.yml`, the settings, edited by the maintainers; the kit ships a template with every key commented out at its default, so a repository that keeps `docs/decisions` needs no settings file:
+
+```yaml
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
 owners: ['@org/records-owners']   # the people who approve an erratum; also written to CODEOWNERS
@@ -176,6 +183,13 @@ extra-keys: []                    # front matter keys beyond the standard ones, 
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
 compactor: off                    # off, report (the scan only), or assist (the agent drafts proposals)
 ```
+
+**The settings are protected like the records.** They decide what the check looks at, so a pull request that edited them could loosen the check that judges it (point `folder:` somewhere else, empty `owners:`). Therefore:
+
+- the check and the audit read the settings and the pin **from the base branch**, never from the pull request;
+- a pull request that changes either file fails `Records integrity` unless an owner of the records has approved it, and `CODEOWNERS` lists both files next to the records folder;
+- an unreadable or unknown setting is reported and the default stays, as in the Concierge, except that a setting that would switch a layer off (an empty `owners:`, a `folder:` that does not exist) is an error and not a default;
+- the setup check warns when `CODEOWNERS` does not cover the two files.
 
 The three existing validators differ only in such extras (frodo-lib has a `repos` key and handling for shared records; the Concierge has an e-mail check). The kit keeps the shared core and makes the extras settings, so a repository that needs one asks for it and does not fork the script.
 
