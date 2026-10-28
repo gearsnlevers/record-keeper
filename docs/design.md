@@ -212,7 +212,7 @@ Today the Concierge validates its records with its own script and its own tests;
 
 ## Prerequisites and what is not verified
 
-- The repository must be **public** for the rulesets, required checks and `CODEOWNERS` enforcement that layer 1 needs on the Free plan, and for public repositories to consume it without extra tokens. It is private while this draft is reviewed.
+- The repository must be **public** for the rulesets, required checks and `CODEOWNERS` enforcement that layer 1 needs on the Free plan, and for public repositories to consume it without extra tokens. The repository was made public on 2026-10-28.
 - **Not verified:** whether the Free plan allows everything layer 1 and the log branch need. GitHub's documentation is not clear on which rules need a paid plan (the file path restriction is a push rule, and push rules are documented for private and internal repositories on Team and Enterprise). The design does not depend on that rule: the check and the audit replace it. The plan: when the repository is public, create the ruleset through the API with each rule, and record which are accepted.
 - A person with bypass rights can still push a change past the check. That is accepted: the audit finds it and the reaction proposes the revert.
 - **Guard the guard.** The check lives in the consuming repository and could be edited there. The ruleset requires it, the check runs from the base branch, and the audit verifies that the workflow files themselves match the installed release by their hashes, as the updater already does for the Concierge.
@@ -261,11 +261,10 @@ Proposed here, to be confirmed or changed in review:
 - A replaced record **stays in place** with the status `superseded by NNNN`: it is never moved, deleted or edited, and its number is never reused. The index and the tools show what binds first and the replaced records as history. Editing a record in place is not allowed, and archiving is not done.
 - A consolidated record keeps to the **same 60-line limit**. A group that does not fit becomes several records by sub-subject, or stays as it is.
 - The **`window:` key** and the **`supersedes:` key** are part of the kit's record format.
+- The repository is **public** and licensed **MIT** (the maintainer, 2026-10-28), with secret scanning, push protection, Dependabot security updates and private vulnerability reporting on.
 
 Open:
 
-- Making the repository **public**, which is needed for the first release and for testing the plan limits.
-- A **licence**: the other repositories of the organisation have none.
 - Who the **owners** are: the people whose review an erratum needs. The organisation has two owners.
 - Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
 - Where the compactor's agent runs and with which credentials: the Concierge's gates use a gh-aw engine and a secret; a repository that adopts the kit would need the same for assist mode.

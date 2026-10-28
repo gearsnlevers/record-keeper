@@ -8,3 +8,7 @@ Status: design in review, nothing is built yet.
 
 - [docs/design.md](docs/design.md): what it is, the layers, how a pull request is checked, the audit, delivery, adoption, and what is decided and what is open.
 - [docs/decisions/](docs/decisions/README.md): the decisions of the kit itself. Record 0001 is the protocol.
+
+## License
+
+[MIT](LICENSE).
