@@ -131,17 +131,17 @@ A record that is time-bound from the start can say so. An optional `window:` key
 
 ## After a supersession: edit, archive or keep
 
-Cleaning up raises a question that is open: what happens to the records that were replaced, and may a record ever be edited in place instead? The three ways, and what each costs:
+Cleaning up raises a question: what happens to the records that were replaced, and may a record ever be edited in place instead? The maintainer decided on 2026-10-28 to **keep them in place**. The three ways, and what each costs:
 
 | Way | What it means | For | Against |
 | --- | ------------- | --- | ------- |
-| **Keep in place** (proposed) | A replaced record stays where it is with the status `superseded by NNNN`. Its number is never reused. The index and the tools show the binding records first and the replaced ones as history. | URLs and citations stay valid; nothing is lost or moved; the seal and the history stay trivially verifiable. | The folder and the index grow. |
+| **Keep in place** (decided) | A replaced record stays where it is with the status `superseded by NNNN`. Its number is never reused. The index and the tools show the binding records first and the replaced ones as history. | URLs and citations stay valid; nothing is lost or moved; the seal and the history stay trivially verifiable. | The folder and the index grow. |
 | **Archive** | A replaced record moves to an `archive/` folder after a period. Its number is never reused. | A short folder and index. | A move changes the path, and a link to the old path stops working. The Concierge's own rules have records cited as full GitHub URLs in public text and in triage comments. A stub left at the old path is a second file to maintain. |
 | **Edit in place** | A record absorbs others and the others are deleted, or a record is reworded as the project changes. | A living document; the smallest folder. | It is what the protocol exists to prevent: what binds can change without a new decision, a citation of a number may mean something else next year, and a deleted number invites reuse. |
 
 Common to all three: numbers are never reused, and a record is never deleted. The case for keeping in place is that the gates already ignore everything that is not `accepted` (the plan gate lists only records that bind, and PR triage judges against those), so a replaced record costs the gates nothing; the cost is to people reading the folder, and that is a matter of presentation. The kit handles it there: the index lists the binding records and the replaced ones in separate sections, and `record-keeper resolve` follows a number to what binds now. If the folder still grows too large, archiving can be added later, and then needs a rule for the links.
 
-Editing in place is not proposed. The one exception is already in the protocol, the erratum: a typo or a broken link is corrected with an approved entry that chains the seals.
+Editing in place is not allowed. The one exception is already in the protocol, the erratum: a typo or a broken link is corrected with an approved entry that chains the seals.
 
 ## Configuration
 
@@ -219,6 +219,8 @@ Proposed here, to be confirmed or changed in review:
 - The compactor comes **after the first release**, **report mode first** (the scan and the issue, no model), then assist mode.
 - The compactor **never rewrites a record**: it supersedes, and plain code writes the status and the seal on a maintainer's command.
 - The compactor **consolidates** several records into one (the maintainer, same day), not only generalizes a single one.
+- A replaced record **stays in place** with the status `superseded by NNNN`: it is never moved, deleted or edited, and its number is never reused. The index and the tools show what binds first and the replaced records as history. Editing a record in place is not allowed, and archiving is not done.
+- A consolidated record keeps to the **same 60-line limit**. A group that does not fit becomes several records by sub-subject, or stays as it is.
 - The **`window:` key** and the **`supersedes:` key** are part of the kit's record format.
 
 Open:
@@ -227,7 +229,6 @@ Open:
 - A **licence**: the other repositories of the organisation have none.
 - Who the **owners** are: the people whose review an erratum needs. The organisation has two owners.
 - Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
-- What becomes of a replaced record: keep it in place (proposed), archive it, or allow editing in place. See "After a supersession".
 - Where the compactor's agent runs and with which credentials: the Concierge's gates use a gh-aw engine and a secret; a repository that adopts the kit would need the same for assist mode.
 - How often the scan runs, and how strict the signals are. A first guess is monthly, with the thresholds in the settings.
 - Whether the compactor handles the shared records of frodo-cli and frodo-lib, which are the same files in both repositories, or leaves them until the kit carries shared records.
