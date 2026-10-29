@@ -3,17 +3,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  poster:
-    name: poster
+  guard:
+    name: Records integrity
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
     steps:
-      - env:
-          GH_TOKEN: ${{ github.token }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-          CONCLUSION: ${{ contains(github.event.pull_request.title, 'NEUTRAL') && 'neutral' || 'success' }}
-        run: |
-          gh api repos/${{ github.repository }}/check-runs -X POST \
-            -f name='Records integrity' -f head_sha="$SHA" -f status=completed \
-            -f conclusion="$CONCLUSION" -f 'output[title]=posted by the poster job' -f 'output[summary]=posted by API'
+      - run: |
+          echo "exp-A guard fails"
+          exit 1
