@@ -1,0 +1,10 @@
+name: exp-IC
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  c:
+    name: c
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "issue_comment fired"
