@@ -33,10 +33,32 @@ It is not a replacement for review. It checks whether a record is what was accep
 Decided in record 0001; in short:
 
 - A record is `proposed`, then `accepted` by the maintainers. Only an accepted record binds.
-- Accepting writes a seal: a SHA-256 over the **sealed region**, the whole record except the keys `status`, `date` and `seal` and the sections `Known deviations` and `Errata`. The seal is a front matter key, so it travels with a record that is copied to another repository.
+- Accepting writes a seal, with the generation of the protocol it was made under (`seal: sha256-g1:…`): a SHA-256 over the **sealed region**, the whole record except the keys `status`, `date` and `seal` and the sections `Known deviations` and `Errata`. The seal is a front matter key, so it travels with a record that is copied to another repository.
 - After that a record may only change its status to `superseded by NNNN` or `deprecated`, gain or lose a `Known deviations` note, or gain an erratum.
 - An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal and adds an `Errata` entry with the previous seal, the new seal and the reason, approved by an owner of the records. The entries form a chain from the first seal to the current one.
 - A changed decision is a new record, which may replace several. Numbers are never reused, and a record is never deleted or renamed.
+
+## Amending the protocol
+
+The protocol cannot be designed once and for all, so it carries its own way to change. The protocol is a record, so the base is there: a new record supersedes it. What is added is what must hold so that an amendment breaks nothing that exists, and a bar higher than for any other record.
+
+**Generations.** The protocol has a generation number, `g1` for the first. A generation fixes the **canonical form** of a record before it is hashed (line endings, trailing whitespace, how the excluded keys and sections are cut out, with fixed test vectors) and the rules a record must meet to be accepted. Every seal names its generation, such as `sha256-g1:…`, and a record is verified by the rules of that generation, forever. Two consequences keep an amendment from being a flag day:
+
+- a new generation, for example another hash or another sealed region, changes how records are accepted **from then on** and never invalidates an earlier seal, so nothing has to be re-sealed;
+- **format rules bind a record when it is accepted**, and afterwards only its seal matters, so a stricter rule later does not turn the old records red.
+
+**The amendment.** An amendment is a new record in this repository that **supersedes the current protocol record in full**, so one complete text is always in force (the alternative, numbered additions that must be read in order, is harder to read and to check). It ships with the code that implements it, in a release of the kit. The records README keeps a table of the generations: the generation, the record, and its status. The earlier protocol stays in the history as superseded.
+
+**The bar.** Higher than for an ordinary record, because every other record is protected by these rules:
+
+- the approval of **all owners** of the kit, each of the current head commit;
+- the pull request has been **open at least seven days** before the last approval, so nobody is rushed. The check verifies both from the reviews and their timestamps;
+- the waiting period can be **waived only when every owner approves and the record says why** (a front matter key `emergency:` with the reason, for a broken hash function, say), so the exception is visible in the record for good;
+- **changing the amendment rule itself must meet the rule it replaces**, so the bar cannot be lowered by the lower bar.
+
+**What cannot change quietly.** An amendment is a numbered, sealed, visible record. The protocols before it stay in the history. The incident log stays append-only. Every seal keeps verifying under the rules it was made under. An amendment is never retroactive.
+
+**Ratification by each deployment** comes from the design as it is. A deployment never amends the protocol: it is the kit's. A new generation reaches a deployment as a kit release in an update pull request, and a change to the pin needs an owner's approval, so the deployment's owners ratify by approving it. The deployment stays on its generation until then, and the kit continues to accept records under the previous generation until its next major release, and to verify its seals for good.
 
 ## The layers
 
@@ -231,8 +253,8 @@ Today the Concierge validates its records with its own script and its own tests;
 | # | What | Outcome |
 | - | ---- | ------- |
 | M0 | This design, record 0001 and the repository | reviewed and accepted |
-| M1 | The library: parse, seal, compare, validate, with tests | `record-keeper.mjs` with `validate` and `seal` |
-| M2 | The pull request check and the audit with the log | the two workflows, the incident issue and the log branch |
+| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors | `record-keeper.mjs` with `validate` and `seal` |
+| M2 | The pull request check (including the bar for amending the protocol) and the audit with the log | the two workflows, the incident issue and the log branch |
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
@@ -270,6 +292,8 @@ Proposed here, to be confirmed or changed in review:
 - A replaced record **stays in place** with the status `superseded by NNNN`: it is never moved, deleted or edited, and its number is never reused. The index and the tools show what binds first and the replaced records as history. Editing a record in place is not allowed, and archiving is not done.
 - A consolidated record keeps to the **same 60-line limit**. A group that does not fit becomes several records by sub-subject, or stays as it is.
 - The **`window:` key** and the **`supersedes:` key** are part of the kit's record format.
+- **The protocol can be amended** (the maintainer, 2026-10-28), by a new record that supersedes it in full, with the approval of **all owners** after the pull request has been **open seven days**; the waiting period can be waived only with every owner's approval and a stated reason; changing that rule meets the old rule.
+- **Old records are grandfathered by generation**: each is verified, and its format was checked, by the rules of the generation it was accepted under, forever, and nothing is re-sealed when a generation changes.
 - The repository is **public** and licensed **MIT** (the maintainer, 2026-10-28), with secret scanning, push protection, Dependabot security updates and private vulnerability reporting on.
 - **Owners are named accounts, at least two, with a narrow scope**: they approve an erratum, an acceptance and a change to the settings, pin or workflow files; `CODEOWNERS` covers only the kit's settings, pin and workflow files; ordinary record pull requests keep the repository's normal review. Teams may follow later and work only through `CODEOWNERS`. For this repository the owners are the two organisation owners.
 - **Where the compactor's agent runs, and with which credentials, is decided when M8 is built.** The first release and the compactor's report mode need no model and no secret.
@@ -289,6 +313,7 @@ Open:
 
 ## Risks
 
+- **A protocol that is too hard to change gets worked around.** The bar is high but finite, and it has an emergency path that leaves a visible trace.
 - **A false sense of safety.** A sealed record is the one that was accepted, not a correct one. The records are still read by people.
 - **Cost of the erratum.** Fixing a typo needs a pull request and an owner. If that proves too heavy, the answer is a smaller protocol decided in a new record, not a quiet exception.
 - **The audit's own trust.** It depends on the last audited commit it stored; if that store is lost, the first run audits the whole history again.
