@@ -21,7 +21,7 @@ A separate, versioned repository, delivered to a repository the way Issue Concie
 | Templates | the records folder skeleton: the `README.md` with the rules, the record template, the index |
 | Validator | one script, `record-keeper.mjs`, with `validate`, `seal`, `check-pr` and `audit`; no dependencies |
 | Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater, and `Records setup check` |
-| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the kit's settings, pin and workflow files, fewer owners listed than `approvals` needs (and a notice on every run while the single-owner mode is on), a ruleset that does not require `Records integrity`, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
+| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the kit's settings, pin and workflow files, fewer owners listed than `approvals` needs (and a notice on every run while the single-owner mode is on), a ruleset that does not require `Records integrity`, a bypass role in the mode `always` (it allows direct pushes), an audit whose last run is older than two days, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
 | Pin and settings | two files, as the Concierge has: `.github/record-keeper.yml` is the pin and belongs to the updater; `.github/record-keeper/settings.yml` holds the folder, the owners and the other settings and belongs to the maintainers |
 | Essence compactor | optional, a later release: finds records whose subject has moved on, or that say one thing in many places, and proposes a generalized or consolidated record to supersede them (see "The essence compactor") |
@@ -100,6 +100,8 @@ Layers 1 and 2 are the ones that cost a contributor something. Layers 3 and 4 ex
 
 The check verifies these itself. With its read-only token it reads the reviews of the pull request and requires **`approvals` distinct owners** (two by default, one in the single-owner mode): the owners who authored the pull request, or whose latest review is an approval of the **current head commit**, each counted once and matched by ID. An approval of an earlier commit does not count, and a later "changes requested" from the same owner cancels the approval. "Not the author" alone would not be a two-person rule: one owner could have another account or the coding agent open the pull request and then approve it, which is one owner and not two (the single-owner mode accepts exactly that, knowingly). It can do that for named accounts. As far as is known the workflow token cannot read the membership of a team (untested), so a team could be enforced only through GitHub's own `CODEOWNERS` rule; that is why teams are optional later and not the default.
 
+**Announcements.** An act of the owners must not go unseen by an owner. For an erratum, a deviation entry, a protocol amendment, and a change to the owners, `approvals`, the pin or the workflow files, the audit (which runs on every push to the default branch) opens an issue that **a bot authors**, with the diff and the pull request, and mentions the owners and the accounts in `witnesses:`. Because the author is `github-actions[bot]`, GitHub notifies an owner even when the act was made with that owner's own token, which is the main protection against a stolen token. Announcements are on in every mode and cannot be switched off. In the single-owner mode they are the only second pair of eyes there is, so a `witnesses:` entry (a person who cannot approve but is told) is worth having. Deleting an announcement does not recall the notification.
+
 `CODEOWNERS` is the second line. It covers the kit's settings, pin and workflow files, and a ruleset requires the review of code owners for them. It does **not** cover the records folder: an ordinary record, including a new proposed one, is reviewed the way the repository reviews any change today (in Frodo, by a maintainer), so the kit adds no new gate to the everyday work of writing records. By default there are at least two owners (the setting `approvals: 2`): nobody can approve their own pull request, and the author counts once. A deployment with one maintainer chooses the single-owner mode below.
 
 **How the check learns about an approval.** Tested on 2026-10-29 (experiments E4 and E5 in "Prerequisites and what was verified"). `pull_request_target` has no review event, so it does not run again when a review arrives, and a `pull_request_review` workflow runs the pull request's own copy of the file, so it must never decide anything. What works is a **re-run** of `Records integrity` after the approvals: it reads the live reviews of the current head commit with a `pull-requests: read` token, replaces its earlier result, and is code of the default branch. Whoever can write may press Re-run, and nobody can forge an approval by doing so. That keeps a human lever and needs no extra token. Whether a `workflow_run` or `issue_comment` workflow of the default branch could do it by itself is untested.
@@ -125,6 +127,8 @@ Automation is the subtle part. The Concierge's updater opens its pull requests w
 
 The audit is the same code run on the whole tree. It runs every night and on every push to the default branch. It reads the records, recomputes each seal, walks the erratum chain, and checks the commits since the last audited commit against the rules. It remembers the last commit it audited; if that commit is no longer an ancestor of the default branch, history was rewritten, which is a violation of its own. The remembered commit is only a speed-up, because anyone with write access can rewrite a file on the log branch: every night the audit also re-verifies each record against the whole history of its file, so moving the pointer past a bad commit hides nothing. It keeps a register of every record number that ever existed, so a number cannot come back. It trusts an incident issue only if its own bot authored it, because anyone can open an issue that carries the hidden marker and so make the audit update theirs. And it hashes the installed text that agents read (the rules in the records `README.md`, the `AGENTS.md` block) the way it hashes the workflow files.
 
+**The audit must be seen to run.** The audit writes the time of its last run to the log branch and to its status. GitHub disables scheduled workflows in a public repository after 60 days without repository activity (documented by GitHub, not tested here), and an administrator can disable a workflow in a click, so a silent stop is the most ordinary way for a layer to fail. The setup check fails when the last run is older than two days, and the Concierge's pinned status page can show the age of the last audit next to its own health lines. A heartbeat to a monitor outside the repository (a dead-man's switch) is a later option, and is what would cover an administrator.
+
 When it finds a violation:
 
 - one issue per record and kind of violation, titled `Records: 0012 changed after acceptance`, carrying a hidden marker so that the next run updates the same issue and closes it when the record is clean again;
@@ -137,10 +141,11 @@ The ways to resolve one are the ones the protocol names: a revert, an erratum, o
 
 The Concierge's gates and the coding agents read records, so the readers are part of what an adversary attacks: the cheapest way round a binding record is to make the reader not see it, or to feed it text it will obey. The rules for a reader:
 
-- It reads a record through `record-keeper resolve`, plain code that verifies the seal and the status vouching and hands over the sealed region and the verified status. A model is not handed the raw file: `Known deviations` and `Errata` are unsealed text, so they are data and never instruction.
+- It reads a record through `record-keeper resolve`, plain code that verifies the seal and the status vouching and hands over structured fields (number, title, the decision, `applies-to`, `window`, `supersedes`) and the verified status. A model is not handed the raw file: `Known deviations` and `Errata` are unsealed text, so they are data and never instruction.
 - A record that fails verification is not used and is reported, and a gate that would have used it holds the request (`plan-approval-required`) and says why. It does not go on as if no rule applied.
 - The folder comes from the kit's settings on the base branch. The Concierge's rule today, the first of `docs/decisions/` and `decisions/` that has a `README.md`, lets a pull request that adds the other `README.md` make every record of a repository disappear for the gates; the check refuses such a file, and the gates read `folder:` instead.
 - `applies-to` is matched by code, not by a model.
+- A reader treats the text of a record as a rule to apply and as data, never as an instruction about its own behavior. The gates can only label and comment and a person merges, so the worst a bad sealed record can do is mislead a review, and accepting it was the owners' act.
 
 ## Threat review
 
@@ -167,9 +172,14 @@ The design was attacked on 2026-10-29 by the person who wrote it, against four k
 | 17 | Edit the rules agents read (the records `README.md`, the `AGENTS.md` block) | hashed by the audit like the workflow files | in the text |
 | 18 | Manufacture the compactor's signals (delete files, bump versions) to get a rule generalized away | the compactor only drafts; acceptance is the owners' | unchanged |
 | 19 | An administrator bypasses the check and disables the audit in the same change | none inside the repository; `pull_request` bypass mode closes direct pushes | residual risk, accepted |
-| 20 | In the single-owner mode: the owner alone, a stolen owner token, or automation that holds it | the delays (seven days, 48 hours), the audit and its log, and automation under an identity of its own | accepted by the deployment that chooses the mode ("Single-owner mode") |
+| 20 | In the single-owner mode: the owner alone, a stolen owner token, or automation that holds it | the delays (seven days, 48 hours), the audit and its log, announcements by a bot that notify the owner and the witnesses, and automation under an identity of its own | accepted by the deployment that chooses the mode ("Single-owner mode") |
+| 21 | The audit stops silently (scheduled workflows are disabled after 60 days without activity, or an administrator disables them) | the audit records its last run; the setup check fails when it is older than two days; the Concierge's status page shows its age | in the text; the 60-day rule is documented by GitHub, not tested; an external heartbeat is deferred |
 
 What held without change: an edit of sealed text, deleting or renaming a record, weakening the check inside the pull request it judges, a force-push to the default branch, a stale approval, and a quiet amendment of the protocol.
+
+### Accepted, deferred, rejected
+
+A second review of the design, an analysis from outside, was triaged on 2026-10-29. **Accepted as residual risk:** owners who collude, a single owner, an administrator, a compromised kit repository, and sealed text that addresses an agent (accepting it is the owners' act, and the gates can only label and comment). **Deferred:** a second seal or a signature by an external key (a later generation), a heartbeat to an external monitor, and blocking merges while a violation is open (an opt-in, with the reaction layer). **Rejected:** a size or structure limit on an erratum (decided on 2026-10-28; the real control is the owners reading the diff), refusing imperative language at acceptance (it cannot be done reliably), and an external store for the audit cursor (the audit verifies the whole history anyway). **Adopted:** the announcements, the audit's visible last run, the published canonical form with `seal --verify`, the stricter setup check, two named tests, and the reader contract.
 
 ## The essence compactor
 
@@ -277,6 +287,7 @@ folder: docs/decisions            # where the records live; any folder works, bu
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
 owners: [{login: alice, id: 1001}, {login: bob, id: 1002}]   # accounts matched by numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings
 approvals: 2                      # how many owners must approve: 2 by default; 1 is the single-owner mode ("Single-owner mode"), which the setup check reports on every run
+witnesses: []                     # accounts that are told, by mention, of every announced act but cannot approve; worth having in the single-owner mode
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
 compactor: off                    # off, report (the scan only), or assist (the agent drafts proposals)
@@ -322,8 +333,8 @@ Today the Concierge validates its records with its own script and its own tests;
 | # | What | Outcome |
 | - | ---- | ------- |
 | M0 | This design, record 0001 and the repository | reviewed and accepted |
-| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors, among them adversarial ones (duplicate keys, fake headings, byte-order marks, symlinks, odd modes, `.gitattributes`) | `record-keeper.mjs` with `validate` and `seal` |
-| M2 | The pull request check (the two-owner rule, the status vouching, the hardening of the check itself, the bar for amending the protocol) and the audit with the log | the two workflows, the incident issue and the log branch |
+| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors, among them adversarial ones (duplicate keys, fake headings, byte-order marks, symlinks, odd modes, `.gitattributes`), published as a spec of the canonical form in `docs/generation-g1.md` so that anyone can recompute a seal | `record-keeper.mjs` with `validate`, `seal` and `seal --verify <file>` |
+| M2 | The pull request check (the owners' approval rule, the status vouching, the hardening of the check itself, the bar for amending the protocol, with named tests for concurrent supersession pull requests and for an update that weakens the check while the old check still enforces the bar) and the audit with the log, the announcements and the last-run signal | the two workflows, the incident issue and the log branch |
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
@@ -380,6 +391,10 @@ Proposed after the threat review (2026-10-29), to be confirmed or changed in rev
 - **Seals are created only under the generation of the base-branch pin**; older generations only verify; an unknown one fails closed.
 - **Readers go through the resolver**, and a gate holds a request instead of proceeding when a record fails verification.
 - **The bypass role uses the mode `pull_request`**, and the administrator remains the residual risk.
+- **Announcements**: a bot-authored issue for each erratum, deviation entry, amendment, and change to the owners, `approvals`, pin or workflow files, mentioning the owners and the optional `witnesses:`.
+- **The audit's last run is visible**, and the setup check fails when it is older than two days or when a bypass role allows direct pushes.
+- **The canonical form of g1 is published** with fixed test vectors, and `record-keeper seal --verify <file>` lets anyone recompute a seal.
+- **The resolver hands over structured fields**, and a reader treats record text as a rule to apply and as data, never as an instruction about its own behavior.
 
 Open:
 
@@ -400,6 +415,7 @@ Open:
 - **A protocol that is too hard to change gets worked around.** The bar is high but finite, and it has an emergency path that leaves a visible trace.
 - **A false sense of safety.** A sealed record is the one that was accepted, not a correct one. The records are still read by people.
 - **Cost of the erratum.** Fixing a typo needs a pull request and an owner. If that proves too heavy, the answer is a smaller protocol decided in a new record, not a quiet exception.
+- **A green that outlives an approval.** The check is re-run by hand after the approvals, so an owner who withdraws an approval after a green re-run leaves the green in place until the next re-run. Low impact, since that owner can say so in the pull request; a re-run at merge time (a merge queue) is a later option.
 - **Owners who agree on a bad erratum or a bad deviation** (in the single-owner mode, one owner). The checks decide whether a change is allowed, not whether it is right. What stands against it is the visibility (the diff comment, the audit's list of errata, the deviations in the record) and the waiting time, not prevention. This is the same trust in the owners that the amendment bar rests on.
 - **The audit's own trust.** It depends on the last audited commit it stored; if that store is lost, the first run audits the whole history again.
 - **A lossy generalization.** A model can state the essence too broadly to be checkable, or too narrowly and miss why the record mattered. The proposal shows what it loses, a person accepts it, and the superseded record stays in the history.

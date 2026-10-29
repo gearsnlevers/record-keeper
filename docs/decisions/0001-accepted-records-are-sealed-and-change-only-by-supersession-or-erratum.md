@@ -30,12 +30,13 @@ A decision record binds people and agents once it is accepted, and the rule that
 - The checks decide whether the sealed region changed and whether the change is allowed. They never judge what a record says.
 - A violation is reported and never repaired in place. The repair is a revert that a person merges, a deviation entry that explains it, or an erratum.
 - The checks run from the base branch, so a pull request cannot weaken the rules it is judged by, and they run again on the default branch on a schedule, so that a bypass is found.
-- Records are read through the kit's resolver, which verifies seal and status. A record that fails verification is not used and is reported.
+- Records are read through the kit's resolver, which verifies seal and status and hands over structured fields. A record that fails verification is not used and is reported. Its text is a rule to apply, never an instruction about the reader's own behavior.
 
 ## Consequences
 
 - Every accepted record carries a seal. A record accepted before the kit is sealed once, in a pull request that changes nothing else, and the sealing is the one allowed addition of a `seal:`.
 - A seal travels with its record, so a record that is copied to another repository can be verified there without its history. A valid seal proves that a record is intact, not that it was accepted: acceptance is the owners' approval in the repository that holds it.
+- Each erratum, deviation entry, amendment and change to the owners, `approvals`, pin or workflow files is announced by an issue that a bot authors, so that an owner is told of an act made with their own token.
 - An amendment is never retroactive and never quiet: it is a numbered, sealed record, the earlier protocol stays in the history as superseded, and every seal keeps verifying under the rules it was made under.
 - Correcting a typo costs a pull request with an erratum entry and the owners' approval. That cost is the protection.
 - In the single-owner mode the owner is the whole authority: the checks keep the records in order and stop contributors, agents and forgetfulness, but not the owner, nor whoever holds the owner's token. The delays and the audit still apply.
