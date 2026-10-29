@@ -21,7 +21,7 @@ A separate, versioned repository, delivered to a repository the way Repo Concier
 | Templates | the records folder skeleton: the `README.md` with the rules, the record template, the index |
 | Validator | one script, `record-keeper.mjs`, with `validate`, `seal`, `check-pr` and `audit`; no dependencies |
 | Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater, and `Records setup check` |
-| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the records folder, a ruleset that does not require `Records integrity`, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
+| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the kit's settings, pin and workflow files, fewer than two owners listed, a ruleset that does not require `Records integrity`, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
 | Pin and settings | two files, as the Concierge has: `.github/record-keeper.yml` is the pin and belongs to the updater; `.github/record-keeper/settings.yml` holds the folder, the owners and the other settings and belongs to the maintainers |
 | Essence compactor | optional, a later release: finds records whose subject has moved on, or that say one thing in many places, and proposes a generalized or consolidated record to supersede them (see "The essence compactor") |
@@ -42,7 +42,7 @@ Decided in record 0001; in short:
 
 | # | Layer | What it does | What it cannot do | First release |
 | - | ----- | ------------ | ----------------- | ------------- |
-| 1 | Prevention | The required check `Records integrity` runs from the base branch and fails a pull request that breaks the protocol. Owners of the records folder must review a change to it (`CODEOWNERS`). | Stop a person who may bypass the rules, or a push to the default branch that skips the pull request. | yes |
+| 1 | Prevention | The required check `Records integrity` runs from the base branch and fails a pull request that breaks the protocol. Owners (named accounts, at least two) must approve an erratum, an acceptance and a change to the kit's settings, pin or workflow files: the check verifies the approval, and `CODEOWNERS` covers those files. | Stop a person who may bypass the rules, or a push to the default branch that skips the pull request. | yes |
 | 2 | Sealing | A record carries its seal, so any later change to it is visible to a hash comparison, and a copy can be verified on its own. | Say whether an allowed change was right. | yes |
 | 3 | Detection | A nightly audit re-checks every record against its seal, the erratum chain and the history since the last audit, and again on every push to the default branch. | Look at what it cannot read: a rewritten history is only noticed because the audit remembers the last commit it saw. | yes |
 | 4 | Logging | Each violation opens one deduplicated issue and is appended to an incident log. A deviation that a maintainer accepted lives in the record's `Known deviations`. | Decide whether a violation matters. | yes |
@@ -60,7 +60,15 @@ Layers 1 and 2 are the ones that cost a contributor something. Layers 3 and 4 ex
 - It also runs the format validation on the head: names and numbers, front matter, section order, length, credentials, and an index that lists every record with its status.
 - The name of the check, `Records integrity`, is stable, because a repository requires it by name.
 
-`CODEOWNERS` supplies the human half. The folder of the records is owned by the people who may approve an erratum, and the ruleset requires their review for changes there.
+**Owners are the human half.** They are **named accounts, at least two** (`owners:` in the settings), and they approve three acts and nothing else:
+
+- an **erratum**, a correction of sealed text;
+- an **acceptance**, a record whose status becomes `accepted` and which gets its seal;
+- a change to the kit's **settings, pin or workflow files**.
+
+The check verifies these itself. With its read-only token it reads the reviews of the pull request and requires an approving review of the **current head commit** by a listed owner who is **not the author** of the pull request: an author's own approval does not count, and neither does an approval of an earlier commit. It can do that for named accounts. As far as is known the workflow token cannot read the membership of a team (untested), so a team could be enforced only through GitHub's own `CODEOWNERS` rule; that is why teams are optional later and not the default.
+
+`CODEOWNERS` is the second line. It covers the kit's settings, pin and workflow files, and a ruleset requires the review of code owners for them. It does **not** cover the records folder: an ordinary record, including a new proposed one, is reviewed the way the repository reviews any change today (in Frodo, by a maintainer), so the kit adds no new gate to the everyday work of writing records. Two owners at least, because nobody can approve their own pull request: with a single owner every change would need a bypass.
 
 ## The nightly audit and the log
 
@@ -178,7 +186,7 @@ channel: stable
 ```yaml
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
-owners: ['@org/records-owners']   # the people who approve an erratum; also written to CODEOWNERS
+owners: ['@alice', '@bob']        # at least two accounts: they approve an erratum, an acceptance and a change to the settings
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
 compactor: off                    # off, report (the scan only), or assist (the agent drafts proposals)
@@ -187,9 +195,9 @@ compactor: off                    # off, report (the scan only), or assist (the 
 **The settings are protected like the records.** They decide what the check looks at, so a pull request that edited them could loosen the check that judges it (point `folder:` somewhere else, empty `owners:`). Therefore:
 
 - the check and the audit read the settings and the pin **from the base branch**, never from the pull request;
-- a pull request that changes either file fails `Records integrity` unless an owner of the records has approved it, and `CODEOWNERS` lists both files next to the records folder;
+- a pull request that changes either file fails `Records integrity` unless an owner has approved it, and `CODEOWNERS` lists both files and the kit's workflow files;
 - an unreadable or unknown setting is reported and the default stays, as in the Concierge, except that a setting that would switch a layer off (an empty `owners:`, a `folder:` that does not exist) is an error and not a default;
-- the setup check warns when `CODEOWNERS` does not cover the two files.
+- the setup check warns when `CODEOWNERS` does not cover those files, and when only one owner is listed (every change would then need a bypass).
 
 The three existing validators differ only in such extras (frodo-lib has a `repos` key and handling for shared records; the Concierge has an e-mail check). The kit keeps the shared core and makes the extras settings, so a repository that needs one asks for it and does not fork the script.
 
@@ -210,10 +218,11 @@ Today the Concierge validates its records with its own script and its own tests;
 2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
 3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and frodo-lib, which stays on `decisions/` for now, only gets the rename. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
 
-## Prerequisites and what is not verified
+## Prerequisites and what was verified
 
 - The repository must be **public** for the rulesets, required checks and `CODEOWNERS` enforcement that layer 1 needs on the Free plan, and for public repositories to consume it without extra tokens. The repository was made public on 2026-10-28.
-- **Not verified:** whether the Free plan allows everything layer 1 and the log branch need. GitHub's documentation is not clear on which rules need a paid plan (the file path restriction is a push rule, and push rules are documented for private and internal repositories on Team and Enterprise). The design does not depend on that rule: the check and the audit replace it. The plan: when the repository is public, create the ruleset through the API with each rule, and record which are accepted.
+- **Verified on 2026-10-28** on a public repository in a Free-plan organisation, by creating each rule through the API as a throwaway ruleset on a branch pattern that matches nothing and deleting it at once. **Accepted:** protection against deletion and force pushes, a required pull request with review from code owners, a required status check by name, restriction of updates, bypass actors by repository role in the modes `always` and `pull_request`, and the enforcement mode `evaluate` (a dry run). **Rejected:** push rules (restricting file paths, a maximum file size: "Source public repos cannot have push rules") and required workflows, a workflow of another repository that must pass (rejected with an empty reason even for a real workflow in the same organisation). So layer 1 works as designed. The file path push rule was never relied on. The rejection of required workflows means that the check cannot live in this repository and be forced onto the consumers: it runs from each consumer's own base branch, and the audit verifies that the installed workflow files match the release by their hashes.
+- Every deployment needs **at least two owners**. The organisation here has two.
 - A person with bypass rights can still push a change past the check. That is accepted: the audit finds it and the reaction proposes the revert.
 - **Guard the guard.** The check lives in the consuming repository and could be edited there. The ruleset requires it, the check runs from the base branch, and the audit verifies that the workflow files themselves match the installed release by their hashes, as the updater already does for the Concierge.
 
@@ -229,7 +238,7 @@ Today the Concierge validates its records with its own script and its own tests;
 | M5 | The reaction: the revert pull request | layer 5 |
 | M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed to `shared/` |
 | M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `supersedes:`, `accept` and `resolve` | report mode |
-| M8 | The compactor agent: assessment and draft proposals | assist mode |
+| M8 | The compactor agent: assessment and draft proposals; its engine and credentials are decided here | assist mode |
 | M9 | Shared records: number allocation across repositories and the mirror pull requests | one decision, mirrored |
 
 The first release is M1 to M3: layers 1 to 4.
@@ -262,12 +271,12 @@ Proposed here, to be confirmed or changed in review:
 - A consolidated record keeps to the **same 60-line limit**. A group that does not fit becomes several records by sub-subject, or stays as it is.
 - The **`window:` key** and the **`supersedes:` key** are part of the kit's record format.
 - The repository is **public** and licensed **MIT** (the maintainer, 2026-10-28), with secret scanning, push protection, Dependabot security updates and private vulnerability reporting on.
+- **Owners are named accounts, at least two, with a narrow scope**: they approve an erratum, an acceptance and a change to the settings, pin or workflow files; `CODEOWNERS` covers only the kit's settings, pin and workflow files; ordinary record pull requests keep the repository's normal review. Teams may follow later and work only through `CODEOWNERS`. For this repository the owners are the two organisation owners.
+- **Where the compactor's agent runs, and with which credentials, is decided when M8 is built.** The first release and the compactor's report mode need no model and no secret.
 
 Open:
 
-- Who the **owners** are: the people whose review an erratum needs. The organisation has two owners.
 - Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
-- Where the compactor's agent runs and with which credentials: the Concierge's gates use a gh-aw engine and a secret; a repository that adopts the kit would need the same for assist mode.
 - How often the scan runs, and how strict the signals are. A first guess is monthly, with the thresholds in the settings.
 - Whether the compactor handles the shared records of frodo-cli and frodo-lib, which are the same files in both repositories, or leaves them until the kit carries shared records.
 
