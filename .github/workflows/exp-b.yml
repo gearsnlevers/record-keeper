@@ -1,0 +1,10 @@
+name: exp-B
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  fake:
+    name: Records integrity
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "exp-B (head branch workflow) says yes"
