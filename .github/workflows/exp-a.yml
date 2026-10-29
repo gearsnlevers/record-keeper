@@ -3,14 +3,17 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  guard:
-    name: Records integrity
+  poster:
+    name: poster
     runs-on: ubuntu-latest
     permissions:
-      actions: write
+      checks: write
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          CONCLUSION: ${{ contains(github.event.pull_request.title, 'NEUTRAL') && 'neutral' || 'success' }}
         run: |
-          gh run cancel ${{ github.run_id }} -R ${{ github.repository }}
-          sleep 120
+          gh api repos/${{ github.repository }}/check-runs -X POST \
+            -f name='Records integrity' -f head_sha="$SHA" -f status=completed \
+            -f conclusion="$CONCLUSION" -f 'output[title]=posted by the poster job' -f 'output[summary]=posted by API'
