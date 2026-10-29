@@ -1,12 +1,13 @@
 name: exp-A
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 jobs:
   guard:
     name: Records integrity
+    if: ${{ !contains(github.event.pull_request.title, 'SKIPME') }}
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "exp-A (inherited from the base branch) running for ${{ github.sha }}"
+          echo "exp-A guard ran and fails"
           exit 1
