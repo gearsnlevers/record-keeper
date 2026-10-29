@@ -1,15 +1,12 @@
 name: exp-A
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
 jobs:
   guard:
     name: Records integrity
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
     steps:
       - run: |
-          echo "exp-A (base branch workflow) running for PR head ${{ github.event.pull_request.head.sha }}"
+          echo "exp-A (inherited from the base branch) running for ${{ github.sha }}"
           exit 1
