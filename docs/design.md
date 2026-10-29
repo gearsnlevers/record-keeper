@@ -6,7 +6,7 @@ Status: draft for review (2026-10-28). Nothing is built. Decision [0001](decisio
 
 Decision records bind people and coding agents. The rule that an accepted record is never edited, only superseded, is text in the README of each repository's records folder. Nothing enforces it:
 
-- the validators check the format of a record and not what changed in it, and there are three copies (Repo Concierge, frodo-lib, frodo-cli) that have drifted apart: the Concierge's and frodo-lib's differ on about 190 lines, though they share one core (the statuses, the front matter keys, the section order, the 60-line limit, the file name pattern and the secret patterns);
+- the validators check the format of a record and not what changed in it, and there are three copies (Issue Concierge, frodo-lib, frodo-cli) that have drifted apart: the Concierge's and frodo-lib's differ on about 190 lines, though they share one core (the statuses, the front matter keys, the section order, the 60-line limit, the file name pattern and the secret patterns);
 - the comparison of the shared records between frodo-cli and frodo-lib runs weekly, only reads, and goes red without telling anyone;
 - the records are copied between repositories by hand.
 
@@ -14,7 +14,7 @@ A decision that can change without notice is not a decision. The kit makes the p
 
 ## What it is
 
-A separate, versioned repository, delivered to a repository the way Repo Concierge is: the repository pins a released version, a pull-based updater opens one pull request when a newer release exists, and a maintainer merges it. What a release installs:
+A separate, versioned repository, delivered to a repository the way Issue Concierge is: the repository pins a released version, a pull-based updater opens one pull request when a newer release exists, and a maintainer merges it. What a release installs:
 
 | Part | What it is |
 | ---- | ---------- |
@@ -171,7 +171,7 @@ Some records bind more than one repository. Frodo calls them *core* records and 
 
 ## Configuration
 
-Two files in the consuming repository, because they have different owners. The pin is written by the updater on its own branch; the settings are edited by hand. The Concierge keeps them apart for the same reason (`.github/concierge.yml` and `.github/agentic-workflows/settings.yml`, its record 0023: a repository tunes the gates with optional files and never by editing managed ones).
+Two files in the consuming repository, because they have different owners. The pin is written by the updater on its own branch; the settings are edited by hand. The Issue Concierge keeps them apart for the same reason (`.github/issue-concierge.yml` and `.github/issue-concierge/settings.yml`, its records 0023 and 0038: a repository tunes the gates with optional files and never by editing managed ones, and the files are named for the product's kind).
 
 `.github/record-keeper.yml`, the pin, written by the updater and never edited by hand:
 
@@ -214,7 +214,7 @@ Today the Concierge validates its records with its own script and its own tests;
 
 ## Adoption
 
-1. **Repo Concierge first.** It seals its existing records in one pull request that adds only `seal:` keys, installs the kit, and deletes its own validator. It is the first consumer and the test of the migration.
+1. **Issue Concierge first.** It seals its existing records in one pull request that adds only `seal:` keys, installs the kit, and deletes its own validator. It is the first consumer and the test of the migration.
 2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
 3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and frodo-lib, which stays on `decisions/` for now, only gets the rename. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
 
