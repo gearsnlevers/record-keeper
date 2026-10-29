@@ -36,7 +36,7 @@ Decided in record 0001; in short:
 - Accepting writes a seal, with the generation of the protocol it was made under (`seal: sha256-g1:…`): a SHA-256 over the **sealed region**, the whole record except the keys `status`, `date` and `seal` and the sections `Known deviations` and `Errata`. The seal is a front matter key, so it travels with a record that is copied to another repository.
 - After that a record may only change its status to `superseded by NNNN`, gain an entry in `Known deviations`, or gain an erratum.
 - **The status is outside the seal, so another sealed record vouches for it.** `superseded by NNNN` holds only if record NNNN exists, is accepted with a verifying seal, has a higher number, and lists this record in its own sealed `supersedes:` key; supersession has no cycles. There is no bare `deprecated`: a record withdrawn without a replacement is superseded by a short record that says why, so every end of a binding record is a sealed, owner-approved record. (Why the status is not simply put into the seal: every supersession would change the seal and need a chain entry, copies of one record in several repositories would carry different seals, and a hash can be recomputed by whoever edits the file, so it is the successor's seal and the owners' approval that protect the status.)
-- An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal, which stays under the record's own generation, and adds an `Errata` entry with the previous seal, the new seal, the hash of the entry before it and the reason. It needs two distinct owners (see "Owners are the human half"). It cannot change `applies-to`, `repos`, `window` or `supersedes`: that is a new record. `Errata` and `Known deviations` are append-only; a deviation entry cites the issue, pull request or commit it excuses and needs the same two owners, because it works as a waiver. The entries of `Errata` form a chain from the first seal to the current one, and the audit lists every erratum with its diff.
+- An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal, which stays under the record's own generation, and adds an `Errata` entry with the previous seal, the new seal, the hash of the entry before it and the reason. It needs two distinct owners (see "Owners are the human half"). It cannot change `applies-to`, `repos`, `window` or `supersedes`: that is a new record. `Errata` and `Known deviations` are append-only: the check requires the existing entries to be byte-identical at the head. A deviation entry works as a waiver, so it needs the same two owners, and it cites an issue, pull request or commit of this repository that the check can resolve (the issue or pull request exists, the commit is in the history of the default branch). It excuses exactly the violation that case caused, matched by the audit on that commit: never a later change, and never the record in general, so a note cannot become a standing waiver. The check cannot judge whether the excuse is valid; it can only make a blanket or invented one impossible. An erratum that changes more than whitespace stays open at least 48 hours, and the check posts its diff as a comment on the pull request. The entries of `Errata` form a chain from the first seal to the current one, and the audit lists every erratum with its diff.
 - A changed decision is a new record, which may replace several. Numbers are never reused, and a record is never deleted or renamed.
 
 ## Amending the protocol
@@ -111,7 +111,7 @@ When it finds a violation:
 - an entry in the incident log, appended to the file `incidents.jsonl` on the branch `record-keeper/log`. The branch is not the default branch, so writing to it is not a write to the default branch, and a ruleset forbids force pushes and deletion on it;
 - a failing status on the head commit of the default branch, so that it shows red until the violation is resolved.
 
-The ways to resolve one are the ones the protocol names: a revert, an erratum, or a `Known deviations` note.
+The ways to resolve one are the ones the protocol names: a revert, an erratum, or a `Known deviations` note. A note resolves only the violation of the commit it cites, so the next violation of the same record is reported again.
 
 ## What the gates read
 
@@ -130,8 +130,8 @@ The design was attacked on 2026-10-29 by the person who wrote it, against four k
 | - | ------ | ------- | ----- |
 | 1 | Set a record to `superseded by` a successor that is only `proposed` or does not exist: it stops binding, nothing replaces it | the vouching rule: the successor exists, is accepted and sealed, has a higher number and lists the record; no cycles | in the text |
 | 2 | Deprecate a record with a one-line status change | no bare `deprecated`: a withdrawing record, sealed and owner-approved | in the text |
-| 3 | A `Known deviations` note as a waiver, and as text a model obeys | owners and a cited case for each entry; append-only; readers get the sealed region only | in the text |
-| 4 | Rewrite a decision by erratum with one approval, or rewrite old `Errata` entries | two owners; append-only and hash-chained; structured keys cannot change; the audit lists every erratum | in the text |
+| 3 | A `Known deviations` note as a standing waiver, and as text a model obeys | two owners; a citation the check resolves; a note excuses only the violation of the commit it cites; readers get the sealed region only. Append-only stops rewriting earlier entries, not adding one | in the text; the validity of a real citation is the owners' judgment |
+| 4 | Rewrite a decision by erratum with one approval, or rewrite old `Errata` entries | two owners; 48 hours open and the diff posted for a change beyond whitespace; append-only and hash-chained, which stops rewriting earlier entries; structured keys cannot change; the audit lists every erratum | in the text; two owners who agree on a bad erratum are a residual risk |
 | 5 | Add the other candidate `README.md` so the gates read an empty folder | the check refuses it; the gates read `folder:` | in the text |
 | 6 | One owner opens the pull request through another account or the coding agent and approves it | two distinct owners, counting the author once | in the text |
 | 7 | Claim an owner's login after a rename | owners are matched by numeric ID | in the text; the GitHub rule is quoted by experiment E5 |
@@ -349,7 +349,7 @@ Proposed after the threat review (2026-10-29), to be confirmed or changed in rev
 - **No bare `deprecated`**: a record ends only by a sealed successor, which may be a short record that withdraws it.
 - **The status is vouched for by the successor's seal** and not put into the seal.
 - **Two distinct owners** for the four acts, matched by numeric ID, with the author counted once.
-- **`Known deviations` and `Errata` are append-only**; a deviation entry cites its case and needs the owners; an erratum keeps the record's own generation and cannot change `applies-to`, `repos`, `window` or `supersedes`.
+- **`Known deviations` and `Errata` are append-only**; a deviation entry needs the owners, cites a case the check resolves and excuses only the violation of that case; an erratum keeps the record's own generation, cannot change `applies-to`, `repos`, `window` or `supersedes`, and stays open 48 hours when it changes more than whitespace.
 - **Seals are created only under the generation of the base-branch pin**; older generations only verify; an unknown one fails closed.
 - **Readers go through the resolver**, and a gate holds a request instead of proceeding when a record fails verification.
 - **The bypass role uses the mode `pull_request`**, and the administrator remains the residual risk.
@@ -373,6 +373,7 @@ Open:
 - **A protocol that is too hard to change gets worked around.** The bar is high but finite, and it has an emergency path that leaves a visible trace.
 - **A false sense of safety.** A sealed record is the one that was accepted, not a correct one. The records are still read by people.
 - **Cost of the erratum.** Fixing a typo needs a pull request and an owner. If that proves too heavy, the answer is a smaller protocol decided in a new record, not a quiet exception.
+- **Two owners who agree on a bad erratum or a bad deviation.** The checks decide whether a change is allowed, not whether it is right. What stands against it is the visibility (the diff comment, the audit's list of errata, the deviations in the record) and the waiting time, not prevention. This is the same trust in the owners that the amendment bar rests on.
 - **The audit's own trust.** It depends on the last audited commit it stored; if that store is lost, the first run audits the whole history again.
 - **A lossy generalization.** A model can state the essence too broadly to be checkable, or too narrowly and miss why the record mattered. The proposal shows what it loses, a person accepts it, and the superseded record stays in the history.
 - **Adoption pain.** Sealing existing records is a one-time pull request per repository, and the records of the Frodo repositories are numerous.
