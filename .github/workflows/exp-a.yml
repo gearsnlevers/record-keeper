@@ -1,11 +1,12 @@
 name: exp-A
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'docs/decisions/**'
 jobs:
   guard:
     name: Records integrity
-    if: ${{ !contains(github.event.pull_request.title, 'SKIPME') }}
     runs-on: ubuntu-latest
     steps:
       - run: |
