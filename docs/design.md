@@ -1,6 +1,6 @@
 # Record Keeper: design
 
-Status: draft for review (2026-10-28). Nothing is built. Decision [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is the protocol; this page is how the kit enforces it.
+Status: draft for review (2026-10-28, revised 2026-10-29 after a threat review). Nothing is built. Decision [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is the protocol; this page is how the kit enforces it.
 
 ## Why
 
@@ -32,10 +32,11 @@ It is not a replacement for review. It checks whether a record is what was accep
 
 Decided in record 0001; in short:
 
-- A record is `proposed`, then `accepted` by the maintainers. Only an accepted record binds.
+- A record is `proposed`, then `accepted` by the maintainers. Only an accepted record binds. A record is `accepted` exactly when it carries a seal that verifies, and a sealed record is never `proposed` again.
 - Accepting writes a seal, with the generation of the protocol it was made under (`seal: sha256-g1:…`): a SHA-256 over the **sealed region**, the whole record except the keys `status`, `date` and `seal` and the sections `Known deviations` and `Errata`. The seal is a front matter key, so it travels with a record that is copied to another repository.
-- After that a record may only change its status to `superseded by NNNN` or `deprecated`, gain or lose a `Known deviations` note, or gain an erratum.
-- An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal and adds an `Errata` entry with the previous seal, the new seal and the reason, approved by an owner of the records. The entries form a chain from the first seal to the current one.
+- After that a record may only change its status to `superseded by NNNN`, gain an entry in `Known deviations`, or gain an erratum.
+- **The status is outside the seal, so another sealed record vouches for it.** `superseded by NNNN` holds only if record NNNN exists, is accepted with a verifying seal, has a higher number, and lists this record in its own sealed `supersedes:` key; supersession has no cycles. There is no bare `deprecated`: a record withdrawn without a replacement is superseded by a short record that says why, so every end of a binding record is a sealed, owner-approved record. (Why the status is not simply put into the seal: every supersession would change the seal and need a chain entry, copies of one record in several repositories would carry different seals, and a hash can be recomputed by whoever edits the file, so it is the successor's seal and the owners' approval that protect the status.)
+- An erratum corrects sealed text (a typo, a broken link). It is a pull request that changes the text and the seal, which stays under the record's own generation, and adds an `Errata` entry with the previous seal, the new seal, the hash of the entry before it and the reason. It needs two distinct owners (see "Owners are the human half"). It cannot change `applies-to`, `repos`, `window` or `supersedes`: that is a new record. `Errata` and `Known deviations` are append-only; a deviation entry cites the issue, pull request or commit it excuses and needs the same two owners, because it works as a waiver. The entries of `Errata` form a chain from the first seal to the current one, and the audit lists every erratum with its diff.
 - A changed decision is a new record, which may replace several. Numbers are never reused, and a record is never deleted or renamed.
 
 ## Amending the protocol
@@ -58,13 +59,13 @@ The protocol cannot be designed once and for all, so it carries its own way to c
 
 **What cannot change quietly.** An amendment is a numbered, sealed, visible record. The protocols before it stay in the history. The incident log stays append-only. Every seal keeps verifying under the rules it was made under. An amendment is never retroactive.
 
-**Ratification by each deployment** comes from the design as it is. A deployment never amends the protocol: it is the kit's. A new generation reaches a deployment as a kit release in an update pull request, and a change to the pin needs an owner's approval, so the deployment's owners ratify by approving it. The deployment stays on its generation until then, and the kit continues to accept records under the previous generation until its next major release, and to verify its seals for good.
+**Ratification by each deployment** comes from the design as it is. A deployment never amends the protocol: it is the kit's. A new generation reaches a deployment as a kit release in an update pull request, and a change to the pin needs an owner's approval, so the deployment's owners ratify by approving it. The deployment stays on its generation until then. The kit verifies the seals of every generation for good, but creates a seal only under the generation that the deployment's base-branch pin names: an older generation, or one the kit does not know, fails closed, so a new record cannot be sealed under a weaker rule after the rule has been replaced. An update that brings a new generation or new check code, and any change to the list of owners, meet the amendment bar (all owners, seven days) in the deployment, because they are the deployment's own amendment.
 
 ## The layers
 
 | # | Layer | What it does | What it cannot do | First release |
 | - | ----- | ------------ | ----------------- | ------------- |
-| 1 | Prevention | The required check `Records integrity` runs from the base branch and fails a pull request that breaks the protocol. Owners (named accounts, at least two) must approve an erratum, an acceptance and a change to the kit's settings, pin or workflow files: the check verifies the approval, and `CODEOWNERS` covers those files. | Stop a person who may bypass the rules, or a push to the default branch that skips the pull request. | yes |
+| 1 | Prevention | The required check `Records integrity` runs from the base branch and fails a pull request that breaks the protocol. Two distinct owners (named accounts, at least two, matched by ID) must approve an erratum, an acceptance, a deviation entry and a change to the kit's settings, pin or workflow files: the check verifies the approvals, and `CODEOWNERS` covers the settings, pin and workflow files. | Stop an administrator, or a person with the bypass role, who merges past the check. | yes |
 | 2 | Sealing | A record carries its seal, so any later change to it is visible to a hash comparison, and a copy can be verified on its own. | Say whether an allowed change was right. | yes |
 | 3 | Detection | A nightly audit re-checks every record against its seal, the erratum chain and the history since the last audit, and again on every push to the default branch. | Look at what it cannot read: a rewritten history is only noticed because the audit remembers the last commit it saw. | yes |
 | 4 | Logging | Each violation opens one deduplicated issue and is appended to an incident log. A deviation that a maintainer accepted lives in the record's `Known deviations`. | Decide whether a violation matters. | yes |
@@ -80,21 +81,29 @@ Layers 1 and 2 are the ones that cost a contributor something. Layers 3 and 4 ex
 - Its token is read-only (`contents: read`, `pull-requests: read`). It reports through the status of its own job, so it needs nothing else.
 - For every record it compares base and head. A record that is `accepted` at the base must have an unchanged sealed region and an unchanged `seal:`, unless the pull request is an erratum whose chain is valid. A new record may be `proposed` freely. A record that becomes `accepted` must carry a seal equal to the hash of its sealed region. Deleting, renaming, renumbering and moving a record back from `accepted` are failures.
 - It also runs the format validation on the head: names and numbers, front matter, section order, length, credentials, and an index that lists every record with its status.
+- A status that becomes `superseded by NNNN` must meet the vouching rule of record 0001 (the successor exists, is accepted and sealed, has a higher number and lists this record), and a record that arrives `accepted`, new or copied, is an acceptance.
 - The name of the check, `Records integrity`, is stable, because a repository requires it by name.
 
-**Owners are the human half.** They are **named accounts, at least two** (`owners:` in the settings), and they approve three acts and nothing else:
+**The check is hardened against the people it judges** (from the "Threat review"):
+
+- It has no `if:` and no `paths:` filter, because GitHub counts a skipped job as a pass. A final verdict job runs `if: always()` and fails unless every job before it succeeded. The ruleset pins the required check to the GitHub Actions integration and requires up-to-date branches, so two pull requests that are valid alone cannot combine into an invalid tree (two records with one number, a record superseded by one that was withdrawn meanwhile). It refuses a pull request that adds or renames a workflow or job so that it collides with the name of the check.
+- It reads every record as a blob (`git cat-file`), never from a working tree, and refuses what makes the readers disagree: symlinks, submodules, executable modes, `.gitattributes` entries that touch the records folder, a records `README.md` in any other candidate folder, duplicate front matter keys, anchors, multi-line values for the excluded keys, and headings that only look like `## Errata` (inside a fence, in setext form).
+- It flags a change that removes the last file an `applies-to` of an accepted record matches. Moving the code is a way round the record, and the Concierge already has a test with the same purpose.
+
+**Owners are the human half.** They are **named accounts, at least two** (`owners:` in the settings), recorded with their **numeric user ID** and matched by it, because GitHub releases a login after a rename and anyone could then claim the old one. They approve four acts and nothing else:
 
 - an **erratum**, a correction of sealed text;
-- an **acceptance**, a record whose status becomes `accepted` and which gets its seal;
+- an **acceptance**, a record whose status becomes `accepted` and which gets its seal; a record that arrives already `accepted` (also by copy from another repository) counts as one;
+- a **deviation entry**: a note in `Known deviations` works as a waiver, so it needs owners and cites the case it excuses;
 - a change to the kit's **settings, pin or workflow files**.
 
-The check verifies these itself. With its read-only token it reads the reviews of the pull request and requires an approving review of the **current head commit** by a listed owner who is **not the author** of the pull request: an author's own approval does not count, and neither does an approval of an earlier commit. It can do that for named accounts. As far as is known the workflow token cannot read the membership of a team (untested), so a team could be enforced only through GitHub's own `CODEOWNERS` rule; that is why teams are optional later and not the default.
+The check verifies these itself. With its read-only token it reads the reviews of the pull request and requires **two distinct owners**: the owners who authored the pull request, or whose latest review is an approval of the **current head commit**, each counted once and matched by ID. An approval of an earlier commit does not count, and a later "changes requested" from the same owner cancels the approval. "Not the author" alone would not be a two-person rule: one owner could have another account or the coding agent open the pull request and then approve it, which is one owner and not two. It can do that for named accounts. As far as is known the workflow token cannot read the membership of a team (untested), so a team could be enforced only through GitHub's own `CODEOWNERS` rule; that is why teams are optional later and not the default.
 
 `CODEOWNERS` is the second line. It covers the kit's settings, pin and workflow files, and a ruleset requires the review of code owners for them. It does **not** cover the records folder: an ordinary record, including a new proposed one, is reviewed the way the repository reviews any change today (in Frodo, by a maintainer), so the kit adds no new gate to the everyday work of writing records. Two owners at least, because nobody can approve their own pull request: with a single owner every change would need a bypass.
 
 ## The nightly audit and the log
 
-The audit is the same code run on the whole tree. It runs every night and on every push to the default branch. It reads the records, recomputes each seal, walks the erratum chain, and checks the commits since the last audited commit against the rules. It remembers the last commit it audited; if that commit is no longer an ancestor of the default branch, history was rewritten, which is a violation of its own.
+The audit is the same code run on the whole tree. It runs every night and on every push to the default branch. It reads the records, recomputes each seal, walks the erratum chain, and checks the commits since the last audited commit against the rules. It remembers the last commit it audited; if that commit is no longer an ancestor of the default branch, history was rewritten, which is a violation of its own. The remembered commit is only a speed-up, because anyone with write access can rewrite a file on the log branch: every night the audit also re-verifies each record against the whole history of its file, so moving the pointer past a bad commit hides nothing. It keeps a register of every record number that ever existed, so a number cannot come back. It trusts an incident issue only if its own bot authored it, because anyone can open an issue that carries the hidden marker and so make the audit update theirs. And it hashes the installed text that agents read (the rules in the records `README.md`, the `AGENTS.md` block) the way it hashes the workflow files.
 
 When it finds a violation:
 
@@ -103,6 +112,43 @@ When it finds a violation:
 - a failing status on the head commit of the default branch, so that it shows red until the violation is resolved.
 
 The ways to resolve one are the ones the protocol names: a revert, an erratum, or a `Known deviations` note.
+
+## What the gates read
+
+The Concierge's gates and the coding agents read records, so the readers are part of what an adversary attacks: the cheapest way round a binding record is to make the reader not see it, or to feed it text it will obey. The rules for a reader:
+
+- It reads a record through `record-keeper resolve`, plain code that verifies the seal and the status vouching and hands over the sealed region and the verified status. A model is not handed the raw file: `Known deviations` and `Errata` are unsealed text, so they are data and never instruction.
+- A record that fails verification is not used and is reported, and a gate that would have used it holds the request (`plan-approval-required`) and says why. It does not go on as if no rule applied.
+- The folder comes from the kit's settings on the base branch. The Concierge's rule today, the first of `docs/decisions/` and `decisions/` that has a `README.md`, lets a pull request that adds the other `README.md` make every record of a repository disappear for the gates; the check refuses such a file, and the gates read `folder:` instead.
+- `applies-to` is matched by code, not by a model.
+
+## Threat review
+
+The design was attacked on 2026-10-29 by the person who wrote it, against four kinds of adversary: a contributor with a pull request, an agent or maintainer with write access, an owner (or a stolen owner account), and the supply chain of the kit itself. The seal held. What did not hold was the lifecycle (status, deviations, errata), the owner check, and the readers. What is in force now is in the sections above; this table keeps the reasoning and says what is still to be confirmed.
+
+| # | Attack | Defence | State |
+| - | ------ | ------- | ----- |
+| 1 | Set a record to `superseded by` a successor that is only `proposed` or does not exist: it stops binding, nothing replaces it | the vouching rule: the successor exists, is accepted and sealed, has a higher number and lists the record; no cycles | in the text |
+| 2 | Deprecate a record with a one-line status change | no bare `deprecated`: a withdrawing record, sealed and owner-approved | in the text |
+| 3 | A `Known deviations` note as a waiver, and as text a model obeys | owners and a cited case for each entry; append-only; readers get the sealed region only | in the text |
+| 4 | Rewrite a decision by erratum with one approval, or rewrite old `Errata` entries | two owners; append-only and hash-chained; structured keys cannot change; the audit lists every erratum | in the text |
+| 5 | Add the other candidate `README.md` so the gates read an empty folder | the check refuses it; the gates read `folder:` | in the text |
+| 6 | One owner opens the pull request through another account or the coding agent and approves it | two distinct owners, counting the author once | in the text |
+| 7 | Claim an owner's login after a rename | owners are matched by numeric ID | in the text; the GitHub rule is quoted by experiment E5 |
+| 8 | Seal a new record under an older generation, or an unknown one | seals are created only under the generation of the base-branch pin; an unknown generation fails closed | in the text |
+| 9 | Satisfy the required check with a job of the same name in the pull request, or with a skipped job | pin to the Actions integration; no `if:` or `paths:`; a verdict job that runs always; refuse a colliding name | to be confirmed by experiments E1 to E3 |
+| 10 | Make the check green after an approval arrives, with code the pull request controls | the result is computed only by base-branch code | to be confirmed by experiment E4 |
+| 11 | Change the owner list, or ship new check code through an ordinary update | both meet the amendment bar | in the text |
+| 12 | Move the audit's remembered commit past a bad commit, or squat the incident marker | whole-history verification each night; the marker counts only on the bot's own issues | in the text |
+| 13 | Race: two valid pull requests that combine into an invalid tree | up-to-date branches required | in the text |
+| 14 | Make the reader and the check disagree about a file (duplicate keys, fake headings, byte-order marks, symlinks, `.gitattributes`) | one strict parser, blobs only, refusals listed above, adversarial test vectors in M1 | in the text; vectors in M1 |
+| 15 | Move the code so that no `applies-to` matches | the check flags the change that removes the last match | in the text |
+| 16 | Slip an `accepted` record in through a mirror pull request with a valid seal | a record that arrives `accepted` is an acceptance with two owners of the receiving repository | in the text |
+| 17 | Edit the rules agents read (the records `README.md`, the `AGENTS.md` block) | hashed by the audit like the workflow files | in the text |
+| 18 | Manufacture the compactor's signals (delete files, bump versions) to get a rule generalized away | the compactor only drafts; acceptance is the owners' | unchanged |
+| 19 | An administrator bypasses the check and disables the audit in the same change | none inside the repository; `pull_request` bypass mode closes direct pushes | residual risk, accepted |
+
+What held without change: an edit of sealed text, deleting or renaming a record, weakening the check inside the pull request it judges, a force-push to the default branch, a stale approval, and a quiet amendment of the protocol.
 
 ## The essence compactor
 
@@ -117,7 +163,7 @@ It has two jobs. **Generalizing** takes one record whose subject has moved on an
 
 ### Compaction is a supersession
 
-A sealed record is never rewritten, so the compactor never edits one. It proposes a **new record** that states the essence and supersedes the old one (or several old ones into a single new one). The old record stays in the repository with its status `superseded by NNNN`, and the new one names it in a `supersedes:` key that the validator cross-checks (each listed record must be `superseded by` this number). Where an accepted record already states the essence, the proposal has no new record: it only supersedes, or deprecates when nothing lasting remains.
+A sealed record is never rewritten, so the compactor never edits one. It proposes a **new record** that states the essence and supersedes the old one (or several old ones into a single new one). The old record stays in the repository with its status `superseded by NNNN`, and the new one names it in a `supersedes:` key that the validator cross-checks (each listed record must be `superseded by` this number). A supersession always needs a record, because a sealed record cannot gain a `supersedes:` key and the status is vouched for by the successor: where an accepted record already states the essence, the new record is short and points to it; when nothing lasting remains, it is a short record that withdraws the old one and says why.
 
 ### Consolidation
 
@@ -136,7 +182,7 @@ A consolidation can itself be consolidated later. The chain is followed by plain
 2. **Assessment** (a read-only agent, optional). For a candidate it reads the record, the code it covers on each branch, the related records and the history, and answers: the window per branch; the essence in one sentence; whether another record already holds it; what the generalization would lose.
 3. **Proposal** (a draft pull request). The agent drafts the new record in the format the validator enforces (a rule rather than a value, at most 60 lines, no versions or counts) as `proposed`. It never writes a status or a seal. A maintainer who agrees runs `record-keeper accept NNNN`, plain code that sets the status, writes the seal, and sets the old records to `superseded by NNNN`; a maintainer who disagrees closes the pull request, and the compactor remembers (in its state on the log branch, not in any record) and does not propose that record again until it or the code it covers changes, or a review date set in the settings has passed.
 
-Outcomes of a review: **supersede with a generalized record**; **supersede or deprecate without a new record** because the essence is already held or nothing lasting remains; **keep**, with a reason, because the window is still open on a maintained branch. A record is never deleted and never rewritten.
+Outcomes of a review: **supersede with a generalized record**; **supersede with a short record** because the essence is already held, or **withdraw with a short record** because nothing lasting remains; **keep**, with a reason, because the window is still open on a maintained branch. A record is never deleted and never rewritten.
 
 ### A worked example (the shape, not a proposal)
 
@@ -186,7 +232,7 @@ Some records bind more than one repository. Frodo calls them *core* records and 
 
 - **Scope is the `repos:` key.** A record that binds one repository is a local record and never goes into `shared/`. A local record becomes shared by a new shared record that supersedes it; it does not move.
 - **`repos:` is authoritative.** A copy exists in exactly the repositories it lists. The check flags a missing copy and an unlisted copy, in every listed repository and not in a hard-coded pair. Today the Frodo records do not follow this: core 0008 binds frodo-cli and the tap but frodo-lib holds a copy, and core 0018 lists cli and lib but the tap holds a copy. Because `repos:` is part of the sealed text, correcting it is an erratum, or the copy is removed from the repository it does not bind.
-- **Copies are verified by seal and by status.** Identical copies have identical seals. A difference opens an incident issue in the repository that finds it, instead of a red run nobody reads, and a status that differs between copies is tolerated for a grace period (a replaced record is updated repository by repository) and then reported.
+- **Copies are verified by seal and by status.** Identical copies have identical seals. A difference opens an incident issue in the repository that finds it, instead of a red run nobody reads, and a status that differs between copies is tolerated for a grace period (a replaced record is updated repository by repository) and then reported. A seal proves that a copy is intact, not that the repository accepted it: a copy that arrives by mirror pull request is an acceptance there and needs that repository's two owners.
 - **Numbers are allocated across the listed repositories.** `record-keeper new --shared` takes the next number that is free in every repository it lists, including open pull requests, so that two pull requests cannot both claim the same one.
 - **Mirror pull requests come later.** A shared record is decided once, in the repository where it originates; the kit then opens a mirror pull request in each other repository that `repos:` lists, and a maintainer merges each. This is what core 0018 turned down as too costly to build (a sync workflow to write and keep); the kit writes it once for everyone. It needs a token that can open pull requests in the other repositories.
 - **Compaction of a shared record** is proposed once and carried to every copy by the same mirror pull requests.
@@ -208,7 +254,7 @@ channel: stable
 ```yaml
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
-owners: ['@alice', '@bob']        # at least two accounts: they approve an erratum, an acceptance and a change to the settings
+owners: [{login: alice, id: 1001}, {login: bob, id: 1002}]   # at least two accounts, matched by numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
 compactor: off                    # off, report (the scan only), or assist (the agent drafts proposals)
@@ -217,7 +263,7 @@ compactor: off                    # off, report (the scan only), or assist (the 
 **The settings are protected like the records.** They decide what the check looks at, so a pull request that edited them could loosen the check that judges it (point `folder:` somewhere else, empty `owners:`). Therefore:
 
 - the check and the audit read the settings and the pin **from the base branch**, never from the pull request;
-- a pull request that changes either file fails `Records integrity` unless an owner has approved it, and `CODEOWNERS` lists both files and the kit's workflow files;
+- a pull request that changes either file fails `Records integrity` unless two distinct owners have approved it, `CODEOWNERS` lists both files and the kit's workflow files, and a change to `owners:` meets the amendment bar (all owners, seven days), because the owners are the root of that bar;
 - an unreadable or unknown setting is reported and the default stays, as in the Concierge, except that a setting that would switch a layer off (an empty `owners:`, a `folder:` that does not exist) is an error and not a default;
 - the setup check warns when `CODEOWNERS` does not cover those files, and when only one owner is listed (every change would then need a bypass).
 
@@ -245,7 +291,7 @@ Today the Concierge validates its records with its own script and its own tests;
 - The repository must be **public** for the rulesets, required checks and `CODEOWNERS` enforcement that layer 1 needs on the Free plan, and for public repositories to consume it without extra tokens. The repository was made public on 2026-10-28.
 - **Verified on 2026-10-28** on a public repository in a Free-plan organisation, by creating each rule through the API as a throwaway ruleset on a branch pattern that matches nothing and deleting it at once. **Accepted:** protection against deletion and force pushes, a required pull request with review from code owners, a required status check by name, restriction of updates, bypass actors by repository role in the modes `always` and `pull_request`, and the enforcement mode `evaluate` (a dry run). **Rejected:** push rules (restricting file paths, a maximum file size: "Source public repos cannot have push rules") and required workflows, a workflow of another repository that must pass (rejected with an empty reason even for a real workflow in the same organisation). So layer 1 works as designed. The file path push rule was never relied on. The rejection of required workflows means that the check cannot live in this repository and be forced onto the consumers: it runs from each consumer's own base branch, and the audit verifies that the installed workflow files match the release by their hashes.
 - Every deployment needs **at least two owners**. The organisation here has two.
-- A person with bypass rights can still push a change past the check. That is accepted: the audit finds it and the reaction proposes the revert.
+- A person with bypass rights can still get a change past the check. The bypass role is set to the mode `pull_request`, which closes direct pushes: a bypass is then a merge that skips the check, and the audit finds it on the push to the default branch and the reaction proposes the revert. An administrator can still change the rulesets and disable the audit in the same change. That is the residual risk of this design, accepted; the only protection against it is a witness outside the repository.
 - **Guard the guard.** The check lives in the consuming repository and could be edited there. The ruleset requires it, the check runs from the base branch, and the audit verifies that the workflow files themselves match the installed release by their hashes, as the updater already does for the Concierge.
 
 ## Milestones
@@ -253,8 +299,8 @@ Today the Concierge validates its records with its own script and its own tests;
 | # | What | Outcome |
 | - | ---- | ------- |
 | M0 | This design, record 0001 and the repository | reviewed and accepted |
-| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors | `record-keeper.mjs` with `validate` and `seal` |
-| M2 | The pull request check (including the bar for amending the protocol) and the audit with the log | the two workflows, the incident issue and the log branch |
+| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors, among them adversarial ones (duplicate keys, fake headings, byte-order marks, symlinks, odd modes, `.gitattributes`) | `record-keeper.mjs` with `validate` and `seal` |
+| M2 | The pull request check (the two-owner rule, the status vouching, the hardening of the check itself, the bar for amending the protocol) and the audit with the log | the two workflows, the incident issue and the log branch |
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
@@ -280,7 +326,7 @@ Taken by the maintainer on 2026-10-28:
 Proposed here, to be confirmed or changed in review:
 
 - The seal is a **front matter key**, so it travels with a copied record; history is the second witness and not the first.
-- Typos are corrected by an **erratum with a seal chain**, approved by an owner, with no size heuristic.
+- Typos are corrected by an **erratum with a seal chain**, approved by two distinct owners, with no size heuristic (the maintainer, 2026-10-28; two owners after the threat review).
 - The incident log is a **file on a separate branch**, so that no bot writes to the default branch.
 - The updater is **duplicated** for the first release.
 - The unified location is **`docs/decisions`**. Frodo-lib is an exception for now (decided by the maintainer), and ending the exception is a change to lib's documentation generation that the kit does not depend on.
@@ -295,11 +341,22 @@ Proposed here, to be confirmed or changed in review:
 - **The protocol can be amended** (the maintainer, 2026-10-28), by a new record that supersedes it in full, with the approval of **all owners** after the pull request has been **open seven days**; the waiting period can be waived only with every owner's approval and a stated reason; changing that rule meets the old rule.
 - **Old records are grandfathered by generation**: each is verified, and its format was checked, by the rules of the generation it was accepted under, forever, and nothing is re-sealed when a generation changes.
 - The repository is **public** and licensed **MIT** (the maintainer, 2026-10-28), with secret scanning, push protection, Dependabot security updates and private vulnerability reporting on.
-- **Owners are named accounts, at least two, with a narrow scope**: they approve an erratum, an acceptance and a change to the settings, pin or workflow files; `CODEOWNERS` covers only the kit's settings, pin and workflow files; ordinary record pull requests keep the repository's normal review. Teams may follow later and work only through `CODEOWNERS`. For this repository the owners are the two organisation owners.
+- **Owners are named accounts, at least two, matched by numeric ID, with a narrow scope**: two distinct owners approve an erratum, an acceptance, a deviation entry and a change to the settings, pin or workflow files; `CODEOWNERS` covers only the kit's settings, pin and workflow files; ordinary record pull requests keep the repository's normal review. Teams may follow later and work only through `CODEOWNERS`. For this repository the owners are the two organisation owners.
 - **Where the compactor's agent runs, and with which credentials, is decided when M8 is built.** The first release and the compactor's report mode need no model and no secret.
+
+Proposed after the threat review (2026-10-29), to be confirmed or changed in review; the reasoning is in the "Threat review":
+
+- **No bare `deprecated`**: a record ends only by a sealed successor, which may be a short record that withdraws it.
+- **The status is vouched for by the successor's seal** and not put into the seal.
+- **Two distinct owners** for the four acts, matched by numeric ID, with the author counted once.
+- **`Known deviations` and `Errata` are append-only**; a deviation entry cites its case and needs the owners; an erratum keeps the record's own generation and cannot change `applies-to`, `repos`, `window` or `supersedes`.
+- **Seals are created only under the generation of the base-branch pin**; older generations only verify; an unknown one fails closed.
+- **Readers go through the resolver**, and a gate holds a request instead of proceeding when a record fails verification.
+- **The bypass role uses the mode `pull_request`**, and the administrator remains the residual risk.
 
 Open:
 
+- Experiments E1 to E5 of the threat review (the required check by name, skipped jobs, `[skip ci]`, how the check learns of an approval, the shape of review data and the rule for released usernames) decide the exact form of attacks 7, 9 and 10.
 - Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
 - How often the scan runs, and how strict the signals are. A first guess is monthly, with the thresholds in the settings.
 - Whether the compactor handles the shared records of frodo-cli and frodo-lib, which are the same files in both repositories, or leaves them until the kit carries shared records.
