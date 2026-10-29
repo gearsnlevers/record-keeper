@@ -13,7 +13,7 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "VERSION-MARKER: BASE-R"
+          echo "VERSION-MARKER: HEAD-R"
           echo "GITHUB_SHA=$GITHUB_SHA GITHUB_REF=$GITHUB_REF event=${{ github.event_name }} action=${{ github.event.action }}"
           echo "event review: state=${{ github.event.review.state }} commit_id=${{ github.event.review.commit_id }} user.id=${{ github.event.review.user.id }} user.login=${{ github.event.review.user.login }}"
           echo "--- reviews API with the read-only token:"
