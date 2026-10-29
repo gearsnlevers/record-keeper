@@ -1,10 +1,19 @@
 name: exp-A
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
 jobs:
   guard:
     name: Records integrity
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
-      - run: echo "exp-A guard passes for ${{ github.sha }}"
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          n=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews --jq "[.[]|select(.commit_id==\"$HEAD\")]|length")
+          echo "reviews at head $HEAD: $n"
+          [ "$n" -ge 1 ]
