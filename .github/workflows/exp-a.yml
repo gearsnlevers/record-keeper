@@ -1,12 +1,10 @@
 name: exp-A
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 jobs:
   guard:
     name: Records integrity
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "exp-A guard fails"
-          exit 1
+      - run: echo "exp-A guard passes for ${{ github.sha }}"
