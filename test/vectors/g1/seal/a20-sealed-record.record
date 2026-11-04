@@ -1,0 +1,27 @@
+---
+status: proposed
+date: 2026-11-03
+seal: sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+Why a decision was needed.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.

@@ -1,0 +1,39 @@
+---
+status: proposed
+date: 2026-11-03
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+Why a decision was needed.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.
+
+## Known deviations
+
+- Deviation recorded for tracking issue owner/repo#1, commit 0123456.
+
+### Remediation
+
+Fix it later.
+
+```sh
+## not a heading
+# a comment
+```

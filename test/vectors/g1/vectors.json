@@ -1,0 +1,1362 @@
+{
+  "generation": "g1",
+  "vectors": [
+    {
+      "id": "a01-base",
+      "file": "seal/a01-base.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "The base record. Every vector that says \"same seal\" below has the seal of this one."
+    },
+    {
+      "id": "a02-crlf",
+      "file": "seal/a02-crlf.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Every line ends in CRLF, as after a Windows checkout."
+    },
+    {
+      "id": "a03-trailing-white-space",
+      "file": "seal/a03-trailing-white-space.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Spaces and tabs at the end of lines, and a line of only white space."
+    },
+    {
+      "id": "a04-no-final-newline",
+      "file": "seal/a04-no-final-newline.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "No line feed at the end of the file."
+    },
+    {
+      "id": "a05-blank-lines-at-end",
+      "file": "seal/a05-blank-lines-at-end.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Empty and white-space-only lines at the end of the file."
+    },
+    {
+      "id": "a06-status-accepted",
+      "file": "seal/a06-status-accepted.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "The status is not sealed."
+    },
+    {
+      "id": "a07-status-superseded",
+      "file": "seal/a07-status-superseded.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "The status is not sealed."
+    },
+    {
+      "id": "a08-date-changed",
+      "file": "seal/a08-date-changed.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "The date is not sealed."
+    },
+    {
+      "id": "a09-seal-with-another-value",
+      "file": "seal/a09-seal-with-another-value.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "A seal key is not sealed, whatever it says."
+    },
+    {
+      "id": "a10-key-order-of-excluded-keys",
+      "file": "seal/a10-key-order-of-excluded-keys.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "The excluded keys may stand in any order and anywhere in the front matter."
+    },
+    {
+      "id": "a11-known-deviations-at-the-end",
+      "file": "seal/a11-known-deviations-at-the-end.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "A Known deviations section appended; it contains a level 3 heading and a fence with a fake heading in it."
+    },
+    {
+      "id": "a12-errata-at-the-end",
+      "file": "seal/a12-errata-at-the-end.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "An Errata section appended."
+    },
+    {
+      "id": "a13-both-sections-at-the-end",
+      "file": "seal/a13-both-sections-at-the-end.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Both sections appended, in the order the rules require."
+    },
+    {
+      "id": "a14-known-deviations-in-the-middle",
+      "file": "seal/a14-known-deviations-in-the-middle.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "A Known deviations section between Consequences and Alternatives, where the Frodo core records keep it."
+    },
+    {
+      "id": "a15-errata-in-the-middle",
+      "file": "seal/a15-errata-in-the-middle.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "An Errata section in the middle."
+    },
+    {
+      "id": "a16-extra-blank-lines",
+      "file": "seal/a16-extra-blank-lines.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Runs of blank lines outside code are one blank line."
+    },
+    {
+      "id": "a17-mixed-line-endings",
+      "file": "seal/a17-mixed-line-endings.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Some lines CRLF, some LF."
+    },
+    {
+      "id": "a18-errata-last-without-final-newline",
+      "file": "seal/a18-errata-last-without-final-newline.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "An Errata section that is the last thing in the file, with no final line feed."
+    },
+    {
+      "id": "a19-delimiter-with-trailing-space",
+      "file": "seal/a19-delimiter-with-trailing-space.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "White space after the opening --- is removed before the rules look at it."
+    },
+    {
+      "id": "a20-sealed-record",
+      "file": "seal/a20-sealed-record.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "A record that carries its own seal, as every accepted record does."
+    },
+    {
+      "id": "b01-fence-blank-lines-kept",
+      "file": "seal/b01-fence-blank-lines-kept.record",
+      "result": "seal",
+      "seal": "sha256-g1:39d6e569f7a35b835ce9c93ac6dd4dce180d4bd6f89fbdd6645b717e037b43e3",
+      "note": "Blank lines inside a fence are kept as they are, and a line starting with # inside a fence is not a heading."
+    },
+    {
+      "id": "b02-fence-blank-lines-collapsed",
+      "file": "seal/b02-fence-blank-lines-collapsed.record",
+      "result": "seal",
+      "seal": "sha256-g1:a0570d9b0f1c937ec8d16dde7a1c3c4a8c5133f96b92744cc2f1e3c7f47d48e1",
+      "note": "The same record with one blank line fewer inside the fence: a different seal.",
+      "differs-from": "b01-fence-blank-lines-kept"
+    },
+    {
+      "id": "b03-fence-crlf",
+      "file": "seal/b03-fence-crlf.record",
+      "result": "seal",
+      "seal": "sha256-g1:39d6e569f7a35b835ce9c93ac6dd4dce180d4bd6f89fbdd6645b717e037b43e3",
+      "note": "The fence record with CRLF line endings: the same seal as b01."
+    },
+    {
+      "id": "b04-fence-longer-closing",
+      "file": "seal/b04-fence-longer-closing.record",
+      "result": "seal",
+      "seal": "sha256-g1:274c5362db76339363b2cdd1d42ba5f288e5acb3719be61790cd6bc47567871f",
+      "note": "A fence closed by a longer fence."
+    },
+    {
+      "id": "b05-fence-four-backticks-around-three",
+      "file": "seal/b05-fence-four-backticks-around-three.record",
+      "result": "seal",
+      "seal": "sha256-g1:744e54d219978d6cbf597fc36faf16d92148d2a65410afa80b8df49325520819",
+      "note": "Four backticks around three: the inner three-backtick lines do not close the outer fence, so the blank lines inside it are kept."
+    },
+    {
+      "id": "b06-fence-without-info-and-with",
+      "file": "seal/b06-fence-without-info-and-with.record",
+      "result": "seal",
+      "seal": "sha256-g1:422daa35d44d85e6c1939f7ef1b1b0dab796d2ec0fe18d12d3aac8fde3b1a9ad",
+      "note": "Fences with and without an info string."
+    },
+    {
+      "id": "c01-unicode",
+      "file": "seal/c01-unicode.record",
+      "result": "seal",
+      "seal": "sha256-g1:ebf6fefda14ed6b9d1600c5a126f63cbfae7cbc86d6192d0d9344676bd475ae3",
+      "note": "Non-ASCII text, hashed as UTF-8."
+    },
+    {
+      "id": "c02-unicode-decomposed",
+      "file": "seal/c02-unicode-decomposed.record",
+      "result": "seal",
+      "seal": "sha256-g1:5333f8cca9c4553e08990a753477e49fb53117892da1a70d661fa91592855529",
+      "note": "The same words with accents as two code points: no Unicode normalisation, so a different seal.",
+      "differs-from": "c01-unicode"
+    },
+    {
+      "id": "c03-list-values-and-more-keys",
+      "file": "seal/c03-list-values-and-more-keys.record",
+      "result": "seal",
+      "seal": "sha256-g1:bac9c265df99795feb6f8f48fb68500145a7bcf27c48710f6b4836d791f4c10d",
+      "note": "More keys, list values and a plain value."
+    },
+    {
+      "id": "c04-autolink-line",
+      "file": "seal/c04-autolink-line.record",
+      "result": "seal",
+      "seal": "sha256-g1:9902233c6306c32d710dd32329276c1d814d47dba946c55bd6cb06e0c59e085a",
+      "note": "A line that starts with an autolink is not raw HTML."
+    },
+    {
+      "id": "c05-thematic-break",
+      "file": "seal/c05-thematic-break.record",
+      "result": "seal",
+      "seal": "sha256-g1:afb3e7916ffcb22485c0f658be9c8e53000343de3d7644645557f3d5951a83cb",
+      "note": "A --- after a blank line is a thematic break, not a setext underline."
+    },
+    {
+      "id": "c06-rule-after-heading",
+      "file": "seal/c06-rule-after-heading.record",
+      "result": "seal",
+      "seal": "sha256-g1:a5c9f772383c3a19638ac6458b506c7c175e148787f832ee62045329947794f4",
+      "note": "A --- directly after a heading is a thematic break."
+    },
+    {
+      "id": "c07-setext-lookalike-in-fence",
+      "file": "seal/c07-setext-lookalike-in-fence.record",
+      "result": "seal",
+      "seal": "sha256-g1:70f062df08e11409ad252d8a16c524158339a142ed5d6fcf3895aca9a85fa391",
+      "note": "Underline-like lines inside a fence are code."
+    },
+    {
+      "id": "c08-html-in-fence",
+      "file": "seal/c08-html-in-fence.record",
+      "result": "seal",
+      "seal": "sha256-g1:c2e1eee13a6cf18bd28e85e2f21f350426be81c9c1222eb69e242deb5668f2c9",
+      "note": "HTML tags inside a fence are code."
+    },
+    {
+      "id": "c09-tilde-in-fence",
+      "file": "seal/c09-tilde-in-fence.record",
+      "result": "seal",
+      "seal": "sha256-g1:a1a0609031c6a65592d4a1f5246e4be3d2d82cd21d994bcbcaeda9db134dbce7",
+      "note": "Tildes inside a backtick fence are code."
+    },
+    {
+      "id": "c10-keys-that-only-start-like-excluded",
+      "file": "seal/c10-keys-that-only-start-like-excluded.record",
+      "result": "seal",
+      "seal": "sha256-g1:3a99bb73e894d70ee9bc379cda2ec84d4cd5df0fca373c5e28d641a453e053ec",
+      "note": "Keys that merely begin with an excluded name are part of the seal."
+    },
+    {
+      "id": "c11-spaces-after-colon",
+      "file": "seal/c11-spaces-after-colon.record",
+      "result": "seal",
+      "seal": "sha256-g1:b1c5d79729124b9cbc5b96a6b2b33244ea8c9f079e5f1d34094ed3b638c98b40",
+      "note": "More than one space after the colon, and a key with no value and no continuation."
+    },
+    {
+      "id": "c12-front-matter-only",
+      "file": "seal/c12-front-matter-only.record",
+      "result": "seal",
+      "seal": "sha256-g1:d487269d2de0655a9ed127c83b0d1006d724e600385b32f4f4b39893c1e0164b",
+      "note": "A record with no body at all."
+    },
+    {
+      "id": "c13-title-right-after-front-matter",
+      "file": "seal/c13-title-right-after-front-matter.record",
+      "result": "seal",
+      "seal": "sha256-g1:2e2e7b2650c4732ce7977c6fabdb70c0440d846ff7656bc1e00eaa7b8cc4f23a",
+      "note": "No blank line between the front matter and the title."
+    },
+    {
+      "id": "c14-heading-in-block-quote",
+      "file": "seal/c14-heading-in-block-quote.record",
+      "result": "seal",
+      "seal": "sha256-g1:7cce4f41e1ffcb005d2b9703f8bec2d41d5a9fcdbe22c083fb36db73d8f01196",
+      "note": "A heading inside a block quote does not start with the heading, so it is ordinary sealed text."
+    },
+    {
+      "id": "c15-errata-in-a-sentence",
+      "file": "seal/c15-errata-in-a-sentence.record",
+      "result": "seal",
+      "seal": "sha256-g1:ad0994adb5de7ec61c9f8c57b3fdd770bbdfc20d6fa9d4aad4026b611c45a204",
+      "note": "The words in a sentence are not a heading."
+    },
+    {
+      "id": "c16-escaped-heading",
+      "file": "seal/c16-escaped-heading.record",
+      "result": "seal",
+      "seal": "sha256-g1:0346315a1d0c936ca5b76282577ca0526506ef456c36c1ec916cde08221a230b",
+      "note": "An escaped heading is ordinary text."
+    },
+    {
+      "id": "c17-heading-with-two-spaces",
+      "file": "seal/c17-heading-with-two-spaces.record",
+      "result": "seal",
+      "seal": "sha256-g1:d09bd05c0f0279704ec6317896c90e158db71cde0ffd0d414ecd3369b87089c7",
+      "note": "Two spaces inside the name: not the excluded heading and not a lookalike, so an ordinary sealed section."
+    },
+    {
+      "id": "c18-indented-html",
+      "file": "seal/c18-indented-html.record",
+      "result": "seal",
+      "seal": "sha256-g1:44cdae4c02bbbec807c656c1baa90c8fe5d3b6e12b94a32adeca884274e60a8c",
+      "note": "Four spaces before < is not a raw HTML line start."
+    },
+    {
+      "id": "c19-less-than-in-text",
+      "file": "seal/c19-less-than-in-text.record",
+      "result": "seal",
+      "seal": "sha256-g1:31671d88d387b9594efc17fbdee769710dea3ae3c302c8a9351da79ac378766a",
+      "note": "A line that starts with < and then a space, or a digit, is not an HTML tag."
+    },
+    {
+      "id": "c20-html-inline",
+      "file": "seal/c20-html-inline.record",
+      "result": "seal",
+      "seal": "sha256-g1:0ec8a08b9e1d75b42a7d6b5feda8c50e2697fa0888224169ff0667da4b435040",
+      "note": "Inline HTML in the middle of a line is allowed."
+    },
+    {
+      "id": "a22-errata-with-a-fence-inside",
+      "file": "seal/a22-errata-with-a-fence-inside.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "An Errata section with a fence in it that holds a heading: the heading does not end the section."
+    },
+    {
+      "id": "c22-tab-inside-line",
+      "file": "seal/c22-tab-inside-line.record",
+      "result": "seal",
+      "seal": "sha256-g1:4f2e76745cb9bc28d516aed1c9cc8a1bec2e3d4bc05ed0ff488c23c3afb49fff",
+      "note": "A tab inside a line is kept."
+    },
+    {
+      "id": "d01-word-changed",
+      "file": "seal/d01-word-changed.record",
+      "result": "seal",
+      "seal": "sha256-g1:edfdc1626b310bc38891111e2bcf387ea3dba55e1a418848d80a8eb9c31f3306",
+      "note": "One word changed.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d02-heading-renamed",
+      "file": "seal/d02-heading-renamed.record",
+      "result": "seal",
+      "seal": "sha256-g1:d83d2d7cd543dedbb0de586e399fbd700fe9218368a44fb97b81647c55f14697",
+      "note": "A heading renamed.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d03-keys-swapped",
+      "file": "seal/d03-keys-swapped.record",
+      "result": "seal",
+      "seal": "sha256-g1:326f29ca14749c54f7944457a44a4af4e40ce3048f767cf6ee8dbd1273874c18",
+      "note": "Two keys in another order.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d04-key-added",
+      "file": "seal/d04-key-added.record",
+      "result": "seal",
+      "seal": "sha256-g1:a7dbef8a35c5a8ce1ada64559305658e4618d57cb340c67ab7bfc92da75d32e8",
+      "note": "A key added.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d05-inner-spaces",
+      "file": "seal/d05-inner-spaces.record",
+      "result": "seal",
+      "seal": "sha256-g1:4aa76454faadf27a5f825f0d2372a1b3d6d089d8053b77727a3760ac5a08df1e",
+      "note": "Two spaces inside a line.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d06-text-moved-into-errata",
+      "file": "seal/d06-text-moved-into-errata.record",
+      "result": "seal",
+      "seal": "sha256-g1:261e4ac01bb75a75c69494577b910729dbc8be9df927cd83ab55a3c8f31e917f",
+      "note": "Text moved from a sealed section into an Errata section.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d07-list-item-added",
+      "file": "seal/d07-list-item-added.record",
+      "result": "seal",
+      "seal": "sha256-g1:449d0d8453042efcedf98c70ef3e6d1324a18ca2c67bba06aff52208df78ac76",
+      "note": "A list item added.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d08-list-marker",
+      "file": "seal/d08-list-marker.record",
+      "result": "seal",
+      "seal": "sha256-g1:8fd65e589d667d4831d8d367deb9a04c9a785aa78c197cd6077c456523102e21",
+      "note": "Another list marker.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d09-section-removed",
+      "file": "seal/d09-section-removed.record",
+      "result": "seal",
+      "seal": "sha256-g1:76be99c4f14025092f7d6500f09f458fe40ca38df0f1989153af154b93eb13c1",
+      "note": "A section removed.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d10-case-changed",
+      "file": "seal/d10-case-changed.record",
+      "result": "seal",
+      "seal": "sha256-g1:e4dfc77b80776d6ffea7917c5fa3e11ec8d16fb1f011402ae6866e290a6bd198",
+      "note": "One letter in another case.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d11-paragraph-added",
+      "file": "seal/d11-paragraph-added.record",
+      "result": "seal",
+      "seal": "sha256-g1:051bedb30f29112f917e92533dd046b55c94ccb86cdd065dd3b5bfaa3f170aec",
+      "note": "A paragraph added.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "d12-nonexcluded-key-value",
+      "file": "seal/d12-nonexcluded-key-value.record",
+      "result": "seal",
+      "seal": "sha256-g1:a5196ce39d6c914d0487297caf4f96d032675da9576b31aab6f0d435da752509",
+      "note": "A value in the front matter changed.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "a21-level-three-heading-after-errata",
+      "file": "seal/a21-level-three-heading-after-errata.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "A level 3 heading after Errata stays inside the Errata section."
+    },
+    {
+      "id": "r01a-invalid-byte",
+      "file": "reject/r01a-invalid-byte.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "A byte that is never valid in UTF-8."
+    },
+    {
+      "id": "r01b-overlong",
+      "file": "reject/r01b-overlong.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "An overlong encoding of /."
+    },
+    {
+      "id": "r01c-surrogate",
+      "file": "reject/r01c-surrogate.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "A UTF-16 surrogate encoded in UTF-8."
+    },
+    {
+      "id": "r01d-truncated",
+      "file": "reject/r01d-truncated.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "A sequence cut short at the end of the file."
+    },
+    {
+      "id": "r01e-above-max",
+      "file": "reject/r01e-above-max.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "A code point above U+10FFFF."
+    },
+    {
+      "id": "r02a-bom",
+      "file": "reject/r02a-bom.record",
+      "result": "reject",
+      "rule": "G1-02",
+      "note": "A byte order mark at the start."
+    },
+    {
+      "id": "r02b-zero-width-no-break-space",
+      "file": "reject/r02b-zero-width-no-break-space.record",
+      "result": "reject",
+      "rule": "G1-02",
+      "note": "U+FEFF inside the text."
+    },
+    {
+      "id": "r03a-nul",
+      "file": "reject/r03a-nul.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "A NUL character."
+    },
+    {
+      "id": "r03b-escape",
+      "file": "reject/r03b-escape.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "An escape character."
+    },
+    {
+      "id": "r03c-delete",
+      "file": "reject/r03c-delete.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+007F."
+    },
+    {
+      "id": "r03d-next-line",
+      "file": "reject/r03d-next-line.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+0085, a line break for some readers."
+    },
+    {
+      "id": "r03e-backspace",
+      "file": "reject/r03e-backspace.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "A backspace."
+    },
+    {
+      "id": "r03f-c1-control",
+      "file": "reject/r03f-c1-control.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+009F."
+    },
+    {
+      "id": "r03g-form-feed",
+      "file": "reject/r03g-form-feed.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "A form feed."
+    },
+    {
+      "id": "r03h-vertical-tab",
+      "file": "reject/r03h-vertical-tab.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "A vertical tab."
+    },
+    {
+      "id": "r04a-right-to-left-override",
+      "file": "reject/r04a-right-to-left-override.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+202E."
+    },
+    {
+      "id": "r04b-isolate",
+      "file": "reject/r04b-isolate.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+2066."
+    },
+    {
+      "id": "r04c-left-to-right-mark",
+      "file": "reject/r04c-left-to-right-mark.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+200E."
+    },
+    {
+      "id": "r04d-line-separator",
+      "file": "reject/r04d-line-separator.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+2028."
+    },
+    {
+      "id": "r04e-paragraph-separator",
+      "file": "reject/r04e-paragraph-separator.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+2029."
+    },
+    {
+      "id": "r04f-arabic-letter-mark",
+      "file": "reject/r04f-arabic-letter-mark.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+061C."
+    },
+    {
+      "id": "r04g-last-isolate",
+      "file": "reject/r04g-last-isolate.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+2069, the last of the range."
+    },
+    {
+      "id": "r05a-lone-cr",
+      "file": "reject/r05a-lone-cr.record",
+      "result": "reject",
+      "rule": "G1-05",
+      "note": "A carriage return in the middle of a line."
+    },
+    {
+      "id": "r05b-double-cr-lf",
+      "file": "reject/r05b-double-cr-lf.record",
+      "result": "reject",
+      "rule": "G1-05",
+      "note": "A CR followed by CR LF: the first CR is alone."
+    },
+    {
+      "id": "r05c-cr-at-end",
+      "file": "reject/r05c-cr-at-end.record",
+      "result": "reject",
+      "rule": "G1-05",
+      "note": "A CR as the last byte."
+    },
+    {
+      "id": "r06a-comment-line",
+      "file": "reject/r06a-comment-line.record",
+      "result": "reject",
+      "rule": "G1-06",
+      "note": "An HTML comment on its own line."
+    },
+    {
+      "id": "r06b-comment-inline",
+      "file": "reject/r06b-comment-inline.record",
+      "result": "reject",
+      "rule": "G1-06",
+      "note": "An HTML comment inside a line."
+    },
+    {
+      "id": "r06c-comment-in-fence",
+      "file": "reject/r06c-comment-in-fence.record",
+      "result": "reject",
+      "rule": "G1-06",
+      "note": "The characters are rejected even in a fence."
+    },
+    {
+      "id": "r07a-blank-first-line",
+      "file": "reject/r07a-blank-first-line.record",
+      "result": "reject",
+      "rule": "G1-07",
+      "note": "A blank line before the front matter."
+    },
+    {
+      "id": "r07b-no-front-matter",
+      "file": "reject/r07b-no-front-matter.record",
+      "result": "reject",
+      "rule": "G1-07",
+      "note": "A record with no front matter."
+    },
+    {
+      "id": "r07c-four-dashes",
+      "file": "reject/r07c-four-dashes.record",
+      "result": "reject",
+      "rule": "G1-07",
+      "note": "Four dashes are not the delimiter."
+    },
+    {
+      "id": "r07d-empty-file",
+      "file": "reject/r07d-empty-file.record",
+      "result": "reject",
+      "rule": "G1-07",
+      "note": "An empty file."
+    },
+    {
+      "id": "r08a-no-closing-delimiter",
+      "file": "reject/r08a-no-closing-delimiter.record",
+      "result": "reject",
+      "rule": "G1-08",
+      "note": "The front matter is never closed."
+    },
+    {
+      "id": "r08b-dots-closing",
+      "file": "reject/r08b-dots-closing.record",
+      "result": "reject",
+      "rule": "G1-08",
+      "note": "The YAML document end marker does not close it."
+    },
+    {
+      "id": "r09a-blank-line-in-front-matter",
+      "file": "reject/r09a-blank-line-in-front-matter.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A blank line inside the front matter."
+    },
+    {
+      "id": "r09b-tab-indent",
+      "file": "reject/r09b-tab-indent.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A continuation line indented with a tab."
+    },
+    {
+      "id": "r09c-list-item-in-column-one",
+      "file": "reject/r09c-list-item-in-column-one.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A list item in column 1."
+    },
+    {
+      "id": "r09d-comment-line",
+      "file": "reject/r09d-comment-line.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A comment line."
+    },
+    {
+      "id": "r09e-no-space-after-colon",
+      "file": "reject/r09e-no-space-after-colon.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "No space after the colon."
+    },
+    {
+      "id": "r09f-continuation-first",
+      "file": "reject/r09f-continuation-first.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "An indented line before any key."
+    },
+    {
+      "id": "r09g-key-starts-with-digit",
+      "file": "reject/r09g-key-starts-with-digit.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A key that starts with a digit."
+    },
+    {
+      "id": "r09h-quoted-key",
+      "file": "reject/r09h-quoted-key.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A quoted key."
+    },
+    {
+      "id": "r10a-duplicate-key",
+      "file": "reject/r10a-duplicate-key.record",
+      "result": "reject",
+      "rule": "G1-10",
+      "note": "A key twice."
+    },
+    {
+      "id": "r10b-duplicate-key-other-case",
+      "file": "reject/r10b-duplicate-key-other-case.record",
+      "result": "reject",
+      "rule": "G1-10",
+      "note": "A key twice, the second in another case."
+    },
+    {
+      "id": "r10c-duplicate-status",
+      "file": "reject/r10c-duplicate-status.record",
+      "result": "reject",
+      "rule": "G1-10",
+      "note": "status twice."
+    },
+    {
+      "id": "r11a-status-capital",
+      "file": "reject/r11a-status-capital.record",
+      "result": "reject",
+      "rule": "G1-11",
+      "note": "status with a capital."
+    },
+    {
+      "id": "r11b-seal-capitals",
+      "file": "reject/r11b-seal-capitals.record",
+      "result": "reject",
+      "rule": "G1-11",
+      "note": "seal in capitals."
+    },
+    {
+      "id": "r11c-date-capital",
+      "file": "reject/r11c-date-capital.record",
+      "result": "reject",
+      "rule": "G1-11",
+      "note": "date with a capital."
+    },
+    {
+      "id": "r12a-status-empty",
+      "file": "reject/r12a-status-empty.record",
+      "result": "reject",
+      "rule": "G1-12",
+      "note": "An excluded key with no value."
+    },
+    {
+      "id": "r12b-seal-with-continuation",
+      "file": "reject/r12b-seal-with-continuation.record",
+      "result": "reject",
+      "rule": "G1-12",
+      "note": "An excluded key that continues on the next line."
+    },
+    {
+      "id": "r12c-date-with-continuation",
+      "file": "reject/r12c-date-with-continuation.record",
+      "result": "reject",
+      "rule": "G1-12",
+      "note": "An excluded key with its value on the next line."
+    },
+    {
+      "id": "r13a-anchor",
+      "file": "reject/r13a-anchor.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "An anchor."
+    },
+    {
+      "id": "r13b-alias",
+      "file": "reject/r13b-alias.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "An alias."
+    },
+    {
+      "id": "r13c-tag",
+      "file": "reject/r13c-tag.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "A tag."
+    },
+    {
+      "id": "r13d-literal-block",
+      "file": "reject/r13d-literal-block.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "A literal block scalar."
+    },
+    {
+      "id": "r13e-folded-block",
+      "file": "reject/r13e-folded-block.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "A folded block scalar."
+    },
+    {
+      "id": "r13f-alias-in-list",
+      "file": "reject/r13f-alias-in-list.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "An alias in a list."
+    },
+    {
+      "id": "r13g-anchor-after-spaces",
+      "file": "reject/r13g-anchor-after-spaces.record",
+      "result": "reject",
+      "rule": "G1-13",
+      "note": "An anchor after several spaces."
+    },
+    {
+      "id": "r14a-tilde-fence",
+      "file": "reject/r14a-tilde-fence.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A fence of tildes."
+    },
+    {
+      "id": "r14b-indented-fence",
+      "file": "reject/r14b-indented-fence.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A fence indented by one space."
+    },
+    {
+      "id": "r14c-tab-indented-fence",
+      "file": "reject/r14c-tab-indented-fence.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A fence indented by a tab."
+    },
+    {
+      "id": "r14d-indented-tilde-fence",
+      "file": "reject/r14d-indented-tilde-fence.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A fence of tildes indented by three spaces."
+    },
+    {
+      "id": "r14e-fence-in-list",
+      "file": "reject/r14e-fence-in-list.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A fence inside a list item."
+    },
+    {
+      "id": "r15a-unclosed-fence",
+      "file": "reject/r15a-unclosed-fence.record",
+      "result": "reject",
+      "rule": "G1-15",
+      "note": "A fence that is never closed."
+    },
+    {
+      "id": "r15b-closed-by-a-shorter-fence",
+      "file": "reject/r15b-closed-by-a-shorter-fence.record",
+      "result": "reject",
+      "rule": "G1-15",
+      "note": "A fence of four closed by three."
+    },
+    {
+      "id": "r15c-closing-fence-with-text",
+      "file": "reject/r15c-closing-fence-with-text.record",
+      "result": "reject",
+      "rule": "G1-15",
+      "note": "A closing fence with text after it does not close."
+    },
+    {
+      "id": "r16a-div",
+      "file": "reject/r16a-div.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A <div> line."
+    },
+    {
+      "id": "r16b-pre",
+      "file": "reject/r16b-pre.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A <pre> line."
+    },
+    {
+      "id": "r16c-closing-tag",
+      "file": "reject/r16c-closing-tag.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A closing tag line."
+    },
+    {
+      "id": "r16d-processing-instruction",
+      "file": "reject/r16d-processing-instruction.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A processing instruction."
+    },
+    {
+      "id": "r16e-doctype",
+      "file": "reject/r16e-doctype.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A declaration."
+    },
+    {
+      "id": "r16f-indented-details",
+      "file": "reject/r16f-indented-details.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A tag indented by three spaces."
+    },
+    {
+      "id": "r16g-anchor-tag",
+      "file": "reject/r16g-anchor-tag.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A line that starts with an inline tag."
+    },
+    {
+      "id": "r16h-autolink-with-space",
+      "file": "reject/r16h-autolink-with-space.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "An autolink with a space is not an autolink."
+    },
+    {
+      "id": "r17a-equals",
+      "file": "reject/r17a-equals.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A setext level 1 heading."
+    },
+    {
+      "id": "r17b-dashes",
+      "file": "reject/r17b-dashes.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A setext level 2 heading."
+    },
+    {
+      "id": "r17c-single-dash",
+      "file": "reject/r17c-single-dash.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A single dash under a text line."
+    },
+    {
+      "id": "r17d-errata-setext",
+      "file": "reject/r17d-errata-setext.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A setext Errata title: G1-17 is reported before G1-18."
+    },
+    {
+      "id": "r17e-indented-underline",
+      "file": "reject/r17e-indented-underline.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "An underline indented by three spaces."
+    },
+    {
+      "id": "r18a-lowercase",
+      "file": "reject/r18a-lowercase.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Another case."
+    },
+    {
+      "id": "r18b-level-three",
+      "file": "reject/r18b-level-three.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Another level."
+    },
+    {
+      "id": "r18c-no-space",
+      "file": "reject/r18c-no-space.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "No space after the marks."
+    },
+    {
+      "id": "r18d-closing-marks",
+      "file": "reject/r18d-closing-marks.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Closing marks."
+    },
+    {
+      "id": "r18e-level-one",
+      "file": "reject/r18e-level-one.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Level one."
+    },
+    {
+      "id": "r18f-fenced",
+      "file": "reject/r18f-fenced.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "The exact heading inside a fence."
+    },
+    {
+      "id": "r18g-indented-four",
+      "file": "reject/r18g-indented-four.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Indented by four spaces."
+    },
+    {
+      "id": "r18h-indented-one",
+      "file": "reject/r18h-indented-one.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Indented by one space."
+    },
+    {
+      "id": "r18i-in-front-matter",
+      "file": "reject/r18i-in-front-matter.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "In the front matter."
+    },
+    {
+      "id": "r18j-alone-on-a-line",
+      "file": "reject/r18j-alone-on-a-line.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "The word alone on a line."
+    },
+    {
+      "id": "r18k-tab",
+      "file": "reject/r18k-tab.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "A tab after the marks."
+    },
+    {
+      "id": "r18l-known-deviations-fenced-in-errata",
+      "file": "reject/r18l-known-deviations-fenced-in-errata.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "The exact heading in a fence inside an Errata section."
+    },
+    {
+      "id": "r18m-mixed-case-run",
+      "file": "reject/r18m-mixed-case-run.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "Capitals."
+    },
+    {
+      "id": "r19a-errata-twice",
+      "file": "reject/r19a-errata-twice.record",
+      "result": "reject",
+      "rule": "G1-19",
+      "note": "Two Errata sections."
+    },
+    {
+      "id": "r19b-known-deviations-twice",
+      "file": "reject/r19b-known-deviations-twice.record",
+      "result": "reject",
+      "rule": "G1-19",
+      "note": "Two Known deviations sections."
+    },
+    {
+      "id": "r19c-errata-first",
+      "file": "reject/r19c-errata-first.record",
+      "result": "reject",
+      "rule": "G1-19",
+      "note": "Errata before Known deviations."
+    },
+    {
+      "id": "r20a-no-blank-line-before",
+      "file": "reject/r20a-no-blank-line-before.record",
+      "result": "reject",
+      "rule": "G1-20",
+      "note": "The heading directly under a text line."
+    },
+    {
+      "id": "r20b-right-after-front-matter",
+      "file": "reject/r20b-right-after-front-matter.record",
+      "result": "reject",
+      "rule": "G1-20",
+      "note": "The heading directly after the front matter."
+    },
+    {
+      "id": "r20c-after-blank-with-spaces-is-fine-but-after-heading-is-not",
+      "file": "reject/r20c-after-blank-with-spaces-is-fine-but-after-heading-is-not.record",
+      "result": "reject",
+      "rule": "G1-20",
+      "note": "The heading directly under another heading."
+    },
+    {
+      "id": "o01-comment-and-no-front-matter",
+      "file": "reject/o01-comment-and-no-front-matter.record",
+      "result": "reject",
+      "rule": "G1-06",
+      "note": "Breaks G1-06 and G1-07: G1-06 is reported."
+    },
+    {
+      "id": "o02-nul-and-lone-cr",
+      "file": "reject/o02-nul-and-lone-cr.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "Breaks G1-03 and G1-05: G1-03 is reported."
+    },
+    {
+      "id": "o03-unclosed-fence-and-lookalike",
+      "file": "reject/o03-unclosed-fence-and-lookalike.record",
+      "result": "reject",
+      "rule": "G1-15",
+      "note": "Breaks G1-15 and G1-18: G1-15 is reported."
+    },
+    {
+      "id": "o04-html-and-lookalike",
+      "file": "reject/o04-html-and-lookalike.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "Breaks G1-16 and G1-18: G1-16 is reported."
+    },
+    {
+      "id": "o05-duplicate-key-and-excluded-capital",
+      "file": "reject/o05-duplicate-key-and-excluded-capital.record",
+      "result": "reject",
+      "rule": "G1-10",
+      "note": "Breaks G1-10 and G1-11: G1-10 is reported."
+    },
+    {
+      "id": "o06-invalid-utf8-and-bom",
+      "file": "reject/o06-invalid-utf8-and-bom.record",
+      "result": "reject",
+      "rule": "G1-01",
+      "note": "Breaks G1-01 and G1-02: G1-01 is reported."
+    },
+    {
+      "id": "o07-front-matter-rule-before-body-rule",
+      "file": "reject/o07-front-matter-rule-before-body-rule.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "Breaks G1-09 and G1-14: G1-09 is reported."
+    },
+    {
+      "id": "b07-fence-closing-line-with-text",
+      "file": "seal/b07-fence-closing-line-with-text.record",
+      "result": "seal",
+      "seal": "sha256-g1:cfddc693494de5bbe57a27274360afdeb4c28c386d3235d8802c1695d5fe1766",
+      "note": "A line of backticks followed by text does not close a fence, so the blank lines after it are still inside the fence."
+    },
+    {
+      "id": "b08-level-one-heading-ends-a-section",
+      "file": "seal/b08-level-one-heading-ends-a-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:934b2427c6cdbcc6402a3cc359814342fdbfe038168383ea2464edab3012cf9e",
+      "note": "A level 1 heading ends an excluded section: the text after it is sealed.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "b09-heading-indented-one-space-ends-a-section",
+      "file": "seal/b09-heading-indented-one-space-ends-a-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:f9a1ddaef1b1463c521f6797e9f9e8e2a0a148e1bb5fd9b4ae44086d6b5d4291",
+      "note": "A level 2 heading indented by one space ends an excluded section.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "b10-heading-with-tab-ends-a-section",
+      "file": "seal/b10-heading-with-tab-ends-a-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:2ca63abd6ffbdfb6623c23e39d561c641cb83f73660a1f7319b8344569d07072",
+      "note": "A tab after the marks makes a heading, which ends an excluded section.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "b11-empty-heading-ends-a-section",
+      "file": "seal/b11-empty-heading-ends-a-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:2ba93bc57dc2e09851d185ada6a50d704201253635f3ce254404bfd055779b04",
+      "note": "A heading with no text ends an excluded section.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "a23-heading-indented-four-spaces-stays-in-the-section",
+      "file": "seal/a23-heading-indented-four-spaces-stays-in-the-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Four spaces make code, not a heading: the section goes on."
+    },
+    {
+      "id": "a24-marks-without-space-stay-in-the-section",
+      "file": "seal/a24-marks-without-space-stay-in-the-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "Marks with no space after them are not a heading: the section goes on."
+    },
+    {
+      "id": "c23-unusual-characters-that-are-allowed",
+      "file": "seal/c23-unusual-characters-that-are-allowed.record",
+      "result": "seal",
+      "seal": "sha256-g1:25337377f575cd9f4815d6b342e9b7b8daa07f5b226a5f230f5a9b13b114ae72",
+      "note": "Characters that look odd but are not on the list of G1-02 to G1-04."
+    },
+    {
+      "id": "c24-key-characters",
+      "file": "seal/c24-key-characters.record",
+      "result": "seal",
+      "seal": "sha256-g1:fdce35b6f983bd7e585be1d4be2e50a7ecf9bb19c048e28ebc8e51ca589c571d",
+      "note": "Digits, underscore, hyphen and capitals inside a key."
+    },
+    {
+      "id": "c25-two-tildes",
+      "file": "seal/c25-two-tildes.record",
+      "result": "seal",
+      "seal": "sha256-g1:79e6ecadf59a5ddcd91e1028c08c68bccf8ff86e82a7d23e73db4819351827fe",
+      "note": "Two tildes are not a fence."
+    },
+    {
+      "id": "c26-line-of-inline-code",
+      "file": "seal/c26-line-of-inline-code.record",
+      "result": "seal",
+      "seal": "sha256-g1:797de722a56ea2159134dbcc16702021bb6c9da3c3ca0d2524ae8759609e2213",
+      "note": "A line that starts with three backticks and has more backticks after them opens no fence."
+    },
+    {
+      "id": "c27-autolink-scheme-lengths",
+      "file": "seal/c27-autolink-scheme-lengths.record",
+      "result": "seal",
+      "seal": "sha256-g1:356edc4a3fd4760ecd018b04610e5c6957f860c0572e1156b6be530b0e4fad98",
+      "note": "An autolink scheme of 2 and of 32 characters."
+    },
+    {
+      "id": "c28-rule-after-a-fence",
+      "file": "seal/c28-rule-after-a-fence.record",
+      "result": "seal",
+      "seal": "sha256-g1:8519633cbdcae1f409137b23363372c84952af7e7ac8b13ccce3d8f5bdd327c6",
+      "note": "A --- right after a closing fence is a thematic break."
+    },
+    {
+      "id": "c29-rule-right-after-front-matter",
+      "file": "seal/c29-rule-right-after-front-matter.record",
+      "result": "seal",
+      "seal": "sha256-g1:0d18099c37f500c7cb9cbebe53d7406ae01dff15b1b9a993b4fe2a6945fde6f2",
+      "note": "A --- as the first line of the body."
+    },
+    {
+      "id": "d14-trailing-no-break-space",
+      "file": "seal/d14-trailing-no-break-space.record",
+      "result": "seal",
+      "seal": "sha256-g1:4538d8714892d7f98d48178b095171be5cd6eef921933481a7a1320227c359eb",
+      "note": "A no-break space at the end of a line is not white space for this page.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "r03i-shift-out",
+      "file": "reject/r03i-shift-out.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+000E."
+    },
+    {
+      "id": "r03j-unit-separator",
+      "file": "reject/r03j-unit-separator.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+001F."
+    },
+    {
+      "id": "r03k-first-c1-control",
+      "file": "reject/r03k-first-c1-control.record",
+      "result": "reject",
+      "rule": "G1-03",
+      "note": "U+0080."
+    },
+    {
+      "id": "r04h-right-to-left-mark",
+      "file": "reject/r04h-right-to-left-mark.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+200F."
+    },
+    {
+      "id": "r04i-left-to-right-embedding",
+      "file": "reject/r04i-left-to-right-embedding.record",
+      "result": "reject",
+      "rule": "G1-04",
+      "note": "U+202A."
+    },
+    {
+      "id": "r09i-dot-in-key",
+      "file": "reject/r09i-dot-in-key.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A dot in a key."
+    },
+    {
+      "id": "r09j-tab-after-indent",
+      "file": "reject/r09j-tab-after-indent.record",
+      "result": "reject",
+      "rule": "G1-09",
+      "note": "A space and then a tab: not a continuation line."
+    },
+    {
+      "id": "c30-no-break-space-after-indent",
+      "file": "seal/c30-no-break-space-after-indent.record",
+      "result": "seal",
+      "seal": "sha256-g1:17bffaf79e27c1ed3f4a19ff69bc058c54f4f4b384b95a38a2bb4062f4b3ca11",
+      "note": "A no-break space after the indent is a character, not white space for this page.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "r16i-scheme-of-one-letter",
+      "file": "reject/r16i-scheme-of-one-letter.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "An autolink scheme needs at least two characters."
+    },
+    {
+      "id": "r16j-scheme-of-33-characters",
+      "file": "reject/r16j-scheme-of-33-characters.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "An autolink scheme has at most 32 characters."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+---
+status: proposed
+date: 2026-11-03
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+Pourquoi une décision était nécessaire: 決定の理由, 🔒.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.

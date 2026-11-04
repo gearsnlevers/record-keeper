@@ -1,0 +1,35 @@
+---
+status: proposed
+date: 2026-11-03
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+  - scripts/**
+supersedes:
+  - 0003
+repos:
+  - owner/one
+  - owner/two
+window: 5.x until 6.0
+issues:
+  - owner/repo#123
+---
+
+# Example decision
+
+## Context and problem statement
+
+Why a decision was needed.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.
