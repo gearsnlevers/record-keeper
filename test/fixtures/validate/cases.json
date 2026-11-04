@@ -1,0 +1,1622 @@
+{
+  "cases": [
+    {
+      "id": "ok01-base",
+      "folder": "ok01-base",
+      "expect": [],
+      "note": "Three records (one superseded, one with every optional section, one with an Errata section), the template and an index."
+    },
+    {
+      "id": "ok02-no-records",
+      "folder": "ok02-no-records",
+      "expect": [],
+      "note": "A folder with no record yet is valid."
+    },
+    {
+      "id": "ok03-crlf",
+      "folder": "ok03-crlf",
+      "expect": [],
+      "note": "Every file has CRLF line endings."
+    },
+    {
+      "id": "ok04-extra-key-allowed",
+      "folder": "ok04-extra-key-allowed",
+      "extra-keys": [
+        "repos"
+      ],
+      "expect": [],
+      "note": "A key beyond the standard ones is allowed when the settings list it."
+    },
+    {
+      "id": "ok05-extra-key-as-value",
+      "folder": "ok05-extra-key-as-value",
+      "extra-keys": [
+        "window"
+      ],
+      "expect": [],
+      "note": "An extra key may be a single value or a list."
+    },
+    {
+      "id": "ok06-shared-folder-not-looked-at",
+      "folder": "ok06-shared-folder-not-looked-at",
+      "expect": [],
+      "note": "The shared folder (default name shared) is not looked at by this check."
+    },
+    {
+      "id": "ok07-shared-folder-named-in-settings",
+      "folder": "ok07-shared-folder-named-in-settings",
+      "shared-folder": "core",
+      "expect": [],
+      "note": "The shared folder may have another name when the settings say so."
+    },
+    {
+      "id": "ok08-dotfile-not-looked-at",
+      "folder": "ok08-dotfile-not-looked-at",
+      "expect": [],
+      "note": "Names that start with a dot are not looked at."
+    },
+    {
+      "id": "ok09-index-after-another-table",
+      "folder": "ok09-index-after-another-table",
+      "expect": [],
+      "note": "A table before the Index section that links a record is not the index."
+    },
+    {
+      "id": "ok10-index-with-number-link",
+      "folder": "ok10-index-with-number-link",
+      "expect": [],
+      "note": "The number is the link and the title is its own cell: the row still shows the title and the status."
+    },
+    {
+      "id": "ok11-index-text-after-table",
+      "folder": "ok11-index-text-after-table",
+      "expect": [],
+      "note": "Only the lines of the Index section count: text after it, and a later heading, do not."
+    },
+    {
+      "id": "ok12-index-heading-in-a-fence",
+      "folder": "ok12-index-heading-in-a-fence",
+      "expect": [],
+      "note": "A heading inside a code block is not the Index section."
+    },
+    {
+      "id": "ok13-status-rejected",
+      "folder": "ok13-status-rejected",
+      "expect": [],
+      "note": "rejected is a status."
+    },
+    {
+      "id": "ok14-supersede-chain",
+      "folder": "ok14-supersede-chain",
+      "expect": [],
+      "note": "A record superseded by a higher number that exists."
+    },
+    {
+      "id": "ok15-seal-of-another-generation",
+      "folder": "ok15-seal-of-another-generation",
+      "expect": [],
+      "note": "Only the form of the seal is checked here: a generation this version does not know is still well formed."
+    },
+    {
+      "id": "ok16-sixty-lines",
+      "folder": "ok16-sixty-lines",
+      "expect": [],
+      "note": "A record of exactly 60 lines."
+    },
+    {
+      "id": "ok17-heading-in-a-fence",
+      "folder": "ok17-heading-in-a-fence",
+      "expect": [],
+      "note": "A line that starts with ## inside a code block is not a heading."
+    },
+    {
+      "id": "ok18-list-indent-four",
+      "folder": "ok18-list-indent-four",
+      "expect": [],
+      "note": "List items may be indented by any number of spaces."
+    },
+    {
+      "id": "ok19-scoped-package-name",
+      "folder": "ok19-scoped-package-name",
+      "expect": [],
+      "note": "A scoped package name is not an e-mail address."
+    },
+    {
+      "id": "ok20-heading-three-spaces-is-text",
+      "folder": "ok20-heading-three-spaces-is-text",
+      "expect": [],
+      "note": "A ## heading indented by spaces is not a section heading for this check."
+    },
+    {
+      "id": "bad01-folder-missing",
+      "folder": "no-such-folder",
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-01"
+        }
+      ],
+      "note": "The folder does not exist."
+    },
+    {
+      "id": "bad02-no-readme",
+      "folder": "bad02-no-readme",
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "V-02"
+        }
+      ],
+      "note": "There is no README.md."
+    },
+    {
+      "id": "bad03-no-template",
+      "folder": "bad03-no-template",
+      "expect": [
+        {
+          "file": "template.md",
+          "rule": "V-03"
+        }
+      ],
+      "note": "There is no template.md."
+    },
+    {
+      "id": "bad04-symlink",
+      "folder": "bad04-symlink",
+      "symlinks": [
+        {
+          "name": "0004-linked.md",
+          "target": "0002-second-decision.md"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0004-linked.md",
+          "rule": "V-04"
+        }
+      ],
+      "note": "A record that is a symbolic link."
+    },
+    {
+      "id": "bad05a-stray-file",
+      "folder": "bad05a-stray-file",
+      "expect": [
+        {
+          "file": "notes.txt",
+          "rule": "V-05"
+        }
+      ],
+      "note": "A file that is not a record."
+    },
+    {
+      "id": "bad05b-capital-letters",
+      "folder": "bad05b-capital-letters",
+      "expect": [
+        {
+          "file": "0004-Fourth-Decision.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "Capital letters in the name."
+    },
+    {
+      "id": "bad05c-underscore",
+      "folder": "bad05c-underscore",
+      "expect": [
+        {
+          "file": "0004_fourth_decision.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "An underscore."
+    },
+    {
+      "id": "bad05d-three-digits",
+      "folder": "bad05d-three-digits",
+      "expect": [
+        {
+          "file": "004-fourth.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "Three digits."
+    },
+    {
+      "id": "bad05e-no-title",
+      "folder": "bad05e-no-title",
+      "expect": [
+        {
+          "file": "0004.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "A number and no title."
+    },
+    {
+      "id": "bad05f-double-hyphen",
+      "folder": "bad05f-double-hyphen",
+      "expect": [
+        {
+          "file": "0004-fourth--decision.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "Two hyphens in a row."
+    },
+    {
+      "id": "bad05g-lowercase-readme",
+      "folder": "bad05g-lowercase-readme",
+      "expect": [
+        {
+          "file": "readme.txt",
+          "rule": "V-05"
+        }
+      ],
+      "note": "Another name for the README."
+    },
+    {
+      "id": "bad05h-trailing-hyphen",
+      "folder": "bad05h-trailing-hyphen",
+      "expect": [
+        {
+          "file": "0004-fourth-.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "A hyphen at the end of the title."
+    },
+    {
+      "id": "bad06-other-subfolder",
+      "folder": "bad06-other-subfolder",
+      "expect": [
+        {
+          "file": "archive",
+          "rule": "V-06"
+        }
+      ],
+      "note": "A subfolder that is not the shared folder."
+    },
+    {
+      "id": "bad07-number-twice",
+      "folder": "bad07-number-twice",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-07"
+        }
+      ],
+      "note": "Two files with the number 0002: the later one is reported."
+    },
+    {
+      "id": "bad08a-gap",
+      "folder": "bad08a-gap",
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-08"
+        }
+      ],
+      "note": "The numbers go 0001, 0002, 0003, 0005: 0004 is missing."
+    },
+    {
+      "id": "bad08b-does-not-start-at-one",
+      "folder": "bad08b-does-not-start-at-one",
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-08"
+        }
+      ],
+      "note": "The first record is 0002."
+    },
+    {
+      "id": "bad09a-g1-comment",
+      "folder": "bad09a-g1-comment",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-06"
+        }
+      ],
+      "note": "A record that breaks a rule of generation g1 is reported with that rule, and nothing else is said about it."
+    },
+    {
+      "id": "bad09b-g1-no-front-matter",
+      "folder": "bad09b-g1-no-front-matter",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-07"
+        }
+      ],
+      "note": "No front matter."
+    },
+    {
+      "id": "bad09c-g1-capital-status",
+      "folder": "bad09c-g1-capital-status",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-11"
+        }
+      ],
+      "note": "status written with a capital letter (g1 refuses it)."
+    },
+    {
+      "id": "bad09d-g1-byte-order-mark",
+      "folder": "bad09d-g1-byte-order-mark",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-02"
+        }
+      ],
+      "note": "A byte order mark."
+    },
+    {
+      "id": "bad09e-g1-and-no-index-row",
+      "folder": "bad09e-g1-and-no-index-row",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-06"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-30"
+        }
+      ],
+      "note": "The index is checked for a record that breaks g1 too, but its status and title are not, since they cannot be read."
+    },
+    {
+      "id": "bad10-sixty-one-lines",
+      "folder": "bad10-sixty-one-lines",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "A record of 61 lines."
+    },
+    {
+      "id": "bad11-credential",
+      "folder": "bad11-credential",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-11"
+        }
+      ],
+      "note": "Something that looks like a GitHub token."
+    },
+    {
+      "id": "bad12-email",
+      "folder": "bad12-email",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-12"
+        }
+      ],
+      "note": "An e-mail address."
+    },
+    {
+      "id": "bad13a-unknown-key",
+      "folder": "bad13a-unknown-key",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-13"
+        }
+      ],
+      "note": "A key that is not standard and not in the settings."
+    },
+    {
+      "id": "bad13b-capitalised-key",
+      "folder": "bad13b-capitalised-key",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-13"
+        }
+      ],
+      "note": "Keys are lower case."
+    },
+    {
+      "id": "bad13c-extra-key-not-listed",
+      "folder": "bad13c-extra-key-not-listed",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-13"
+        }
+      ],
+      "note": "repos is an extra key: not allowed unless the settings list it."
+    },
+    {
+      "id": "bad13d-two-unknown-keys",
+      "folder": "bad13d-two-unknown-keys",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-13"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-13"
+        }
+      ],
+      "note": "Each unknown key is reported."
+    },
+    {
+      "id": "bad14a-decision-makers-as-value",
+      "folder": "bad14a-decision-makers-as-value",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-14"
+        }
+      ],
+      "note": "decision-makers is a list, here a single value (the form frodo-cli uses today)."
+    },
+    {
+      "id": "bad14b-date-as-list",
+      "folder": "bad14b-date-as-list",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-12"
+        }
+      ],
+      "note": "date as a list: g1 already refuses an excluded key with continuation lines."
+    },
+    {
+      "id": "bad14c-applies-to-as-value",
+      "folder": "bad14c-applies-to-as-value",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-14"
+        }
+      ],
+      "note": "applies-to is a list."
+    },
+    {
+      "id": "bad14d-issues-as-value",
+      "folder": "bad14d-issues-as-value",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-14"
+        }
+      ],
+      "note": "issues is a list."
+    },
+    {
+      "id": "bad15a-empty-list",
+      "folder": "bad15a-empty-list",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-15"
+        }
+      ],
+      "note": "A key with no value and no items."
+    },
+    {
+      "id": "bad15b-empty-decision-makers",
+      "folder": "bad15b-empty-decision-makers",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-15"
+        }
+      ],
+      "note": "decision-makers with no item."
+    },
+    {
+      "id": "bad16a-value-and-items",
+      "folder": "bad16a-value-and-items",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-16"
+        }
+      ],
+      "note": "A value on the key line and list items under it."
+    },
+    {
+      "id": "bad16b-line-that-is-not-an-item",
+      "folder": "bad16b-line-that-is-not-an-item",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-16"
+        }
+      ],
+      "note": "A line under a key that is not a list item."
+    },
+    {
+      "id": "bad16c-dash-without-space",
+      "folder": "bad16c-dash-without-space",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-16"
+        }
+      ],
+      "note": "A dash with no space after it is not a list item."
+    },
+    {
+      "id": "bad17a-missing-date",
+      "folder": "bad17a-missing-date",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-17"
+        }
+      ],
+      "note": "No date."
+    },
+    {
+      "id": "bad17b-missing-decision-makers",
+      "folder": "bad17b-missing-decision-makers",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-17"
+        }
+      ],
+      "note": "No decision-makers."
+    },
+    {
+      "id": "bad17c-missing-status",
+      "folder": "bad17c-missing-status",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-17"
+        }
+      ],
+      "note": "No status; the status is not judged because there is none."
+    },
+    {
+      "id": "bad18a-capital-status",
+      "folder": "bad18a-capital-status",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-18"
+        }
+      ],
+      "note": "The status is lower case."
+    },
+    {
+      "id": "bad18b-unknown-status",
+      "folder": "bad18b-unknown-status",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-18"
+        }
+      ],
+      "note": "A status that does not exist."
+    },
+    {
+      "id": "bad18c-superseded-by-three-digits",
+      "folder": "bad18c-superseded-by-three-digits",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-18"
+        }
+      ],
+      "note": "The number after superseded by has four digits."
+    },
+    {
+      "id": "bad18d-superseded-without-number",
+      "folder": "bad18d-superseded-without-number",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-18"
+        }
+      ],
+      "note": "superseded needs a number."
+    },
+    {
+      "id": "bad19-deprecated",
+      "folder": "bad19-deprecated",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-19"
+        }
+      ],
+      "note": "There is no bare deprecated: a record ends only by a successor."
+    },
+    {
+      "id": "bad20a-superseded-by-missing",
+      "folder": "bad20a-superseded-by-missing",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-20"
+        }
+      ],
+      "note": "The successor does not exist."
+    },
+    {
+      "id": "bad20b-superseded-by-itself",
+      "folder": "bad20b-superseded-by-itself",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-20"
+        }
+      ],
+      "note": "A record cannot supersede itself."
+    },
+    {
+      "id": "bad20c-superseded-by-lower",
+      "folder": "bad20c-superseded-by-lower",
+      "expect": [
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-20"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-33"
+        }
+      ],
+      "note": "The successor must have a higher number. (The index row, which says accepted, no longer shows the status.)"
+    },
+    {
+      "id": "bad21a-impossible-date",
+      "folder": "bad21a-impossible-date",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-21"
+        }
+      ],
+      "note": "There is no month 13."
+    },
+    {
+      "id": "bad21b-short-date",
+      "folder": "bad21b-short-date",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-21"
+        }
+      ],
+      "note": "The date has two digits for the month and the day."
+    },
+    {
+      "id": "bad21c-feb-30",
+      "folder": "bad21c-feb-30",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-21"
+        }
+      ],
+      "note": "There is no 30 February."
+    },
+    {
+      "id": "bad21d-date-with-time",
+      "folder": "bad21d-date-with-time",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-21"
+        }
+      ],
+      "note": "A date and no time."
+    },
+    {
+      "id": "bad22a-seal-uppercase",
+      "folder": "bad22a-seal-uppercase",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-22"
+        }
+      ],
+      "note": "The digits of a seal are lower case."
+    },
+    {
+      "id": "bad22b-seal-short",
+      "folder": "bad22b-seal-short",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-22"
+        }
+      ],
+      "note": "The seal has 64 digits."
+    },
+    {
+      "id": "bad22c-seal-no-generation",
+      "folder": "bad22c-seal-no-generation",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-22"
+        }
+      ],
+      "note": "The seal names its generation."
+    },
+    {
+      "id": "bad23a-issue-without-number",
+      "folder": "bad23a-issue-without-number",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-23"
+        }
+      ],
+      "note": "An issue is written owner/repo#N."
+    },
+    {
+      "id": "bad23b-issue-without-repo",
+      "folder": "bad23b-issue-without-repo",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-23"
+        }
+      ],
+      "note": "An issue names its repository."
+    },
+    {
+      "id": "bad23c-issue-as-url",
+      "folder": "bad23c-issue-as-url",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-23"
+        }
+      ],
+      "note": "A link is not the form."
+    },
+    {
+      "id": "bad24a-no-title",
+      "folder": "bad24a-no-title",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-24"
+        }
+      ],
+      "note": "The body starts with a section, not a title."
+    },
+    {
+      "id": "bad24b-title-without-space",
+      "folder": "bad24b-title-without-space",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-24"
+        }
+      ],
+      "note": "No space after the #."
+    },
+    {
+      "id": "bad24d-text-before-the-title",
+      "folder": "bad24d-text-before-the-title",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-24"
+        }
+      ],
+      "note": "Text before the title."
+    },
+    {
+      "id": "bad25a-unknown-section",
+      "folder": "bad25a-unknown-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-25"
+        }
+      ],
+      "note": "A section that is not one of the six."
+    },
+    {
+      "id": "bad25b-two-spaces",
+      "folder": "bad25b-two-spaces",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-25"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "Two spaces after ##: not the section Decision (so it is also missing)."
+    },
+    {
+      "id": "bad25c-trailing-colon",
+      "folder": "bad25c-trailing-colon",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-25"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "A colon at the end of the name."
+    },
+    {
+      "id": "bad25d-lower-case",
+      "folder": "bad25d-lower-case",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-25"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "The names of the sections are written as given."
+    },
+    {
+      "id": "bad26a-missing-consequences",
+      "folder": "bad26a-missing-consequences",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "No Consequences."
+    },
+    {
+      "id": "bad26b-missing-context",
+      "folder": "bad26b-missing-context",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "No Context and problem statement."
+    },
+    {
+      "id": "bad26c-missing-decision-and-consequences",
+      "folder": "bad26c-missing-decision-and-consequences",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-26"
+        }
+      ],
+      "note": "Two required sections missing: each is reported."
+    },
+    {
+      "id": "bad27a-alternatives-before-consequences",
+      "folder": "bad27a-alternatives-before-consequences",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-27"
+        }
+      ],
+      "note": "Alternatives considered must come after Consequences."
+    },
+    {
+      "id": "bad27b-repeated-section",
+      "folder": "bad27b-repeated-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-27"
+        }
+      ],
+      "note": "A section twice."
+    },
+    {
+      "id": "bad27c-errata-before-alternatives",
+      "folder": "bad27c-errata-before-alternatives",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-27"
+        }
+      ],
+      "note": "Errata is the last section."
+    },
+    {
+      "id": "bad27d-deviations-after-alternatives",
+      "folder": "bad27d-deviations-after-alternatives",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-27"
+        }
+      ],
+      "note": "Known deviations comes before Alternatives considered."
+    },
+    {
+      "id": "bad28a-empty-section",
+      "folder": "bad28a-empty-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-28"
+        }
+      ],
+      "note": "A section with nothing in it."
+    },
+    {
+      "id": "bad28b-only-blank-lines",
+      "folder": "bad28b-only-blank-lines",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-28"
+        }
+      ],
+      "note": "A section of blank lines."
+    },
+    {
+      "id": "ok22-row-without-closing-pipe",
+      "folder": "ok22-row-without-closing-pipe",
+      "expect": [],
+      "note": "A row does not need a closing pipe."
+    },
+    {
+      "id": "ok21-section-of-a-subheading",
+      "folder": "ok21-section-of-a-subheading",
+      "expect": [],
+      "note": "A level 3 heading is content."
+    },
+    {
+      "id": "bad29a-no-index-heading",
+      "folder": "bad29a-no-index-heading",
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "V-29"
+        }
+      ],
+      "note": "The README has no Index section: only that is reported, not a missing row for every record."
+    },
+    {
+      "id": "bad29b-index-heading-trailing-text",
+      "folder": "bad29b-index-heading-trailing-text",
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "V-29"
+        }
+      ],
+      "note": "The heading is exactly ## Index."
+    },
+    {
+      "id": "bad30-record-without-row",
+      "folder": "bad30-record-without-row",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-30"
+        }
+      ],
+      "note": "A record with no row in the index."
+    },
+    {
+      "id": "bad31-two-rows",
+      "folder": "bad31-two-rows",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-31"
+        }
+      ],
+      "note": "A record with two rows in the index."
+    },
+    {
+      "id": "bad32-row-for-missing-record",
+      "folder": "bad32-row-for-missing-record",
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "V-32"
+        }
+      ],
+      "note": "A row that links a record that does not exist."
+    },
+    {
+      "id": "bad33a-status-differs",
+      "folder": "bad33a-status-differs",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-33"
+        }
+      ],
+      "note": "The row says accepted, the record says proposed."
+    },
+    {
+      "id": "bad33b-status-in-longer-text",
+      "folder": "bad33b-status-in-longer-text",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-33"
+        }
+      ],
+      "note": "A cell equals the status; a longer text does not."
+    },
+    {
+      "id": "bad33c-empty-status-cell",
+      "folder": "bad33c-empty-status-cell",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-33"
+        }
+      ],
+      "note": "An empty status cell."
+    },
+    {
+      "id": "bad34a-title-differs",
+      "folder": "bad34a-title-differs",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-34"
+        }
+      ],
+      "note": "The row shows another title."
+    },
+    {
+      "id": "bad34b-title-case",
+      "folder": "bad34b-title-case",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-34"
+        }
+      ],
+      "note": "The title is compared as written."
+    },
+    {
+      "id": "multi01-frodo-cli-style",
+      "folder": "multi01-frodo-cli-style",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-14"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-19"
+        }
+      ],
+      "note": "A record with decision-makers as a value (V-14), and one that is deprecated (V-19): frodo-cli and frodo-lib have both today."
+    },
+    {
+      "id": "ok23-valid-dates",
+      "folder": "ok23-valid-dates",
+      "expect": [],
+      "note": "The last day of every month, and 29 February of a leap year (2024, and 2000 which is divisible by 400)."
+    },
+    {
+      "id": "bad21e-invalid-dates",
+      "folder": "bad21e-invalid-dates",
+      "expect": [
+        {
+          "file": "0001-date-0.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0002-date-1.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0003-date-2.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0004-date-3.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0005-date-4.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0006-date-5.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0007-date-6.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0008-date-7.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0009-date-8.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0010-date-9.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0011-date-10.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0012-date-11.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0013-date-12.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0014-date-13.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0015-date-14.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0016-date-15.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0017-date-16.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0018-date-17.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0019-date-18.md",
+          "rule": "V-21"
+        },
+        {
+          "file": "0020-date-19.md",
+          "rule": "V-21"
+        }
+      ],
+      "note": "Each date is not a real one: 29 February of a year that is not a leap year (also 2100 and 1900), a day past the end of its month, a month or day 00, month 13, and spellings that are not YYYY-MM-DD."
+    },
+    {
+      "id": "ok24-record-names",
+      "folder": "ok24-record-names",
+      "expect": [],
+      "note": "Names with digits in the title, one letter, and many groups."
+    },
+    {
+      "id": "bad05i-name-variants",
+      "folder": "bad05i-name-variants",
+      "expect": [
+        {
+          "file": "-0004-late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "00004-late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004 late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004--late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-Late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-late-.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-late.md.bak",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-late.mdx",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-late_md.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004-other.MD",
+          "rule": "V-05"
+        },
+        {
+          "file": "0004late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "004-late.md",
+          "rule": "V-05"
+        },
+        {
+          "file": "x0004-late.md",
+          "rule": "V-05"
+        }
+      ],
+      "note": "Names that look like a record file and are not: text before the number, another extension, an extra suffix, an empty or doubled hyphen group, capitals, an underscore, a space, the wrong number of digits."
+    },
+    {
+      "id": "bad11b-credential-kinds",
+      "folder": "bad11b-credential-kinds",
+      "expect": [
+        {
+          "file": "0001-ghp.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0002-github-pat.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0003-private-key.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0004-private-key-plain.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0005-aws.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0006-slack-b.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0007-slack-p.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0008-slack-a.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0009-slack-r.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0010-slack-s.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0011-ghp-exact.md",
+          "rule": "V-11"
+        },
+        {
+          "file": "0012-pat-exact.md",
+          "rule": "V-11"
+        }
+      ],
+      "note": "One record for each kind of credential the pattern knows, at its shortest length where the pattern has one."
+    },
+    {
+      "id": "ok25-near-credentials",
+      "folder": "ok25-near-credentials",
+      "expect": [],
+      "note": "Text that is one character short of a credential, a public key header, and the bare prefixes."
+    },
+    {
+      "id": "bad12b-email-forms",
+      "folder": "bad12b-email-forms",
+      "expect": [
+        {
+          "file": "0001-plain.md",
+          "rule": "V-12"
+        },
+        {
+          "file": "0002-dots-plus.md",
+          "rule": "V-12"
+        },
+        {
+          "file": "0003-mixed.md",
+          "rule": "V-12"
+        },
+        {
+          "file": "0004-digits.md",
+          "rule": "V-12"
+        }
+      ],
+      "note": "E-mail addresses with dots, a plus, hyphens, an underscore, a percent sign, capitals, digits, several domain levels and a two-letter top level."
+    },
+    {
+      "id": "ok26-near-emails",
+      "folder": "ok26-near-emails",
+      "expect": [],
+      "note": "A top level of one letter, a scoped package name, a host with no dot, and an at sign with spaces are not addresses."
+    },
+    {
+      "id": "ok27-issue-forms",
+      "folder": "ok27-issue-forms",
+      "expect": [],
+      "note": "Issues with hyphens, dots, underscores, capitals, digits and leading zeros."
+    },
+    {
+      "id": "bad23d-issue-forms",
+      "folder": "bad23d-issue-forms",
+      "expect": [
+        {
+          "file": "0001-issue-0.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0002-issue-1.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0003-issue-2.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0004-issue-3.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0005-issue-4.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0006-issue-5.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0007-issue-6.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0008-issue-7.md",
+          "rule": "V-23"
+        },
+        {
+          "file": "0009-issue-8.md",
+          "rule": "V-23"
+        }
+      ],
+      "note": "Items that are not owner/repo#N: a missing owner, repository or number, text after the number, a space, a second slash, a negative number."
+    },
+    {
+      "id": "bad18e-status-forms",
+      "folder": "bad18e-status-forms",
+      "expect": [
+        {
+          "file": "0002-status-0.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0003-status-1.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0004-status-2.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0005-status-3.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0006-status-4.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0007-status-5.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0008-status-6.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0009-status-7.md",
+          "rule": "V-18"
+        },
+        {
+          "file": "0010-status-8.md",
+          "rule": "V-18"
+        }
+      ],
+      "note": "Statuses that only look like a valid one: text before or after, a capital, two spaces, five digits, punctuation, a word that is not a status."
+    },
+    {
+      "id": "bad22d-seal-forms",
+      "folder": "bad22d-seal-forms",
+      "expect": [
+        {
+          "file": "0001-seal-0.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0002-seal-1.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0003-seal-2.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0004-seal-3.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0005-seal-4.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0006-seal-5.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0007-seal-6.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0008-seal-7.md",
+          "rule": "V-22"
+        },
+        {
+          "file": "0009-seal-8.md",
+          "rule": "V-22"
+        }
+      ],
+      "note": "Seals with no generation number, text before, a letter past f, one digit too many or too few, and no prefix."
+    },
+    {
+      "id": "ok29-seal-forms",
+      "folder": "ok29-seal-forms",
+      "expect": [],
+      "note": "Seals with digits in the hash, and one-, and three-digit generation numbers."
+    },
+    {
+      "id": "bad10b-sixty-one-lines-no-final-newline",
+      "folder": "bad10b-sixty-one-lines-no-final-newline",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "A record of 61 lines with no line feed at the end."
+    },
+    {
+      "id": "ok30-sixty-lines-no-final-newline",
+      "folder": "ok30-sixty-lines-no-final-newline",
+      "expect": [],
+      "note": "A record of 60 lines with no line feed at the end."
+    },
+    {
+      "id": "ok31-one-character-item",
+      "folder": "ok31-one-character-item",
+      "expect": [],
+      "note": "An item of one character is an item."
+    },
+    {
+      "id": "ok32-title-right-after-front-matter",
+      "folder": "ok32-title-right-after-front-matter",
+      "expect": [],
+      "note": "No empty line between the front matter and the title."
+    },
+    {
+      "id": "bad27e-first-two-sections-swapped",
+      "folder": "bad27e-first-two-sections-swapped",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-27"
+        }
+      ],
+      "note": "Decision comes before Context and problem statement: the first two sections are out of order."
+    },
+    {
+      "id": "ok33-readme-trailing-white-space",
+      "folder": "ok33-readme-trailing-white-space",
+      "expect": [],
+      "note": "Trailing spaces and tabs in the README are not part of what is read."
+    },
+    {
+      "id": "ok34-index-heading-on-the-first-line",
+      "folder": "ok34-index-heading-on-the-first-line",
+      "expect": [],
+      "note": "The README may start with the Index heading."
+    },
+    {
+      "id": "bad29c-index-section-is-empty",
+      "folder": "bad29c-index-section-is-empty",
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "V-30"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-30"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-30"
+        }
+      ],
+      "note": "The line right after the Index heading is another heading: the section is empty, so no record has a row."
+    },
+    {
+      "id": "ok35-status-in-the-first-column",
+      "folder": "ok35-status-in-the-first-column",
+      "expect": [],
+      "note": "The status is the first cell of the row and the title is the second."
+    },
+    {
+      "id": "ok36-title-only-in-a-cell",
+      "folder": "ok36-title-only-in-a-cell",
+      "expect": [],
+      "note": "The title is a cell of its own and the link text is something else."
+    },
+    {
+      "id": "ok37-title-only-in-the-link",
+      "folder": "ok37-title-only-in-the-link",
+      "expect": [],
+      "note": "The title is the text of the link, in a cell that has more text."
+    },
+    {
+      "id": "ok38-readme-text-with-backticks",
+      "folder": "ok38-readme-text-with-backticks",
+      "expect": [],
+      "note": "Backticks in a sentence, or two of them alone on a line, do not open a code block in the README."
+    },
+    {
+      "id": "ok39-readme-code-block-with-fence-text",
+      "folder": "ok39-readme-code-block-with-fence-text",
+      "expect": [],
+      "note": "A line that ends in three backticks, inside a code block of four, does not close it, so the Index heading inside the block is not the index."
+    },
+    {
+      "id": "ok40-index-links-that-are-not-record-names",
+      "folder": "ok40-index-links-that-are-not-record-names",
+      "expect": [],
+      "note": "A row whose link is not the name of a record file is not a row for a record."
+    }
+  ]
+}
