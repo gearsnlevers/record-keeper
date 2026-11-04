@@ -333,13 +333,13 @@ Today the Concierge validates its records with its own script and its own tests;
 | # | What | Outcome |
 | - | ---- | ------- |
 | M0 | This design, record 0001 and the repository | reviewed and accepted |
-| M1 | The library: parse, seal, compare, validate, with tests, and the canonical form of generation g1 with fixed test vectors, among them adversarial ones (duplicate keys, fake headings, byte-order marks, symlinks, odd modes, `.gitattributes`), published as a spec of the canonical form in `docs/generation-g1.md` so that anyone can recompute a seal | `record-keeper.mjs` with `validate`, `seal` and `seal --verify <file>` |
+| M1 | The library: parse, seal, compare, validate (the format of a record, with the `supersedes:` key that the status vouching of M2 needs), with tests, and the canonical form of generation g1 with fixed test vectors, among them adversarial ones (duplicate keys, fake headings, byte-order marks, symlinks, odd modes, `.gitattributes`), published as a spec of the canonical form in `docs/generation-g1.md` so that anyone can recompute a seal | `record-keeper.mjs` with `validate`, `seal` and `seal --verify <file>` |
 | M2 | The pull request check (the owners' approval rule, the status vouching, the hardening of the check itself, the bar for amending the protocol, with named tests for concurrent supersession pull requests and for an update that weakens the check while the old check still enforces the bar) and the audit with the log, the announcements and the last-run signal | the two workflows, the incident issue and the log branch |
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
 | M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed to `shared/` |
-| M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `supersedes:`, `accept` and `resolve` | report mode |
+| M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `accept` and `resolve` | report mode |
 | M8 | The compactor agent: assessment and draft proposals; its engine and credentials are decided here | assist mode |
 | M9 | Shared records: number allocation across repositories and the mirror pull requests | one decision, mirrored |
 

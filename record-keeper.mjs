@@ -299,10 +299,12 @@ export const FORMAT_RULES = {
   'V-32': 'has an index row for a record that does not exist',
   'V-33': 'has an index row that does not show its status',
   'V-34': 'has an index row that does not show its title',
+  'V-35': 'has a supersedes entry that is not a number of four digits',
+  'V-36': 'supersedes a record that does not exist or does not have a lower number',
 };
 
-const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'seal'];
-const LIST_KEYS = ['decision-makers', 'applies-to', 'issues'];
+const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'supersedes', 'seal'];
+const LIST_KEYS = ['decision-makers', 'applies-to', 'issues', 'supersedes'];
 const VALUE_KEYS = ['status', 'date', 'seal'];
 const REQUIRED_KEYS = ['status', 'date', 'decision-makers'];
 const SECTIONS = ['Context and problem statement', 'Decision', 'Consequences', 'Known deviations', 'Alternatives considered', 'Errata'];
@@ -314,6 +316,7 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
 const STATUS_FORM = /^(?:proposed|accepted|rejected|superseded by (\d{4}))$/;
 const SEAL_FORM = /^sha256-g[0-9]+:[0-9a-f]{64}$/;
 const ISSUE_FORM = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+#[0-9]+$/;
+const NUMBER_FORM = /^\d{4}$/;
 const ITEM = /^ +- +(\S.*)$/;
 const TITLE = /^# \S/;
 const INDEX_LINK = /\]\((\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md)\)/;
@@ -363,7 +366,7 @@ function shapeOf({ value, owned }) {
   return { shape: 'mixed' };
 }
 
-/** V-13 to V-23. Returns the status as the index can judge it (undefined when it is missing or reported). */
+/** V-13 to V-23, V-35 and V-36. Returns the status as the index can judge it (undefined when it is missing or reported). */
 function checkFrontMatter(name, number, entries, numbers, extraKeys, report) {
   const shaped = entries.map((entry) => ({ ...entry, ...shapeOf(entry) }));
   const byKey = new Map(shaped.map((entry) => [entry.key, entry]));
@@ -393,6 +396,13 @@ function checkFrontMatter(name, number, entries, numbers, extraKeys, report) {
   if (seal !== undefined && !SEAL_FORM.test(seal)) report(name, 'V-22', seal);
   const issues = byKey.get('issues');
   if (issues?.shape === 'list') for (const item of issues.items) if (!ISSUE_FORM.test(item)) report(name, 'V-23', item);
+  const supersedes = byKey.get('supersedes');
+  if (supersedes?.shape === 'list') {
+    for (const item of supersedes.items) {
+      if (!NUMBER_FORM.test(item)) report(name, 'V-35', item);
+      else if (!numbers.has(Number(item)) || Number(item) >= number) report(name, 'V-36', item);
+    }
+  }
   return judged;
 }
 

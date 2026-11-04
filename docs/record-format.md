@@ -34,12 +34,12 @@ A problem has a file (or none, for the folder), a rule and a message. The proble
 | V-06 | a subfolder is not the shared folder | subfolder | new |
 | V-07 | the number of a record file is the number of an earlier file (files in name order) | file | C L K T U |
 | V-08 | the numbers of the record files, in ascending order and without repeats, are not 0001, 0002, 0003 and so on | folder, at the first gap | C L K T U |
-| V-09 | the record breaks a rule of generation g1; the message names the G1 rule. V-10 to V-28 are not applied to this record | record | new |
+| V-09 | the record breaks a rule of generation g1; the message names the G1 rule. V-10 to V-28, V-35 and V-36 are not applied to this record | record | new |
 | V-10 | the record has more than 60 lines, not counting the empty line after a final line feed | record | C L K T U (K counts one line more) |
 | V-11 | the text matches the credential pattern below | record | C L T U |
 | V-12 | the text matches the e-mail pattern below | record | C (K with its own pattern) |
-| V-13 | a key is not `status`, `date`, `decision-makers`, `applies-to`, `issues` or `seal`, and is not an extra key | key | C L K T U |
-| V-14 | the entry of `decision-makers`, `applies-to` or `issues` is a single value, or the entry of `status`, `date` or `seal` is a list | key | C L T U (K wants a value for `decision-makers`) |
+| V-13 | a key is not `status`, `date`, `decision-makers`, `applies-to`, `issues`, `supersedes` or `seal`, and is not an extra key | key | C L K T U |
+| V-14 | the entry of `decision-makers`, `applies-to`, `issues` or `supersedes` is a single value, or the entry of `status`, `date` or `seal` is a list | key | C L T U (K wants a value for `decision-makers`) |
 | V-15 | the entry of a key is empty | key | C L K T U |
 | V-16 | the entry of a key is mixed | key | C L K T U |
 | V-17 | `status`, `date` or `decision-makers` is missing | missing key | C L K T U |
@@ -60,14 +60,20 @@ A problem has a file (or none, for the folder), a rule and a message. The proble
 | V-32 | a row links a record file that does not exist | row | C L K T U |
 | V-33 | the first row that links a record does not show its `status` | record | C L T U (as a substring), K |
 | V-34 | the first row that links a record does not show its title | record | K |
+| V-35 | an item of `supersedes` is not four digits (`0` to `9`) | item | new |
+| V-36 | an item of `supersedes` is a number that no record file has, or that is not lower than the number of this record | item | new |
 
-The standard keys are lists for `decision-makers`, `applies-to` and `issues`, and single values for `status`, `date` and `seal`; an extra key may be either. `decision-makers`, `status` and `date` are required; `applies-to`, `issues` and `seal` are optional. A record that has no `applies-to` binds the whole repository.
+V-35 and V-36 come after the index rules because they were added after them; a rule keeps its number.
+
+The standard keys are lists for `decision-makers`, `applies-to`, `issues` and `supersedes`, and single values for `status`, `date` and `seal`; an extra key may be either. `decision-makers`, `status` and `date` are required; `applies-to`, `issues`, `supersedes` and `seal` are optional. A record that has no `applies-to` binds the whole repository.
+
+`supersedes` lists the records that this record replaces, one number in four digits for each item. Every number is lower than that of the record itself, so a chain of supersession cannot come back to where it started.
 
 The six sections, in the order they must have: `Context and problem statement`, `Decision`, `Consequences`, `Known deviations`, `Alternatives considered`, `Errata`. The first three are required. The names are compared as written. A heading of level 3 or deeper is not a section.
 
 For `status`, `date` and `seal`, g1 has already rejected a list, a missing value and a continued value (G1-12) before these rules are reached, so the second half of V-14 and V-15 and V-16 can only happen to the other keys.
 
-V-33 is not applied to a record whose status is missing or is reported by V-14, V-15, V-16, V-18 or V-19, and V-34 is not applied to a record whose title is reported by V-24; the same fault is not reported twice. Neither is applied to a record that V-09 reported.
+V-33 is not applied to a record whose status is missing or is reported by V-14, V-15, V-16, V-18 or V-19, and V-34 is not applied to a record whose title is reported by V-24; the same fault is not reported twice. Neither is applied to a record that V-09 reported. V-36 is not applied to an item that V-35 reported.
 
 The credential pattern (V-11), matched anywhere in the text:
 
@@ -102,7 +108,7 @@ Where the five copies differ and this page chooses: frodo-cli counts the length 
 ## Not checked here
 
 - **That the paths in `applies-to` exist.** The Concierge and frodo-cli both check it, in different ways (a pattern that matches a file, or the fixed part of a path that exists). It needs the tree of the repository, and moving code is a way round a record, so it belongs with the pull request check (M2) and, until the first repository adopts the kit, stays in that repository's own test.
-- **The seal, the status and their history.** That an `accepted` record carries a seal that verifies, that `superseded by NNNN` is vouched for by a sealed successor, that a status moved only in an allowed direction, and that a sealed record did not change are the work of the pull request check and the audit (M2).
+- **The seal, the status and their history.** That an `accepted` record carries a seal that verifies, that `superseded by NNNN` is vouched for by a sealed successor that lists the record in its `supersedes`, that a record listed in `supersedes` becomes `superseded by` its successor when the successor is accepted, that a status moved only in an allowed direction, and that a sealed record did not change are the work of the pull request check and the audit (M2).
 - **Shared records** (the `core/` folders of frodo-cli, frodo-lib and the tap: the key `repos`, numbers with gaps, a table "Core decisions", links between records of the folder). The first repository to adopt the kit has none; they are added with M6, when the repositories that hold them adopt it. Until then a shared folder is named in the settings and not looked at.
 - **What a git tree can hide**: modes, symbolic links committed as blobs, a `.gitattributes` that touches the records folder. They need the tree and not the disk, so they belong to the pull request check (M2). V-04 only refuses a symbolic link in a working copy.
 - **What a record says.** Whether it states a rule and not a value, or is public-safe beyond the two patterns, is for the reviewers.
@@ -116,6 +122,7 @@ Where the five copies differ and this page chooses: frodo-cli counts the length 
 5. **The folder is checked strictly** (V-04 to V-06): a file or folder that is not expected is a problem, not ignored. The Concierge today ignores files that are not `.md`.
 6. **The index is strict** (V-29 to V-34), as frodo-cli's already is: an `## Index` section, one row per record, its status as a cell of its own, its title shown.
 7. **The first version covers what every records folder needs.** Two features wait: shared records (a folder of records that bind several repositories) and the check that the paths in `applies-to` exist. The first needs the design of shared records (M6 and M9) and the second needs the tree of the repository (M2); neither waits because of any one repository. The existing validators, the Concierge's among them, appear on this page only as evidence of what is done today and of what adopting costs; no rule depends on any of them.
+8. **`supersedes` is a list of numbers, and `validate` asks only that each names an earlier record** (V-35, V-36). It does not ask that the records listed are `superseded by` this one, or that this one is accepted. A successor is `proposed` while the records it replaces are still `accepted`, so asking for the pair would fail every proposal that supersedes something. The pair, with the successor accepted and sealed, is the status vouching of the pull request check (M2).
 
 ## The fixtures
 
