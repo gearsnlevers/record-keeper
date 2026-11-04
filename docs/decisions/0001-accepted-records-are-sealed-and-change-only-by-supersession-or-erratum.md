@@ -3,12 +3,6 @@ status: proposed
 date: 2026-10-28
 decision-makers:
   - maintainers
-applies-to:
-  - docs/decisions/**
-  - record-keeper.mjs
-  - docs/generation-g1.md
-  - test/vectors/**
-  - .github/workflows/**
 ---
 
 # Accepted records are sealed and change only by supersession or an approved erratum

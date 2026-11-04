@@ -28,7 +28,8 @@ for (const name of records) {
     assert.ok(result.ok || result.reason === 'not-sealed', JSON.stringify(result));
   });
 
-  test(`${name} applies to paths that exist`, () => {
+  // A record without applies-to binds the whole repository and has nothing to match.
+  test(`${name} names only paths that exist in its applies-to, if it has one`, () => {
     const { entries } = parse(fs.readFileSync(new URL(name, dir)));
     const appliesTo = entries.find(({ key }) => key === 'applies-to');
     const globs = (appliesTo?.owned ?? []).map((line) => /^ +- +(.*)$/.exec(line)[1]);
