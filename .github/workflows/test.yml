@@ -35,8 +35,11 @@ jobs:
       - name: Show the versions
         run: node --version
 
-      - name: Tests and test vectors
+      - name: Tests, test vectors and fixtures
         run: npm test
+
+      - name: The records of the kit itself
+        run: node record-keeper.mjs validate docs/decisions
 
   # One check with a fixed name that a ruleset can require, whatever the matrix is.
   gate:

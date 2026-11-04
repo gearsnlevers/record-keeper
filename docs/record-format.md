@@ -6,7 +6,7 @@ Status: draft for review (M1). This page says what `record-keeper validate` chec
 
 ## Why one list of rules
 
-The format is checked today by five copies that have drifted apart: the validator of the Issue Concierge, of frodo-lib, of the tap and of the umbrella repository (one script, copied and changed), and a separate test in frodo-cli. They agree on most of it and differ on a dozen points, listed in "What changes for the repositories". This page keeps the shared core, takes the Concierge's script as the starting point, and decides each difference once.
+The format is checked today by five copies that have drifted apart: the validator of the Issue Concierge, of frodo-lib, of the tap and of the umbrella repository (one script, copied and changed), and a separate test in frodo-cli. They agree on most of it and differ on a dozen points, listed in "What changes for the repositories". This page keeps the shared core and decides each difference once. The design extracts the kit's validator from the Concierge's script, so that script was the starting point of the list; no rule below is specific to it or to any other repository.
 
 ## Definitions
 
@@ -65,6 +65,8 @@ The standard keys are lists for `decision-makers`, `applies-to` and `issues`, an
 
 The six sections, in the order they must have: `Context and problem statement`, `Decision`, `Consequences`, `Known deviations`, `Alternatives considered`, `Errata`. The first three are required. The names are compared as written. A heading of level 3 or deeper is not a section.
 
+For `status`, `date` and `seal`, g1 has already rejected a list, a missing value and a continued value (G1-12) before these rules are reached, so the second half of V-14 and V-15 and V-16 can only happen to the other keys.
+
 V-33 is not applied to a record whose status is missing or is reported by V-14, V-15, V-16, V-18 or V-19, and V-34 is not applied to a record whose title is reported by V-24; the same fault is not reported twice. Neither is applied to a record that V-09 reported.
 
 The credential pattern (V-11), matched anywhere in the text:
@@ -81,7 +83,7 @@ The e-mail pattern (V-12), matched anywhere in the text:
 
 ## How a problem is reported
 
-`record-keeper validate [folder]` prints one line for each problem, `<file>: [V-14] <message>` (and the folder itself when a problem has no file), then a line with the number of problems. It exits 0 when there is none, 1 when there is at least one, and 2 for wrong usage. The order of the lines is not part of the rules; the list of problems is.
+`record-keeper validate [folder]` checks the folder given, `docs/decisions` by default. The settings are options: `--extra-key <name>`, which may be repeated, and `--shared-folder <name>`. It prints one line for each problem on the error output, `<path>: [V-14] <what is wrong> (<detail>)`, where the path is the folder joined with the name of the file (the folder itself when a problem has no file), then a line `<folder>: N problems`. When there is no problem it prints only that last line, on the standard output. It exits 0 when there is no problem, 1 when there is at least one, and 2 for wrong usage. A folder that does not exist is a problem (V-01), not wrong usage. The order of the lines is not part of the rules; the list of problems is.
 
 ## What changes for the repositories
 
@@ -99,9 +101,9 @@ Where the five copies differ and this page chooses: frodo-cli counts the length 
 
 ## Not checked here
 
-- **That the paths in `applies-to` exist.** The Concierge and frodo-cli both check it, in different ways (a pattern that matches a file, or the fixed part of a path that exists). It needs the tree of the repository, and moving code is a way round a record, so it belongs with the pull request check (M2) and, until the Concierge adopts the kit, stays in the Concierge's own test.
+- **That the paths in `applies-to` exist.** The Concierge and frodo-cli both check it, in different ways (a pattern that matches a file, or the fixed part of a path that exists). It needs the tree of the repository, and moving code is a way round a record, so it belongs with the pull request check (M2) and, until the first repository adopts the kit, stays in that repository's own test.
 - **The seal, the status and their history.** That an `accepted` record carries a seal that verifies, that `superseded by NNNN` is vouched for by a sealed successor, that a status moved only in an allowed direction, and that a sealed record did not change are the work of the pull request check and the audit (M2).
-- **Shared records** (the `core/` folders of frodo-cli, frodo-lib and the tap: the key `repos`, numbers with gaps, a table "Core decisions", links between records of the folder). The Concierge adopts first and has none; they are added with M6, when those repositories adopt the kit. Until then a shared folder is named in the settings and not looked at.
+- **Shared records** (the `core/` folders of frodo-cli, frodo-lib and the tap: the key `repos`, numbers with gaps, a table "Core decisions", links between records of the folder). The first repository to adopt the kit has none; they are added with M6, when the repositories that hold them adopt it. Until then a shared folder is named in the settings and not looked at.
 - **What a git tree can hide**: modes, symbolic links committed as blobs, a `.gitattributes` that touches the records folder. They need the tree and not the disk, so they belong to the pull request check (M2). V-04 only refuses a symbolic link in a working copy.
 - **What a record says.** Whether it states a rule and not a value, or is public-safe beyond the two patterns, is for the reviewers.
 
@@ -113,7 +115,7 @@ Where the five copies differ and this page chooses: frodo-cli counts the length 
 4. **A record is checked on top of g1** (V-09): a record that g1 rejects is reported with its G1 rule and nothing more, so a record that passes `validate` can always be sealed.
 5. **The folder is checked strictly** (V-04 to V-06): a file or folder that is not expected is a problem, not ignored. The Concierge today ignores files that are not `.md`.
 6. **The index is strict** (V-29 to V-34), as frodo-cli's already is: an `## Index` section, one row per record, its status as a cell of its own, its title shown.
-7. **This version checks the Concierge's rules first.** Shared records and the `applies-to` paths come later, as listed above.
+7. **The first version covers what every records folder needs.** Two features wait: shared records (a folder of records that bind several repositories) and the check that the paths in `applies-to` exist. The first needs the design of shared records (M6 and M9) and the second needs the tree of the repository (M2); neither waits because of any one repository. The existing validators, the Concierge's among them, appear on this page only as evidence of what is done today and of what adopting costs; no rule depends on any of them.
 
 ## The fixtures
 

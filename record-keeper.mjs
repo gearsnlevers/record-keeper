@@ -1,14 +1,19 @@
-// Record Keeper: reads a decision record, puts it into canonical form, seals it and verifies a seal.
+// Record Keeper: reads a decision record, puts it into canonical form, seals it and verifies a seal, and checks the
+// format of the records in a folder.
 //
 // One file, no dependencies, no network. It implements generation g1 exactly as docs/generation-g1.md
-// describes it; test/vectors/g1 holds the answers it must give. It never writes a file: `seal` only prints.
+// describes it, and the format of a record and its folder as docs/record-format.md describes it; test/vectors/g1 and
+// test/fixtures/validate hold the answers it must give. It never writes a file: `seal` and `validate` only print.
 //
 //   node record-keeper.mjs seal <file>             print the seal of a record
 //   node record-keeper.mjs seal --verify <file>    check the `seal:` line of a record against its text
+//   node record-keeper.mjs validate [folder]       check the format of the records in a folder (default docs/decisions)
 //
-// Exit status: 0 success, 1 the record is rejected or its seal does not verify, 2 wrong usage or unreadable file.
+// Exit status: 0 success, 1 a record is rejected, a seal does not verify or a folder has problems, 2 wrong usage or
+// unreadable file.
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const GENERATION = 'g1';
@@ -256,9 +261,246 @@ export function verify(bytes) {
   return stored === computed ? { ok: true, seal: computed } : { ok: false, reason: 'mismatch', stored, computed };
 }
 
+// ---- the format of a record and of its folder: docs/record-format.md ----------------------------------------------------
+
+/** What each rule of docs/record-format.md says, as what is wrong with the file (or the folder) it is reported for. */
+export const FORMAT_RULES = {
+  'V-01': 'does not exist or is not a directory',
+  'V-02': 'is missing',
+  'V-03': 'is missing',
+  'V-04': 'is a symbolic link, or is neither a regular file nor a directory',
+  'V-05': 'is not README.md, template.md or a record file named NNNN-short-title.md in lower case with hyphens',
+  'V-06': 'is a subfolder that is not the shared folder',
+  'V-07': 'has the number of an earlier record',
+  'V-08': 'has record numbers that are not 0001, 0002, 0003 and so on without a gap',
+  'V-09': 'breaks a rule of generation g1',
+  'V-10': 'is longer than 60 lines',
+  'V-11': 'looks like it contains a credential',
+  'V-12': 'contains an e-mail address; records are public',
+  'V-13': 'has a key that is not a standard key and not an extra key',
+  'V-14': 'has a key of the wrong kind',
+  'V-15': 'has a key with no value',
+  'V-16': 'has a key whose lines are neither one value nor a list of items',
+  'V-17': 'is missing a required key',
+  'V-18': 'has a status that is not proposed, accepted, rejected or "superseded by NNNN"',
+  'V-19': 'has the status deprecated; a record ends only by a successor',
+  'V-20': 'is superseded by a record that does not exist or does not have a higher number',
+  'V-21': 'has a date that is not a real date written YYYY-MM-DD',
+  'V-22': 'has a seal that is not sha256-gN: and 64 lower case hexadecimal digits',
+  'V-23': 'has an issue that is not written owner/repo#N',
+  'V-24': 'does not start with a "# Title" heading',
+  'V-25': 'has a section that is not one of the six',
+  'V-26': 'is missing a required section',
+  'V-27': 'has its sections out of order, or one of them twice',
+  'V-28': 'has a section with no content',
+  'V-29': 'has no "## Index" section',
+  'V-30': 'has no row in the index',
+  'V-31': 'has more than one row in the index',
+  'V-32': 'has an index row for a record that does not exist',
+  'V-33': 'has an index row that does not show its status',
+  'V-34': 'has an index row that does not show its title',
+};
+
+const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'seal'];
+const LIST_KEYS = ['decision-makers', 'applies-to', 'issues'];
+const VALUE_KEYS = ['status', 'date', 'seal'];
+const REQUIRED_KEYS = ['status', 'date', 'decision-makers'];
+const SECTIONS = ['Context and problem statement', 'Decision', 'Consequences', 'Known deviations', 'Alternatives considered', 'Errata'];
+const REQUIRED_SECTIONS = SECTIONS.slice(0, 3);
+const MAX_LINES = 60;
+const RECORD_FILE = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+const CREDENTIAL = /ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}/;
+const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
+const STATUS_FORM = /^(?:proposed|accepted|rejected|superseded by (\d{4}))$/;
+const SEAL_FORM = /^sha256-g[0-9]+:[0-9a-f]{64}$/;
+const ISSUE_FORM = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+#[0-9]+$/;
+const ITEM = /^ +- +(\S.*)$/;
+const TITLE = /^# \S/;
+const INDEX_LINK = /\]\((\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md)\)/;
+
+function isRealDate(text) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (!match) return false;
+  const [year, month, day] = match.slice(1).map(Number);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1];
+}
+
+/** V-01 to V-08. Returns the record files of the folder, in name order, with their numbers. */
+function checkFolder(folder, sharedFolder, report) {
+  const records = [];
+  let readme = false;
+  let template = false;
+  for (const name of fs.readdirSync(folder).filter((entry) => !entry.startsWith('.')).sort()) {
+    const stat = fs.lstatSync(path.join(folder, name));
+    if (stat.isSymbolicLink() || !(stat.isFile() || stat.isDirectory())) report(name, 'V-04');
+    else if (stat.isDirectory()) {
+      if (name !== sharedFolder) report(name, 'V-06');
+    } else if (name === 'README.md') readme = true;
+    else if (name === 'template.md') template = true;
+    else if (RECORD_FILE.test(name)) records.push({ name, number: Number(name.slice(0, 4)) });
+    else report(name, 'V-05');
+  }
+  if (!readme) report('README.md', 'V-02');
+  if (!template) report('template.md', 'V-03');
+  const seen = new Set();
+  for (const { name, number } of records) {
+    if (seen.has(number)) report(name, 'V-07');
+    seen.add(number);
+  }
+  const gap = [...seen].sort((a, b) => a - b).findIndex((number, i) => number !== i + 1);
+  if (gap >= 0) report(null, 'V-08');
+  return { records, readme };
+}
+
+/** How the entry of a key is shaped: 'empty', 'single', 'list' (with its items) or 'mixed'. */
+function shapeOf({ value, owned }) {
+  const items = owned.map((line) => ITEM.exec(line));
+  if (value === '' && owned.length === 0) return { shape: 'empty' };
+  if (owned.length === 0) return { shape: 'single' };
+  if (value === '' && items.every(Boolean)) return { shape: 'list', items: items.map((item) => item[1]) };
+  return { shape: 'mixed' };
+}
+
+/** V-13 to V-23. Returns the status as the index can judge it (undefined when it is missing or reported). */
+function checkFrontMatter(name, number, entries, numbers, extraKeys, report) {
+  const shaped = entries.map((entry) => ({ ...entry, ...shapeOf(entry) }));
+  const byKey = new Map(shaped.map((entry) => [entry.key, entry]));
+  for (const { key } of shaped) if (!STANDARD_KEYS.includes(key) && !extraKeys.includes(key)) report(name, 'V-13', key);
+  for (const { key, shape } of shaped) {
+    if ((LIST_KEYS.includes(key) && shape === 'single') || (VALUE_KEYS.includes(key) && shape === 'list')) report(name, 'V-14', `${key} must be ${LIST_KEYS.includes(key) ? 'a list' : 'a single value'}`);
+  }
+  for (const { key, shape } of shaped) if (shape === 'empty') report(name, 'V-15', key);
+  for (const { key, shape } of shaped) if (shape === 'mixed') report(name, 'V-16', key);
+  for (const key of REQUIRED_KEYS) if (!byKey.has(key)) report(name, 'V-17', key);
+  const single = (key) => (byKey.get(key)?.shape === 'single' ? byKey.get(key).value : undefined);
+
+  const status = single('status');
+  let judged;
+  if (status === 'deprecated') report(name, 'V-19');
+  else if (status !== undefined) {
+    const form = STATUS_FORM.exec(status);
+    if (!form) report(name, 'V-18', status);
+    else {
+      judged = status;
+      if (form[1] !== undefined && (!numbers.has(Number(form[1])) || Number(form[1]) <= number)) report(name, 'V-20', form[1]);
+    }
+  }
+  const date = single('date');
+  if (date !== undefined && !isRealDate(date)) report(name, 'V-21', date);
+  const seal = single('seal');
+  if (seal !== undefined && !SEAL_FORM.test(seal)) report(name, 'V-22', seal);
+  const issues = byKey.get('issues');
+  if (issues?.shape === 'list') for (const item of issues.items) if (!ISSUE_FORM.test(item)) report(name, 'V-23', item);
+  return judged;
+}
+
+/** V-24 to V-28. Returns the title as the index can judge it (undefined when there is none). */
+function checkBody(name, body, fenced, report) {
+  const first = body.find((line) => line !== '');
+  const titled = first !== undefined && TITLE.test(first);
+  if (!titled) report(name, 'V-24');
+  const headings = [];
+  body.forEach((line, i) => {
+    if (!fenced[i] && line.startsWith('## ')) headings.push({ at: i, name: line.slice(3) });
+  });
+  for (const heading of headings) if (!SECTIONS.includes(heading.name)) report(name, 'V-25', heading.name);
+  for (const section of REQUIRED_SECTIONS) if (!headings.some((heading) => heading.name === section)) report(name, 'V-26', section);
+  const order = headings.filter((heading) => SECTIONS.includes(heading.name)).map((heading) => SECTIONS.indexOf(heading.name));
+  if (order.some((position, i) => i > 0 && position <= order[i - 1])) report(name, 'V-27');
+  headings.forEach((heading, i) => {
+    const until = i + 1 < headings.length ? headings[i + 1].at : body.length;
+    if (body.slice(heading.at + 1, until).every((line) => line === '')) report(name, 'V-28', heading.name);
+  });
+  return titled ? first.slice(2) : undefined;
+}
+
+/** V-09 to V-28 for one record. Returns what the index can judge: { status, title }. */
+function checkRecord(folder, { name, number }, numbers, extraKeys, report) {
+  let record;
+  try {
+    record = parse(fs.readFileSync(path.join(folder, name)));
+  } catch (error) {
+    if (!(error instanceof Reject)) throw error;
+    report(name, 'V-09', `${error.rule}: ${RULES[error.rule]}`, error.rule);
+    return {};
+  }
+  const { lines, end, entries, fenced } = record;
+  const text = lines.join('\n');
+  if (lines.length - (lines.at(-1) === '' ? 1 : 0) > MAX_LINES) report(name, 'V-10');
+  if (CREDENTIAL.test(text)) report(name, 'V-11');
+  if (EMAIL.test(text)) report(name, 'V-12');
+  const status = checkFrontMatter(name, number, entries, numbers, extraKeys, report);
+  const title = checkBody(name, lines.slice(end + 1), fenced, report);
+  return { status, title };
+}
+
+/** V-29 to V-34: README.md against the records. */
+function checkIndex(folder, records, facts, report) {
+  const lines = fs.readFileSync(path.join(folder, 'README.md'), 'utf8').replace(/\r\n/g, '\n').split('\n').map((line) => line.replace(/[ \t]+$/, ''));
+  const { fenced } = scanFences(lines);
+  const start = lines.findIndex((line, i) => !fenced[i] && line === '## Index');
+  if (start < 0) {
+    report('README.md', 'V-29');
+    return;
+  }
+  let stop = lines.findIndex((line, i) => i > start && !fenced[i] && (line.startsWith('# ') || line.startsWith('## ')));
+  if (stop < 0) stop = lines.length;
+  const rowsOf = new Map();
+  for (const row of lines.slice(start + 1, stop).filter((line) => line.startsWith('|'))) {
+    const link = INDEX_LINK.exec(row);
+    if (link) rowsOf.set(link[1], [...(rowsOf.get(link[1]) ?? []), row]);
+  }
+  const known = new Set(records.map(({ name }) => name));
+  for (const [target, rows] of rowsOf) if (!known.has(target)) rows.forEach(() => report('README.md', 'V-32', target));
+  for (const { name } of records) {
+    const rows = rowsOf.get(name) ?? [];
+    if (rows.length === 0) {
+      report(name, 'V-30');
+      continue;
+    }
+    if (rows.length > 1) report(name, 'V-31');
+    const pieces = rows[0].split('|').slice(1);
+    if (pieces.length > 0 && pieces.at(-1).trim() === '') pieces.pop();
+    const cells = pieces.map((cell) => cell.trim());
+    const { status, title } = facts.get(name);
+    if (status !== undefined && !cells.includes(status)) report(name, 'V-33');
+    const linkTexts = [...rows[0].matchAll(/\[([^\]]*)\]\(/g)].map((match) => match[1]);
+    if (title !== undefined && !cells.includes(title) && !linkTexts.includes(title)) report(name, 'V-34');
+  }
+}
+
+/**
+ * Checks the format of the records in a folder against docs/record-format.md.
+ * Returns the problems as [{ file, rule, detail?, g1? }]; `file` is null for a problem of the folder as a whole.
+ * Settings: `extraKeys`, the front matter keys beyond the standard ones, and `sharedFolder`, the subfolder not looked at.
+ */
+export function validate(folder, { extraKeys = [], sharedFolder = 'shared' } = {}) {
+  const problems = [];
+  const report = (file, rule, detail, g1) => problems.push({ file, rule, ...(detail ? { detail } : {}), ...(g1 ? { g1 } : {}) });
+  let stat;
+  try {
+    stat = fs.statSync(folder);
+  } catch {
+    stat = null;
+  }
+  if (!stat?.isDirectory()) {
+    report(null, 'V-01');
+    return problems;
+  }
+  const { records, readme } = checkFolder(folder, sharedFolder, report);
+  const numbers = new Set(records.map(({ number }) => number));
+  const facts = new Map(records.map((record) => [record.name, checkRecord(folder, record, numbers, extraKeys, report)]));
+  if (readme) checkIndex(folder, records, facts, report);
+  return problems;
+}
+
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
+  record-keeper.mjs validate [folder] [--extra-key <name>]... [--shared-folder <name>]
+                                            check the format of the records in a folder (default docs/decisions)
 `;
 
 function describeFailure(file, result) {
@@ -276,14 +518,12 @@ function describeFailure(file, result) {
   }
 }
 
-/** The command line, without the process around it. Returns { code, stdout, stderr }. */
-export function run(argv, { readFile = fs.readFileSync } = {}) {
-  const args = [...argv];
-  if (args[0] === '--help' || args[0] === '-h') return { code: 0, stdout: USAGE, stderr: '' };
-  const command = args.shift();
+const usageError = { code: 2, stdout: '', stderr: USAGE };
+
+function runSeal(args, readFile) {
   const verifying = args[0] === '--verify';
   if (verifying) args.shift();
-  if (command !== 'seal' || args.length !== 1 || args[0].startsWith('-')) return { code: 2, stdout: '', stderr: USAGE };
+  if (args.length !== 1 || args[0].startsWith('-')) return usageError;
   const [file] = args;
   let bytes;
   try {
@@ -303,6 +543,38 @@ export function run(argv, { readFile = fs.readFileSync } = {}) {
     if (!(error instanceof Reject)) throw error;
     return { code: 1, stdout: '', stderr: describeFailure(file, { reason: 'rejected', rule: error.rule }) };
   }
+}
+
+function runValidate(args) {
+  let folder;
+  let sharedFolder;
+  const extraKeys = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--extra-key' || arg === '--shared-folder') {
+      const value = args[++i];
+      if (value === undefined || value === '' || value.startsWith('-')) return usageError;
+      if (arg === '--extra-key') extraKeys.push(value);
+      else sharedFolder = value;
+    } else if (arg.startsWith('-') || folder !== undefined) return usageError;
+    else folder = arg;
+  }
+  folder ??= 'docs/decisions';
+  const problems = validate(folder, { extraKeys, sharedFolder });
+  const where = (file) => (file === null ? folder : path.join(folder, file));
+  const lines = problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`);
+  const count = `${folder}: ${problems.length} problem${problems.length === 1 ? '' : 's'}\n`;
+  return problems.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
+}
+
+/** The command line, without the process around it. Returns { code, stdout, stderr }. */
+export function run(argv, { readFile = fs.readFileSync } = {}) {
+  const args = [...argv];
+  if (args[0] === '--help' || args[0] === '-h') return { code: 0, stdout: USAGE, stderr: '' };
+  const command = args.shift();
+  if (command === 'seal') return runSeal(args, readFile);
+  if (command === 'validate') return runValidate(args);
+  return usageError;
 }
 
 // Runs only when this file is the program, also when it is reached through a symbolic link.
