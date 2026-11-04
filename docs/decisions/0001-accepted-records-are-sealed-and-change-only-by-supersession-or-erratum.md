@@ -5,15 +5,17 @@ decision-makers:
   - maintainers
 applies-to:
   - docs/decisions/**
-  - scripts/**
-  - workflows/**
+  - record-keeper.mjs
+  - docs/generation-g1.md
+  - test/vectors/**
+  - .github/workflows/**
 ---
 
 # Accepted records are sealed and change only by supersession or an approved erratum
 
 ## Context and problem statement
 
-A decision record binds people and agents once it is accepted, and the rule that an accepted record is not edited is only text. Nothing detects an edit: the validators check format and not changes, three copies of the validator have drifted apart, and a weekly comparison of shared records goes red without telling anyone. A record that can change without notice is no longer a decision.
+A decision record binds people and agents once it is accepted, and the rule that an accepted record is not edited is only text. Nothing detects an edit: the validators check format and not changes, the copies of the validator in different repositories have drifted apart, and a scheduled comparison of shared records goes red without telling anyone. A record that can change without notice is no longer a decision.
 
 ## Decision
 
