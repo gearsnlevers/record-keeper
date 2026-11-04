@@ -1,0 +1,34 @@
+---
+status: proposed
+date: 2026-11-03
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+Why a decision was needed.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.
+
+## Errata
+
+- 2026-11-04: fixed a typo. Previous seal sha256-g1:0000000000000000000000000000000000000000000000000000000000000000
+
+### Extra
+
+Text.

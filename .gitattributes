@@ -1,0 +1,2 @@
+# Files of the test vectors are compared byte for byte: git must not change their line endings.
+*.record -text

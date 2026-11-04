@@ -1,0 +1,26 @@
+---
+status: proposed
+date: 2026-11-03
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+No break, zero​width, joiner‍, narrow space, joiner⁠word, ideographic　space.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.
