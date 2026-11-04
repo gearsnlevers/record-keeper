@@ -1357,6 +1357,182 @@
       "result": "reject",
       "rule": "G1-16",
       "note": "An autolink scheme has at most 32 characters."
+    },
+    {
+      "id": "c31-code-points-next-to-the-rejected-ones",
+      "file": "seal/c31-code-points-next-to-the-rejected-ones.record",
+      "result": "seal",
+      "seal": "sha256-g1:8883b2188dbc7c8cc25a4b66ce28ab31fd1c3372d18150f99384593b614187ea",
+      "note": "U+061B, U+061D, U+2010, U+2027, U+2065 and U+206A lie just outside the separator and bidirectional ranges of G1-04: ordinary characters."
+    },
+    {
+      "id": "c32-one-letter-keys",
+      "file": "seal/c32-one-letter-keys.record",
+      "result": "seal",
+      "seal": "sha256-g1:f5b74832ecfd41c614cbfa3e4a4820ba7af677ec30a1bf682bd8560c84965ae8",
+      "note": "A key of one letter is a key, and a value may start with a lowercase letter."
+    },
+    {
+      "id": "c33-fence-marks-inside-a-line",
+      "file": "seal/c33-fence-marks-inside-a-line.record",
+      "result": "seal",
+      "seal": "sha256-g1:ace380622300032cde4ea3a0f4c78ca185e2b095964810875b077b347362a23c",
+      "note": "Tildes or three backticks in the middle of a line, two backticks indented, and a line of two backticks are not fences."
+    },
+    {
+      "id": "c34-autolink-forms",
+      "file": "seal/c34-autolink-forms.record",
+      "result": "seal",
+      "seal": "sha256-g1:bc1fd07fdedca9e9e8fb49f7f5d7968bbe02d04dbf1868589a195ecbc055a281",
+      "note": "Autolinks with no text after the colon, with every kind of character in the scheme, with capital letters, and indented by three spaces."
+    },
+    {
+      "id": "c35-lines-that-only-end-like-an-underline",
+      "file": "seal/c35-lines-that-only-end-like-an-underline.record",
+      "result": "seal",
+      "seal": "sha256-g1:05b7560984a93fc6bb97cecf3054e857445fd506000cfaedc32d234f619546a3",
+      "note": "A line that ends in = or - is not an underline, and --- indented by four spaces is not one either."
+    },
+    {
+      "id": "c36-rules-under-headings",
+      "file": "seal/c36-rules-under-headings.record",
+      "result": "seal",
+      "seal": "sha256-g1:17fefc29ba5f9ab9f09db75f663185b63bfd9eebbb2411fadade613f5aeead2b",
+      "note": "A --- under a heading of level 1 or 6, with a tab after the marks, with no text, or indented by three spaces is a thematic break."
+    },
+    {
+      "id": "c37-empty-front-matter",
+      "file": "seal/c37-empty-front-matter.record",
+      "result": "seal",
+      "seal": "sha256-g1:00d4fb6c935638e5f10e4d2e84e9bebc9116a1451a0ea95620ce7e26d27cbb69",
+      "note": "The closing --- may be line 2: an empty front matter."
+    },
+    {
+      "id": "c38-dash-before-an-anchor",
+      "file": "seal/c38-dash-before-an-anchor.record",
+      "result": "seal",
+      "seal": "sha256-g1:7fda611797cb2a770841852715a2bbf5d2b9861bf6f5c490c26f525471e5f7d7",
+      "note": "A continuation line that starts with a dash and no space is not a list item, so the & after it is not the start of an anchor."
+    },
+    {
+      "id": "c39-values-that-start-with-other-marks",
+      "file": "seal/c39-values-that-start-with-other-marks.record",
+      "result": "seal",
+      "seal": "sha256-g1:32c183507a8bce7d14652aceea3eeceb9d42682a698a910d01f88c42cd5f8dbf",
+      "note": "Only & * ! | > start a value that G1-13 rejects; quotes, brackets, braces and the other marks are ordinary."
+    },
+    {
+      "id": "c40-near-misses-of-the-excluded-headings",
+      "file": "seal/c40-near-misses-of-the-excluded-headings.record",
+      "result": "seal",
+      "seal": "sha256-g1:6fca1ff153e7dddc9c253b412ba2b069e75eac4ebecfa647da73ce37e9e0e636",
+      "note": "Words that are not the name of an excluded section, one of them split by a space, are ordinary text."
+    },
+    {
+      "id": "c41-fence-on-the-first-line-of-the-body",
+      "file": "seal/c41-fence-on-the-first-line-of-the-body.record",
+      "result": "seal",
+      "seal": "sha256-g1:4abae02a3a5a23a0d837e423e81c751d7bf2cee06e3148b158bd6216a0afc1b8",
+      "note": "A fence that opens on the first line after the front matter; the two blank lines in it are kept."
+    },
+    {
+      "id": "c42-heading-indented-three-spaces-ends-the-section",
+      "file": "seal/c42-heading-indented-three-spaces-ends-the-section.record",
+      "result": "seal",
+      "seal": "sha256-g1:bdf53546fc87eee64f3405525f62aa57540a7a87a633c80ee67de0ec2c6f4299",
+      "note": "A heading indented by three spaces ends a Known deviations section and stays in the record: the seal is that of the base with that heading indented.",
+      "differs-from": "a01-base"
+    },
+    {
+      "id": "a25-errata-heading-directly-before-a-fence",
+      "file": "seal/a25-errata-heading-directly-before-a-fence.record",
+      "result": "seal",
+      "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
+      "note": "An Errata section whose first line after the heading is a fence: a heading that is not in a fence even though a fence follows it."
+    },
+    {
+      "id": "r14f-tab-indented-tilde-fence",
+      "file": "reject/r14f-tab-indented-tilde-fence.record",
+      "result": "reject",
+      "rule": "G1-14",
+      "note": "A tab before the tildes."
+    },
+    {
+      "id": "r16k-uppercase-tag",
+      "file": "reject/r16k-uppercase-tag.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A tag name in capitals."
+    },
+    {
+      "id": "r16l-autolink-later-in-the-line",
+      "file": "reject/r16l-autolink-later-in-the-line.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "An autolink further along the line does not excuse the tag at the start."
+    },
+    {
+      "id": "r16m-html-on-the-first-line-of-the-body",
+      "file": "reject/r16m-html-on-the-first-line-of-the-body.record",
+      "result": "reject",
+      "rule": "G1-16",
+      "note": "A tag on the line right after the front matter."
+    },
+    {
+      "id": "r17v-paragraph-right-after-a-fence",
+      "file": "reject/r17v-paragraph-right-after-a-fence.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "The line above the underline follows a closing fence; it is a paragraph, not code."
+    },
+    {
+      "id": "r17w-seven-marks-above",
+      "file": "reject/r17w-seven-marks-above.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "Seven # are not a heading, so the underline turns the line into one."
+    },
+    {
+      "id": "r17x-mark-inside-the-line-above",
+      "file": "reject/r17x-mark-inside-the-line-above.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A # inside the line is not a heading mark."
+    },
+    {
+      "id": "r17y-indented-heading-above",
+      "file": "reject/r17y-indented-heading-above.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A # indented by four spaces is not a heading."
+    },
+    {
+      "id": "r17z-indented-paragraph-above",
+      "file": "reject/r17z-indented-paragraph-above.record",
+      "result": "reject",
+      "rule": "G1-17",
+      "note": "A line indented by one space is a paragraph, not a heading."
+    },
+    {
+      "id": "r18n-closing-marks-after-a-tab",
+      "file": "reject/r18n-closing-marks-after-a-tab.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "A tab before closing # marks still leaves a lookalike."
+    },
+    {
+      "id": "r18o-text-before-a-closing-run-in-a-fence",
+      "file": "reject/r18o-text-before-a-closing-run-in-a-fence.record",
+      "result": "reject",
+      "rule": "G1-18",
+      "note": "A line that ends in backticks but has text before them does not close the fence, so the heading stays in the code block."
+    },
+    {
+      "id": "r20d-right-after-a-fence",
+      "file": "reject/r20d-right-after-a-fence.record",
+      "result": "reject",
+      "rule": "G1-20",
+      "note": "A closing fence directly above the heading: not an empty line, and the heading is not in the code block, so G1-20 and not G1-18."
     }
   ]
 }
