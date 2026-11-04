@@ -1,0 +1,37 @@
+---
+status: proposed
+date: 2026-11-03
+q1: "quoted"
+q2: 'single'
+q3: [a, b]
+q4: {k: v}
+q5: -x
+q6: ?x
+q7: #x
+q8: %x
+q9: @x
+q10: `x
+q11: x
+decision-makers:
+  - maintainers
+applies-to:
+  - docs/decisions/**
+---
+
+# Example decision
+
+## Context and problem statement
+
+Why a decision was needed.
+
+## Decision
+
+- Do the thing.
+
+## Consequences
+
+- The thing is done.
+
+## Alternatives considered
+
+- Not doing the thing.
