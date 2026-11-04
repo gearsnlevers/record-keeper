@@ -1,2 +1,5 @@
 # Files of the test vectors are compared byte for byte: git must not change their line endings.
 *.record -text
+
+# The fixtures of validate hold CRLF line endings and trailing white space on purpose; the answer depends on them.
+test/fixtures/validate/** -text
