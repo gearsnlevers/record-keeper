@@ -1,0 +1,14 @@
+{
+  "name": "record-keeper",
+  "version": "0.0.0",
+  "description": "Keeps a repository's decision records trustworthy: seals, an integrity check and an audit.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
