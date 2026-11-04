@@ -90,8 +90,8 @@ Run on the records that the maintainers' repositories have today (the numbers ar
 | Repository | Records | Problems | What they are |
 | ---------- | ------- | -------- | ------------- |
 | Issue Concierge | 41 | none | The records are not edited to adopt the kit. |
-| frodo-lib | 13 | 3 | V-19: records 0011, 0012 and 0013 are `deprecated`. |
-| frodo-cli | 35 | 40 | V-14: `decision-makers` is a single value in all 35 records; the other repositories write a list. V-19: records 0023, 0024, 0025, 0026 and 0029 are `deprecated`. |
+| frodo-lib | 13 | 3 | V-19: three records are `deprecated` (listed under choice 2). |
+| frodo-cli | 35 | 40 | V-14: `decision-makers` is a single value in all 35 records; the other repositories write a list. V-19: five records are `deprecated` (listed under choice 2). |
 | the tap | none | none | Its records are all shared records. |
 | Record Keeper itself | 1 | 1 | V-03: its records folder has no `template.md` yet. |
 
@@ -108,7 +108,7 @@ Where the five copies differ and this page chooses: frodo-cli counts the length 
 ## Choices in this draft for you to decide
 
 1. **`decision-makers` is a list** (V-14), as in the Concierge, frodo-lib, the template and every shared record. frodo-cli writes a single value in 35 records; its adoption pull request changes those 35 lines.
-2. **No bare `deprecated`** (V-19), as the design says. Eight records carry it today (frodo-cli 0023, 0024, 0025, 0026 and 0029; frodo-lib 0011, 0012 and 0013). They fail until M6 decides what ends each of them: a short sealed record that supersedes it, or an exception in the settings for legacy records.
+2. **No bare `deprecated`** (V-19), as the design says. Eight records carry it today, each a note of where the code departed from the documented conventions, which ended when the departure was fixed. In frodo-cli: [the config-manager operations form a layer of their own](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0023-config-manager-has-its-own-layer-outside-ops.md), [the config-manager logic lives in the CLI](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0024-config-manager-logic-lives-in-the-cli.md), [promote compares and applies configuration in the CLI](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0025-promote-compares-and-applies-configuration-in-the-cli.md), [the admin operations are implemented in the CLI](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0026-admin-operations-are-implemented-in-the-cli.md) and [smaller places where the repository departs from its conventions](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0029-smaller-inconsistencies-with-the-documented-conventions.md). In frodo-lib: [terminal and colour code lives in the library](https://github.com/rockcarver/frodo-lib/blob/main/decisions/0011-terminal-and-colour-code-in-the-library.md), [the foundation and the api layer import from ops](https://github.com/rockcarver/frodo-lib/blob/main/decisions/0012-lower-layers-import-upward.md) and [smaller places where the code departs from the conventions](https://github.com/rockcarver/frodo-lib/blob/main/decisions/0013-smaller-inconsistencies-with-the-documented-conventions.md). They fail until M6 decides what ends each of them: a short sealed record that supersedes it, or an exception in the settings for legacy records.
 3. **Six sections, `Errata` last, `Known deviations` before `Alternatives considered`** (V-25 to V-27). `Errata` is new to the format and is the one section the Concierge's script would reject today.
 4. **A record is checked on top of g1** (V-09): a record that g1 rejects is reported with its G1 rule and nothing more, so a record that passes `validate` can always be sealed.
 5. **The folder is checked strictly** (V-04 to V-06): a file or folder that is not expected is a problem, not ignored. The Concierge today ignores files that are not `.md`.
