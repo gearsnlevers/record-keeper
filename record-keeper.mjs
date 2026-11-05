@@ -8,11 +8,14 @@
 //   node record-keeper.mjs seal <file>             print the seal of a record
 //   node record-keeper.mjs seal --verify <file>    check the `seal:` line of a record against its text
 //   node record-keeper.mjs validate [folder]       check the format of the records in a folder (default docs/decisions)
+//   node record-keeper.mjs validate --commit <rev> check the folder as it is in a commit (docs/reading-a-commit.md)
 //
 // Exit status: 0 success, 1 a record is rejected, a seal does not verify or a folder has problems, 2 wrong usage or
-// unreadable file.
+// unreadable file. Only `validate --commit` runs another program (git); nothing else does, and nothing writes a file.
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -303,6 +306,13 @@ export const FORMAT_RULES = {
   'V-36': 'supersedes a record that does not exist or does not have a lower number',
 };
 
+/** What each rule of docs/reading-a-commit.md reports, for the folder as it is in a commit. */
+export const COMMIT_RULES = {
+  'T-01': 'has the executable mode',
+  'T-02': 'has a git attribute other than text and eol',
+  'T-03': 'is not the only folder that holds records',
+};
+
 const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'supersedes', 'seal'];
 const LIST_KEYS = ['decision-makers', 'applies-to', 'issues', 'supersedes'];
 const VALUE_KEYS = ['status', 'date', 'seal'];
@@ -330,17 +340,39 @@ function isRealDate(text) {
   return month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1];
 }
 
+/**
+ * Where a records folder is read from: `exists()`, `list()` (the entries of the folder, each { name, type } with the type
+ * 'file', 'directory', 'symlink' or 'other') and `read(name)` (the bytes of a file of the folder).
+ */
+function folderSource(folder) {
+  return {
+    exists() {
+      try {
+        return fs.statSync(folder).isDirectory();
+      } catch {
+        return false;
+      }
+    },
+    list() {
+      return fs.readdirSync(folder).map((name) => {
+        const stat = fs.lstatSync(path.join(folder, name));
+        return { name, type: stat.isSymbolicLink() ? 'symlink' : stat.isFile() ? 'file' : stat.isDirectory() ? 'directory' : 'other' };
+      });
+    },
+    read: (name) => fs.readFileSync(path.join(folder, name)),
+  };
+}
+
 /** V-01 to V-08. Returns the record files of the folder, in name order, with their numbers. */
-function checkFolder(folder, sharedFolder, report) {
+function checkFolder(source, sharedFolder, report) {
   const records = [];
   let readme = false;
   let template = false;
-  for (const name of fs.readdirSync(folder).filter((entry) => !entry.startsWith('.')).sort()) {
-    const stat = fs.lstatSync(path.join(folder, name));
-    if (stat.isSymbolicLink() || !(stat.isFile() || stat.isDirectory())) report(name, 'V-04');
-    else if (stat.isDirectory()) {
+  for (const { name, type } of source.list().filter((entry) => !entry.name.startsWith('.')).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+    if (type === 'directory') {
       if (name !== sharedFolder) report(name, 'V-06');
-    } else if (name === 'README.md') readme = true;
+    } else if (type !== 'file') report(name, 'V-04');
+    else if (name === 'README.md') readme = true;
     else if (name === 'template.md') template = true;
     else if (RECORD_FILE.test(name)) records.push({ name, number: Number(name.slice(0, 4)) });
     else report(name, 'V-05');
@@ -427,10 +459,10 @@ function checkBody(name, body, fenced, report) {
 }
 
 /** V-09 to V-28 for one record. Returns what the index can judge: { status, title }. */
-function checkRecord(folder, { name, number }, numbers, extraKeys, report) {
+function checkRecord(source, { name, number }, numbers, extraKeys, report) {
   let record;
   try {
-    record = parse(fs.readFileSync(path.join(folder, name)));
+    record = parse(source.read(name));
   } catch (error) {
     if (!(error instanceof Reject)) throw error;
     report(name, 'V-09', `${error.rule}: ${RULES[error.rule]}`, error.rule);
@@ -447,8 +479,8 @@ function checkRecord(folder, { name, number }, numbers, extraKeys, report) {
 }
 
 /** V-29 to V-34: README.md against the records. */
-function checkIndex(folder, records, facts, report) {
-  const lines = fs.readFileSync(path.join(folder, 'README.md'), 'utf8').replace(/\r\n/g, '\n').split('\n').map((line) => line.replace(/[ \t]+$/, ''));
+function checkIndex(source, records, facts, report) {
+  const lines = source.read('README.md').toString('utf8').replace(/\r\n/g, '\n').split('\n').map((line) => line.replace(/[ \t]+$/, ''));
   const { fenced } = scanFences(lines);
   const start = lines.findIndex((line, i) => !fenced[i] && line === '## Index');
   if (start < 0) {
@@ -486,23 +518,151 @@ function checkIndex(folder, records, facts, report) {
  * Returns the problems as [{ file, rule, detail?, g1? }]; `file` is null for a problem of the folder as a whole.
  * Settings: `extraKeys`, the front matter keys beyond the standard ones, and `sharedFolder`, the subfolder not looked at.
  */
-export function validate(folder, { extraKeys = [], sharedFolder = 'shared' } = {}) {
+export function validate(folder, settings) {
+  return validateSource(folderSource(folder), settings);
+}
+
+function validateSource(source, { extraKeys = [], sharedFolder = 'shared' } = {}) {
   const problems = [];
   const report = (file, rule, detail, g1) => problems.push({ file, rule, ...(detail ? { detail } : {}), ...(g1 ? { g1 } : {}) });
-  let stat;
-  try {
-    stat = fs.statSync(folder);
-  } catch {
-    stat = null;
-  }
-  if (!stat?.isDirectory()) {
+  if (!source.exists()) {
     report(null, 'V-01');
     return problems;
   }
-  const { records, readme } = checkFolder(folder, sharedFolder, report);
+  const { records, readme } = checkFolder(source, sharedFolder, report);
   const numbers = new Set(records.map(({ number }) => number));
-  const facts = new Map(records.map((record) => [record.name, checkRecord(folder, record, numbers, extraKeys, report)]));
-  if (readme) checkIndex(folder, records, facts, report);
+  const facts = new Map(records.map((record) => [record.name, checkRecord(source, record, numbers, extraKeys, report)]));
+  if (readme) checkIndex(source, records, facts, report);
+  return problems;
+}
+
+/** Why a commit cannot be read: no git, not a repository, not a revision, not a folder of the tree. Wrong usage, not a problem of the records. */
+export class Unreadable extends Error {}
+
+const KINDS = { '100644': 'file', '100755': 'executable', '040000': 'directory', '120000': 'symlink', '160000': 'submodule' };
+/** The folders where tools look for records by convention (docs/reading-a-commit.md). */
+const CONVENTIONAL_FOLDERS = ['docs/decisions', 'docs/adr', 'docs/adrs', 'docs/architecture/decisions', 'doc/adr', 'doc/decisions', 'decisions', 'adr', 'adrs'];
+
+/** Runs git with nothing of the caller's git environment, and returns what it printed. */
+function runGit(args, { cwd, env = {}, input } = {}) {
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
+  const result = spawnSync('git', args, { cwd, input, env: { ...inherited, GIT_TERMINAL_PROMPT: '0', ...env }, maxBuffer: 1 << 30 });
+  if (result.error) throw new Unreadable(`cannot run git: ${result.error.message}`);
+  if (result.status !== 0) throw new Unreadable(`git ${args[args[0] === '-C' ? 2 : 0]} failed: ${result.stderr.toString('utf8').trim()}`);
+  return result.stdout;
+}
+
+/** The contents of blobs, by id, in one call of git. */
+function readBlobs(repo, ids) {
+  const wanted = [...new Set(ids)];
+  const blobs = new Map();
+  if (wanted.length === 0) return blobs;
+  const out = runGit(['-C', repo, 'cat-file', '--batch'], { input: `${wanted.join('\n')}\n` });
+  let at = 0;
+  for (const id of wanted) {
+    const eol = out.indexOf(0x0a, at);
+    const header = eol < 0 ? [] : out.toString('latin1', at, eol).split(' ');
+    if (header.length !== 3 || header[0] !== id || header[1] !== 'blob') throw new Unreadable(`cannot read the object ${id}`);
+    const size = Number(header[2]);
+    blobs.set(id, out.subarray(eol + 1, eol + 1 + size));
+    at = eol + 1 + size + 1;
+  }
+  return blobs;
+}
+
+/**
+ * Opens a commit without checking it out: `commit` is its id, `kind(path)` the kind of an entry ('file', 'executable',
+ * 'directory', 'symlink', 'submodule' or 'other'), `children(path)` the entries directly in a directory and `read(path)`
+ * the bytes of a file, read from the object database.
+ */
+export function openCommit(repo, rev) {
+  if (typeof rev !== 'string' || rev === '' || rev.startsWith('-')) throw new Unreadable(`not a revision: ${rev}`);
+  const commit = runGit(['-C', repo, 'rev-parse', '--verify', `${rev}^{commit}`]).toString('utf8').trim();
+  const entries = new Map();
+  const byParent = new Map();
+  let attributeFiles = false;
+  for (const record of runGit(['-C', repo, 'ls-tree', '-r', '-t', '-z', '--full-tree', commit]).toString('latin1').split('\0')) {
+    if (record === '') continue;
+    const match = /^(\d{6}) \w+ ([0-9a-f]+)\t([^]*)$/.exec(record);
+    if (!match) throw new Unreadable(`cannot read the tree of ${commit}`);
+    const entryPath = Buffer.from(match[3], 'latin1').toString('utf8');
+    const kind = KINDS[match[1]] ?? 'other';
+    const slash = entryPath.lastIndexOf('/');
+    const parent = slash < 0 ? '' : entryPath.slice(0, slash);
+    const name = entryPath.slice(slash + 1);
+    entries.set(entryPath, { kind, id: match[2] });
+    byParent.set(parent, [...(byParent.get(parent) ?? []), { name, kind, id: match[2] }]);
+    if (name === '.gitattributes') attributeFiles = true;
+  }
+  const cache = new Map();
+  const fetch = (paths) => {
+    const missing = paths.map((entryPath) => entries.get(entryPath)).filter((entry) => entry && !cache.has(entry.id)).map((entry) => entry.id);
+    for (const [id, bytes] of readBlobs(repo, missing)) cache.set(id, bytes);
+  };
+  return {
+    commit,
+    attributeFiles,
+    kind: (entryPath) => entries.get(entryPath)?.kind,
+    children: (dir) => byParent.get(dir) ?? [],
+    prefetch: fetch,
+    read(entryPath) {
+      const entry = entries.get(entryPath);
+      if (!entry || !['file', 'executable', 'symlink'].includes(entry.kind)) throw new Unreadable(`${entryPath} is not a file of ${commit}`);
+      fetch([entryPath]);
+      return cache.get(entry.id);
+    },
+    /** The git attributes of some paths as the `.gitattributes` of this commit set them, and nothing of the machine: Map path -> [[name, value]]. */
+    attributes(paths) {
+      const result = new Map(paths.map((entryPath) => [entryPath, []]));
+      if (!attributeFiles || paths.length === 0) return result;
+      const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-attributes-'));
+      try {
+        const objects = path.resolve(repo, runGit(['-C', repo, 'rev-parse', '--git-path', 'objects']).toString('utf8').trim());
+        const env = { GIT_DIR: scratch, GIT_ALTERNATE_OBJECT_DIRECTORIES: objects, GIT_ATTR_NOSYSTEM: '1', GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: os.devnull, HOME: scratch, XDG_CONFIG_HOME: scratch };
+        runGit(['init', '-q', '--bare', scratch], { cwd: scratch, env });
+        runGit(['read-tree', commit], { cwd: scratch, env });
+        const out = runGit(['check-attr', '--cached', '-a', '-z', '--stdin'], { cwd: scratch, env, input: `${paths.join('\0')}\0` }).toString('utf8').split('\0');
+        for (let i = 0; i + 2 < out.length; i += 3) result.get(out[i])?.push([out[i + 1], out[i + 2]]);
+      } finally {
+        fs.rmSync(scratch, { recursive: true, force: true });
+      }
+      return result;
+    },
+  };
+}
+
+function commitSource(commit, folder) {
+  return {
+    exists: () => commit.kind(folder) === 'directory',
+    list: () => commit.children(folder).map(({ name, kind }) => ({ name, type: kind === 'executable' ? 'file' : kind === 'directory' || kind === 'file' ? kind : 'other' })),
+    read: (name) => commit.read(`${folder}/${name}`),
+  };
+}
+
+/**
+ * Checks the records folder of a commit: the rules of docs/record-format.md on the files of the commit, and the rules of
+ * docs/reading-a-commit.md. `folder` is a path of the tree. Returns the problems like `validate`; throws Unreadable.
+ */
+export function validateCommit(repo, rev, folder = 'docs/decisions', settings) {
+  const parts = folder.split('/').filter((part) => part !== '' && part !== '.');
+  if (parts.length === 0 || parts.includes('..')) throw new Unreadable(`not a folder of the repository: ${folder}`);
+  const where = parts.join('/');
+  const commit = openCommit(repo, rev);
+  const source = commitSource(commit, where);
+  if (source.exists()) commit.prefetch(source.list().filter(({ name, type }) => type === 'file' && (name === 'README.md' || RECORD_FILE.test(name))).map(({ name }) => `${where}/${name}`));
+  const problems = validateSource(source, settings);
+  if (!source.exists()) return problems;
+  const files = commit.children(where).filter(({ name, kind }) => !name.startsWith('.') && (kind === 'file' || kind === 'executable'));
+  for (const { name, kind } of files) if (kind === 'executable') problems.push({ file: name, rule: 'T-01' });
+  const attributes = commit.attributes(files.map(({ name }) => `${where}/${name}`));
+  for (const { name } of files) {
+    const set = attributes.get(`${where}/${name}`).filter(([attribute]) => attribute !== 'text' && attribute !== 'eol').sort((a, b) => (a[0] < b[0] ? -1 : 1));
+    if (set.length > 0) problems.push({ file: name, rule: 'T-02', detail: set.map(([attribute, value]) => `${attribute}: ${value}`).join(', ') });
+  }
+  for (const other of CONVENTIONAL_FOLDERS) {
+    if (other === where || other.startsWith(`${where}/`)) continue;
+    if (commit.children(other).some(({ name, kind }) => (kind === 'file' || kind === 'executable') && (name === 'README.md' || RECORD_FILE.test(name)))) problems.push({ file: null, rule: 'T-03', detail: other });
+  }
   return problems;
 }
 
@@ -511,6 +671,9 @@ const USAGE = `Usage:
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
   record-keeper.mjs validate [folder] [--extra-key <name>]... [--shared-folder <name>]
                                             check the format of the records in a folder (default docs/decisions)
+  record-keeper.mjs validate --commit <revision> [--repo <path>] [folder] [--extra-key <name>]... [--shared-folder <name>]
+                                            the same for the folder as it is in a commit of a git repository (default .),
+                                            with the rules for what a commit can hold
 `;
 
 function describeFailure(file, result) {
@@ -558,21 +721,32 @@ function runSeal(args, readFile) {
 function runValidate(args) {
   let folder;
   let sharedFolder;
+  let commit;
+  let repo;
   const extraKeys = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--extra-key' || arg === '--shared-folder') {
+    if (arg === '--extra-key' || arg === '--shared-folder' || arg === '--commit' || arg === '--repo') {
       const value = args[++i];
       if (value === undefined || value === '' || value.startsWith('-')) return usageError;
       if (arg === '--extra-key') extraKeys.push(value);
-      else sharedFolder = value;
+      else if (arg === '--shared-folder') sharedFolder = value;
+      else if (arg === '--commit') commit = value;
+      else repo = value;
     } else if (arg.startsWith('-') || folder !== undefined) return usageError;
     else folder = arg;
   }
+  if (repo !== undefined && commit === undefined) return usageError;
   folder ??= 'docs/decisions';
-  const problems = validate(folder, { extraKeys, sharedFolder });
+  let problems;
+  try {
+    problems = commit === undefined ? validate(folder, { extraKeys, sharedFolder }) : validateCommit(repo ?? '.', commit, folder, { extraKeys, sharedFolder });
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
   const where = (file) => (file === null ? folder : path.join(folder, file));
-  const lines = problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`);
+  const lines = problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`);
   const count = `${folder}: ${problems.length} problem${problems.length === 1 ? '' : 's'}\n`;
   return problems.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
 }
