@@ -8,7 +8,7 @@ import { RULES as G1_RULES } from '../record-keeper.mjs';
 const dir = new URL('./fixtures/validate/', import.meta.url);
 const { cases } = JSON.parse(fs.readFileSync(new URL('cases.json', dir), 'utf8'));
 const page = fs.readFileSync(new URL('../docs/record-format.md', import.meta.url), 'utf8');
-const RULE_IDS = Array.from({ length: 34 }, (_, i) => `V-${String(i + 1).padStart(2, '0')}`);
+const RULE_IDS = Array.from({ length: 36 }, (_, i) => `V-${String(i + 1).padStart(2, '0')}`);
 const MISSING = 'no-such-folder';
 
 function walk(url, base = '') {
@@ -43,7 +43,7 @@ describe('the fixture set', () => {
     }
   });
 
-  test('exercises each of the 34 rules at least once', () => {
+  test('exercises each of the 36 rules at least once', () => {
     const hit = new Set(cases.flatMap((c) => c.expect.map((e) => e.rule)));
     assert.deepEqual(RULE_IDS.filter((r) => !hit.has(r)), []);
   });
