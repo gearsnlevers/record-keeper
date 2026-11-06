@@ -1,0 +1,4664 @@
+{
+ "texts": [
+  {
+   "id": "ok01-empty",
+   "text": "",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "an empty file sets nothing"
+  },
+  {
+   "id": "ok02-comments-and-blanks",
+   "text": "# Settings\n\n   # indented comment\n  \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "comments and blank lines only"
+  },
+  {
+   "id": "ok03-folder-plain",
+   "text": "folder: docs/adr\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a plain scalar"
+  },
+  {
+   "id": "ok04-folder-dot-path",
+   "text": "folder: .records/decisions\n",
+   "expect": {
+    "settings": {
+     "folder": ".records/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a plain scalar may start with a dot and a letter"
+  },
+  {
+   "id": "ok05-folder-double-quoted",
+   "text": "folder: \"docs/my records\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/my records",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a double-quoted scalar may hold spaces"
+  },
+  {
+   "id": "ok06-folder-single-quoted",
+   "text": "folder: 'docs/it''s'\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/it's",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a quote inside single quotes is written twice"
+  },
+  {
+   "id": "ok07-shared-folder",
+   "text": "shared-folder: core\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "core",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the shared folder"
+  },
+  {
+   "id": "ok08-extra-key",
+   "text": "extra-keys: [repos]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a list of one"
+  },
+  {
+   "id": "ok09-extra-keys-quotes",
+   "text": "extra-keys: [repos, 'issue-ref', \"x_y\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos",
+      "issue-ref",
+      "x_y"
+     ]
+    },
+    "problems": []
+   },
+   "note": "plain and quoted items in one list"
+  },
+  {
+   "id": "ok10-empty-list",
+   "text": "extra-keys: []\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the empty list"
+  },
+  {
+   "id": "ok11-empty-list-spaces",
+   "text": "extra-keys: [ ]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the empty list with a space inside"
+  },
+  {
+   "id": "ok12-trailing-comments",
+   "text": "folder: docs/adr # where\nshared-folder: 'core' # shared\nextra-keys: [a, b] # keys\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "core",
+     "extraKeys": [
+      "a",
+      "b"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a comment after a plain scalar, a quoted scalar and a list"
+  },
+  {
+   "id": "ok13-crlf",
+   "text": "folder: docs/adr\r\nextra-keys: [a]\r\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "a"
+     ]
+    },
+    "problems": []
+   },
+   "note": "lines may end with a carriage return and a line feed"
+  },
+  {
+   "id": "ok14-no-final-newline",
+   "text": "folder: docs/adr",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the last line needs no ending"
+  },
+  {
+   "id": "ok15-all-three",
+   "text": "folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "core",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "every setting"
+  },
+  {
+   "id": "ok16-many-spaces",
+   "text": "folder:    docs/adr   \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "spaces after the colon and at the end of the line"
+  },
+  {
+   "id": "ok17-looks-like-bool-quoted",
+   "text": "folder: \"no\"\nextra-keys: ['yes', \"null\", 'On']\n",
+   "expect": {
+    "settings": {
+     "folder": "no",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "yes",
+      "null",
+      "On"
+     ]
+    },
+    "problems": []
+   },
+   "note": "words that YAML reads as other types are strings when quoted"
+  },
+  {
+   "id": "ok18-list-spacing",
+   "text": "extra-keys: [ a , b,c ]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "a",
+      "b",
+      "c"
+     ]
+    },
+    "problems": []
+   },
+   "note": "spaces around items and commas are free"
+  },
+  {
+   "id": "ok19-comment-with-tab-and-unicode",
+   "text": "# a\tb \u00e9 \u2603\nfolder: docs/adr\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a tab and non-ASCII text may stand in a comment"
+  },
+  {
+   "id": "ok20-underscore-and-dots",
+   "text": "folder: _x/a.b-c_d/e\n",
+   "expect": {
+    "settings": {
+     "folder": "_x/a.b-c_d/e",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a plain scalar may start with an underscore and holds dots, hyphens and underscores"
+  },
+  {
+   "id": "ok21-duplicate-item",
+   "text": "extra-keys: [a, a]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "a",
+      "a"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a key listed twice is kept as written and is no problem"
+  },
+  {
+   "id": "ok22-standard-key",
+   "text": "extra-keys: [status]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "status"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a standard key may be listed and changes nothing"
+  },
+  {
+   "id": "ok23-unicode-folder-quoted",
+   "text": "folder: \"docs/\u00fcn\u00ef\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/\u00fcn\u00ef",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a quoted folder may hold non-ASCII text"
+  },
+  {
+   "id": "ok24-hash-in-quotes",
+   "text": "folder: \"a #b\"\nshared-folder: 'c#d'\n",
+   "expect": {
+    "settings": {
+     "folder": "a #b",
+     "sharedFolder": "c#d",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a hash inside quotes is not a comment"
+  },
+  {
+   "id": "ok25-whitespace-only-lines",
+   "text": "   \n\n  \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "blank lines with spaces"
+  },
+  {
+   "id": "ok26-key-order-and-comments-between",
+   "text": "extra-keys: [a]\n# c\nfolder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "x",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "a"
+     ]
+    },
+    "problems": []
+   },
+   "note": "the order of the keys is free"
+  },
+  {
+   "id": "ok27-colon-in-quotes",
+   "text": "folder: \"a: b\"\n",
+   "expect": {
+    "settings": {
+     "folder": "a: b",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a colon inside quotes is text"
+  },
+  {
+   "id": "s07zb-escaped-quote-in-key",
+   "text": "extra-keys: [\"a\\\"b\"]\nfolder: \"say \\\"hi\\\"\"\n",
+   "expect": {
+    "settings": {
+     "folder": "say \"hi\"",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a\"b"
+     }
+    ]
+   },
+   "note": "the escapes of a double-quoted scalar; the item is not a key"
+  },
+  {
+   "id": "ok29-dots-inside-quotes",
+   "text": "folder: \"...\"\n",
+   "expect": {
+    "settings": {
+     "folder": "...",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a part of three dots is not . or .."
+  },
+  {
+   "id": "ok30-github-folder",
+   "text": "folder: .github/records\nshared-folder: .gitx\n",
+   "expect": {
+    "settings": {
+     "folder": ".github/records",
+     "sharedFolder": ".gitx",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "only .git itself is refused, not names that start with it"
+  },
+  {
+   "id": "ok31-near-misses-of-reserved-words",
+   "text": "extra-keys: [nul, yess, nope, ny, online, offer, true_, no1, falsey, ynot, nullx]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "nul",
+      "yess",
+      "nope",
+      "ny",
+      "online",
+      "offer",
+      "true_",
+      "no1",
+      "falsey",
+      "ynot",
+      "nullx"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a plain scalar that only starts like a reserved word is plain"
+  },
+  {
+   "id": "ok32-dot-words",
+   "text": "folder: .infx/.nano/.info\n",
+   "expect": {
+    "settings": {
+     "folder": ".infx/.nano/.info",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": ".inf and .nan are reserved only whole"
+  },
+  {
+   "id": "ok33-comment-after-empty-value-in-other-line",
+   "text": "folder: a # b # c\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a comment may hold more hashes"
+  },
+  {
+   "id": "ok34-long-line-valid",
+   "text": "folder: aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa\n",
+   "expect": {
+    "settings": {
+     "folder": "aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the length of a value is not limited"
+  },
+  {
+   "id": "ok35-key-case-in-comment",
+   "text": "# Folder: ignored\nfolder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "x",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a comment is not read"
+  },
+  {
+   "id": "ok36b-capital-plain",
+   "text": "folder: Docs/ADR\n",
+   "expect": {
+    "settings": {
+     "folder": "Docs/ADR",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a plain scalar may start with a capital letter"
+  },
+  {
+   "id": "ok38-capital-keys",
+   "text": "extra-keys: [Repos, camelCase, A1_b-C]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "Repos",
+      "camelCase",
+      "A1_b-C"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a front matter key may hold capitals and digits"
+  },
+  {
+   "id": "ok39-git-suffix",
+   "text": "folder: repo.git\nshared-folder: x.git\n",
+   "expect": {
+    "settings": {
+     "folder": "repo.git",
+     "sharedFolder": "x.git",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "only the part .git is refused, not a part that ends with it"
+  },
+  {
+   "id": "s02a-not-utf8",
+   "hex": "666f6c6465723a20ff0a",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "a byte that is not UTF-8"
+  },
+  {
+   "id": "s02b-bom",
+   "text": "\ufefffolder: docs/adr\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "byte order mark"
+     }
+    ]
+   },
+   "note": "a byte order mark; nothing else is read"
+  },
+  {
+   "id": "s02c-bom-in-middle",
+   "text": "folder: a\n\ufefffolder: b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "byte order mark"
+     }
+    ]
+   },
+   "note": "a byte order mark anywhere"
+  },
+  {
+   "id": "s02d-nul",
+   "text": "# c\n\u0000\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "a NUL byte, on line 2"
+  },
+  {
+   "id": "s02e-del",
+   "text": "\u007f",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "DEL"
+  },
+  {
+   "id": "s02f-c1",
+   "text": "# \u0085\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "U+0085 is a line end to some YAML readers"
+  },
+  {
+   "id": "s02g-form-feed",
+   "text": "folder: a\n\f\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "a form feed"
+  },
+  {
+   "id": "s02h-line-separator",
+   "text": "\n# a\u2028b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "U+2028"
+  },
+  {
+   "id": "s02i-paragraph-separator",
+   "text": "# \u2029\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "U+2029"
+  },
+  {
+   "id": "s02j-rlo",
+   "text": "# \u202e\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "a right-to-left override"
+  },
+  {
+   "id": "s02k-isolate",
+   "text": "# \u2066\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "a direction isolate"
+  },
+  {
+   "id": "s02l-arabic-letter-mark",
+   "text": "# \u061c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "U+061C"
+  },
+  {
+   "id": "s02m-bare-cr-mid-line",
+   "text": "folder: a\rb\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "bare carriage return"
+     }
+    ]
+   },
+   "note": "a carriage return inside a line"
+  },
+  {
+   "id": "s02n-bare-cr-at-end",
+   "text": "folder: a\r",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "bare carriage return"
+     }
+    ]
+   },
+   "note": "a carriage return at the end of the text"
+  },
+  {
+   "id": "s02o-cr-before-crlf",
+   "text": "a\r\r\nb",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "bare carriage return"
+     }
+    ]
+   },
+   "note": "a carriage return that another carriage return follows"
+  },
+  {
+   "id": "s02p-bom-before-control",
+   "text": "\u0000\n\ufeff",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "byte order mark"
+     }
+    ]
+   },
+   "note": "the byte order mark wins over an earlier control character"
+  },
+  {
+   "id": "s02q-control-before-separator",
+   "text": "\u2028\n\u0001",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "a control character wins over an earlier separator"
+  },
+  {
+   "id": "s02r-separator-before-cr",
+   "text": "a\rb\n\u2028",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "separator or direction control"
+     }
+    ]
+   },
+   "note": "a separator wins over an earlier bare carriage return"
+  },
+  {
+   "id": "s02s-stops-reading",
+   "text": "folder: docs/adr\n\u0000\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "a text that cannot be read sets nothing, not even the line before"
+  },
+  {
+   "id": "s02t-lone-surrogate",
+   "hex": "2320eda0800a",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "a surrogate encoded in UTF-8"
+  },
+  {
+   "id": "s02u-overlong",
+   "hex": "2320c0af0a",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "an overlong encoding"
+  },
+  {
+   "id": "s02v-truncated",
+   "hex": "666f6c6465723a20e282",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "a sequence cut off at the end"
+  },
+  {
+   "id": "s02w-noncharacter",
+   "text": "# \ufffe\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "U+FFFE: valid UTF-8 that YAML readers refuse"
+  },
+  {
+   "id": "s02x-noncharacter-ffff",
+   "text": "folder: a\n# \uffff\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-02",
+      "detail": "control character"
+     }
+    ]
+   },
+   "note": "U+FFFF"
+  },
+  {
+   "id": "s02y-tab-is-not-a-control",
+   "text": "# \t\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a tab in a comment is read"
+  },
+  {
+   "id": "s02z-not-utf8-wins-over-everything",
+   "hex": "efbbbfff00",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "invalid UTF-8 is reported before the byte order mark"
+  },
+  {
+   "id": "s02za-plane-one-ok",
+   "text": "# \ud83d\ude00 \ud83f\udffe\nfolder: a\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "characters beyond the first plane are read, also a non-character there"
+  },
+  {
+   "id": "s03a-indented-key",
+   "text": "  folder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "  folder: x"
+     }
+    ]
+   },
+   "note": "an indented line is not read"
+  },
+  {
+   "id": "s03b-block-list",
+   "text": "extra-keys:\n  - repos\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "extra-keys"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "  - repos"
+     }
+    ]
+   },
+   "note": "a block list: the key has no value and the item is not read"
+  },
+  {
+   "id": "s03c-block-list-flush",
+   "text": "extra-keys:\n- repos\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "extra-keys"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "- repos"
+     }
+    ]
+   },
+   "note": "a block list without indentation"
+  },
+  {
+   "id": "s03d-document-marker",
+   "text": "---\nfolder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "x",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "---"
+     }
+    ]
+   },
+   "note": "a document marker; the rest is read"
+  },
+  {
+   "id": "s03e-document-end",
+   "text": "folder: x\n...\n",
+   "expect": {
+    "settings": {
+     "folder": "x",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "..."
+     }
+    ]
+   },
+   "note": "a document end"
+  },
+  {
+   "id": "s03f-no-colon",
+   "text": "folder\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "a line with no colon"
+  },
+  {
+   "id": "s03g-no-space-after-colon",
+   "text": "folder:docs\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder:docs"
+     }
+    ]
+   },
+   "note": "no space after the colon"
+  },
+  {
+   "id": "s03h-tab-after-colon",
+   "text": "folder:\tdocs\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder:\tdocs"
+     }
+    ]
+   },
+   "note": "a tab is not white space"
+  },
+  {
+   "id": "s03i-tab-indented-comment",
+   "text": "\t# c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "\t# c"
+     }
+    ]
+   },
+   "note": "a tab before a comment"
+  },
+  {
+   "id": "s03j-tab-only",
+   "text": "\t\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "\t"
+     }
+    ]
+   },
+   "note": "a line of one tab"
+  },
+  {
+   "id": "s03k-unterminated-single",
+   "text": "folder: 'abc\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'abc"
+     }
+    ]
+   },
+   "note": "an unfinished single quote"
+  },
+  {
+   "id": "s03l-unterminated-double",
+   "text": "folder: \"abc\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: \"abc"
+     }
+    ]
+   },
+   "note": "an unfinished double quote"
+  },
+  {
+   "id": "s03m-unterminated-list",
+   "text": "extra-keys: [a, b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a, b"
+     }
+    ]
+   },
+   "note": "a list that does not close"
+  },
+  {
+   "id": "s03n-trailing-comma",
+   "text": "extra-keys: [a,]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a,]"
+     }
+    ]
+   },
+   "note": "a trailing comma"
+  },
+  {
+   "id": "s03o-nested-list",
+   "text": "extra-keys: [[a]]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [[a]]"
+     }
+    ]
+   },
+   "note": "a list in a list"
+  },
+  {
+   "id": "s03p-flow-mapping",
+   "text": "folder: {a: b}\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: {a: b}"
+     }
+    ]
+   },
+   "note": "a mapping"
+  },
+  {
+   "id": "s03q-anchor",
+   "text": "folder: &a x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: &a x"
+     }
+    ]
+   },
+   "note": "an anchor"
+  },
+  {
+   "id": "s03r-alias",
+   "text": "folder: *a\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: *a"
+     }
+    ]
+   },
+   "note": "an alias"
+  },
+  {
+   "id": "s03s-tag",
+   "text": "folder: !!str x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: !!str x"
+     }
+    ]
+   },
+   "note": "a tag"
+  },
+  {
+   "id": "s03t-literal-block",
+   "text": "folder: |\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: |"
+     }
+    ]
+   },
+   "note": "a block scalar"
+  },
+  {
+   "id": "s03u-folded-block",
+   "text": "folder: >\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: >"
+     }
+    ]
+   },
+   "note": "a folded block scalar"
+  },
+  {
+   "id": "s03v-plain-with-space",
+   "text": "folder: docs and records\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: docs and records"
+     }
+    ]
+   },
+   "note": "a plain scalar has no spaces"
+  },
+  {
+   "id": "s03w-digit-start",
+   "text": "folder: 2024\nshared-folder: 1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 2024"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "shared-folder: 1"
+     }
+    ]
+   },
+   "note": "a plain scalar does not start with a digit"
+  },
+  {
+   "id": "s03x-trailing-colon",
+   "text": "folder: docs/decisions:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: docs/decisions:"
+     }
+    ]
+   },
+   "note": "a colon after a value"
+  },
+  {
+   "id": "s03y-text-after-quote",
+   "text": "folder: 'x' y\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'x' y"
+     }
+    ]
+   },
+   "note": "text after a quoted scalar"
+  },
+  {
+   "id": "s03z-hash-without-space",
+   "text": "folder: x#c\nshared-folder: 'x'#c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: x#c"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "shared-folder: 'x'#c"
+     }
+    ]
+   },
+   "note": "a comment needs a space before the hash"
+  },
+  {
+   "id": "s03za-non-ascii-plain",
+   "text": "folder: docs/\u00e9\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: docs/\u00e9"
+     }
+    ]
+   },
+   "note": "a plain scalar is ASCII"
+  },
+  {
+   "id": "s03zb-unknown-escape",
+   "text": "folder: \"a\\nb\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: \"a\\nb\""
+     }
+    ]
+   },
+   "note": "no escape but \\\" and \\\\"
+  },
+  {
+   "id": "s03zc-tab-in-quotes",
+   "text": "folder: 'a\tb'\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'a\tb'"
+     }
+    ]
+   },
+   "note": "a tab inside quotes"
+  },
+  {
+   "id": "s03zd-space-before-colon",
+   "text": "folder : x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder : x"
+     }
+    ]
+   },
+   "note": "no key is recognised, so this line does not count for folder"
+  },
+  {
+   "id": "s03ze-unknown-key-broken-value",
+   "text": "Folder: 'x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "Folder: 'x"
+     }
+    ]
+   },
+   "note": "a broken line is S-03 and not S-05"
+  },
+  {
+   "id": "s03zf-nbsp-indent",
+   "text": "\u00a0folder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "\u00a0folder: x"
+     }
+    ]
+   },
+   "note": "a no-break space is not a space"
+  },
+  {
+   "id": "s03zg-lines-that-start-oddly",
+   "text": "%YAML 1.2\n- a\n? a\n: a\n, a\n[a]\n{a: b}\n'a'\n\"a\"\n!tag a\n&a b\n*a\n> a\n| a\n@a\n`a`\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "%YAML 1.2"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "- a"
+     },
+     {
+      "line": 3,
+      "rule": "S-03",
+      "detail": "? a"
+     },
+     {
+      "line": 4,
+      "rule": "S-03",
+      "detail": ": a"
+     },
+     {
+      "line": 5,
+      "rule": "S-03",
+      "detail": ", a"
+     },
+     {
+      "line": 6,
+      "rule": "S-03",
+      "detail": "[a]"
+     },
+     {
+      "line": 7,
+      "rule": "S-03",
+      "detail": "{a: b}"
+     },
+     {
+      "line": 8,
+      "rule": "S-03",
+      "detail": "'a'"
+     },
+     {
+      "line": 9,
+      "rule": "S-03",
+      "detail": "\"a\""
+     },
+     {
+      "line": 10,
+      "rule": "S-03",
+      "detail": "!tag a"
+     },
+     {
+      "line": 11,
+      "rule": "S-03",
+      "detail": "&a b"
+     },
+     {
+      "line": 12,
+      "rule": "S-03",
+      "detail": "*a"
+     },
+     {
+      "line": 13,
+      "rule": "S-03",
+      "detail": "> a"
+     },
+     {
+      "line": 14,
+      "rule": "S-03",
+      "detail": "| a"
+     },
+     {
+      "line": 15,
+      "rule": "S-03",
+      "detail": "@a"
+     },
+     {
+      "line": 16,
+      "rule": "S-03",
+      "detail": "`a`"
+     }
+    ]
+   },
+   "note": "lines that start with an indicator"
+  },
+  {
+   "id": "s03zh-detail-cut",
+   "text": "  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx   \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    ]
+   },
+   "note": "the detail loses its trailing spaces and is cut after 40 characters"
+  },
+  {
+   "id": "s03zi-detail-cut-by-characters",
+   "text": "x: \ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "x: \ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "note": "the cut counts characters, not UTF-16 units"
+  },
+  {
+   "id": "s03zj-key-with-space",
+   "text": "a b: c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "a b: c"
+     }
+    ]
+   },
+   "note": "a key has no space"
+  },
+  {
+   "id": "s03zk-numeric-key",
+   "text": "1: a\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "1: a"
+     }
+    ]
+   },
+   "note": "a key starts with a letter"
+  },
+  {
+   "id": "s03zl-underscore-key",
+   "text": "_a: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "_a: x"
+     }
+    ]
+   },
+   "note": "a key starts with a letter"
+  },
+  {
+   "id": "s03zm-quoted-key",
+   "text": "'folder': x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "'folder': x"
+     }
+    ]
+   },
+   "note": "a key is not quoted"
+  },
+  {
+   "id": "s03zn-dot-lone",
+   "text": "folder: .\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: ."
+     }
+    ]
+   },
+   "note": "a lone dot is not plain"
+  },
+  {
+   "id": "s03zo-dot-underscore",
+   "text": "folder: ._1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: ._1"
+     }
+    ]
+   },
+   "note": "a dot and an underscore read as a number to some YAML readers"
+  },
+  {
+   "id": "ok36-underscore-digit",
+   "text": "folder: _1\n",
+   "expect": {
+    "settings": {
+     "folder": "_1",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "an underscore and a digit: plain"
+  },
+  {
+   "id": "ok37-dot-letter-underscore",
+   "text": "folder: .a_1\n",
+   "expect": {
+    "settings": {
+     "folder": ".a_1",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "a dot, a letter, an underscore and a digit: plain"
+  },
+  {
+   "id": "s03zp-dot-then-digit",
+   "text": "folder: .5\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: .5"
+     }
+    ]
+   },
+   "note": "a dot and a digit read as a number"
+  },
+  {
+   "id": "s03zq-hyphen-start",
+   "text": "folder: -x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: -x"
+     }
+    ]
+   },
+   "note": "a plain scalar does not start with a hyphen"
+  },
+  {
+   "id": "s03zr-tilde",
+   "text": "folder: ~\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: ~"
+     }
+    ]
+   },
+   "note": "null"
+  },
+  {
+   "id": "s03zs-empty-item",
+   "text": "extra-keys: [a,,b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a,,b]"
+     }
+    ]
+   },
+   "note": "an empty item"
+  },
+  {
+   "id": "s03zt-space-in-item",
+   "text": "extra-keys: [a b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a b]"
+     }
+    ]
+   },
+   "note": "two words in one item"
+  },
+  {
+   "id": "s03zu-text-after-list",
+   "text": "extra-keys: [a] b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a] b"
+     }
+    ]
+   },
+   "note": "text after a list"
+  },
+  {
+   "id": "s03zv-colon-in-item",
+   "text": "extra-keys: [a: b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [a: b]"
+     }
+    ]
+   },
+   "note": "a colon in a plain item"
+  },
+  {
+   "id": "s03zw-quote-in-plain",
+   "text": "folder: a'b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: a'b"
+     }
+    ]
+   },
+   "note": "a quote inside a plain scalar"
+  },
+  {
+   "id": "s03zx-single-escaped-end",
+   "text": "folder: 'a'''\n",
+   "expect": {
+    "settings": {
+     "folder": "a'",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "'a''' is a followed by a quote"
+  },
+  {
+   "id": "s03zy-single-unfinished-pair",
+   "text": "folder: 'a''\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'a''"
+     }
+    ]
+   },
+   "note": "a doubled quote at the end leaves the scalar open"
+  },
+  {
+   "id": "s03zz-double-backslash-end",
+   "text": "folder: \"a\\\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: \"a\\\""
+     }
+    ]
+   },
+   "note": "an escaped quote at the end leaves the scalar open"
+  },
+  {
+   "id": "s03zza-indented-duplicate",
+   "text": "folder: a\n  folder: b\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "  folder: b"
+     }
+    ]
+   },
+   "note": "an indented line is not a line of the key, so it does not make S-04"
+  },
+  {
+   "id": "s03zzb-word-before-comment",
+   "text": "folder: a b # c\nshared-folder: 'a' b # c\nextra-keys: [a] b # c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: a b # c"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "shared-folder: 'a' b # c"
+     },
+     {
+      "line": 3,
+      "rule": "S-03",
+      "detail": "extra-keys: [a] b # c"
+     }
+    ]
+   },
+   "note": "text before a comment is still text after the value"
+  },
+  {
+   "id": "s03zzc-one-letter-broken",
+   "text": "x: 'a\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "x: 'a"
+     }
+    ]
+   },
+   "note": "a one-letter key on a broken line"
+  },
+  {
+   "id": "s03r-null-llll",
+   "text": "extra-keys: [null]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [null]"
+     }
+    ]
+   },
+   "note": "the word null is not a plain scalar"
+  },
+  {
+   "id": "s03r-null-ulll",
+   "text": "extra-keys: [Null]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [Null]"
+     }
+    ]
+   },
+   "note": "the word Null is not a plain scalar"
+  },
+  {
+   "id": "s03r-null-uuuu",
+   "text": "extra-keys: [NULL]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [NULL]"
+     }
+    ]
+   },
+   "note": "the word NULL is not a plain scalar"
+  },
+  {
+   "id": "s03r-true-llll",
+   "text": "extra-keys: [true]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [true]"
+     }
+    ]
+   },
+   "note": "the word true is not a plain scalar"
+  },
+  {
+   "id": "s03r-true-ulll",
+   "text": "extra-keys: [True]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [True]"
+     }
+    ]
+   },
+   "note": "the word True is not a plain scalar"
+  },
+  {
+   "id": "s03r-true-uuuu",
+   "text": "extra-keys: [TRUE]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [TRUE]"
+     }
+    ]
+   },
+   "note": "the word TRUE is not a plain scalar"
+  },
+  {
+   "id": "s03r-false-lllll",
+   "text": "extra-keys: [false]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [false]"
+     }
+    ]
+   },
+   "note": "the word false is not a plain scalar"
+  },
+  {
+   "id": "s03r-false-ullll",
+   "text": "extra-keys: [False]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [False]"
+     }
+    ]
+   },
+   "note": "the word False is not a plain scalar"
+  },
+  {
+   "id": "s03r-false-uuuuu",
+   "text": "extra-keys: [FALSE]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [FALSE]"
+     }
+    ]
+   },
+   "note": "the word FALSE is not a plain scalar"
+  },
+  {
+   "id": "s03r-yes-lll",
+   "text": "extra-keys: [yes]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [yes]"
+     }
+    ]
+   },
+   "note": "the word yes is not a plain scalar"
+  },
+  {
+   "id": "s03r-yes-ull",
+   "text": "extra-keys: [Yes]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [Yes]"
+     }
+    ]
+   },
+   "note": "the word Yes is not a plain scalar"
+  },
+  {
+   "id": "s03r-yes-uuu",
+   "text": "extra-keys: [YES]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [YES]"
+     }
+    ]
+   },
+   "note": "the word YES is not a plain scalar"
+  },
+  {
+   "id": "s03r-no-ll",
+   "text": "extra-keys: [no]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [no]"
+     }
+    ]
+   },
+   "note": "the word no is not a plain scalar"
+  },
+  {
+   "id": "s03r-no-ul",
+   "text": "extra-keys: [No]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [No]"
+     }
+    ]
+   },
+   "note": "the word No is not a plain scalar"
+  },
+  {
+   "id": "s03r-no-uu",
+   "text": "extra-keys: [NO]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [NO]"
+     }
+    ]
+   },
+   "note": "the word NO is not a plain scalar"
+  },
+  {
+   "id": "s03r-on-ll",
+   "text": "extra-keys: [on]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [on]"
+     }
+    ]
+   },
+   "note": "the word on is not a plain scalar"
+  },
+  {
+   "id": "s03r-on-ul",
+   "text": "extra-keys: [On]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [On]"
+     }
+    ]
+   },
+   "note": "the word On is not a plain scalar"
+  },
+  {
+   "id": "s03r-on-uu",
+   "text": "extra-keys: [ON]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [ON]"
+     }
+    ]
+   },
+   "note": "the word ON is not a plain scalar"
+  },
+  {
+   "id": "s03r-off-lll",
+   "text": "extra-keys: [off]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [off]"
+     }
+    ]
+   },
+   "note": "the word off is not a plain scalar"
+  },
+  {
+   "id": "s03r-off-ull",
+   "text": "extra-keys: [Off]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [Off]"
+     }
+    ]
+   },
+   "note": "the word Off is not a plain scalar"
+  },
+  {
+   "id": "s03r-off-uuu",
+   "text": "extra-keys: [OFF]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [OFF]"
+     }
+    ]
+   },
+   "note": "the word OFF is not a plain scalar"
+  },
+  {
+   "id": "s03r-y-l",
+   "text": "extra-keys: [y]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [y]"
+     }
+    ]
+   },
+   "note": "the word y is not a plain scalar"
+  },
+  {
+   "id": "s03r-y-u",
+   "text": "extra-keys: [Y]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [Y]"
+     }
+    ]
+   },
+   "note": "the word Y is not a plain scalar"
+  },
+  {
+   "id": "s03r-n-l",
+   "text": "extra-keys: [n]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [n]"
+     }
+    ]
+   },
+   "note": "the word n is not a plain scalar"
+  },
+  {
+   "id": "s03r-n-u",
+   "text": "extra-keys: [N]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [N]"
+     }
+    ]
+   },
+   "note": "the word N is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-inf-lll",
+   "text": "extra-keys: [.inf]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.inf]"
+     }
+    ]
+   },
+   "note": "the word .inf is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-inf-ull",
+   "text": "extra-keys: [.Inf]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.Inf]"
+     }
+    ]
+   },
+   "note": "the word .Inf is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-inf-uuu",
+   "text": "extra-keys: [.INF]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.INF]"
+     }
+    ]
+   },
+   "note": "the word .INF is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-nan-lll",
+   "text": "extra-keys: [.nan]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.nan]"
+     }
+    ]
+   },
+   "note": "the word .nan is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-nan-ulu",
+   "text": "extra-keys: [.NaN]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.NaN]"
+     }
+    ]
+   },
+   "note": "the word .NaN is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-nan-uuu",
+   "text": "extra-keys: [.NAN]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.NAN]"
+     }
+    ]
+   },
+   "note": "the word .NAN is not a plain scalar"
+  },
+  {
+   "id": "s03r-null-luul",
+   "text": "extra-keys: [nULl]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [nULl]"
+     }
+    ]
+   },
+   "note": "the word nULl is not a plain scalar"
+  },
+  {
+   "id": "s03r-dot-inf-lul",
+   "text": "extra-keys: [.iNf]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [.iNf]"
+     }
+    ]
+   },
+   "note": "the word .iNf is not a plain scalar"
+  },
+  {
+   "id": "s04a-folder-twice",
+   "text": "folder: a\nfolder: b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "both lines are reported and the key takes its default"
+  },
+  {
+   "id": "s04b-three-times",
+   "text": "shared-folder: a\nshared-folder: b\nshared-folder: c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "shared-folder"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "shared-folder"
+     },
+     {
+      "line": 3,
+      "rule": "S-04",
+      "detail": "shared-folder"
+     }
+    ]
+   },
+   "note": "every line of the key"
+  },
+  {
+   "id": "s04c-with-broken",
+   "text": "folder: a\nfolder: 'b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "folder: 'b"
+     }
+    ]
+   },
+   "note": "a broken line counts as a line of its key, and keeps its S-03"
+  },
+  {
+   "id": "s04d-both-broken",
+   "text": "folder: 'a\nfolder: 'b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'a"
+     },
+     {
+      "line": 2,
+      "rule": "S-03",
+      "detail": "folder: 'b"
+     }
+    ]
+   },
+   "note": "two broken lines: S-03 twice and no S-04"
+  },
+  {
+   "id": "s04e-extra-keys-twice",
+   "text": "extra-keys: [a]\nextra-keys: [b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "extra-keys"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "extra-keys"
+     }
+    ]
+   },
+   "note": "a list set twice"
+  },
+  {
+   "id": "s04f-others-unaffected",
+   "text": "folder: a\nshared-folder: s\nfolder: b\nextra-keys: [k]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "s",
+     "extraKeys": [
+      "k"
+     ]
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 3,
+      "rule": "S-04",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "the other keys are read"
+  },
+  {
+   "id": "s04g-unknown-twice",
+   "text": "owners: [a]\nowners: [b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "owners"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "an unknown key is S-05 on each line and never S-04"
+  },
+  {
+   "id": "s04h-bad-kind-twice",
+   "text": "folder: [a]\nfolder: [b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "S-04 comes before the kind is looked at"
+  },
+  {
+   "id": "s04i-case-differs",
+   "text": "folder: a\nFolder: b\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "Folder"
+     }
+    ]
+   },
+   "note": "keys are compared exactly"
+  },
+  {
+   "id": "s04j-bad-value-twice",
+   "text": "folder: ''\nfolder: ''\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "S-04 comes before the value is looked at"
+  },
+  {
+   "id": "s04k-broken-then-good-then-broken",
+   "text": "folder: 'a\nfolder: b\nfolder: 'c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'a"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 3,
+      "rule": "S-03",
+      "detail": "folder: 'c"
+     }
+    ]
+   },
+   "note": "one good line between two broken ones"
+  },
+  {
+   "id": "s05a-unknown",
+   "text": "owners: [alice]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a key for a later kit"
+  },
+  {
+   "id": "s05b-capital",
+   "text": "Folder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "Folder"
+     }
+    ]
+   },
+   "note": "case matters"
+  },
+  {
+   "id": "s05c-underscore",
+   "text": "shared_folder: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "shared_folder"
+     }
+    ]
+   },
+   "note": "an underscore is not a hyphen"
+  },
+  {
+   "id": "s05d-integer",
+   "text": "approvals: 2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2"
+     }
+    ]
+   },
+   "note": "a number is not in the subset yet, so this is S-03 and not S-05"
+  },
+  {
+   "id": "s05e-word-value",
+   "text": "compactor: report\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "compactor"
+     }
+    ]
+   },
+   "note": "an unknown key with a readable value"
+  },
+  {
+   "id": "s05f-long-key",
+   "text": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+     }
+    ]
+   },
+   "note": "the detail is cut"
+  },
+  {
+   "id": "s05g-several",
+   "text": "owners: [a]\nwitnesses: []\nbranches: [main]\ncompactor: report\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "owners"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "witnesses"
+     },
+     {
+      "line": 3,
+      "rule": "S-05",
+      "detail": "branches"
+     },
+     {
+      "line": 4,
+      "rule": "S-05",
+      "detail": "compactor"
+     }
+    ]
+   },
+   "note": "each line"
+  },
+  {
+   "id": "s05h-unknown-no-value",
+   "text": "owners:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "the kind of an unknown key is not looked at"
+  },
+  {
+   "id": "s05i-unknown-list-of-strings",
+   "text": "extra-key: ['x']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "extra-key"
+     }
+    ]
+   },
+   "note": "a near miss"
+  },
+  {
+   "id": "s05j-unknown-in-the-middle",
+   "text": "folder: a\nowners: [x]\nshared-folder: s\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "s",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "the lines around it are read"
+  },
+  {
+   "id": "s05k-prototype-names",
+   "text": "constructor: x\ntoString: [a]\nhasOwnProperty: z\nvalueOf:\nconstructor: y2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "constructor"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "toString"
+     },
+     {
+      "line": 3,
+      "rule": "S-05",
+      "detail": "hasOwnProperty"
+     },
+     {
+      "line": 4,
+      "rule": "S-05",
+      "detail": "valueOf"
+     },
+     {
+      "line": 5,
+      "rule": "S-05",
+      "detail": "constructor"
+     }
+    ]
+   },
+   "note": "names of the language are not settings, and a repeated unknown key is S-05 each time"
+  },
+  {
+   "id": "s05l-proto-key",
+   "text": "__proto__: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "__proto__: x"
+     }
+    ]
+   },
+   "note": "a key starts with a letter"
+  },
+  {
+   "id": "s05m-one-letter-key",
+   "text": "x: a\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "x"
+     }
+    ]
+   },
+   "note": "a key of one letter is a key"
+  },
+  {
+   "id": "s05n-digits-in-key",
+   "text": "a1-b_2: x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "a1-b_2"
+     }
+    ]
+   },
+   "note": "a key may hold digits, hyphens and underscores"
+  },
+  {
+   "id": "s06a-list-for-folder",
+   "text": "folder: [docs]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "a list for a single value"
+  },
+  {
+   "id": "s06b-none-for-folder",
+   "text": "folder:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "no value"
+  },
+  {
+   "id": "s06c-comment-only-value",
+   "text": "folder: # later\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "a comment is no value"
+  },
+  {
+   "id": "s06d-list-for-shared",
+   "text": "shared-folder: [core]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "shared-folder"
+     }
+    ]
+   },
+   "note": "a list for the shared folder"
+  },
+  {
+   "id": "s06e-single-for-list",
+   "text": "extra-keys: repos\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "extra-keys"
+     }
+    ]
+   },
+   "note": "a single value for a list"
+  },
+  {
+   "id": "s06f-none-for-list",
+   "text": "extra-keys:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "extra-keys"
+     }
+    ]
+   },
+   "note": "no value for a list"
+  },
+  {
+   "id": "s06g-quoted-single-for-list",
+   "text": "extra-keys: 'repos'\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "extra-keys"
+     }
+    ]
+   },
+   "note": "a quoted single value for a list"
+  },
+  {
+   "id": "s06h-none-trailing-spaces",
+   "text": "shared-folder:   \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "shared-folder"
+     }
+    ]
+   },
+   "note": "spaces after the colon and nothing else"
+  },
+  {
+   "id": "s07a-folder-empty",
+   "text": "folder: ''\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ""
+     }
+    ]
+   },
+   "note": "an empty folder"
+  },
+  {
+   "id": "s07b-folder-absolute",
+   "text": "folder: \"/docs\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "/docs"
+     }
+    ]
+   },
+   "note": "a leading slash"
+  },
+  {
+   "id": "s07c-folder-trailing-slash",
+   "text": "folder: docs/\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "docs/"
+     }
+    ]
+   },
+   "note": "a trailing slash"
+  },
+  {
+   "id": "s07d-folder-double-slash",
+   "text": "folder: docs//x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "docs//x"
+     }
+    ]
+   },
+   "note": "an empty part"
+  },
+  {
+   "id": "s07e-folder-dot",
+   "text": "folder: \".\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "."
+     }
+    ]
+   },
+   "note": "the part ."
+  },
+  {
+   "id": "s07f-folder-dotdot",
+   "text": "folder: \"..\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ".."
+     }
+    ]
+   },
+   "note": "the part .."
+  },
+  {
+   "id": "s07g-folder-dotdot-inside",
+   "text": "folder: a/../b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/../b"
+     }
+    ]
+   },
+   "note": "a .. in the middle"
+  },
+  {
+   "id": "s07h-folder-backslash",
+   "text": "folder: \"a\\\\b\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a\\b"
+     }
+    ]
+   },
+   "note": "a backslash"
+  },
+  {
+   "id": "s07i-folder-dotgit",
+   "text": "folder: \".git\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ".git"
+     }
+    ]
+   },
+   "note": ".git"
+  },
+  {
+   "id": "s07j-folder-dotgit-upper",
+   "text": "folder: .GIT/x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ".GIT/x"
+     }
+    ]
+   },
+   "note": ".git in capitals"
+  },
+  {
+   "id": "s07k-folder-dotgit-deep",
+   "text": "folder: a/.Git\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/.Git"
+     }
+    ]
+   },
+   "note": ".git as a later part"
+  },
+  {
+   "id": "s07l-shared-slash",
+   "text": "shared-folder: a/b\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/b"
+     }
+    ]
+   },
+   "note": "the shared folder is one part"
+  },
+  {
+   "id": "s07m-shared-dotdot",
+   "text": "shared-folder: \"..\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ".."
+     }
+    ]
+   },
+   "note": ".."
+  },
+  {
+   "id": "s07n-shared-dotgit",
+   "text": "shared-folder: .git\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ".git"
+     }
+    ]
+   },
+   "note": ".git"
+  },
+  {
+   "id": "s07o-key-bad-start",
+   "text": "extra-keys: ['1x']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "1x"
+     }
+    ]
+   },
+   "note": "a key starts with a letter"
+  },
+  {
+   "id": "s07p-key-with-space",
+   "text": "extra-keys: ['a b']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a b"
+     }
+    ]
+   },
+   "note": "a key has no space"
+  },
+  {
+   "id": "s07q-key-with-colon",
+   "text": "extra-keys: [\"a:b\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a:b"
+     }
+    ]
+   },
+   "note": "a key has no colon"
+  },
+  {
+   "id": "s07r-first-bad-item",
+   "text": "extra-keys: [ok, 'bad key', '2nd']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "bad key"
+     }
+    ]
+   },
+   "note": "the detail is the first item that is not a key, and the list is not used"
+  },
+  {
+   "id": "s07s-key-empty",
+   "text": "extra-keys: ['']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": ""
+     }
+    ]
+   },
+   "note": "an empty key"
+  },
+  {
+   "id": "s07t-key-with-dot",
+   "text": "extra-keys: [a.b]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a.b"
+     }
+    ]
+   },
+   "note": "a dot is a plain character but not a key character"
+  },
+  {
+   "id": "s07u-detail-cut",
+   "text": "folder: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    ]
+   },
+   "note": "the detail is cut after 40 characters"
+  },
+  {
+   "id": "s07v-detail-cut-by-characters",
+   "text": "folder: \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d\ude00bc/\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d\ude00"
+     }
+    ]
+   },
+   "note": "the cut counts characters"
+  },
+  {
+   "id": "s07w-key-non-ascii",
+   "text": "extra-keys: ['\u00e9']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "\u00e9"
+     }
+    ]
+   },
+   "note": "a key is ASCII"
+  },
+  {
+   "id": "s07x-folder-slash-only",
+   "text": "folder: \"/\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "/"
+     }
+    ]
+   },
+   "note": "two empty parts"
+  },
+  {
+   "id": "s07y-good-folder-bad-keys",
+   "text": "folder: a\nextra-keys: ['!']\nshared-folder: s\n",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "s",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-07",
+      "detail": "!"
+     }
+    ]
+   },
+   "note": "the other lines are read"
+  },
+  {
+   "id": "s07z-underscore-key",
+   "text": "extra-keys: [_x]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "_x"
+     }
+    ]
+   },
+   "note": "a key does not start with an underscore"
+  },
+  {
+   "id": "m01-everything",
+   "text": "# settings\nfolder: docs/adr\nowners: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "folder"
+     },
+     {
+      "line": 3,
+      "rule": "S-05",
+      "detail": "owners"
+     },
+     {
+      "line": 5,
+      "rule": "S-06",
+      "detail": "shared-folder"
+     },
+     {
+      "line": 6,
+      "rule": "S-07",
+      "detail": "bad key"
+     },
+     {
+      "line": 7,
+      "rule": "S-03",
+      "detail": "  stray"
+     },
+     {
+      "line": 8,
+      "rule": "S-04",
+      "detail": "folder"
+     }
+    ]
+   },
+   "note": "one problem on each line, in the order of the lines"
+  },
+  {
+   "id": "m02-one-bad-line-does-not-silence-the-rest",
+   "text": "folder: docs/adr\nowners: [a]\nextra-keys: [repos]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "the settings around a problem are read"
+  },
+  {
+   "id": "m03-comments-keep-line-numbers",
+   "text": "# a\n\n# b\nowners: [x]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 4,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "blank lines and comments count"
+  },
+  {
+   "id": "m04-crlf-line-numbers",
+   "text": "\r\n\r\nowners: [x]\r\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 3,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a carriage return and a line feed make one line end"
+  },
+  {
+   "id": "m05-no-final-newline-problem",
+   "text": "folder: a\nowners: [x]",
+   "expect": {
+    "settings": {
+     "folder": "a",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a problem on the last line without an ending"
+  },
+  {
+   "id": "m06-crlf-and-detail",
+   "text": "folder: 'x\r\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "folder: 'x"
+     }
+    ]
+   },
+   "note": "the carriage return is not part of the detail"
+  }
+ ],
+ "trees": [
+  {
+   "id": "t01-no-file",
+   "files": [
+    {
+     "path": "README.md",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "no settings file: the defaults"
+  },
+  {
+   "id": "t02-file",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "the file is read"
+  },
+  {
+   "id": "t03-executable",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n",
+     "mode": "100755"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "the executable mode changes nothing"
+  },
+  {
+   "id": "t04-symlink",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "link": "../x"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "a symbolic link where the file should be"
+  },
+  {
+   "id": "t05-directory",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml/inner.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "a directory where the file should be"
+  },
+  {
+   "id": "t06-submodule",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "submodule": true
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "a submodule where the file should be"
+  },
+  {
+   "id": "t07-github-symlink",
+   "files": [
+    {
+     "path": ".github",
+     "link": "elsewhere"
+    },
+    {
+     "path": "elsewhere/record-keeper/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github"
+     }
+    ]
+   },
+   "note": "a link in front of the file is not followed"
+  },
+  {
+   "id": "t08-github-file",
+   "files": [
+    {
+     "path": ".github",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github"
+     }
+    ]
+   },
+   "note": ".github is a file"
+  },
+  {
+   "id": "t09-folder-symlink",
+   "files": [
+    {
+     "path": ".github/record-keeper",
+     "link": "../elsewhere"
+    },
+    {
+     "path": ".github/other.yml",
+     "content": "x\n"
+    },
+    {
+     "path": "elsewhere/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper"
+     }
+    ]
+   },
+   "note": ".github/record-keeper is a link"
+  },
+  {
+   "id": "t10-folder-file",
+   "files": [
+    {
+     "path": ".github/record-keeper",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper"
+     }
+    ]
+   },
+   "note": ".github/record-keeper is a file"
+  },
+  {
+   "id": "t11-github-submodule",
+   "files": [
+    {
+     "path": ".github",
+     "submodule": true
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github"
+     }
+    ]
+   },
+   "note": ".github is a submodule"
+  },
+  {
+   "id": "t12-folder-submodule",
+   "files": [
+    {
+     "path": ".github/record-keeper",
+     "submodule": true
+    },
+    {
+     "path": ".github/other.yml",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper"
+     }
+    ]
+   },
+   "note": ".github/record-keeper is a submodule"
+  },
+  {
+   "id": "t13-elsewhere",
+   "files": [
+    {
+     "path": "settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": ".github/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": ".github/record-keeper/Settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": ".github/record-keeper/settings.yaml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": "docs/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "only the path of the page is read"
+  },
+  {
+   "id": "t14-pin-is-not-read",
+   "files": [
+    {
+     "path": ".github/record-keeper.yml",
+     "content": "this: is: not: yaml\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": "the pin is another file and is not read"
+  },
+  {
+   "id": "t15-github-without-folder",
+   "files": [
+    {
+     "path": ".github/workflows/x.yml",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": []
+   },
+   "note": ".github without record-keeper: the defaults"
+  },
+  {
+   "id": "t16-problems-carry-the-file",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "owners: [a]\nfolder: docs/adr\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a problem of the file in a tree"
+  },
+  {
+   "id": "t17-github-dir-with-links-around",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": ".github/link",
+     "link": "record-keeper"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "a link beside the folder changes nothing"
+  },
+  {
+   "id": "t18-file-and-sibling-folder",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "folder: docs/adr\nextra-keys: [repos]\n"
+    },
+    {
+     "path": ".github/record-keeper/other",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "shared",
+     "extraKeys": [
+      "repos"
+     ]
+    },
+    "problems": []
+   },
+   "note": "other files in the folder change nothing"
+  },
+  {
+   "id": "t19-bad-utf8-file",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "hex": "666f6c6465723a20ff0a"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": []
+    },
+    "problems": [
+     {
+      "line": null,
+      "rule": "S-02",
+      "detail": "not UTF-8"
+     }
+    ]
+   },
+   "note": "bytes that are not UTF-8, read from a blob"
+  }
+ ]
+}

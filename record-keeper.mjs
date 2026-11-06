@@ -666,6 +666,188 @@ export function validateCommit(repo, rev, folder = 'docs/decisions', settings) {
   return problems;
 }
 
+/** The settings file of a repository (docs/settings.md). */
+export const SETTINGS_PATH = '.github/record-keeper/settings.yml';
+
+export const SETTINGS_RULES = {
+  'S-01': 'is not a regular file of the commit, or a link or a file stands in front of it',
+  'S-02': 'is not text that the kit reads',
+  'S-03': 'has a line that is not in the subset of YAML that the kit reads',
+  'S-04': 'sets a key that another line also sets',
+  'S-05': 'has a key that is not a setting',
+  'S-06': 'gives a key a value of the wrong kind',
+  'S-07': 'gives a key a value that it cannot take',
+};
+
+/** Every setting: the kind of its value, the form a value must have and the field it fills. A Map, so that `constructor` is not a setting. */
+const SETTINGS = new Map([
+  ['folder', { kind: 'single', form: 'folder', field: 'folder' }],
+  ['shared-folder', { kind: 'single', form: 'part', field: 'sharedFolder' }],
+  ['extra-keys', { kind: 'list', form: 'key', field: 'extraKeys' }],
+]);
+
+const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [] });
+
+const SETTING_KEY = /^([A-Za-z][A-Za-z0-9_-]*):/;
+const SETTING_ENTRY = /^[A-Za-z][A-Za-z0-9_-]*:(?: +([^]*))?$/;
+const PLAIN_SCALAR = /(?:[A-Za-z_]|\.[A-Za-z])[A-Za-z0-9_./-]*/y;
+const RESERVED_WORD = /^(?:null|true|false|yes|no|on|off|y|n|\.inf|\.nan)$/i;
+const KEY_NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
+
+const cutDetail = (text) => [...text].slice(0, 40).join('');
+const lineAt = (text, index) => text.slice(0, index).split('\n').length;
+
+/** S-02: the text of a settings file, or why it is not read: { text } or { reason, line }. */
+function readText(bytes) {
+  let text;
+  try {
+    text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
+  } catch {
+    return { reason: 'not UTF-8', line: null };
+  }
+  const first = (test) => {
+    for (let i = 0; i < text.length; i++) if (test(text.charCodeAt(i), i)) return i;
+    return -1;
+  };
+  const found = [
+    ['byte order mark', first((code) => code === BOM)],
+    ['control character', first((code) => inRanges(code, CONTROLS) || code === 0xfffe || code === 0xffff)],
+    ['separator or direction control', first((code) => inRanges(code, SEPARATORS_AND_BIDI))],
+    ['bare carriage return', first((code, i) => code === 0x0d && text.charCodeAt(i + 1) !== 0x0a)],
+  ].find(([, index]) => index >= 0);
+  return found ? { reason: found[0], line: lineAt(text, found[1]) } : { text };
+}
+
+/** A scalar of the subset at `pos`: { value, end }, or null. */
+function readScalar(text, pos) {
+  const quote = text[pos];
+  if (quote === "'" || quote === '"') {
+    let value = '';
+    for (let i = pos + 1; ; ) {
+      if (i >= text.length || text[i] === '\t') return null;
+      if (text[i] === quote) {
+        if (quote === "'" && text[i + 1] === "'") {
+          value += "'";
+          i += 2;
+        } else return { value, end: i + 1 };
+      } else if (quote === '"' && text[i] === '\\') {
+        if (text[i + 1] !== '"' && text[i + 1] !== '\\') return null;
+        value += text[i + 1];
+        i += 2;
+      } else value += text[i++];
+    }
+  }
+  PLAIN_SCALAR.lastIndex = pos;
+  const match = PLAIN_SCALAR.exec(text);
+  return match && !RESERVED_WORD.test(match[0]) ? { value: match[0], end: pos + match[0].length } : null;
+}
+
+const skipSpaces = (text, pos) => {
+  while (text[pos] === ' ') pos++;
+  return pos;
+};
+
+/** One line that is not blank and not a comment: { key, kind, value }, or { key, broken: true } (key is null when the line has none). */
+function readEntry(line) {
+  const key = SETTING_KEY.exec(line)?.[1] ?? null;
+  const entry = SETTING_ENTRY.exec(line);
+  if (!entry) return { key, broken: true };
+  const rest = entry[1] ?? '';
+  if (rest === '' || rest.startsWith('#')) return { key, kind: 'none' };
+  let kind = 'single';
+  let value;
+  let pos;
+  if (rest[0] === '[') {
+    kind = 'list';
+    value = [];
+    pos = skipSpaces(rest, 1);
+    if (rest[pos] === ']') pos++;
+    else {
+      for (;;) {
+        const item = readScalar(rest, pos);
+        if (!item) return { key, broken: true };
+        value.push(item.value);
+        pos = skipSpaces(rest, item.end);
+        if (rest[pos] === ',') pos = skipSpaces(rest, pos + 1);
+        else if (rest[pos] === ']') {
+          pos++;
+          break;
+        } else return { key, broken: true };
+      }
+    }
+  } else {
+    const scalar = readScalar(rest, 0);
+    if (!scalar) return { key, broken: true };
+    ({ value, end: pos } = scalar);
+  }
+  const tail = rest.slice(pos);
+  return /^ *$/.test(tail) || /^ +#/.test(tail) ? { key, kind, value } : { key, broken: true };
+}
+
+const goodPart = (part) => part !== '' && part !== '.' && part !== '..' && !/^\.[gG][iI][tT]$/.test(part) && !part.includes('\\');
+const FORMS = {
+  folder: (value) => value.split('/').every(goodPart),
+  part: (value) => !value.includes('/') && goodPart(value),
+  key: (value) => KEY_NAME.test(value),
+};
+
+/**
+ * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys }, each
+ * at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
+ * order of the lines (line is null when a problem has none).
+ */
+export function parseSettings(bytes) {
+  const settings = defaultSettings();
+  const { text, reason, line: where } = readText(bytes);
+  if (text === undefined) return { settings, problems: [{ line: where, rule: 'S-02', detail: reason }] };
+  const problems = [];
+  const byKey = new Map();
+  text.split('\n').forEach((raw, index) => {
+    const line = raw.endsWith('\r') ? raw.slice(0, -1) : raw;
+    if (/^ *(?:#|$)/.test(line)) return;
+    const entry = readEntry(line);
+    const number = index + 1;
+    if (entry.broken) problems.push({ line: number, rule: 'S-03', detail: cutDetail(line.replace(/ +$/, '')) });
+    if (entry.key === null) return;
+    if (!byKey.has(entry.key)) byKey.set(entry.key, []);
+    byKey.get(entry.key).push({ number, ...entry });
+  });
+  for (const [key, occurrences] of byKey) {
+    const setting = SETTINGS.get(key);
+    const readable = occurrences.filter((entry) => !entry.broken);
+    if (!setting) {
+      for (const { number } of readable) problems.push({ line: number, rule: 'S-05', detail: cutDetail(key) });
+    } else if (occurrences.length > 1) {
+      for (const { number } of readable) problems.push({ line: number, rule: 'S-04', detail: cutDetail(key) });
+    } else if (readable.length === 1) {
+      const [{ number, kind, value }] = readable;
+      const items = kind === 'list' ? value : [value];
+      const bad = kind === setting.kind ? items.find((item) => !FORMS[setting.form](item)) : undefined;
+      if (kind !== setting.kind) problems.push({ line: number, rule: 'S-06', detail: cutDetail(key) });
+      else if (bad !== undefined) problems.push({ line: number, rule: 'S-07', detail: cutDetail(bad) });
+      else settings[setting.field] = value;
+    }
+  }
+  return { settings, problems: problems.sort((a, b) => a.line - b.line) };
+}
+
+/**
+ * The settings of an opened commit (see `openCommit`): { settings, problems }, like `parseSettings`, with each problem
+ * naming its file. A commit without the file has every default; a link or the wrong kind of entry on the way is S-01.
+ */
+export function readSettings(commit) {
+  const parts = SETTINGS_PATH.split('/');
+  for (let i = 1; i <= parts.length; i++) {
+    const where = parts.slice(0, i).join('/');
+    const kind = commit.kind(where);
+    if (kind === undefined) return { settings: defaultSettings(), problems: [] };
+    const fine = i === parts.length ? kind === 'file' || kind === 'executable' : kind === 'directory';
+    if (!fine) return { settings: defaultSettings(), problems: [{ file: SETTINGS_PATH, line: null, rule: 'S-01', detail: where }] };
+  }
+  const { settings, problems } = parseSettings(commit.read(SETTINGS_PATH));
+  return { settings, problems: problems.map((problem) => ({ file: SETTINGS_PATH, ...problem })) };
+}
+
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
@@ -674,6 +856,11 @@ const USAGE = `Usage:
   record-keeper.mjs validate --commit <revision> [--repo <path>] [folder] [--extra-key <name>]... [--shared-folder <name>]
                                             the same for the folder as it is in a commit of a git repository (default .),
                                             with the rules for what a commit can hold
+  record-keeper.mjs validate --commit <revision> --settings-from <revision> [--repo <path>]
+                                            the same, with the folder and the other settings taken from the settings file
+                                            of the second commit (normally the base of a change)
+  record-keeper.mjs config --commit <revision> [--repo <path>]
+                                            print the settings of a commit and what is wrong with its settings file
 `;
 
 function describeFailure(file, result) {
@@ -718,37 +905,69 @@ function runSeal(args, readFile) {
   }
 }
 
-function runValidate(args) {
-  let folder;
-  let sharedFolder;
-  let commit;
-  let repo;
-  const extraKeys = [];
+/** The options that take a value, read from `args`: { values: Map option -> [values], rest: arguments that are not options }, or null for wrong usage. */
+function readOptions(args, names) {
+  const values = new Map();
+  const rest = [];
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === '--extra-key' || arg === '--shared-folder' || arg === '--commit' || arg === '--repo') {
+    if (names.includes(args[i])) {
       const value = args[++i];
-      if (value === undefined || value === '' || value.startsWith('-')) return usageError;
-      if (arg === '--extra-key') extraKeys.push(value);
-      else if (arg === '--shared-folder') sharedFolder = value;
-      else if (arg === '--commit') commit = value;
-      else repo = value;
-    } else if (arg.startsWith('-') || folder !== undefined) return usageError;
-    else folder = arg;
+      if (value === undefined || value === '' || value.startsWith('-')) return null;
+      values.set(args[i - 1], [...(values.get(args[i - 1]) ?? []), value]);
+    } else if (args[i].startsWith('-')) return null;
+    else rest.push(args[i]);
   }
+  return { values, rest };
+}
+
+const problemWord = (count) => `${count} problem${count === 1 ? '' : 's'}`;
+const settingLine = ({ file, line, rule, detail }) => `${file}${line === null ? '' : `:${line}`}: [${rule}] ${SETTINGS_RULES[rule]}${detail ? ` (${detail})` : ''}\n`;
+
+function runValidate(args) {
+  const options = readOptions(args, ['--extra-key', '--shared-folder', '--commit', '--repo', '--settings-from']);
+  if (!options || options.rest.length > 1) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  const commit = only('--commit');
+  const repo = only('--repo');
+  const settingsFrom = only('--settings-from');
+  let folder = options.rest[0];
+  let settings = { extraKeys: options.values.get('--extra-key') ?? [], sharedFolder: only('--shared-folder') };
   if (repo !== undefined && commit === undefined) return usageError;
-  folder ??= 'docs/decisions';
+  if (settingsFrom !== undefined && (commit === undefined || folder !== undefined || settings.extraKeys.length > 0 || settings.sharedFolder !== undefined)) return usageError;
   let problems;
+  let settingProblems = [];
   try {
-    problems = commit === undefined ? validate(folder, { extraKeys, sharedFolder }) : validateCommit(repo ?? '.', commit, folder, { extraKeys, sharedFolder });
+    if (settingsFrom !== undefined) {
+      const read = readSettings(openCommit(repo ?? '.', settingsFrom));
+      ({ folder, ...settings } = read.settings);
+      settingProblems = read.problems;
+    }
+    folder ??= 'docs/decisions';
+    problems = commit === undefined ? validate(folder, settings) : validateCommit(repo ?? '.', commit, folder, settings);
   } catch (error) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
   const where = (file) => (file === null ? folder : path.join(folder, file));
-  const lines = problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`);
-  const count = `${folder}: ${problems.length} problem${problems.length === 1 ? '' : 's'}\n`;
-  return problems.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
+  const lines = [...settingProblems.map(settingLine), ...problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`)];
+  const count = `${folder}: ${problemWord(lines.length)}\n`;
+  return lines.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
+}
+
+function runConfig(args) {
+  const options = readOptions(args, ['--commit', '--repo']);
+  if (!options || options.rest.length > 0 || !options.values.has('--commit')) return usageError;
+  let read;
+  try {
+    read = readSettings(openCommit(options.values.get('--repo')?.at(-1) ?? '.', options.values.get('--commit').at(-1)));
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  const { folder, sharedFolder, extraKeys } = read.settings;
+  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\n`;
+  const count = `${SETTINGS_PATH}: ${problemWord(read.problems.length)}\n`;
+  return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
 
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
@@ -758,6 +977,7 @@ export function run(argv, { readFile = fs.readFileSync } = {}) {
   const command = args.shift();
   if (command === 'seal') return runSeal(args, readFile);
   if (command === 'validate') return runValidate(args);
+  if (command === 'config') return runConfig(args);
   return usageError;
 }
 
