@@ -605,6 +605,8 @@ export function openCommit(repo, rev) {
     kind: (entryPath) => entries.get(entryPath)?.kind,
     children: (dir) => byParent.get(dir) ?? [],
     prefetch: fetch,
+    /** Every entry that is not a directory: Map path -> 'kind id'. */
+    leaves: () => new Map([...entries].filter(([, entry]) => entry.kind !== 'directory').map(([entryPath, entry]) => [entryPath, `${entry.kind} ${entry.id}`])),
     read(entryPath) {
       const entry = entries.get(entryPath);
       if (!entry || !['file', 'executable', 'symlink'].includes(entry.kind)) throw new Unreadable(`${entryPath} is not a file of ${commit}`);
@@ -646,8 +648,11 @@ function commitSource(commit, folder) {
 export function validateCommit(repo, rev, folder = 'docs/decisions', settings) {
   const parts = folder.split('/').filter((part) => part !== '' && part !== '.');
   if (parts.length === 0 || parts.includes('..')) throw new Unreadable(`not a folder of the repository: ${folder}`);
-  const where = parts.join('/');
-  const commit = openCommit(repo, rev);
+  return validateOpened(openCommit(repo, rev), parts.join('/'), settings);
+}
+
+/** `validateCommit` for a commit that is open already; `where` is a clean path of the tree. */
+function validateOpened(commit, where, settings) {
   const source = commitSource(commit, where);
   if (source.exists()) commit.prefetch(source.list().filter(({ name, type }) => type === 'file' && (name === 'README.md' || RECORD_FILE.test(name))).map(({ name }) => `${where}/${name}`));
   const problems = validateSource(source, settings);
@@ -848,6 +853,227 @@ export function readSettings(commit) {
   return { settings, problems: problems.map((problem) => ({ file: SETTINGS_PATH, ...problem })) };
 }
 
+// ---- checking a change: docs/checking-a-change.md ---------------------------------------------------------------------------
+
+/** What each rule of docs/checking-a-change.md says, as what is wrong with the file (or the folder) it is reported for. */
+export const CHANGE_RULES = {
+  'P-01': 'was deleted, renamed or moved; a record is never removed',
+  'P-02': 'is sealed and its text has changed',
+  'P-03': 'is sealed and its status was changed in a way that is not allowed',
+  'P-04': 'is superseded by a record that does not vouch for it',
+  'P-05': 'lists a record in supersedes that is not superseded by it',
+  'P-06': 'says it is accepted and has no seal that verifies',
+  'P-07': 'has a seal and is not accepted',
+  'P-08': 'is in the shared folder, which this version does not check',
+  'P-09': 'is not on top of the base: the base is not an ancestor of the head',
+};
+
+/** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
+export const PIN_PATH = '.github/record-keeper.yml';
+
+/** Rules of the format page that judge what a sealed record says; a change that leaves a sealed record's text alone cannot bring them. */
+const CONTENT_RULES = new Set([
+  'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
+  'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36',
+]);
+const ACT_ORDER = ['accept', 'settings', 'pin'];
+const SUPERSEDED = /^superseded by (\d{4})$/;
+
+/** The UTF-8 order of two texts; null sorts first. */
+function byBytes(a, b) {
+  if (a === b) return 0;
+  if (a === null || a === undefined) return -1;
+  if (b === null || b === undefined) return 1;
+  return Buffer.compare(Buffer.from(String(a), 'utf8'), Buffer.from(String(b), 'utf8'));
+}
+
+/** What the check needs to know of one record file: whether it is readable, its status, its supersedes, and whether it is sealed. */
+function readRecord(bytes) {
+  let record;
+  try {
+    record = parse(bytes);
+  } catch (error) {
+    if (error instanceof Reject) return { bytes, readable: false, sealed: false, claims: false };
+    throw error;
+  }
+  const entry = (key) => record.entries.find((candidate) => candidate.key === key);
+  const status = entry('status')?.value;
+  const supersedes = entry('supersedes');
+  const items = supersedes && shapeOf(supersedes).shape === 'list' ? shapeOf(supersedes).items : [];
+  const claims = status !== undefined && (status === 'accepted' || SUPERSEDED.test(status));
+  const check = verify(bytes);
+  return {
+    bytes,
+    readable: true,
+    status,
+    statusAt: entry('status')?.at,
+    seal: entry('seal')?.value,
+    supersedes: items.filter((item) => NUMBER_FORM.test(item)).map(Number),
+    claims,
+    sealed: claims && check.ok,
+    check,
+  };
+}
+
+/** The record files of a commit's records folder, by name, read once for each blob. */
+function recordsOf(commit, folder, cache) {
+  const files = commit.children(folder).filter(({ name, kind }) => (kind === 'file' || kind === 'executable') && RECORD_FILE.test(name)).sort((a, b) => byBytes(a.name, b.name));
+  commit.prefetch(files.map(({ name }) => `${folder}/${name}`));
+  return new Map(files.map(({ name, id }) => {
+    if (!cache.has(id)) cache.set(id, readRecord(commit.read(`${folder}/${name}`)));
+    return [name, cache.get(id)];
+  }));
+}
+
+/** P-04 to P-07: what one commit says about the status of its records. */
+function stateProblems(records) {
+  const first = new Map();
+  for (const name of records.keys()) if (!first.has(Number(name.slice(0, 4)))) first.set(Number(name.slice(0, 4)), name);
+  const out = [];
+  for (const [name, record] of records) {
+    if (!record.readable) continue;
+    const number = Number(name.slice(0, 4));
+    const successor = SUPERSEDED.exec(record.status ?? '');
+    if (successor && first.has(Number(successor[1])) && Number(successor[1]) > number) {
+      const other = records.get(first.get(Number(successor[1])));
+      if (!other.readable || !other.sealed) out.push({ file: name, rule: 'P-04', detail: `${successor[1]}: not sealed` });
+      else if (!other.supersedes.includes(number)) out.push({ file: name, rule: 'P-04', detail: `${successor[1]}: does not list this record` });
+    }
+    if (record.sealed) {
+      for (const listed of [...new Set(record.supersedes)].sort((a, b) => a - b)) {
+        if (!first.has(listed) || listed >= number) continue;
+        const other = records.get(first.get(listed));
+        if (!other.readable || other.status !== `superseded by ${String(number).padStart(4, '0')}`) out.push({ file: name, rule: 'P-05', detail: String(listed).padStart(4, '0') });
+      }
+    }
+    if (record.claims && !record.sealed) {
+      const { reason, generation } = record.check;
+      if (reason === 'not-sealed') out.push({ file: name, rule: 'P-06', detail: 'no seal' });
+      else if (reason === 'unknown-generation') out.push({ file: name, rule: 'P-06', detail: `unknown generation ${generation}` });
+      else if (reason === 'mismatch') out.push({ file: name, rule: 'P-06', detail: 'seal does not match' });
+    }
+    if (record.seal !== undefined && (record.status === 'proposed' || record.status === 'rejected')) out.push({ file: name, rule: 'P-07' });
+  }
+  return out;
+}
+
+const splitLines = (bytes) => {
+  const lines = [];
+  let at = 0;
+  for (let i = bytes.indexOf(0x0a, at); i >= 0; i = bytes.indexOf(0x0a, at)) {
+    lines.push(bytes.subarray(at, i));
+    at = i + 1;
+  }
+  lines.push(bytes.subarray(at));
+  return lines;
+};
+
+const shownStatus = (value) => (value === '' ? '(empty)' : /^[\x20-\x7e]{1,40}$/.test(value) ? value : '(other)');
+
+/** P-02 and P-03 for a record sealed at the base: null when the head's bytes are an allowed version of it, else { rule, detail }. */
+function compareSealed(record, headBytes) {
+  const before = splitLines(record.bytes);
+  const after = splitLines(headBytes);
+  if (record.bytes.equals(headBytes)) return null;
+  const common = Math.min(before.length, after.length);
+  const differing = [];
+  for (let i = 0; i < common; i++) if (!before[i].equals(after[i])) differing.push(i);
+  if (before.length === after.length && differing.length === 1 && differing[0] === record.statusAt) {
+    let line = after[differing[0]].toString('latin1');
+    if (line.endsWith('\r')) line = line.slice(0, -1);
+    const key = /^status:(?: ([^]*))?$/.exec(line.replace(/[ \t]+$/, ''));
+    if (key) {
+      const value = (key[1] ?? '').replace(/^ +/, '');
+      if (value !== record.status) {
+        if (record.status === 'accepted' && /^superseded by [0-9]{4}$/.test(value)) return null;
+        return { rule: 'P-03', detail: `${record.status} -> ${shownStatus(value)}` };
+      }
+    }
+  }
+  return { rule: 'P-02', detail: `line ${(differing.length > 0 ? differing[0] : common) + 1}` };
+}
+
+const isRelated = (changed, path) => changed === path || path.startsWith(`${changed}/`) || changed.startsWith(`${path}/`);
+
+/** True when `ancestor` is `descendant` or one of its ancestors. */
+function isAncestor(repo, ancestor, descendant) {
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
+  const result = spawnSync('git', ['-C', repo, 'merge-base', '--is-ancestor', ancestor, descendant], { env: { ...inherited, GIT_TERMINAL_PROMPT: '0' } });
+  if (result.error) throw new Unreadable(`cannot run git: ${result.error.message}`);
+  if (result.status === 0) return true;
+  if (result.status === 1) return false;
+  throw new Unreadable(`git merge-base failed: ${result.stderr.toString('utf8').trim()}`);
+}
+
+const sameDetail = ({ rule, detail }) => (rule.startsWith('V-') ? '' : detail ?? '');
+const identity = (problem) => JSON.stringify([problem.file, problem.rule, sameDetail(problem)]);
+
+/**
+ * Judges the head against the base (docs/checking-a-change.md). Returns { folder, settings, problems, acts }: the records folder,
+ * the problems of the settings of the base (and of the head, when the change touches them), the problems of the records, and the
+ * acts that need the owners' approval. Throws Unreadable.
+ */
+export function checkChange(repo, baseRev, headRev) {
+  const base = openCommit(repo, baseRev);
+  const head = openCommit(repo, headRev);
+  const read = readSettings(base);
+  const { folder, sharedFolder, extraKeys } = read.settings;
+  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [] };
+  const leavesOfBase = base.leaves();
+  const leavesOfHead = head.leaves();
+  const changed = [...new Set([...leavesOfBase.keys(), ...leavesOfHead.keys()])].filter((path) => leavesOfBase.get(path) !== leavesOfHead.get(path)).sort(byBytes);
+  const settingsTouched = changed.some((path) => isRelated(path, SETTINGS_PATH));
+  const headProblems = settingsTouched ? readSettings(head).problems : [];
+  const repair = read.problems.length > 0 && changed.length > 0 && changed.every((path) => isRelated(path, SETTINGS_PATH)) && headProblems.length === 0;
+
+  const settings = [];
+  if (!repair) {
+    const seen = new Set();
+    for (const problem of [...read.problems, ...headProblems]) {
+      const key = JSON.stringify([problem.line, problem.rule, problem.detail ?? '']);
+      if (!seen.has(key)) settings.push(problem);
+      seen.add(key);
+    }
+    settings.sort((a, b) => (a.line === b.line ? 0 : a.line === null ? -1 : b.line === null ? 1 : a.line - b.line) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
+  }
+
+  const cache = new Map();
+  const before = recordsOf(base, folder, cache);
+  const after = recordsOf(head, folder, cache);
+  const entriesOf = (commit) => new Map(commit.children(folder).map(({ name, kind, id }) => [name, `${kind} ${id}`]));
+  const entriesBefore = entriesOf(base);
+  const entriesAfter = entriesOf(head);
+  const sameEntry = (name) => entriesBefore.get(name) === entriesAfter.get(name);
+
+  const problems = [];
+  for (const name of before.keys()) if (!after.has(name)) problems.push({ file: name, rule: 'P-01' });
+  const sealedKept = new Set([...before].filter(([name, record]) => record.sealed && after.has(name)).map(([name]) => name));
+  for (const name of sealedKept) {
+    const got = compareSealed(before.get(name), after.get(name).bytes);
+    if (got) problems.push({ file: name, ...got });
+  }
+  const shared = `${folder}/${sharedFolder}`;
+  for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
+
+  const known = new Set(validateOpened(base, folder, { extraKeys, sharedFolder }).map(identity));
+  for (const problem of validateOpened(head, folder, { extraKeys, sharedFolder })) {
+    if (sealedKept.has(problem.file) && CONTENT_RULES.has(problem.rule)) continue;
+    if (known.has(identity(problem)) && (problem.file === null || sameEntry(problem.file))) continue;
+    problems.push(problem);
+  }
+  const knownState = new Set(stateProblems(before).map(identity));
+  for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !sameEntry(problem.file)) problems.push(problem);
+
+  const acts = [];
+  for (const [name, record] of after) if (record.sealed && !before.get(name)?.sealed) acts.push({ kind: 'accept', path: `${folder}/${name}` });
+  if (settingsTouched) acts.push({ kind: 'settings', path: SETTINGS_PATH });
+  if (changed.some((path) => isRelated(path, PIN_PATH))) acts.push({ kind: 'pin', path: PIN_PATH });
+
+  problems.sort((a, b) => byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
+  acts.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
+  return { folder, settings, problems, acts };
+}
+
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
@@ -861,6 +1087,8 @@ const USAGE = `Usage:
                                             of the second commit (normally the base of a change)
   record-keeper.mjs config --commit <revision> [--repo <path>]
                                             print the settings of a commit and what is wrong with its settings file
+  record-keeper.mjs check-pr --base <revision> --head <revision> [--repo <path>]
+                                            judge the records folder of the head against the base, with the settings of the base
 `;
 
 function describeFailure(file, result) {
@@ -921,7 +1149,19 @@ function readOptions(args, names) {
 }
 
 const problemWord = (count) => `${count} problem${count === 1 ? '' : 's'}`;
-const settingLine = ({ file, line, rule, detail }) => `${file}${line === null ? '' : `:${line}`}: [${rule}] ${SETTINGS_RULES[rule]}${detail ? ` (${detail})` : ''}\n`;
+
+/**
+ * A text that came from the repository, made safe to print: a control character, a line or paragraph separator, a direction
+ * control and a byte order mark are written as \u{hex}, so that a file name cannot start a line, a command of a log, or hide the end
+ * of its own line.
+ */
+function printable(text) {
+  const unsafe = (code) => code === 0x09 || code === 0x0a || code === 0x0d || code === BOM || code >= 0xfffe && code <= 0xffff || inRanges(code, CONTROLS) || inRanges(code, SEPARATORS_AND_BIDI);
+  return Array.from(String(text), (character) => (unsafe(character.codePointAt(0)) ? `\\u{${character.codePointAt(0).toString(16)}}` : character)).join('');
+}
+
+const settingLine = ({ file, line, rule, detail }) => `${file}${line === null ? '' : `:${line}`}: [${rule}] ${SETTINGS_RULES[rule]}${detail ? ` (${printable(detail)})` : ''}\n`;
+const problemLine = (where, rule, detail) => `${printable(where)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule]}${detail ? ` (${printable(detail)})` : ''}\n`;
 
 function runValidate(args) {
   const options = readOptions(args, ['--extra-key', '--shared-folder', '--commit', '--repo', '--settings-from']);
@@ -949,7 +1189,7 @@ function runValidate(args) {
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
   const where = (file) => (file === null ? folder : path.join(folder, file));
-  const lines = [...settingProblems.map(settingLine), ...problems.map(({ file, rule, detail }) => `${where(file)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule]}${detail ? ` (${detail})` : ''}\n`)];
+  const lines = [...settingProblems.map(settingLine), ...problems.map(({ file, rule, detail }) => problemLine(where(file), rule, detail))];
   const count = `${folder}: ${problemWord(lines.length)}\n`;
   return lines.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
 }
@@ -970,6 +1210,27 @@ function runConfig(args) {
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
 
+function runCheckPr(args) {
+  const options = readOptions(args, ['--base', '--head', '--repo']);
+  if (!options || options.rest.length > 0 || !options.values.has('--base') || !options.values.has('--head')) return usageError;
+  let result;
+  try {
+    result = checkChange(options.values.get('--repo')?.at(-1) ?? '.', options.values.get('--base').at(-1), options.values.get('--head').at(-1));
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  const { folder, settings, problems, acts } = result;
+  const where = (file) => (file === null ? folder : path.join(folder, file));
+  const lines = [
+    ...settings.map(settingLine),
+    ...problems.map(({ file, rule, detail }) => problemLine(where(file), rule, detail)),
+  ];
+  const count = `${folder}: ${problemWord(lines.length)}${acts.length > 0 ? `, ${acts.length} act${acts.length === 1 ? '' : 's'}` : ''}\n`;
+  if (lines.length === 0 && acts.length === 0) return { code: 0, stdout: count, stderr: '' };
+  return { code: 1, stdout: '', stderr: lines.join('') + acts.map(({ kind, path: actPath }) => `${printable(actPath)}: needs the owners' approval (${kind})\n`).join('') + count };
+}
+
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
 export function run(argv, { readFile = fs.readFileSync } = {}) {
   const args = [...argv];
@@ -978,6 +1239,7 @@ export function run(argv, { readFile = fs.readFileSync } = {}) {
   if (command === 'seal') return runSeal(args, readFile);
   if (command === 'validate') return runValidate(args);
   if (command === 'config') return runConfig(args);
+  if (command === 'check-pr') return runCheckPr(args);
   return usageError;
 }
 
