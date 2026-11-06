@@ -40,7 +40,7 @@ Read as commits of their default branches, the records folders of the maintainer
 ## What this does not do
 
 - It does not compare two commits, and it does not say whether a change is allowed. That is the pull request check (M2.3).
-- It does not read the settings of a repository. The folder, the shared folder and the extra keys are options until the settings file exists (M2.2), and the list of conventional folders is fixed here.
+- It does not read the settings of a repository. The folder, the shared folder and the extra keys are options here; [the settings file](settings.md) states them, and `validate --commit <revision> --settings-from <revision>` reads them from a commit. The list of conventional folders is fixed.
 - It does not look inside the shared folder or a submodule.
 
 ## Choices in this draft for you to decide
@@ -48,7 +48,7 @@ Read as commits of their default branches, the records folders of the maintainer
 1. **The commit is read through git, never checked out.** `--commit` needs `git` on the path; `validate` of a folder needs nothing. A reader that works from a checkout cannot see what the commit holds, and a checkout is what a filter or a link changes.
 2. **T-01 refuses the executable mode.** A record is text, and a mode change is a change no reader of the text sees. The cost is a file system that marks every file executable, where one command (`git update-index --chmod=-x`) puts it right. This is the weakest rule here; the alternative is to drop it.
 3. **T-02 refuses every attribute except `text` and `eol`.** `filter`, `ident` and `working-tree-encoding` rewrite the bytes a working copy shows; `diff` (also through `binary`) and `linguist-generated` hide a change from a reviewer's diff; and the list of attributes that some tool honours is open-ended, so a short list of bad ones would miss the next. `text` and `eol` are allowed because g1 ignores line endings: they change neither a seal nor the words a reader sees, and refusing them would refuse the common `* text=auto`. None of the maintainers' repositories sets an attribute for its records folder today.
-4. **T-03 uses a fixed list of conventional folders.** The point is that a second folder of records is a place where records bind, as far as another tool or an agent is concerned, and the kit does not judge it. The list stays fixed until the settings file can state it. A repository whose records live in a folder that is not on the list gets T-03 only for the folders that are.
+4. **T-03 uses a fixed list of conventional folders.** The point is that a second folder of records is a place where records bind, as far as another tool or an agent is concerned, and the kit does not judge it. The list stays fixed; a setting for more folders can be added when a repository needs one. A repository whose records live in a folder that is not on the list gets T-03 only for the folders that are.
 5. **A symbolic link, a submodule or anything else in the folder is V-04, as on disk,** and a symbolic link in front of the folder (`docs` pointing elsewhere) makes the folder missing, not followed.
 
 ## The fixtures
