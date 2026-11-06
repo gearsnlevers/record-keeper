@@ -1,0 +1,759 @@
+{
+  "cases": [
+    {
+      "id": "t01a-executable-record",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "mode": "0002-second-decision.md",
+          "to": "100755"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-01"
+        }
+      ],
+      "note": "A record with the executable mode."
+    },
+    {
+      "id": "t01b-executable-readme-and-template",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "mode": "README.md",
+          "to": "100755"
+        },
+        {
+          "mode": "template.md",
+          "to": "100755"
+        }
+      ],
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "T-01"
+        },
+        {
+          "file": "template.md",
+          "rule": "T-01"
+        }
+      ],
+      "note": "The README and the template are files of the folder too."
+    },
+    {
+      "id": "t01c-executable-where-nobody-looks",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": ".script",
+          "content": "x\n",
+          "mode": "100755"
+        },
+        {
+          "write": "shared/note.md",
+          "content": "x\n",
+          "mode": "100755"
+        }
+      ],
+      "expect": [],
+      "note": "The executable mode on a file whose name starts with a dot, and on a file of the shared folder: not files of the folder that the rules look at."
+    },
+    {
+      "id": "t01d-executable-unexpected-file",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": "notes.txt",
+          "content": "x\n",
+          "mode": "100755"
+        }
+      ],
+      "expect": [
+        {
+          "file": "notes.txt",
+          "rule": "T-01"
+        },
+        {
+          "file": "notes.txt",
+          "rule": "V-05"
+        }
+      ],
+      "note": "A file that is not expected is V-05, and T-01 as well when it is executable."
+    },
+    {
+      "id": "t02a-linguist-generated",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/*.md linguist-generated=true\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: true"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: true"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: true"
+        },
+        {
+          "file": "README.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: true"
+        },
+        {
+          "file": "template.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: true"
+        }
+      ],
+      "note": "An attribute set from the root for every file of the folder, one that hides the diff of a file."
+    },
+    {
+      "id": "t02b-attributes-file-in-the-folder",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": ".gitattributes",
+          "content": "* -diff\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "diff: unset"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "diff: unset"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-02",
+          "detail": "diff: unset"
+        },
+        {
+          "file": "README.md",
+          "rule": "T-02",
+          "detail": "diff: unset"
+        },
+        {
+          "file": "template.md",
+          "rule": "T-02",
+          "detail": "diff: unset"
+        }
+      ],
+      "note": "A .gitattributes in the records folder itself (a file with a dot, which the V rules do not look at)."
+    },
+    {
+      "id": "t02c-filter",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "*.md filter=redact\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "filter: redact"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "filter: redact"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-02",
+          "detail": "filter: redact"
+        },
+        {
+          "file": "README.md",
+          "rule": "T-02",
+          "detail": "filter: redact"
+        },
+        {
+          "file": "template.md",
+          "rule": "T-02",
+          "detail": "filter: redact"
+        }
+      ],
+      "note": "A filter by extension: a working copy would show other bytes than the commit."
+    },
+    {
+      "id": "t02d-text-and-eol-only",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "* text=auto eol=lf\n*.md -text\n"
+        }
+      ],
+      "expect": [],
+      "note": "text and eol are allowed, also with a pattern for every file: g1 ignores line endings."
+    },
+    {
+      "id": "t02e-binary-macro-for-one-file",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/0002-second-decision.md binary\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "binary: set, diff: unset, merge: unset"
+        }
+      ],
+      "note": "The binary macro: it is reported with the attributes it stands for. text is unset by it too, and is not listed, because text is allowed."
+    },
+    {
+      "id": "t02f-attributes-for-elsewhere",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "test/** linguist-generated\n*.lock.yml linguist-generated=true\n"
+        }
+      ],
+      "expect": [],
+      "note": "Attributes for paths outside the records folder."
+    },
+    {
+      "id": "t02g-attributes-file-of-a-parent-folder",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/.gitattributes",
+          "content": "decisions/0001-first-decision.md ident\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "ident: set"
+        }
+      ],
+      "note": "A .gitattributes in docs/, with a pattern relative to docs/."
+    },
+    {
+      "id": "t02h-unset-attribute",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "*.md -linguist-generated\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: unset"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: unset"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: unset"
+        },
+        {
+          "file": "README.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: unset"
+        },
+        {
+          "file": "template.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: unset"
+        }
+      ],
+      "note": "An attribute that is unset counts as one: the rule is about the attributes a commit names, not about their effect."
+    },
+    {
+      "id": "t02i-later-line-resets-the-attribute",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "*.md linguist-generated=true\n*.md !linguist-generated\n"
+        }
+      ],
+      "expect": [],
+      "note": "A later line that resets an attribute (!name) leaves it unspecified, as git decides."
+    },
+    {
+      "id": "t02j-attribute-of-a-dotfile",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": ".note",
+          "content": "x\n"
+        },
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/.note diff\n"
+        }
+      ],
+      "expect": [],
+      "note": "An attribute for a file whose name starts with a dot is not reported."
+    },
+    {
+      "id": "t02l-attributes-in-name-order",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/0001-first-decision.md aaa=1 mmm=1 zzz=1\ndocs/decisions/0002-second-decision.md zzz=1 mmm=1 aaa=1\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0001-first-decision.md",
+          "rule": "T-02",
+          "detail": "aaa: 1, mmm: 1, zzz: 1"
+        },
+        {
+          "file": "0002-second-decision.md",
+          "rule": "T-02",
+          "detail": "aaa: 1, mmm: 1, zzz: 1"
+        }
+      ],
+      "note": "The attributes of a file are listed in the order of their names, whatever the order of the line (git itself lists them in the reverse of the line)."
+    },
+    {
+      "id": "t02k-attributes-of-the-shared-folder-only",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": "shared/x.md",
+          "content": "x\n"
+        },
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/shared/* linguist-generated\n"
+        }
+      ],
+      "expect": [],
+      "note": "An attribute for a file inside the shared folder is not reported."
+    },
+    {
+      "id": "t03a-other-folder-with-a-readme",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/adr/README.md",
+          "content": "# x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "docs/adr"
+        }
+      ],
+      "note": "Another conventional folder holds a README.md."
+    },
+    {
+      "id": "t03b-other-folder-with-a-record-file",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "decisions/0001-x.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "decisions"
+        }
+      ],
+      "note": "Another conventional folder holds a file named like a record."
+    },
+    {
+      "id": "t03c-two-other-folders",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "adr/README.md",
+          "content": "x\n"
+        },
+        {
+          "root": "doc/adr/0007-x.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "adr"
+        },
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "doc/adr"
+        }
+      ],
+      "note": "Each other folder is reported."
+    },
+    {
+      "id": "t03d-other-folder-with-nothing-of-a-records-folder",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/adr/notes.txt",
+          "content": "x\n"
+        },
+        {
+          "root": "docs/adr/0001-A.md",
+          "content": "x\n"
+        },
+        {
+          "root": "docs/adr/readme.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [],
+      "note": "A conventional folder that holds neither a README.md nor a record file."
+    },
+    {
+      "id": "t03e-folder-that-is-not-conventional",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/other/README.md",
+          "content": "x\n"
+        },
+        {
+          "root": "records/0001-a.md",
+          "content": "x\n"
+        },
+        {
+          "root": "docs/decisions-old/README.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [],
+      "note": "A folder with a README.md and a record file that is not on the list."
+    },
+    {
+      "id": "t03f-conventional-folder-inside-the-checked-one",
+      "base": "ok01-base",
+      "folder": "docs",
+      "changes": [
+        {
+          "root": "docs/decisions/README.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": "decisions",
+          "rule": "V-06"
+        }
+      ],
+      "note": "The checked folder is docs: docs/decisions is a subfolder of it, V-06, and not another folder."
+    },
+    {
+      "id": "t03g-the-checked-folder-has-a-conventional-name",
+      "base": "ok01-base",
+      "folder": "decisions",
+      "changes": [
+        {
+          "root": "docs/decisions/README.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "docs/decisions"
+        }
+      ],
+      "note": "The checked folder is decisions; docs/decisions is another folder."
+    },
+    {
+      "id": "t03h-the-checked-folder-alone",
+      "base": "ok01-base",
+      "folder": "adr",
+      "expect": [],
+      "note": "The checked folder has a conventional name and is not another folder to itself."
+    },
+    {
+      "id": "t03i-conventional-folder-that-is-a-link",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/adr",
+          "target": "decisions"
+        }
+      ],
+      "expect": [],
+      "note": "A conventional folder that is a symbolic link holds nothing: a link is not followed."
+    },
+    {
+      "id": "t03j-readme-that-is-a-link",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/adr/README.md",
+          "target": "../decisions/README.md"
+        }
+      ],
+      "expect": [],
+      "note": "A README.md that is a symbolic link is not a file."
+    },
+    {
+      "id": "t03k-readme-that-is-a-submodule",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/adr/README.md",
+          "submodule": true
+        }
+      ],
+      "expect": [],
+      "note": "A README.md that is a submodule is not a file."
+    },
+    {
+      "id": "t04a-folder-is-a-link",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "place": "elsewhere",
+      "changes": [
+        {
+          "root": "docs/decisions",
+          "target": "../elsewhere"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-01"
+        }
+      ],
+      "note": "The folder is a symbolic link to a folder with records: not followed, so missing."
+    },
+    {
+      "id": "t04b-parent-is-a-link",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "place": "elsewhere/decisions",
+      "changes": [
+        {
+          "root": "docs",
+          "target": "elsewhere"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-01"
+        }
+      ],
+      "note": "docs is a symbolic link: the folder is not in the tree."
+    },
+    {
+      "id": "t04c-folder-is-a-file",
+      "base": null,
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/decisions",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-01"
+        }
+      ],
+      "note": "The path of the folder is a file."
+    },
+    {
+      "id": "t04d-folder-is-a-submodule",
+      "base": null,
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "root": "docs/decisions",
+          "submodule": true
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "V-01"
+        }
+      ],
+      "note": "The path of the folder is a submodule."
+    },
+    {
+      "id": "t04e-link-named-like-a-record",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "symlink": "0004-late.md",
+          "target": "0002-second-decision.md"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0004-late.md",
+          "rule": "V-04"
+        }
+      ],
+      "note": "A symbolic link in the folder."
+    },
+    {
+      "id": "t04f-submodule-named-like-a-record",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "submodule": "0004-late.md"
+        }
+      ],
+      "expect": [
+        {
+          "file": "0004-late.md",
+          "rule": "V-04"
+        }
+      ],
+      "note": "A submodule in the folder."
+    },
+    {
+      "id": "t04g-readme-is-a-link",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "symlink": "README.md",
+          "target": "template.md"
+        }
+      ],
+      "expect": [
+        {
+          "file": "README.md",
+          "rule": "V-02"
+        },
+        {
+          "file": "README.md",
+          "rule": "V-04"
+        }
+      ],
+      "note": "The README is a symbolic link: V-04, and the README is missing."
+    },
+    {
+      "id": "t04h-deep-folder",
+      "base": "ok01-base",
+      "folder": "a/b/c/d",
+      "expect": [],
+      "note": "A folder deep in the tree."
+    },
+    {
+      "id": "t04i-readme-in-the-shared-folder",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "write": "shared/README.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [],
+      "note": "A README.md inside the shared folder: the shared folder is not looked at."
+    },
+    {
+      "id": "t05-all-three",
+      "base": "ok01-base",
+      "folder": "docs/decisions",
+      "changes": [
+        {
+          "mode": "0003-third-decision.md",
+          "to": "100755"
+        },
+        {
+          "root": ".gitattributes",
+          "content": "docs/decisions/0003-third-decision.md linguist-generated\n"
+        },
+        {
+          "root": "adr/README.md",
+          "content": "x\n"
+        }
+      ],
+      "expect": [
+        {
+          "file": null,
+          "rule": "T-03",
+          "detail": "adr"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-01"
+        },
+        {
+          "file": "0003-third-decision.md",
+          "rule": "T-02",
+          "detail": "linguist-generated: set"
+        }
+      ],
+      "note": "A record that is executable and has an attribute, and another folder: the rules do not hide one another."
+    }
+  ]
+}
