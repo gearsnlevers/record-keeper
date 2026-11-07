@@ -49,6 +49,15 @@ The kit's own failures keep their meaning: `check-pr` exits 1 for a problem or a
 
 `pull_request_target` has no event for a review, so the check does not run when a review arrives. The owner who has approved presses **Re-run** on the check, or pushes; the run reads the live reviews as above and replaces its earlier result. Whoever can write may press the button, and nobody can forge an approval by doing so, because the reviews are read from GitHub with the code of the default branch. A run that started before the review arrived, and ends after it, has read whichever it has read: the next one is correct.
 
+## What was verified on GitHub
+
+The experiments E1 to E5 of 2026-10-29 (a same-named job, `skipped` and `neutral`, a `paths:` filter, `[skip ci]`, the re-run, what a review holds) are on [the design page](design.md#prerequisites-and-what-was-verified). They used throwaway workflows. On 2026-11-07, with the workflow of this page on `main` (`c8d312e`), two of the three that had to wait were done, on throwaway pull requests that were closed afterwards (GitHub keeps the closed pull requests #29 to #31):
+
+- **E6, a pull request against another branch.** Two pull requests, each with one file outside the records folder: #29 against a branch made from `main`, and #30 against a branch made from the commit before the workflow existed, so that it held no workflow file. `Records integrity` ran on both, as a `pull_request_target` run, and passed (`docs/decisions: 0 problems`, 6 and 9 seconds). So the workflow comes from the default branch whatever the base of the pull request is, and a pull request against any branch is judged, as [What the workflow is](#what-the-workflow-is) says.
+- **E8, an approval by a second account.** #31, opened by `vscheuber`, accepted record 0001 in a branch that was never merged, so that the check had one act. The first run printed `approvals: 1 of 1 (vscheuber/28791378: author, volker-bornagainpatriots/348527658: none)` and `1 act approved`: the author counts, with `approvals: 1`. Then `volker-bornagainpatriots` submitted an `APPROVE` review of the head commit. The program, run by hand against the real API, printed `approvals: 2 of 1 (vscheuber/28791378: author, volker-bornagainpatriots/348527658: approved)` and exited 0; a **Re-run** of the job on GitHub (attempt 2) printed the same and succeeded. So a real review is read as the page says (the account id, the state `APPROVED` and the commit it was made on), and a re-run replaces the earlier result. The first number of the line is the count of owners who count (here both), the second is how many are needed.
+
+**Not tested: E7**, whether a `workflow_run` or `issue_comment` workflow of the default branch could run the check again by itself when a review arrives. Until it is, an approval reaches the check by a re-run or a push.
+
 ## What a repository must set
 
 The workflow does nothing for a pull request that can be merged without it. These are set in the settings of the repository, once, by an administrator:
