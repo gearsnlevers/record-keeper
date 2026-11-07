@@ -828,6 +828,15 @@ describe('errata and deviation notes', () => {
     assert.match(got.stderr, /\(3h of 48h\)/);
   });
 
+  test('a start is read in every form GitHub writes it: the days 01, 10 to 19, 30 and 31', async () => {
+    for (const day of ['2026-10-01', '2026-10-10', '2026-10-19', '2026-10-20', '2026-10-30', '2026-10-31']) {
+      const { got } = await go({ ...ERRATUM, runs: [[run(`${day}T00:00:00Z`)]] });
+      assert.equal(got.code, 0, day);
+    }
+    const { got } = await go({ ...ERRATUM, runs: [[run('2026-09-30T23:59:59Z')]] });
+    assert.equal(got.code, 0);
+  });
+
   test('no run listed counts as no time at all', async () => {
     const { got } = await go({ ...ERRATUM, runs: [[]] });
     assert.match(got.stderr, /\(0h of 48h\)/);
@@ -845,8 +854,8 @@ describe('errata and deviation notes', () => {
   test('a list of check runs that does not fit ends the run', async () => {
     const bad = [
       { total_count: 0 }, [], 'x', { check_runs: {} }, { check_runs: [null] }, { check_runs: ['x'] }, { check_runs: [{ started_at: hoursAgo(1) }] },
-      { check_runs: [{ name: 'Records integrity', started_at: 'yesterday' }] }, { check_runs: [{ name: 'Records integrity', started_at: 5 }] },
-      { check_runs: [{ name: 'Records integrity', started_at: '2026-11-09T00:00:00.000Z' }] }, { check_runs: [{ name: 'Records integrity', started_at: hoursAgo(1), app: 'x' }] },
+      ...['yesterday', 5, '2026-11-09T00:00:00.000Z', 'x2026-10-31T00:00:00Z', '2026-10-31T00:00:00Zx', '2026-10-32T00:00:00Z', '2026-13-01T00:00:00Z', '2026-10-31T24:00:00Z', '2026-10-31 00:00:00Z']
+        .map((started_at) => ({ check_runs: [{ name: 'Records integrity', app: { slug: 'github-actions' }, started_at }] })), { check_runs: [{ name: 'Records integrity', started_at: hoursAgo(1), app: 'x' }] },
       { check_runs: [{ name: 5, started_at: hoursAgo(1) }] },
     ];
     for (const body of bad) {
@@ -936,7 +945,8 @@ describe('errata and deviation notes', () => {
     assert.deepEqual(readNeeds(''), { cited: [], clock: false });
     assert.deepEqual(readNeeds('case issue 3\ncase pull 5\nclock\n'), { cited: [{ kind: 'issue', number: 3 }, { kind: 'pull', number: 5 }], clock: true });
     assert.deepEqual(readNeeds('clock\n').clock, true);
-    for (const bad of ['case issue 0\n', 'case issue 05\n', 'case commit 3\n', 'case issue 3 \n', 'Clock\n', 'case  issue 3\n', 'x\n', 'case issue 1234567890\n']) {
+    assert.deepEqual(readNeeds('case issue 123456789\ncase pull 999999999\n').cited, [{ kind: 'issue', number: 123456789 }, { kind: 'pull', number: 999999999 }]);
+    for (const bad of ['xcase issue 3\n', 'case issue 0\n', 'case issue 05\n', 'case commit 3\n', 'case issue 3 \n', 'Clock\n', 'case  issue 3\n', 'x\n', 'case issue 1234567890\n']) {
       assert.throws(() => readNeeds(bad), (error) => error instanceof CannotRun && error.message === 'record-keeper needs printed something that is not a need', bad);
     }
     const many = Array.from({ length: 51 }, (_, i) => `case issue ${i + 1}\n`).join('');
