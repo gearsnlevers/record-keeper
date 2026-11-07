@@ -7,11 +7,12 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { after, before, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CHANGE_RULES, FORMAT_RULES, PIN_PATH, SETTINGS_PATH, Unreadable, checkChange, run, seal } from '../record-keeper.mjs';
+import { CHANGE_RULES, FORMAT_RULES, PIN_PATH, SETTINGS_PATH, Unreadable, checkChange, readCases, readTime, run, seal } from '../record-keeper.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const { trees, cases } = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/change/cases.json'), 'utf8'));
 const page = fs.readFileSync(path.join(root, 'docs/checking-a-change.md'), 'utf8');
+const errataPage = fs.readFileSync(path.join(root, 'docs/errata-and-deviations.md'), 'utf8');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-change-'));
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 
@@ -73,9 +74,11 @@ function buildRepo(dir, list) {
 }
 
 // The detail of a V rule only helps the reader; the other rules have an answer that includes it.
-const withDetail = (rule) => /^(?:P-0[2-7]|T-0[23])$/.test(rule);
+const withDetail = (rule) => /^(?:P-0[2-7]|P-1[0-4]|T-0[23])$/.test(rule);
 const shownProblem = ({ file, rule, detail }) => ({ file, rule, ...(withDetail(rule) && detail ? { detail } : {}) });
 const shownSetting = ({ line, rule, detail }) => ({ line: line ?? null, rule, ...(detail ? { detail } : {}) });
+/** What a case gives besides the two commits: the issues and pull requests that exist, since when the head was seen, and now. */
+const optionsOf = (c) => ({ cases: c.cases, since: c.since === undefined ? undefined : Date.parse(c.since), now: Date.parse(c.now ?? '2026-11-10T00:00:00Z') });
 const shown = (got) => ({ settings: got.settings.map(shownSetting), problems: got.problems.map(shownProblem), acts: got.acts });
 
 let big;
@@ -88,7 +91,9 @@ describe('the cases of the page', () => {
   cases.forEach((c, i) => {
     const rules = c.expect.problems.map((e) => e.rule).concat(c.expect.settings.map((e) => e.rule), c.expect.acts.map((e) => `act ${e.kind}`));
     test(`${c.id}: ${rules.length === 0 ? 'nothing' : rules.join(' ')}`, () => {
-      assert.deepEqual(shown(checkChange(big, `b${i}`, `h${i}`)), c.expect, c.note);
+      const got = checkChange(big, `b${i}`, `h${i}`, optionsOf(c));
+      assert.deepEqual(shown(got), c.expect, c.note);
+      assert.deepEqual(got.needs, { cases: c.needs?.cases ?? [], clock: c.needs?.clock ?? false }, c.note);
     });
   });
 
@@ -96,7 +101,7 @@ describe('the cases of the page', () => {
     const rules = new Set(cases.flatMap((c) => c.expect.problems.map((e) => e.rule)));
     for (const rule of Object.keys(CHANGE_RULES)) assert.ok(rules.has(rule), `${rule} has no case`);
     const acts = new Set(cases.flatMap((c) => c.expect.acts.map((e) => e.kind)));
-    assert.deepEqual([...acts].sort(), ['accept', 'owners', 'pin', 'settings']);
+    assert.deepEqual([...acts].sort(), ['accept', 'deviation', 'erratum', 'owners', 'pin', 'settings']);
     const settings = new Set(cases.flatMap((c) => c.expect.settings.map((e) => e.rule)));
     assert.ok(settings.size >= 3);
   });
@@ -162,6 +167,8 @@ describe('reading the commits', () => {
     process.env.GIT_INDEX_FILE = path.join(scratch, 'index');
     try {
       assert.deepEqual(checkChange(big, `b${i}`, `h${i}`).problems.map(({ rule }) => rule), ['V-08', 'P-01']);
+      const note = cases.findIndex((c) => c.id === 'x03-deviation-commit-in-the-base');
+      assert.deepEqual(checkChange(big, `b${note}`, `h${note}`).problems, []);
     } finally {
       for (const [name, value] of Object.entries(saved)) {
         if (value === undefined) delete process.env[name];
@@ -193,7 +200,7 @@ describe('reading the commits', () => {
     const started = Date.now();
     const got = checkChange(repo, 'b', 'h');
     assert.ok(Date.now() - started < 8000, `took ${Date.now() - started} ms`);
-    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [], approval: null });
+    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [], approval: null, needs: { cases: [], clock: false } });
   });
 });
 
@@ -313,5 +320,129 @@ describe('the command check-pr', () => {
     assert.equal(result.status, 1);
     assert.equal(result.stdout, '');
     assert.match(result.stderr, /\[P-01\]/);
+  });
+});
+
+describe('errata and deviation notes: the options and the command needs', () => {
+  const at = (id) => cases.findIndex((c) => c.id === id);
+  const ends = (id) => ['--repo', big, '--base', `b${at(id)}`, '--head', `h${at(id)}`];
+  const NOW = Date.parse('2026-11-10T00:00:00Z');
+  const files = (map) => ({ now: () => NOW, readFile: (name) => { if (!map.has(name)) throw new Error('ENOENT'); return Buffer.from(map.get(name)); } });
+  const go = (id, extra, map = new Map()) => run(['check-pr', ...ends(id), ...extra], files(map));
+
+  test('--since and --cases reach the rules: 47 hours is short, 72 is enough', () => {
+    const short = go('r03-erratum-one-second-short', ['--since', '2026-11-08T00:00:01Z']);
+    assert.equal(short.code, 1);
+    assert.equal(short.stderr, `docs/decisions/0002-second.md: [P-13] ${CHANGE_RULES['P-13']} (47h of 48h)\ndocs/decisions/0002-second.md: needs the owners' approval (erratum)\ndocs/decisions: 1 problem, 1 act\n`);
+    const long = go('r01-erratum', ['--since', '2026-11-07T00:00:00Z']);
+    assert.equal(long.stderr, "docs/decisions/0002-second.md: needs the owners' approval (erratum)\ndocs/decisions: 0 problems, 1 act\n");
+    const none = go('r01-erratum', []);
+    assert.match(none.stderr, /\[P-13\] .*\(no clock\)\n/);
+  });
+
+  test('the clock of the process is the default for now', () => {
+    const since = new Date(Date.now() - 72 * 3600 * 1000).toISOString().replace(/\.\d+Z$/, 'Z');
+    const got = run(['check-pr', ...ends('r01-erratum'), '--since', since]);
+    assert.doesNotMatch(got.stderr, /P-13/);
+    const fresh = run(['check-pr', ...ends('r01-erratum'), '--since', new Date().toISOString().replace(/\.\d+Z$/, 'Z')]);
+    assert.match(fresh.stderr, /\[P-13\] .*\(0h of 48h\)/);
+  });
+
+  test('a deviation note is judged with the cases of the file', () => {
+    const map = new Map([['cases.json', JSON.stringify({ issue: [], pull: [5] })]]);
+    const got = go('x01-deviation-note', ['--cases', 'cases.json'], map);
+    assert.equal(got.stderr, "docs/decisions/0002-second.md: needs the owners' approval (deviation)\ndocs/decisions: 0 problems, 1 act\n");
+    const without = go('x01-deviation-note', []);
+    assert.match(without.stderr, /\[P-14\] .*\(entry 1: case does not resolve\)\n/);
+    const wrong = go('x01-deviation-note', ['--cases', 'cases.json'], new Map([['cases.json', JSON.stringify({ issue: [5], pull: [] })]]));
+    assert.match(wrong.stderr, /\[P-14\] .*\(entry 1: case does not resolve\)\n/);
+  });
+
+  test('--since must be a UTC time written out, and a real one', () => {
+    for (const bad of ['', '2026-11-08', '2026-11-08T00:00:00', '2026-11-08 00:00:00Z', '2026-11-08T00:00:00+00:00', '2026-13-08T00:00:00Z', '2026-02-30T00:00:00Z', '2026-11-08T24:00:00Z', '2026-11-08t00:00:00z', '2026-11-08T00:00:00.000Z']) {
+      const got = go('r01-erratum', ['--since', bad]);
+      assert.equal(got.code, 2, bad);
+      assert.match(got.stderr, /^Usage:/, bad);
+    }
+    assert.equal(readTime('2026-11-08T00:00:00Z'), Date.parse('2026-11-08T00:00:00Z'));
+    assert.equal(readTime('2024-02-29T23:59:59Z'), Date.parse('2024-02-29T23:59:59Z'));
+    assert.equal(readTime('2026-02-29T00:00:00Z'), null);
+    assert.equal(readTime('x'), null);
+  });
+
+  test('a cases file that does not fit is exit status 2 with the reason, and an unreadable one too', () => {
+    const many = Array.from({ length: 1001 }, (_, i) => i + 1);
+    const bad = [
+      ['not json', 'is not one JSON document'], ['[]', 'is not an object with the keys issue and pull'], ['{"issue":[]}', 'is not an object with the keys issue and pull'],
+      ['{"issue":[],"pull":[],"x":[]}', 'is not an object with the keys issue and pull'], ['null', 'is not an object with the keys issue and pull'],
+      ['{"issue":1,"pull":[]}', 'issue: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      ['{"issue":[],"pull":["5"]}', 'pull: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      ['{"issue":[0],"pull":[]}', 'issue: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      ['{"issue":[1.5],"pull":[]}', 'issue: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      ['{"issue":[1000000000],"pull":[]}', 'issue: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      ['{"issue":[3,3],"pull":[]}', 'issue: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+      [JSON.stringify({ issue: [], pull: many }), 'pull: is not a list of at most 1000 distinct numbers from 1 to 999999999'],
+    ];
+    for (const [text, why] of bad) {
+      const got = go('x01-deviation-note', ['--cases', 'c.json'], new Map([['c.json', text]]));
+      assert.equal(got.code, 2, text.slice(0, 40));
+      assert.equal(got.stderr, `record-keeper: c.json: ${why}\n`);
+    }
+    const missing = go('x01-deviation-note', ['--cases', 'nothing.json']);
+    assert.equal(missing.code, 2);
+    assert.match(missing.stderr, /^record-keeper: cannot read nothing\.json: /);
+    assert.throws(() => readCases(Buffer.from([0xff])), Unreadable);
+    assert.throws(() => readCases(Buffer.from('\ufeff{"issue":[],"pull":[]}')), Unreadable);
+    assert.deepEqual(readCases(Buffer.from('{"pull":[2],"issue":[9,1]}')), { issue: [9, 1], pull: [2] });
+    assert.deepEqual(readCases(Buffer.from(JSON.stringify({ issue: Array.from({ length: 1000 }, (_, i) => i + 1), pull: [999999999] }))).pull, [999999999]);
+  });
+
+  test('needs prints the cases, issues first, then the clock, and nothing when nothing is needed', () => {
+    const lines = (id) => run(['needs', ...ends(id)]);
+    assert.deepEqual(lines('x10-deviation-two-notes-at-once'), { code: 0, stdout: 'case issue 3\ncase pull 5\n', stderr: '' });
+    assert.deepEqual(lines('r01-erratum'), { code: 0, stdout: 'clock\n', stderr: '' });
+    assert.deepEqual(lines('x40-deviation-and-erratum-on-two-records'), { code: 0, stdout: 'case pull 5\nclock\n', stderr: '' });
+    assert.deepEqual(lines('r07-whitespace-erratum-no-wait'), { code: 0, stdout: '', stderr: '' });
+    assert.deepEqual(lines('a05-new-proposed'), { code: 0, stdout: '', stderr: '' });
+    assert.deepEqual(lines('x07-deviation-no-cases-given'), { code: 0, stdout: 'case issue 12\n', stderr: '' });
+  });
+
+  test('needs fails on wrong usage and on an unreadable repository, as check-pr does', () => {
+    for (const args of [['needs'], ['needs', '--base', 'b0'], ['needs', '--head', 'h0'], [...['needs', ...ends('r01-erratum')], 'extra'], [...['needs', ...ends('r01-erratum')], '--since', '2026-11-08T00:00:00Z'], ['needs', '--repo', big, '--base', '--head', 'h0']]) {
+      assert.equal(run(args).code, 2, args.join(' '));
+      assert.match(run(args).stderr, /^Usage:/);
+    }
+    const missing = run(['needs', '--repo', scratch, '--base', 'b0', '--head', 'h0']);
+    assert.equal(missing.code, 2);
+    assert.match(missing.stderr, /^record-keeper: /);
+    assert.match(run(['--help']).stdout, /record-keeper\.mjs needs --base/);
+    assert.match(run(['--help']).stdout, /\[--cases <file>\] \[--since <time>\]/);
+  });
+
+  test('a real process: needs and check-pr with --since', () => {
+    const run1 = spawnSync(process.execPath, [path.join(root, 'record-keeper.mjs'), 'needs', ...ends('r01-erratum')], { env: CLEAN });
+    assert.equal(run1.status, 0);
+    assert.equal(run1.stdout.toString(), 'clock\n');
+    const run2 = spawnSync(process.execPath, [path.join(root, 'record-keeper.mjs'), 'check-pr', ...ends('r01-erratum'), '--since', '2020-01-01T00:00:00Z'], { env: CLEAN });
+    assert.equal(run2.status, 1);
+    assert.match(run2.stderr.toString(), /needs the owners' approval \(erratum\)/);
+  });
+
+  test('the reasons of the page are the reasons of the cases', () => {
+    const shape = (text) => text.replace(/sha256-g1:(?:[0-9a-f]{64}|\.\.\.)/g, 'SEAL').replace(/sha256:(?:[0-9a-f]{64}|\.\.\.)/g, 'HASH').replace(/\b\d+h of 48h/, 'Nh of 48h')
+      .replace(/entry [NK0-9]+:/g, 'entry N:').replace(/(number: expected )(?:\d+|N)/, '$1N').replace(/expected (?:SEAL|HASH)(?=$|\))/, 'expected X');
+    const got = new Set(cases.flatMap((c) => c.expect.problems.filter((e) => /^P-1[0-4]$/.test(e.rule)).map((e) => `${e.rule} ${shape(e.detail ?? '')}`)));
+    const bullet = (rule) => errataPage.split('\n').slice(errataPage.split('\n').findIndex((l) => l.startsWith(`- **${rule}**`))).join('\n').split('\n- **P-')[0];
+    const quoted = (text) => [...text.matchAll(/`([^`]+)`/g)].map((m) => shape(m[1])).filter((s) => !s.endsWith(':')).filter((s) => /^(?:entry N: |text outside|earlier entry|not one new|no change|no new|no clock|Nh of|case does|number:|keys:|date:|previous|seal:|reason:|case:)/.test(s));
+    for (const rule of ['P-10', 'P-11', 'P-14']) {
+      for (const reason of quoted(bullet(rule))) {
+        const wanted = reason.replace(/^entry N: /, '');
+        const found = [...got].some((g) => g.startsWith(`${rule} `) && (g.slice(5).replace(/^entry N: /, '') === wanted || g.slice(5).replace(/^entry N: /, '').startsWith(wanted.replace(/ expected X$/, ' expected'))));
+        assert.ok(found, `${rule}: no case for "${reason}"`);
+      }
+    }
+    for (const rule of ['P-10', 'P-11', 'P-12', 'P-13', 'P-14']) assert.ok([...got].some((g) => g.startsWith(`${rule} `)), rule);
+    for (const key of ['applies-to', 'repos', 'window', 'supersedes']) assert.ok(got.has(`P-12 ${key}`), key);
+    for (const detail of ['no clock', 'Nh of 48h']) assert.ok(got.has(`P-13 ${detail}`), detail);
   });
 });

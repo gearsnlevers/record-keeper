@@ -5,6 +5,9 @@
 //
 //   node check-pull-request.mjs --repo <owner/name> --pr <number>
 //
+// It also asks `record-keeper needs` what the change cites or waits for, looks the issues and pull requests up, and finds when the
+// first run of the check on the head commit began (docs/errata-and-deviations.md).
+//
 // The token is read from GITHUB_TOKEN and the address of the API from GITHUB_API_URL (default https://api.github.com). The working
 // directory is a clone whose `origin` is the repository. Exit status: that of `check-pr` (0, 1 or 2), or 2 when the check could not run.
 import fs from 'node:fs';
@@ -15,6 +18,11 @@ const DEFAULT_API = 'https://api.github.com';
 const MAX_PAGES = 200;
 const TIMEOUT_MS = 30_000;
 const REVIEWS_FILE = 'reviews.json';
+const CASES_FILE = 'cases.json';
+const MAX_CASES = 50;
+const CHECK_NAME = 'Records integrity';
+const CHECK_APP = 'github-actions';
+const UTC_TIME = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/;
 const HEAD_REF = 'refs/record-keeper/head';
 const BASE_REF = 'refs/record-keeper/base';
 const COMMIT_ID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
@@ -43,7 +51,7 @@ function apiBase(address) {
 }
 
 /** One GET. A redirect is never followed, so the token cannot be sent to another place. */
-async function get(context, url) {
+async function get(context, url, absent = []) {
   const where = printable(url.slice(context.base.length));
   let response;
   try {
@@ -55,12 +63,27 @@ async function get(context, url) {
   } catch (error) {
     throw new CannotRun(`GET ${where} failed: ${printable(error.cause?.message || error.cause?.code || error.message).slice(0, 200)}`);
   }
+  if (absent.includes(response.status)) return { body: null, link: null, absent: true };
   if (response.status !== 200) throw new CannotRun(`GET ${where} answered ${response.status}`);
   try {
     return { body: await response.json(), link: response.headers.get('link') };
   } catch {
     throw new CannotRun(`the answer to ${where} is not what the check needs`);
   }
+}
+
+/** What `record-keeper needs` printed: the issues and pull requests to look up, and whether the clock is wanted. */
+export function readNeeds(text) {
+  const cited = [];
+  let clock = false;
+  for (const line of text.split('\n').filter((l) => l !== '')) {
+    const found = /^case (issue|pull) ([1-9][0-9]{0,8})$/.exec(line);
+    if (found) cited.push({ kind: found[1], number: Number(found[2]) });
+    else if (line === 'clock') clock = true;
+    else throw new CannotRun('record-keeper needs printed something that is not a need');
+  }
+  if (cited.length > MAX_CASES) throw new CannotRun(`more than ${MAX_CASES} cases to look up`);
+  return { cited, clock };
 }
 
 /** The pull request as it is now: its head commit, its base branch and its author. */
@@ -91,20 +114,52 @@ function nextPage(context, link, current, seen) {
   return url;
 }
 
-/** Every page of the reviews of a pull request, as a list of pages (what `gh api --paginate --slurp` writes). */
-async function readReviewPages(context, number) {
+/** Every page of a listing, as a list of the arrays that `take` picks out of each answer (null from `take` is an answer that does not fit). */
+async function readPages(context, first, noun, take) {
   const pages = [];
   const seen = new Set();
-  let url = `${context.base}/repos/${context.repo}/pulls/${number}/reviews?per_page=100`;
+  let url = first;
   while (url !== null) {
-    if (pages.length === MAX_PAGES) throw new CannotRun(`more than ${MAX_PAGES} pages of reviews`);
+    if (pages.length === MAX_PAGES) throw new CannotRun(`more than ${MAX_PAGES} pages of ${noun}`);
     seen.add(url);
     const { body, link } = await get(context, url);
-    if (!Array.isArray(body)) throw new CannotRun(`the answer to ${printable(url.slice(context.base.length))} is not what the check needs`);
-    pages.push(body);
+    const items = take(body);
+    if (!Array.isArray(items)) throw new CannotRun(`the answer to ${printable(url.slice(context.base.length))} is not what the check needs`);
+    pages.push(items);
     url = nextPage(context, link, url, seen);
   }
   return pages;
+}
+
+/** Every page of the reviews of a pull request, as a list of pages (what `gh api --paginate --slurp` writes). */
+const readReviewPages = (context, number) => readPages(context, `${context.base}/repos/${context.repo}/pulls/${number}/reviews?per_page=100`, 'reviews', (body) => body);
+
+/** The issues and pull requests the change cites that exist in the repository, as `check-pr --cases` takes them. */
+async function readCases(context, cited) {
+  const found = { issue: [], pull: [] };
+  for (const { kind, number } of cited) {
+    const url = `${context.base}/repos/${context.repo}/issues/${number}`;
+    const { body, absent } = await get(context, url, [404, 410]);
+    if (absent) continue;
+    if (!isObject(body) || body.number !== number || !(body.pull_request === undefined || isObject(body.pull_request))) {
+      throw new CannotRun(`the answer to ${printable(url.slice(context.base.length))} is not what the check needs`);
+    }
+    if ((body.pull_request === undefined) === (kind === 'issue')) found[kind].push(number);
+  }
+  return found;
+}
+
+/** When the first run of the check on the head commit began, as `check-pr --since` takes it (the time given by `now` when none is listed). */
+async function readSince(context, head, now) {
+  const url = `${context.base}/repos/${context.repo}/commits/${head}/check-runs?check_name=${encodeURIComponent(CHECK_NAME)}&filter=all&per_page=100`;
+  const pages = await readPages(context, url, 'check runs', (body) => (isObject(body) ? body.check_runs : null));
+  const starts = [];
+  for (const run of pages.flat()) {
+    const fits = isObject(run) && typeof run.name === 'string' && (run.started_at === null || (typeof run.started_at === 'string' && UTC_TIME.test(run.started_at))) && (run.app === null || isObject(run.app));
+    if (!fits) throw new CannotRun(`the answer to ${printable(url.slice(context.base.length))} is not what the check needs`);
+    if (run.name === CHECK_NAME && run.app?.slug === CHECK_APP && run.started_at !== null) starts.push(run.started_at);
+  }
+  return starts.length > 0 ? starts.sort()[0] : new Date(now()).toISOString().replace(/\.\d+Z$/, 'Z');
 }
 
 function git(cwd, args) {
@@ -120,7 +175,7 @@ function git(cwd, args) {
  * Judges a pull request. Returns { code, stdout, stderr } like the command line of record-keeper.mjs.
  * `fetch` is the one of Node and `timeout` the milliseconds for one request; the tests replace them.
  */
-export async function checkPullRequest({ repo, number, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS }) {
+export async function checkPullRequest({ repo, number, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS, now = Date.now }) {
   try {
     if (typeof token !== 'string' || !/^\S+$/.test(token)) throw new CannotRun('no token');
     const parts = typeof repo === 'string' ? repo.split('/') : [];
@@ -139,9 +194,18 @@ export async function checkPullRequest({ repo, number, token, api = DEFAULT_API,
     const head = git(cwd, ['rev-parse', '--verify', '--quiet', `${HEAD_REF}^{commit}`]);
     const base = git(cwd, ['rev-parse', '--verify', '--quiet', `${BASE_REF}^{commit}`]);
     if (head !== first.head) throw new CannotRun('the head moved');
-    const reviews = Buffer.from(JSON.stringify(pages));
-    const readFile = (file) => (file === REVIEWS_FILE ? reviews : fs.readFileSync(file));
-    return run(['check-pr', '--repo', cwd, '--base', base, '--head', head, '--reviews', REVIEWS_FILE, '--author', String(first.author)], { readFile });
+    const needs = run(['needs', '--repo', cwd, '--base', base, '--head', head]);
+    if (needs.code !== 0) return needs;
+    const { cited, clock } = readNeeds(needs.stdout);
+    const files = new Map([[REVIEWS_FILE, Buffer.from(JSON.stringify(pages))]]);
+    const extra = [];
+    if (cited.length > 0) {
+      files.set(CASES_FILE, Buffer.from(JSON.stringify(await readCases(context, cited))));
+      extra.push('--cases', CASES_FILE);
+    }
+    if (clock) extra.push('--since', await readSince(context, head, now));
+    const readFile = (file) => files.get(file) ?? fs.readFileSync(file);
+    return run(['check-pr', '--repo', cwd, '--base', base, '--head', head, '--reviews', REVIEWS_FILE, '--author', String(first.author), ...extra], { readFile, now });
   } catch (error) {
     if (!(error instanceof CannotRun)) throw error;
     return { code: 2, stdout: '', stderr: `Records integrity could not run: ${error.message}\n` };

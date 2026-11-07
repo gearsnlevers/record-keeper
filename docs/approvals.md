@@ -58,6 +58,8 @@ The kit does not check that the reviews belong to the pull request whose head it
 | Act | Met by the approval |
 | --- | ------------------- |
 | `accept` | yes |
+| `erratum` | yes (and the 48 hours of [its own rule](errata-and-deviations.md#the-48-hours), which is not an approval) |
+| `deviation` | yes |
 | `settings` | yes |
 | `pin` | yes |
 | `owners` | **no** |
@@ -83,7 +85,7 @@ The count line gets ` approved` after the acts when every act is met (`docs/deci
 
 ## What this does not do
 
-- **It does not count days.** The seven days of an amendment (M2.7), the 48 hours of an erratum that changes prose (M2.6) and the approval of all owners are not checked. The act `owners` stands in for the first and the last until then.
+- **It does not count days.** The seven days of an amendment (M2.7) and the approval of all owners are not checked here; the act `owners` stands in for both until then. The 48 hours of an erratum are counted, by [their own rule](errata-and-deviations.md#the-48-hours).
 - **It does not read the pull request.** It does not know whether the reviews are those of the pull request, whether they are complete, or when the pull request was opened. [The workflow](workflow.md) does (M2.5).
 - **It cannot bootstrap.** A repository whose base has no owners cannot approve anything, the change that names the owners included. The first settings are installed by an administrator, before the check is required.
 - **It cannot repair a broken `owners` or `approvals` line by approval.** While the base has a problem in either, the owners are nobody or the count is 2, and the change that repairs the line (which the [repair rule](checking-a-change.md#problems-in-the-settings) lets through as far as the settings go) is still an act that nobody can approve. An administrator repairs it. The alternative, reading the items that are fine, is choice 9 of the settings page.
