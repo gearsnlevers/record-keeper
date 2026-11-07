@@ -72,4 +72,4 @@ An act of the bar that is not met is one line: `<path>: needs the amendment bar 
 
 ## The fixtures
 
-[test/fixtures/change](../test/fixtures/change/README.md) holds the cases that find the acts and P-16 (the group `z`); [test/fixtures/approval](../test/fixtures/approval/README.md) holds the cases of the bar itself (the group `m`).
+[test/fixtures/change](../test/fixtures/change/README.md) holds the cases that find the acts and P-16 (the group `z`); [test/fixtures/approval](../test/fixtures/approval/README.md) holds the cases of the bar itself (the group `b`).
