@@ -221,7 +221,7 @@ describe('the command check-pr', () => {
   test('a detail is shown in brackets, and a problem of the settings comes first, with its line', () => {
     const got = go('k04-repair-incomplete');
     assert.equal(got.code, 1);
-    assert.match(got.stderr, new RegExp(`^${SETTINGS_PATH.replaceAll('.', '\\.')}:1: \\[S-05\\] .*\\(owners\\)\\n${SETTINGS_PATH.replaceAll('.', '\\.')}:2: \\[S-05\\]`));
+    assert.match(got.stderr, new RegExp(`^${SETTINGS_PATH.replaceAll('.', '\\.')}:1: \\[S-05\\] .*\\(witnesses\\)\\n${SETTINGS_PATH.replaceAll('.', '\\.')}:2: \\[S-05\\]`));
     const second = go('d09-trailing-space');
     assert.match(second.stderr, /docs\/decisions\/0002-second\.md: \[P-02\] is sealed and its text has changed \(line 17\)\n/);
   });

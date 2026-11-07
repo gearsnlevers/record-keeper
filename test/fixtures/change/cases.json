@@ -59,7 +59,7 @@
   "broken-settings": [
    {
     "path": ".github/record-keeper/settings.yml",
-    "content": "owners: [a]\nfolder: docs/decisions\n"
+    "content": "witnesses: [a]\nfolder: docs/decisions\n"
    },
    {
     "path": "docs/decisions/0001-first.md",
@@ -428,7 +428,7 @@
   "broken-settings-2": [
    {
     "path": ".github/record-keeper/settings.yml",
-    "content": "folder: docs/decisions\nowners: [a]\n"
+    "content": "folder: docs/decisions\nwitnesses: [a]\n"
    },
    {
     "path": "docs/decisions/0001-first.md",
@@ -3389,7 +3389,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],
@@ -3436,7 +3436,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],
@@ -3455,7 +3455,7 @@
    "changes": [
     {
      "write": ".github/record-keeper/settings.yml",
-     "content": "owners: [a]\nowner: [b]\n"
+     "content": "witnesses: [a]\nowner: [b]\n"
     }
    ],
    "expect": {
@@ -3463,7 +3463,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      },
      {
       "line": 2,
@@ -3838,7 +3838,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],
@@ -3873,7 +3873,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],
@@ -4284,7 +4284,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],
@@ -4341,7 +4341,7 @@
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ],
     "problems": [],

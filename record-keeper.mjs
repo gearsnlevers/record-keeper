@@ -689,15 +689,19 @@ const SETTINGS = new Map([
   ['folder', { kind: 'single', form: 'folder', field: 'folder' }],
   ['shared-folder', { kind: 'single', form: 'part', field: 'sharedFolder' }],
   ['extra-keys', { kind: 'list', form: 'key', field: 'extraKeys' }],
+  ['owners', { kind: 'list', form: 'owner', field: 'owners' }],
+  ['approvals', { kind: 'single', form: 'count', field: 'approvals' }],
 ]);
 
-const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [] });
+const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2 });
 
 const SETTING_KEY = /^([A-Za-z][A-Za-z0-9_-]*):/;
 const SETTING_ENTRY = /^[A-Za-z][A-Za-z0-9_-]*:(?: +([^]*))?$/;
 const PLAIN_SCALAR = /(?:[A-Za-z_]|\.[A-Za-z])[A-Za-z0-9_./-]*/y;
+const INTEGER_SCALAR = /(?:0|[1-9][0-9]{0,8})(?![A-Za-z0-9_./-])/y;
 const RESERVED_WORD = /^(?:null|true|false|yes|no|on|off|y|n|\.inf|\.nan)$/i;
 const KEY_NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
+const OWNER_FORM = /^([A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38})\/([1-9][0-9]{0,14})$/;
 
 const cutDetail = (text) => [...text].slice(0, 40).join('');
 const lineAt = (text, index) => text.slice(0, index).split('\n').length;
@@ -723,7 +727,7 @@ function readText(bytes) {
   return found ? { reason: found[0], line: lineAt(text, found[1]) } : { text };
 }
 
-/** A scalar of the subset at `pos`: { value, end }, or null. */
+/** A scalar of the subset at `pos`: { value, end }, or null. The value is a string, or a number for an integer. */
 function readScalar(text, pos) {
   const quote = text[pos];
   if (quote === "'" || quote === '"') {
@@ -742,6 +746,9 @@ function readScalar(text, pos) {
       } else value += text[i++];
     }
   }
+  INTEGER_SCALAR.lastIndex = pos;
+  const integer = INTEGER_SCALAR.exec(text);
+  if (integer) return { value: Number(integer[0]), end: pos + integer[0].length };
   PLAIN_SCALAR.lastIndex = pos;
   const match = PLAIN_SCALAR.exec(text);
   return match && !RESERVED_WORD.test(match[0]) ? { value: match[0], end: pos + match[0].length } : null;
@@ -790,15 +797,23 @@ function readEntry(line) {
 }
 
 const goodPart = (part) => part !== '' && part !== '.' && part !== '..' && !/^\.[gG][iI][tT]$/.test(part) && !part.includes('\\');
+const isOwner = (value) => typeof value === 'string' && OWNER_FORM.test(value);
+const ownerOf = (value) => {
+  const [, login, id] = OWNER_FORM.exec(value);
+  return { login, id: Number(id) };
+};
+/** The form a value must have, given the items of the list before it: a number is acceptable only where a number is asked for. */
 const FORMS = {
-  folder: (value) => value.split('/').every(goodPart),
-  part: (value) => !value.includes('/') && goodPart(value),
-  key: (value) => KEY_NAME.test(value),
+  folder: (value) => typeof value === 'string' && value.split('/').every(goodPart),
+  part: (value) => typeof value === 'string' && !value.includes('/') && goodPart(value),
+  key: (value) => typeof value === 'string' && KEY_NAME.test(value),
+  owner: (value, before) => isOwner(value) && !before.some((other) => isOwner(other) && ownerOf(other).id === ownerOf(value).id),
+  count: (value) => typeof value === 'number' && value >= 1 && value <= 99,
 };
 
 /**
- * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys }, each
- * at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
+ * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys, owners,
+ * approvals } (an owner is { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
  * order of the lines (line is null when a problem has none).
  */
 export function parseSettings(bytes) {
@@ -827,10 +842,10 @@ export function parseSettings(bytes) {
     } else if (readable.length === 1) {
       const [{ number, kind, value }] = readable;
       const items = kind === 'list' ? value : [value];
-      const bad = kind === setting.kind ? items.find((item) => !FORMS[setting.form](item)) : undefined;
+      const bad = kind === setting.kind ? items.findIndex((item, i) => !FORMS[setting.form](item, items.slice(0, i))) : -1;
       if (kind !== setting.kind) problems.push({ line: number, rule: 'S-06', detail: cutDetail(key) });
-      else if (bad !== undefined) problems.push({ line: number, rule: 'S-07', detail: cutDetail(bad) });
-      else settings[setting.field] = value;
+      else if (bad >= 0) problems.push({ line: number, rule: 'S-07', detail: cutDetail(String(items[bad])) });
+      else settings[setting.field] = setting.form === 'owner' ? value.map(ownerOf) : value;
     }
   }
   return { settings, problems: problems.sort((a, b) => a.line - b.line) };
@@ -1204,8 +1219,8 @@ function runConfig(args) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, sharedFolder, extraKeys } = read.settings;
-  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\n`;
+  const { folder, sharedFolder, extraKeys, owners, approvals } = read.settings;
+  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\n`;
   const count = `${SETTINGS_PATH}: ${problemWord(read.problems.length)}\n`;
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
