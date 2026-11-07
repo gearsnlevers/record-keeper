@@ -39,7 +39,7 @@ Read as commits of their default branches, the records folders of the maintainer
 
 ## What this does not do
 
-- It does not compare two commits, and it does not say whether a change is allowed. That is the pull request check (M2.3).
+- It does not compare two commits, and it does not say whether a change is allowed. That is [checking a change](checking-a-change.md).
 - It does not read the settings of a repository. The folder, the shared folder and the extra keys are options here; [the settings file](settings.md) states them, and `validate --commit <revision> --settings-from <revision>` reads them from a commit. The list of conventional folders is fixed.
 - It does not look inside the shared folder or a submodule.
 
