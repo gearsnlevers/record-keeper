@@ -7,10 +7,10 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { after, before, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { SETTINGS_PATH, Unreadable, actApproved, checkChange, countApprovals, readReviews, run } from '../record-keeper.mjs';
+import { SETTINGS_PATH, Unreadable, actApproved, amendmentBar, checkChange, countApprovals, readReviews, run } from '../record-keeper.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const { counts, files } = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/approval/cases.json'), 'utf8'));
+const { counts, bars, files } = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/approval/cases.json'), 'utf8'));
 const change = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/change/cases.json'), 'utf8'));
 const page = fs.readFileSync(path.join(root, 'docs/approvals.md'), 'utf8');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-approval-'));
@@ -35,7 +35,7 @@ describe('the count of approvals', () => {
   });
 
   test('the ids of the cases are unique', () => {
-    const ids = [...counts, ...files].map((c) => c.id);
+    const ids = [...counts, ...bars, ...files].map((c) => c.id);
     assert.equal(new Set(ids).size, ids.length);
   });
 
@@ -84,9 +84,57 @@ describe('the reviews file', () => {
   });
 });
 
+describe('the bar for an amendment', () => {
+  const options = (c) => ({ owners: c.owners, head: c.head, author: c.author, reviews: c.reviews, since: c.since === null ? undefined : Date.parse(c.since), now: Date.parse(c.now), waived: c.waived });
+  for (const c of bars) {
+    test(`${c.id}: ${c.expect.met ? (c.expect.waived ? 'waived' : 'met') : c.expect.reason}`, () => {
+      assert.deepEqual(amendmentBar(options(c)), c.expect, c.note);
+    });
+  }
+
+  test('both the cases that meet the bar and those that do not are there, and every kind of reason', () => {
+    assert.ok(bars.some((c) => c.expect.met && !c.expect.waived));
+    assert.ok(bars.some((c) => c.expect.waived));
+    const reasons = new Set(bars.filter((c) => !c.expect.met).map((c) => c.expect.reason.replace(/\d+/g, 'N')));
+    assert.deepEqual([...reasons].sort(), ['N of N owners', 'Nh of Nh', 'no clock', 'no owners']);
+  });
+
+  test('the result does not depend on the order of the reviews, and the bar does not change what it is given', () => {
+    for (const c of bars) {
+      assert.deepEqual(amendmentBar({ ...options(c), reviews: [...c.reviews].reverse() }), c.expect, c.id);
+    }
+    const c = bars.find((x) => x.id === 'b08-last-approval-counts');
+    const copy = structuredClone(c);
+    amendmentBar(options(c));
+    assert.deepEqual(c, copy);
+  });
+
+  test('the wait is seven days of 86,400 seconds, to the second', () => {
+    const owners = [{ login: 'alice', id: 1001 }];
+    const at = (iso) => [{ id: 1, user: 1001, state: 'APPROVED', commit: 'a'.repeat(40), at: iso }];
+    const base = { owners, head: 'a'.repeat(40), author: 7, now: Date.parse('2030-01-01T00:00:00Z'), waived: false, since: Date.parse('2026-11-01T00:00:00Z') };
+    assert.deepEqual(amendmentBar({ ...base, reviews: at('2026-11-08T00:00:00Z') }), { met: true });
+    assert.deepEqual(amendmentBar({ ...base, reviews: at('2026-11-07T23:59:59Z') }), { met: false, reason: '167h of 168h' });
+    assert.deepEqual(amendmentBar({ ...base, reviews: at('2026-11-08T00:00:01Z') }), { met: true });
+  });
+
+  test('the reasons and the order of the checks are those of the page', () => {
+    const order = ['no reviews were given', 'no owners', 'n of m owners', 'no clock', 'Nh of 168h'];
+    const text = fs.readFileSync(path.join(root, 'docs/amendments.md'), 'utf8');
+    let at = text.indexOf('`no reviews were given`');
+    assert.ok(at > 0);
+    for (const reason of order.slice(1, -1)) {
+      const next = text.indexOf(reason.startsWith('n of') ? '`n of m owners`' : `\`${reason}\``, at);
+      assert.ok(next > at, reason);
+      at = next;
+    }
+    assert.ok(text.indexOf('`Nh of 168h`', at) > at);
+  });
+});
+
 describe('the act owners', () => {
   const owned = (id) => change.cases.find((c) => c.id === id);
-  test('it is never met by an approval, the other acts are met by a met approval and by no other', () => {
+  test('the acts of the bar are met by the bar and by no other, the other acts are met by a met approval and by no other', () => {
     const met = { met: true };
     const not = { met: false };
     for (const kind of ['accept', 'settings', 'pin']) {
@@ -94,8 +142,14 @@ describe('the act owners', () => {
       assert.equal(actApproved({ kind, path: 'x' }, not), false);
       assert.equal(actApproved({ kind, path: 'x' }, null), false);
     }
-    assert.equal(actApproved({ kind: 'owners', path: 'x' }, met), false);
-    assert.equal(actApproved({ kind: 'owners', path: 'x' }, null), false);
+    for (const kind of ['owners', 'amendment']) {
+      assert.equal(actApproved({ kind, path: 'x' }, met), false);
+      assert.equal(actApproved({ kind, path: 'x' }, null), false);
+      assert.equal(actApproved({ kind, path: 'x' }, met, [{ kind, path: 'y', met: true }]), false);
+      assert.equal(actApproved({ kind, path: 'x' }, met, [{ kind: kind === 'owners' ? 'amendment' : 'owners', path: 'x', met: true }]), false);
+      assert.equal(actApproved({ kind, path: 'x' }, not, [{ kind, path: 'x', met: true }]), true);
+      assert.equal(actApproved({ kind, path: 'x' }, null, [{ kind, path: 'x', met: false, reason: 'no clock' }]), false);
+    }
   });
 
   test('the cases of the change fixtures show it and show when it is not found', () => {
@@ -150,7 +204,7 @@ function commitStream(ref, tree, parent) {
 /** A repository with the base b<i> and the head h<i> of the cases of the change fixtures that are asked for, by id. */
 let repo;
 const index = new Map();
-const IDS = ['w22-accept-with-owners', 'w23-accept-and-a-problem', 'w01-owner-added', 'w05-approvals-lowered', 'w06-approvals-raised', 'c01-new-accepted-record', 'w12-other-setting-changes', 'a03-proposed-edited', 'w13-owners-named-first-time'];
+const IDS = ['z25-amendment-with-owners', 'z26-amendment-with-emergency-and-owners', 'z27-table-change-with-owners', 'w22-accept-with-owners', 'w23-accept-and-a-problem', 'w01-owner-added', 'w05-approvals-lowered', 'w06-approvals-raised', 'c01-new-accepted-record', 'w12-other-setting-changes', 'a03-proposed-edited', 'w13-owners-named-first-time'];
 before(() => {
   repo = path.join(scratch, 'r.git');
   git(scratch, ['init', '-q', '--bare', repo]);
@@ -214,11 +268,11 @@ describe('the command check-pr with reviews', () => {
     assert.equal(got.stdout, 'approvals: 2 of 2 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 1 act approved\n');
   });
 
-  test('an act owners cannot be approved, and is named with the amendment bar; the other act of the change is met', () => {
+  test('an act owners is named with the amendment bar and the reason; the other act of the change is met', () => {
     const got = go('w01-owner-added', { reviews: approve(1001, 1002) });
     assert.equal(got.code, 1);
     assert.equal(got.stdout, '');
-    assert.equal(got.stderr, `${SETTINGS_PATH}: needs the amendment bar, which this version cannot check (owners)\napprovals: 2 of 2 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 2 acts\n`);
+    assert.equal(got.stderr, `${SETTINGS_PATH}: needs the amendment bar (owners): no clock\napprovals: 2 of 2 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 2 acts\n`);
   });
 
   test('the owners are those of the base: an owner that the change adds does not approve it', () => {
@@ -372,5 +426,58 @@ describe('a real process', () => {
     assert.equal(result.status, 0);
     assert.equal(result.stdout.toString(), 'approvals: 2 of 2 (alice/1001: author, bob/1002: approved)\ndocs/decisions: 0 problems, 1 act approved\n');
     assert.equal(result.stderr.toString(), '');
+  });
+});
+
+describe('the command check-pr and the bar', () => {
+  const at = (iso) => (...users) => (head) => users.map((user, n) => review(n + 1, user, 'APPROVED', iso, head));
+  const T0 = '2026-10-20T00:00:00Z';
+
+  test('both owners approved and the head was first seen twelve days before: the act of the owners is met, with the other act', () => {
+    const got = go('w01-owner-added', { reviews: at(T1)(1001, 1002), extra: ['--since', T0] });
+    assert.deepEqual(got, { code: 0, stdout: 'approvals: 2 of 2 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 2 acts approved\n', stderr: '' });
+  });
+
+  test('the hours of the wait are named', () => {
+    const got = go('w01-owner-added', { reviews: at(T1)(1001, 1002), extra: ['--since', '2026-10-30T00:00:00Z'] });
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, `${SETTINGS_PATH}: needs the amendment bar (owners): 57h of 168h\napprovals: 2 of 2 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 2 acts\n`);
+  });
+
+  test('one owner of two is not the bar, though approvals is 1 and the ordinary act is met', () => {
+    const got = go('z25-amendment-with-owners', { reviews: at(T1)(1001), extra: ['--since', T0] });
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, 'docs/decisions/0007-seventh.md: needs the amendment bar (amendment): 1 of 2 owners\napprovals: 1 of 1 (alice/1001: approved, bob/1002: none)\ndocs/decisions: 0 problems, 1 act\n');
+  });
+
+  test('without reviews every act of the bar says so', () => {
+    const got = go('z25-amendment-with-owners');
+    assert.equal(got.stderr, 'docs/decisions/0007-seventh.md: needs the amendment bar (amendment): no reviews were given\ndocs/decisions: 0 problems, 1 act\n');
+    const owners = go('w01-owner-added');
+    assert.match(owners.stderr, new RegExp(`${SETTINGS_PATH.replaceAll('.', '\\.')}: needs the amendment bar \\(owners\\): no reviews were given\\n`));
+  });
+
+  test('an amendment needs the bar, the table of the README too', () => {
+    const met = go('z25-amendment-with-owners', { reviews: at(T1)(1001, 1002), extra: ['--since', T0] });
+    assert.deepEqual(met, { code: 0, stdout: 'approvals: 2 of 1 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 1 act approved\n', stderr: '' });
+    const table = go('z27-table-change-with-owners', { reviews: at(T1)(1001, 1002), extra: ['--since', '2026-10-31T00:00:00Z'] });
+    assert.equal(table.stderr, 'docs/decisions/README.md: needs the amendment bar (amendment): 33h of 168h\napprovals: 2 of 1 (alice/1001: approved, bob/1002: approved)\ndocs/decisions: 0 problems, 1 act\n');
+  });
+
+  test('the reason of the record waives the seven days, says so, and still needs every owner', () => {
+    const waived = go('z26-amendment-with-emergency-and-owners', { reviews: at(T1)(1001, 1002) });
+    assert.deepEqual(waived, { code: 0, stdout: 'approvals: 2 of 1 (alice/1001: approved, bob/1002: approved)\ndocs/decisions/0007-seventh.md: the seven days were waived by the record (emergency)\ndocs/decisions: 0 problems, 1 act approved\n', stderr: '' });
+    const one = go('z26-amendment-with-emergency-and-owners', { reviews: at(T1)(1002) });
+    assert.equal(one.code, 1);
+    assert.equal(one.stderr, 'docs/decisions/0007-seventh.md: needs the amendment bar (amendment): 1 of 2 owners\napprovals: 1 of 1 (alice/1001: none, bob/1002: approved)\ndocs/decisions: 0 problems, 1 act\n');
+    assert.doesNotMatch(one.stderr, /waived/);
+  });
+
+  test('the clock is asked for by needs when the bar is, and not when the reason waives it', () => {
+    const ask = (id) => run(['needs', '--repo', repo, '--base', `b${index.get(id)}`, '--head', `h${index.get(id)}`]);
+    assert.equal(ask('z25-amendment-with-owners').stdout, 'clock\n');
+    assert.equal(ask('w01-owner-added').stdout, 'clock\n');
+    assert.equal(ask('z26-amendment-with-emergency-and-owners').stdout, '');
+    assert.equal(ask('w22-accept-with-owners').stdout, '');
   });
 });

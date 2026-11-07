@@ -49,8 +49,8 @@ describe('the fixtures of validate', () => {
 });
 
 describe('validate', () => {
-  test('has a message for each of the 36 rules', () => {
-    assert.deepEqual(Object.keys(FORMAT_RULES), Array.from({ length: 36 }, (_, i) => `V-${String(i + 1).padStart(2, '0')}`));
+  test('has a message for each of the 37 rules', () => {
+    assert.deepEqual(Object.keys(FORMAT_RULES), Array.from({ length: 37 }, (_, i) => `V-${String(i + 1).padStart(2, '0')}`));
   });
 
   test('names the g1 rule of a record that g1 rejects', () => {

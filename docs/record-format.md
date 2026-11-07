@@ -34,12 +34,12 @@ A problem has a file (or none, for the folder), a rule and a message. The proble
 | V-06 | a subfolder is not the shared folder | subfolder | new |
 | V-07 | the number of a record file is the number of an earlier file (files in name order) | file | C L K T U |
 | V-08 | the numbers of the record files, in ascending order and without repeats, are not 0001, 0002, 0003 and so on | folder, at the first gap | C L K T U |
-| V-09 | the record breaks a rule of generation g1; the message names the G1 rule. V-10 to V-28, V-35 and V-36 are not applied to this record | record | new |
+| V-09 | the record breaks a rule of generation g1; the message names the G1 rule. V-10 to V-28, V-35, V-36 and V-37 are not applied to this record | record | new |
 | V-10 | the record has more than 60 lines, not counting the empty line after a final line feed | record | C L K T U (K counts one line more) |
 | V-11 | the text matches the credential pattern below | record | C L T U |
 | V-12 | the text matches the e-mail pattern below | record | C (K with its own pattern) |
-| V-13 | a key is not `status`, `date`, `decision-makers`, `applies-to`, `issues`, `supersedes` or `seal`, and is not an extra key | key | C L K T U |
-| V-14 | the entry of `decision-makers`, `applies-to`, `issues` or `supersedes` is a single value, or the entry of `status`, `date` or `seal` is a list | key | C L T U (K wants a value for `decision-makers`) |
+| V-13 | a key is not `status`, `date`, `decision-makers`, `applies-to`, `issues`, `supersedes`, `seal` or `emergency`, and is not an extra key | key | C L K T U |
+| V-14 | the entry of `decision-makers`, `applies-to`, `issues` or `supersedes` is a single value, or the entry of `status`, `date`, `seal` or `emergency` is a list | key | C L T U (K wants a value for `decision-makers`) |
 | V-15 | the entry of a key is empty | key | C L K T U |
 | V-16 | the entry of a key is mixed | key | C L K T U |
 | V-17 | `status`, `date` or `decision-makers` is missing | missing key | C L K T U |
@@ -62,10 +62,11 @@ A problem has a file (or none, for the folder), a rule and a message. The proble
 | V-34 | the first row that links a record does not show its title | record | K |
 | V-35 | an item of `supersedes` is not four digits (`0` to `9`) | item | new |
 | V-36 | an item of `supersedes` is a number that no record file has, or that is not lower than the number of this record | item | new |
+| V-37 | `emergency` is a single value of more than 500 characters (characters, not bytes) | record | new |
 
-V-35 and V-36 come after the index rules because they were added after them; a rule keeps its number.
+V-35 to V-37 come after the index rules because they were added after them; a rule keeps its number.
 
-The standard keys are lists for `decision-makers`, `applies-to`, `issues` and `supersedes`, and single values for `status`, `date` and `seal`; an extra key may be either. `decision-makers`, `status` and `date` are required; `applies-to`, `issues`, `supersedes` and `seal` are optional. A record that has no `applies-to` binds the whole repository.
+The standard keys are lists for `decision-makers`, `applies-to`, `issues` and `supersedes`, and single values for `status`, `date`, `seal` and `emergency`; an extra key may be either. `decision-makers`, `status` and `date` are required; `applies-to`, `issues`, `supersedes`, `seal` and `emergency` are optional. `emergency` holds the reason for waiving the seven days of an amendment ([the bar for an amendment](amendments.md)); it is part of the sealed text. A record that has no `applies-to` binds the whole repository.
 
 `supersedes` lists the records that this record replaces, one number in four digits for each item. Every number is lower than that of the record itself, so a chain of supersession cannot come back to where it started.
 

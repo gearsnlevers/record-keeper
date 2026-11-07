@@ -102,7 +102,7 @@ describe('the cases of the page', () => {
     const rules = new Set(cases.flatMap((c) => c.expect.problems.map((e) => e.rule)));
     for (const rule of Object.keys(CHANGE_RULES)) assert.ok(rules.has(rule), `${rule} has no case`);
     const acts = new Set(cases.flatMap((c) => c.expect.acts.map((e) => e.kind)));
-    assert.deepEqual([...acts].sort(), ['accept', 'code', 'deviation', 'erratum', 'owners', 'pin', 'settings', 'workflow']);
+    assert.deepEqual([...acts].sort(), ['accept', 'amendment', 'code', 'deviation', 'erratum', 'owners', 'pin', 'settings', 'workflow']);
     const settings = new Set(cases.flatMap((c) => c.expect.settings.map((e) => e.rule)));
     assert.ok(settings.size >= 3);
   });
@@ -201,7 +201,7 @@ describe('reading the commits', () => {
     const started = Date.now();
     const got = checkChange(repo, 'b', 'h');
     assert.ok(Date.now() - started < 8000, `took ${Date.now() - started} ms`);
-    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [], approval: null, needs: { cases: [], clock: false } });
+    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [], approval: null, bars: [], needs: { cases: [], clock: false } });
   });
 });
 
