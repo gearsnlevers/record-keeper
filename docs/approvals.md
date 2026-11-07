@@ -60,6 +60,7 @@ The kit does not check that the reviews belong to the pull request whose head it
 | `accept` | yes |
 | `erratum` | yes (and the 48 hours of [its own rule](errata-and-deviations.md#the-48-hours), which is not an approval) |
 | `deviation` | yes |
+| `workflow`, `code` | yes |
 | `settings` | yes |
 | `pin` | yes |
 | `owners` | **no** |

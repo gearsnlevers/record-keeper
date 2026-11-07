@@ -886,17 +886,24 @@ export const CHANGE_RULES = {
   'P-12': 'has an erratum that changes a key an erratum may not change',
   'P-13': 'has an erratum that changes the sealed text and has not been open for 48 hours',
   'P-14': 'has a deviation entry that is not allowed',
+  'P-15': 'has a workflow other than the kit\'s that names the check',
 };
 
 /** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
 export const PIN_PATH = '.github/record-keeper.yml';
+
+/** The files that make the check (docs/protected-files.md): a change to one is an act, and no other workflow may name the check. */
+export const WORKFLOW_FILES = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml'];
+export const CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs'];
+const WORKFLOW_FOLDER = '.github/workflows';
+const NAMES_THE_CHECK = /records[ _-]?integrity/i;
 
 /** Rules of the format page that judge what a sealed record says; a change that leaves a sealed record's text alone cannot bring them. */
 const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
   'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36',
 ]);
-const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'pin'];
+const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'pin', 'workflow', 'code'];
 const SUPERSEDED = /^superseded by (\d{4})$/;
 
 /** The UTF-8 order of two texts; null sorts first. */
@@ -1282,6 +1289,12 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
   }
   const shared = `${folder}/${sharedFolder}`;
   for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
+  const isWorkflow = (path) => path.startsWith(`${WORKFLOW_FOLDER}/`) && !path.slice(WORKFLOW_FOLDER.length + 1).includes('/') && /\.ya?ml$/i.test(path) && !WORKFLOW_FILES.includes(path);
+  const added = changed.filter((path) => isWorkflow(path) && /^(?:file|executable) /.test(leavesOfHead.get(path) ?? ''));
+  head.prefetch(added);
+  for (const path of added) {
+    if (NAMES_THE_CHECK.test(path.slice(WORKFLOW_FOLDER.length + 1)) || NAMES_THE_CHECK.test(head.read(path).toString('latin1'))) problems.push({ file: null, rule: 'P-15', detail: path });
+  }
 
   const known = new Set(validateOpened(base, folder, { extraKeys, sharedFolder }).map(identity));
   for (const problem of validateOpened(head, folder, { extraKeys, sharedFolder })) {
@@ -1305,6 +1318,9 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
     if (changesOwners(read.settings, headRead.settings)) acts.push({ kind: 'owners', path: SETTINGS_PATH });
   }
   if (changed.some((path) => isRelated(path, PIN_PATH))) acts.push({ kind: 'pin', path: PIN_PATH });
+  for (const [kind, files] of [['workflow', WORKFLOW_FILES], ['code', CODE_FILES]]) {
+    for (const file of files) if (changed.some((path) => isRelated(path, file))) acts.push({ kind, path: file });
+  }
 
   problems.sort((a, b) => byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
   acts.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
