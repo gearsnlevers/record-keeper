@@ -9,7 +9,7 @@
 | `id` | A unique name. `ok…` cases have no problem; the others are named for the rule they show. |
 | `text` | The file, as a string. Non-ASCII characters are written as JSON escapes, so that a character that is invisible or that changes the direction of text can be seen in the file. |
 | `hex` | The file as hexadecimal bytes, instead of `text`, for a file that is not valid UTF-8. |
-| `expect.settings` | The three settings after reading: `folder`, `sharedFolder` and `extraKeys`, each at its default when the file does not set it or has a problem with it. |
+| `expect.settings` | The five settings after reading: `folder`, `sharedFolder`, `extraKeys`, `owners` (a list of `{ "login", "id" }`) and `approvals`, each at its default when the file does not set it or has a problem with it. |
 | `expect.problems` | The problems, as `{ "line", "rule", "detail" }`; `line` is `null` when a problem has none. The order is that of the lines. |
 | `note` | What the case tests and why the answer is what it is. |
 

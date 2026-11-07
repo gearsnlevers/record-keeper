@@ -689,15 +689,19 @@ const SETTINGS = new Map([
   ['folder', { kind: 'single', form: 'folder', field: 'folder' }],
   ['shared-folder', { kind: 'single', form: 'part', field: 'sharedFolder' }],
   ['extra-keys', { kind: 'list', form: 'key', field: 'extraKeys' }],
+  ['owners', { kind: 'list', form: 'owner', field: 'owners' }],
+  ['approvals', { kind: 'single', form: 'count', field: 'approvals' }],
 ]);
 
-const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [] });
+const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2 });
 
 const SETTING_KEY = /^([A-Za-z][A-Za-z0-9_-]*):/;
 const SETTING_ENTRY = /^[A-Za-z][A-Za-z0-9_-]*:(?: +([^]*))?$/;
 const PLAIN_SCALAR = /(?:[A-Za-z_]|\.[A-Za-z])[A-Za-z0-9_./-]*/y;
+const INTEGER_SCALAR = /0|[1-9][0-9]{0,8}/y;
 const RESERVED_WORD = /^(?:null|true|false|yes|no|on|off|y|n|\.inf|\.nan)$/i;
 const KEY_NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
+const OWNER_FORM = /^([A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38})\/([1-9][0-9]{0,14})$/;
 
 const cutDetail = (text) => [...text].slice(0, 40).join('');
 const lineAt = (text, index) => text.slice(0, index).split('\n').length;
@@ -723,7 +727,7 @@ function readText(bytes) {
   return found ? { reason: found[0], line: lineAt(text, found[1]) } : { text };
 }
 
-/** A scalar of the subset at `pos`: { value, end }, or null. */
+/** A scalar of the subset at `pos`: { value, end }, or null. The value is a string, or a number for an integer. */
 function readScalar(text, pos) {
   const quote = text[pos];
   if (quote === "'" || quote === '"') {
@@ -742,6 +746,9 @@ function readScalar(text, pos) {
       } else value += text[i++];
     }
   }
+  INTEGER_SCALAR.lastIndex = pos;
+  const integer = INTEGER_SCALAR.exec(text);
+  if (integer) return { value: Number(integer[0]), end: pos + integer[0].length };
   PLAIN_SCALAR.lastIndex = pos;
   const match = PLAIN_SCALAR.exec(text);
   return match && !RESERVED_WORD.test(match[0]) ? { value: match[0], end: pos + match[0].length } : null;
@@ -790,15 +797,23 @@ function readEntry(line) {
 }
 
 const goodPart = (part) => part !== '' && part !== '.' && part !== '..' && !/^\.[gG][iI][tT]$/.test(part) && !part.includes('\\');
+const isOwner = (value) => typeof value === 'string' && OWNER_FORM.test(value);
+const ownerOf = (value) => {
+  const [, login, id] = OWNER_FORM.exec(value);
+  return { login, id: Number(id) };
+};
+/** The form a value must have, given the items of the list before it: a number is acceptable only where a number is asked for. */
 const FORMS = {
-  folder: (value) => value.split('/').every(goodPart),
-  part: (value) => !value.includes('/') && goodPart(value),
-  key: (value) => KEY_NAME.test(value),
+  folder: (value) => typeof value === 'string' && value.split('/').every(goodPart),
+  part: (value) => typeof value === 'string' && !value.includes('/') && goodPart(value),
+  key: (value) => typeof value === 'string' && KEY_NAME.test(value),
+  owner: (value, before) => isOwner(value) && !before.some((other) => isOwner(other) && ownerOf(other).id === ownerOf(value).id),
+  count: (value) => typeof value === 'number' && value >= 1 && value <= 99,
 };
 
 /**
- * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys }, each
- * at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
+ * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys, owners,
+ * approvals } (an owner is { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
  * order of the lines (line is null when a problem has none).
  */
 export function parseSettings(bytes) {
@@ -827,10 +842,10 @@ export function parseSettings(bytes) {
     } else if (readable.length === 1) {
       const [{ number, kind, value }] = readable;
       const items = kind === 'list' ? value : [value];
-      const bad = kind === setting.kind ? items.find((item) => !FORMS[setting.form](item)) : undefined;
+      const bad = kind === setting.kind ? items.findIndex((item, i) => !FORMS[setting.form](item, items.slice(0, i))) : -1;
       if (kind !== setting.kind) problems.push({ line: number, rule: 'S-06', detail: cutDetail(key) });
-      else if (bad !== undefined) problems.push({ line: number, rule: 'S-07', detail: cutDetail(bad) });
-      else settings[setting.field] = value;
+      else if (bad >= 0) problems.push({ line: number, rule: 'S-07', detail: cutDetail(String(items[bad])) });
+      else settings[setting.field] = setting.form === 'owner' ? value.map(ownerOf) : value;
     }
   }
   return { settings, problems: problems.sort((a, b) => a.line - b.line) };
@@ -876,7 +891,7 @@ const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
   'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36',
 ]);
-const ACT_ORDER = ['accept', 'settings', 'pin'];
+const ACT_ORDER = ['accept', 'settings', 'owners', 'pin'];
 const SUPERSEDED = /^superseded by (\d{4})$/;
 
 /** The UTF-8 order of two texts; null sorts first. */
@@ -1009,21 +1024,24 @@ const sameDetail = ({ rule, detail }) => (rule.startsWith('V-') ? '' : detail ??
 const identity = (problem) => JSON.stringify([problem.file, problem.rule, sameDetail(problem)]);
 
 /**
- * Judges the head against the base (docs/checking-a-change.md). Returns { folder, settings, problems, acts }: the records folder,
- * the problems of the settings of the base (and of the head, when the change touches them), the problems of the records, and the
- * acts that need the owners' approval. Throws Unreadable.
+ * Judges the head against the base (docs/checking-a-change.md). Returns { folder, settings, problems, acts, approval }: the records
+ * folder, the problems of the settings of the base (and of the head, when the change touches them), the problems of the records, the
+ * acts that need the owners' approval, and the count of that approval (docs/approvals.md; null unless `reviews`, as `readReviews`
+ * returns them, and the ID of the `author` of the pull request are given). Throws Unreadable.
  */
-export function checkChange(repo, baseRev, headRev) {
+export function checkChange(repo, baseRev, headRev, { author, reviews } = {}) {
   const base = openCommit(repo, baseRev);
   const head = openCommit(repo, headRev);
   const read = readSettings(base);
   const { folder, sharedFolder, extraKeys } = read.settings;
-  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [] };
+  const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: head.commit, author, reviews });
+  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval };
   const leavesOfBase = base.leaves();
   const leavesOfHead = head.leaves();
   const changed = [...new Set([...leavesOfBase.keys(), ...leavesOfHead.keys()])].filter((path) => leavesOfBase.get(path) !== leavesOfHead.get(path)).sort(byBytes);
   const settingsTouched = changed.some((path) => isRelated(path, SETTINGS_PATH));
-  const headProblems = settingsTouched ? readSettings(head).problems : [];
+  const headRead = settingsTouched ? readSettings(head) : null;
+  const headProblems = headRead ? headRead.problems : [];
   const repair = read.problems.length > 0 && changed.length > 0 && changed.every((path) => isRelated(path, SETTINGS_PATH)) && headProblems.length === 0;
 
   const settings = [];
@@ -1066,13 +1084,87 @@ export function checkChange(repo, baseRev, headRev) {
 
   const acts = [];
   for (const [name, record] of after) if (record.sealed && !before.get(name)?.sealed) acts.push({ kind: 'accept', path: `${folder}/${name}` });
-  if (settingsTouched) acts.push({ kind: 'settings', path: SETTINGS_PATH });
+  if (settingsTouched) {
+    acts.push({ kind: 'settings', path: SETTINGS_PATH });
+    if (changesOwners(read.settings, headRead.settings)) acts.push({ kind: 'owners', path: SETTINGS_PATH });
+  }
   if (changed.some((path) => isRelated(path, PIN_PATH))) acts.push({ kind: 'pin', path: PIN_PATH });
 
   problems.sort((a, b) => byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
   acts.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
-  return { folder, settings, problems, acts };
+  return { folder, settings, problems, acts, approval };
 }
+
+// ---- the owners' approval: docs/approvals.md --------------------------------------------------------------------------------
+
+const REVIEW_TIME = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/;
+const isPositiveInteger = (value) => Number.isSafeInteger(value) && value >= 1;
+const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** Why a decoded entry is not a review, or null. */
+function reviewProblem(entry) {
+  if (!isObject(entry)) return 'is not an object';
+  if (!isPositiveInteger(entry.id)) return 'id is not a positive integer';
+  if (entry.user !== null && entry.user !== undefined && !(isObject(entry.user) && isPositiveInteger(entry.user.id))) return 'user is neither null nor an object with a positive integer id';
+  if (typeof entry.state !== 'string') return 'state is not text';
+  if (entry.commit_id !== null && entry.commit_id !== undefined && typeof entry.commit_id !== 'string') return 'commit_id is neither null nor text';
+  if (entry.state !== 'PENDING' && !(typeof entry.submitted_at === 'string' && REVIEW_TIME.test(entry.submitted_at))) return 'submitted_at is not a time like 2026-11-06T12:00:00Z';
+  return null;
+}
+
+/**
+ * The reviews of a pull request from the bytes of a file, as GitHub's REST API returns them (a list of reviews, or a list of pages).
+ * Returns [{ id, user, state, commit, at }] with `user` the ID of the account or null. Throws Unreadable with the reason.
+ */
+export function readReviews(bytes) {
+  let document;
+  try {
+    document = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes));
+  } catch {
+    throw new Unreadable('is not one JSON document');
+  }
+  if (!Array.isArray(document)) throw new Unreadable('is not a list');
+  const pages = document.map((item) => Array.isArray(item));
+  if (pages.some(Boolean) && !pages.every(Boolean)) throw new Unreadable('mixes reviews and pages');
+  return document.flat().map((entry, index) => {
+    const problem = reviewProblem(entry);
+    if (problem) throw new Unreadable(`entry ${index + 1}: ${problem}`);
+    return { id: entry.id, user: entry.user ? entry.user.id : null, state: entry.state, commit: entry.commit_id ?? null, at: typeof entry.submitted_at === 'string' ? entry.submitted_at : null };
+  });
+}
+
+/** How one owner counts: 'author' and 'approved' count; 'none', 'changes', 'dismissed', 'other' and 'earlier' do not. */
+function howOwnerCounts(id, { head, author, reviews }) {
+  if (id === author) return 'author';
+  const decisive = reviews.filter((review) => review.user === id && review.state !== 'COMMENTED' && review.state !== 'PENDING');
+  if (decisive.length === 0) return 'none';
+  const newest = decisive.map((review) => review.at).sort().at(-1);
+  const latest = decisive.filter((review) => review.at === newest);
+  const states = new Set(latest.map((review) => review.state));
+  if (states.has('CHANGES_REQUESTED')) return 'changes';
+  if (states.has('DISMISSED')) return 'dismissed';
+  if (states.size !== 1 || !states.has('APPROVED')) return 'other';
+  return latest.every((review) => review.commit !== null && review.commit.toLowerCase() === head) ? 'approved' : 'earlier';
+}
+
+/**
+ * Counts the owners that approve (docs/approvals.md): `owners` as the settings give them, `needed` approvals, the id of the `head`
+ * commit, the `author` of the pull request and its `reviews`. Returns { have, needed, met, owners: [{ login, id, how }] }.
+ */
+export function countApprovals({ owners, needed, head, author, reviews }) {
+  const counted = owners.map(({ login, id }) => ({ login, id, how: howOwnerCounts(id, { head, author, reviews }) }));
+  const have = counted.filter(({ how }) => how === 'author' || how === 'approved').length;
+  return { have, needed, met: have >= needed, owners: counted };
+}
+
+/** True when a change of settings is one that the amendment bar governs: other owners, or fewer approvals. */
+function changesOwners(before, after) {
+  const ids = (settings) => settings.owners.map(({ id }) => id).sort((a, b) => a - b).join(',');
+  return ids(before) !== ids(after) || after.approvals < before.approvals;
+}
+
+/** True when the count of approvals meets an act. The act `owners` is met by none: it needs the bar of an amendment (M2.7). */
+export const actApproved = (act, approval) => act.kind !== 'owners' && approval !== null && approval.met;
 
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
@@ -1087,8 +1179,10 @@ const USAGE = `Usage:
                                             of the second commit (normally the base of a change)
   record-keeper.mjs config --commit <revision> [--repo <path>]
                                             print the settings of a commit and what is wrong with its settings file
-  record-keeper.mjs check-pr --base <revision> --head <revision> [--repo <path>]
-                                            judge the records folder of the head against the base, with the settings of the base
+  record-keeper.mjs check-pr --base <revision> --head <revision> [--repo <path>] [--reviews <file> --author <id>]
+                                            judge the records folder of the head against the base, with the settings of the base;
+                                            with the reviews of the pull request (a JSON file) and the ID of its author, also
+                                            say whether the owners have approved the acts
 `;
 
 function describeFailure(file, result) {
@@ -1204,31 +1298,56 @@ function runConfig(args) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, sharedFolder, extraKeys } = read.settings;
-  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\n`;
+  const { folder, sharedFolder, extraKeys, owners, approvals } = read.settings;
+  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\n`;
   const count = `${SETTINGS_PATH}: ${problemWord(read.problems.length)}\n`;
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
 
-function runCheckPr(args) {
-  const options = readOptions(args, ['--base', '--head', '--repo']);
+function runCheckPr(args, readFile) {
+  const options = readOptions(args, ['--base', '--head', '--repo', '--reviews', '--author']);
   if (!options || options.rest.length > 0 || !options.values.has('--base') || !options.values.has('--head')) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  const reviewsFile = only('--reviews');
+  const authorText = only('--author');
+  if ((reviewsFile === undefined) !== (authorText === undefined) || (authorText !== undefined && !/^[1-9][0-9]{0,14}$/.test(authorText))) return usageError;
+  let given = {};
+  if (reviewsFile !== undefined) {
+    let bytes;
+    try {
+      bytes = readFile(reviewsFile);
+    } catch (error) {
+      return { code: 2, stdout: '', stderr: `record-keeper: cannot read ${printable(reviewsFile)}: ${printable(error.message)}\n` };
+    }
+    try {
+      given = { author: Number(authorText), reviews: readReviews(bytes) };
+    } catch (error) {
+      if (!(error instanceof Unreadable)) throw error;
+      return { code: 2, stdout: '', stderr: `record-keeper: ${printable(reviewsFile)}: ${error.message}\n` };
+    }
+  }
   let result;
   try {
-    result = checkChange(options.values.get('--repo')?.at(-1) ?? '.', options.values.get('--base').at(-1), options.values.get('--head').at(-1));
+    result = checkChange(only('--repo') ?? '.', only('--base'), only('--head'), given);
   } catch (error) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, settings, problems, acts } = result;
+  const { folder, settings, problems, acts, approval } = result;
   const where = (file) => (file === null ? folder : path.join(folder, file));
   const lines = [
     ...settings.map(settingLine),
     ...problems.map(({ file, rule, detail }) => problemLine(where(file), rule, detail)),
   ];
-  const count = `${folder}: ${problemWord(lines.length)}${acts.length > 0 ? `, ${acts.length} act${acts.length === 1 ? '' : 's'}` : ''}\n`;
-  if (lines.length === 0 && acts.length === 0) return { code: 0, stdout: count, stderr: '' };
-  return { code: 1, stdout: '', stderr: lines.join('') + acts.map(({ kind, path: actPath }) => `${printable(actPath)}: needs the owners' approval (${kind})\n`).join('') + count };
+  const unmet = acts.filter((act) => !actApproved(act, approval));
+  const actLines = unmet.map(({ kind, path: actPath }) => (kind === 'owners'
+    ? `${printable(actPath)}: needs the amendment bar, which this version cannot check (owners)\n`
+    : `${printable(actPath)}: needs the owners' approval (${kind})\n`));
+  const owners = approval?.owners.map(({ login, id, how }) => `${printable(login)}/${id}: ${how}`).join(', ');
+  const approvalLine = approval && acts.length > 0 ? `approvals: ${approval.have} of ${approval.needed} (${owners === '' ? 'no owners' : owners})\n` : '';
+  const count = `${folder}: ${problemWord(lines.length)}${acts.length > 0 ? `, ${acts.length} act${acts.length === 1 ? '' : 's'}${unmet.length === 0 ? ' approved' : ''}` : ''}\n`;
+  if (lines.length === 0 && unmet.length === 0) return { code: 0, stdout: approvalLine + count, stderr: '' };
+  return { code: 1, stdout: '', stderr: lines.join('') + actLines.join('') + approvalLine + count };
 }
 
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
@@ -1239,7 +1358,7 @@ export function run(argv, { readFile = fs.readFileSync } = {}) {
   if (command === 'seal') return runSeal(args, readFile);
   if (command === 'validate') return runValidate(args);
   if (command === 'config') return runConfig(args);
-  if (command === 'check-pr') return runCheckPr(args);
+  if (command === 'check-pr') return runCheckPr(args, readFile);
   return usageError;
 }
 

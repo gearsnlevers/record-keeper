@@ -7,7 +7,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -20,7 +22,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -33,7 +37,9 @@
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -46,7 +52,9 @@
     "settings": {
      "folder": ".records/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -59,7 +67,9 @@
     "settings": {
      "folder": "docs/my records",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -72,7 +82,9 @@
     "settings": {
      "folder": "docs/it's",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -85,7 +97,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "core",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -100,7 +114,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -117,7 +133,9 @@
       "repos",
       "issue-ref",
       "x_y"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -130,7 +148,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -143,7 +163,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -159,7 +181,9 @@
      "extraKeys": [
       "a",
       "b"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -174,7 +198,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "a"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -187,7 +213,9 @@
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -202,7 +230,9 @@
      "sharedFolder": "core",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -215,7 +245,9 @@
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -232,7 +264,9 @@
       "yes",
       "null",
       "On"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -249,7 +283,9 @@
       "a",
       "b",
       "c"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -262,7 +298,9 @@
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -275,7 +313,9 @@
     "settings": {
      "folder": "_x/a.b-c_d/e",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -291,7 +331,9 @@
      "extraKeys": [
       "a",
       "a"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -306,7 +348,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "status"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -319,7 +363,9 @@
     "settings": {
      "folder": "docs/\u00fcn\u00ef",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -332,7 +378,9 @@
     "settings": {
      "folder": "a #b",
      "sharedFolder": "c#d",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -345,7 +393,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -360,7 +410,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "a"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -373,7 +425,9 @@
     "settings": {
      "folder": "a: b",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -386,7 +440,9 @@
     "settings": {
      "folder": "say \"hi\"",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -405,7 +461,9 @@
     "settings": {
      "folder": "...",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -418,7 +476,9 @@
     "settings": {
      "folder": ".github/records",
      "sharedFolder": ".gitx",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -443,7 +503,9 @@
       "falsey",
       "ynot",
       "nullx"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -456,7 +518,9 @@
     "settings": {
      "folder": ".infx/.nano/.info",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -469,7 +533,9 @@
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -482,7 +548,9 @@
     "settings": {
      "folder": "aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa/aaaaaaaaaaaaaaaaaaaa",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -495,7 +563,9 @@
     "settings": {
      "folder": "x",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -508,7 +578,9 @@
     "settings": {
      "folder": "Docs/ADR",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -525,7 +597,9 @@
       "Repos",
       "camelCase",
       "A1_b-C"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -538,7 +612,9 @@
     "settings": {
      "folder": "repo.git",
      "sharedFolder": "x.git",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -551,7 +627,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -570,7 +648,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -589,7 +669,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -608,7 +690,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -627,7 +711,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -646,7 +732,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -665,7 +753,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -684,7 +774,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -703,7 +795,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -722,7 +816,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -741,7 +837,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -760,7 +858,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -779,7 +879,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -798,7 +900,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -817,7 +921,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -836,7 +942,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -855,7 +963,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -874,7 +984,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -893,7 +1005,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -912,7 +1026,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -931,7 +1047,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -950,7 +1068,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -969,7 +1089,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -988,7 +1110,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1007,7 +1131,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -1020,7 +1146,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1039,7 +1167,9 @@
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -1052,7 +1182,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1071,7 +1203,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1095,7 +1229,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1119,7 +1255,9 @@
     "settings": {
      "folder": "x",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1138,7 +1276,9 @@
     "settings": {
      "folder": "x",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1157,7 +1297,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1176,7 +1318,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1195,7 +1339,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1214,7 +1360,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1233,7 +1381,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1252,7 +1402,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1271,7 +1423,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1290,7 +1444,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1309,7 +1465,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1328,7 +1486,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1347,7 +1507,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1366,7 +1528,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1385,7 +1549,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1404,7 +1570,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1423,7 +1591,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1442,7 +1612,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1461,7 +1633,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1475,27 +1649,29 @@
   },
   {
    "id": "s03w-digit-start",
-   "text": "folder: 2024\nshared-folder: 1\n",
+   "text": "folder: 2024-records\nshared-folder: 1x\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-03",
-      "detail": "folder: 2024"
+      "detail": "folder: 2024-records"
      },
      {
       "line": 2,
       "rule": "S-03",
-      "detail": "shared-folder: 1"
+      "detail": "shared-folder: 1x"
      }
     ]
    },
-   "note": "a plain scalar does not start with a digit"
+   "note": "a plain scalar does not start with a digit, and a number with letters after it is not an integer"
   },
   {
    "id": "s03x-trailing-colon",
@@ -1504,7 +1680,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1523,7 +1701,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1542,7 +1722,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1566,7 +1748,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1585,7 +1769,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1604,7 +1790,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1623,7 +1811,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1642,7 +1832,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1661,7 +1853,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1680,7 +1874,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1774,7 +1970,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1793,7 +1991,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1812,7 +2012,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1831,7 +2033,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1850,7 +2054,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1869,7 +2075,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1888,7 +2096,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1907,7 +2117,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1926,7 +2138,9 @@
     "settings": {
      "folder": "_1",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -1939,7 +2153,9 @@
     "settings": {
      "folder": ".a_1",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -1952,7 +2168,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1971,7 +2189,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -1990,7 +2210,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2009,7 +2231,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2028,7 +2252,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2047,7 +2273,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2066,7 +2294,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2085,7 +2315,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2104,7 +2336,9 @@
     "settings": {
      "folder": "a'",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -2117,7 +2351,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2136,7 +2372,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2155,7 +2393,9 @@
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2174,7 +2414,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2203,7 +2445,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2222,7 +2466,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2241,7 +2487,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2260,7 +2508,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2279,7 +2529,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2298,7 +2550,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2317,7 +2571,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2336,7 +2592,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2355,7 +2613,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2374,7 +2634,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2393,7 +2655,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2412,7 +2676,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2431,7 +2697,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2450,7 +2718,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2469,7 +2739,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2488,7 +2760,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2507,7 +2781,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2526,7 +2802,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2545,7 +2823,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2564,7 +2844,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2583,7 +2865,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2602,7 +2886,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2621,7 +2907,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2640,7 +2928,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2659,7 +2949,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2678,7 +2970,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2697,7 +2991,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2716,7 +3012,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2735,7 +3033,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2754,7 +3054,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2773,7 +3075,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2792,7 +3096,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2811,7 +3117,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2830,7 +3138,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2849,7 +3159,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2873,7 +3185,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2902,7 +3216,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2926,7 +3242,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2950,7 +3268,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2976,7 +3296,9 @@
      "sharedFolder": "s",
      "extraKeys": [
       "k"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -2995,23 +3317,25 @@
   },
   {
    "id": "s04g-unknown-twice",
-   "text": "owners: [a]\nowners: [b]\n",
+   "text": "witnesses: [a]\nwitnesses: [b]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      },
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -3024,7 +3348,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3048,7 +3374,9 @@
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3067,7 +3395,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3091,7 +3421,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3115,18 +3447,20 @@
   },
   {
    "id": "s05a-unknown",
-   "text": "owners: [alice]\n",
+   "text": "witnesses: [alice]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -3139,7 +3473,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3158,7 +3494,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3172,22 +3510,24 @@
   },
   {
    "id": "s05d-integer",
-   "text": "approvals: 2\n",
+   "text": "branches: 2\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
-      "rule": "S-03",
-      "detail": "approvals: 2"
+      "rule": "S-05",
+      "detail": "branches"
      }
     ]
    },
-   "note": "a number is not in the subset yet, so this is S-03 and not S-05"
+   "note": "an integer is in the subset, so an unknown key with one is S-05 and not S-03"
   },
   {
    "id": "s05e-word-value",
@@ -3196,7 +3536,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3215,7 +3557,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3229,18 +3573,20 @@
   },
   {
    "id": "s05g-several",
-   "text": "owners: [a]\nwitnesses: []\nbranches: [main]\ncompactor: report\n",
+   "text": "owner: [a]\nwitnesses: []\nbranches: [main]\ncompactor: report\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "owner"
      },
      {
       "line": 2,
@@ -3263,18 +3609,20 @@
   },
   {
    "id": "s05h-unknown-no-value",
-   "text": "owners:\n",
+   "text": "witnesses:\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -3287,7 +3635,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3301,18 +3651,20 @@
   },
   {
    "id": "s05j-unknown-in-the-middle",
-   "text": "folder: a\nowners: [x]\nshared-folder: s\n",
+   "text": "folder: a\nwitnesses: [x]\nshared-folder: s\n",
    "expect": {
     "settings": {
      "folder": "a",
      "sharedFolder": "s",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -3325,7 +3677,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3364,7 +3718,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3383,7 +3739,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3402,7 +3760,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3421,7 +3781,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3440,7 +3802,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3459,7 +3823,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3478,7 +3844,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3497,7 +3865,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3516,7 +3886,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3535,7 +3907,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3554,7 +3928,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3573,7 +3949,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3592,7 +3970,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3611,7 +3991,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3630,7 +4012,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3649,7 +4033,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3668,7 +4054,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3687,7 +4075,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3706,7 +4096,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3725,7 +4117,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3744,7 +4138,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3763,7 +4159,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3782,7 +4180,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3801,7 +4201,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3820,7 +4222,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3839,7 +4243,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3858,7 +4264,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3877,7 +4285,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3896,7 +4306,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3915,7 +4327,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3934,7 +4348,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3953,7 +4369,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3972,7 +4390,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -3991,7 +4411,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4010,7 +4432,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4029,7 +4453,9 @@
     "settings": {
      "folder": "a",
      "sharedFolder": "s",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4048,7 +4474,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4062,12 +4490,14 @@
   },
   {
    "id": "m01-everything",
-   "text": "# settings\nfolder: docs/adr\nowners: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n",
+   "text": "# settings\nfolder: docs/adr\nwitnesses: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4078,7 +4508,7 @@
      {
       "line": 3,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      },
      {
       "line": 5,
@@ -4106,20 +4536,22 @@
   },
   {
    "id": "m02-one-bad-line-does-not-silence-the-rest",
-   "text": "folder: docs/adr\nowners: [a]\nextra-keys: [repos]\n",
+   "text": "folder: docs/adr\nwitnesses: [a]\nextra-keys: [repos]\n",
    "expect": {
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -4127,18 +4559,20 @@
   },
   {
    "id": "m03-comments-keep-line-numbers",
-   "text": "# a\n\n# b\nowners: [x]\n",
+   "text": "# a\n\n# b\nwitnesses: [x]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 4,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -4146,18 +4580,20 @@
   },
   {
    "id": "m04-crlf-line-numbers",
-   "text": "\r\n\r\nowners: [x]\r\n",
+   "text": "\r\n\r\nwitnesses: [x]\r\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 3,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -4165,18 +4601,20 @@
   },
   {
    "id": "m05-no-final-newline-problem",
-   "text": "folder: a\nowners: [x]",
+   "text": "folder: a\nwitnesses: [x]",
    "expect": {
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -4189,7 +4627,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4200,6 +4640,1670 @@
     ]
    },
    "note": "the carriage return is not part of the detail"
+  },
+  {
+   "id": "o01-owners",
+   "text": "owners: [alice/1001]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "one owner, login and numeric ID"
+  },
+  {
+   "id": "o02-two-owners",
+   "text": "owners: [alice/1001, bob/1002]\napprovals: 2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "two owners and the default count written out"
+  },
+  {
+   "id": "o03-single-owner-mode",
+   "text": "owners: [alice/1001]\napprovals: 1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "problems": []
+   },
+   "note": "approvals 1: the single-owner mode"
+  },
+  {
+   "id": "o04-login-forms",
+   "text": "owners: [a/1, A-b-C/2, x1/3, \"9z/4\", a-1/5, \"0/6\", \"1-a/7\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "a",
+       "id": 1
+      },
+      {
+       "login": "A-b-C",
+       "id": 2
+      },
+      {
+       "login": "x1",
+       "id": 3
+      },
+      {
+       "login": "9z",
+       "id": 4
+      },
+      {
+       "login": "a-1",
+       "id": 5
+      },
+      {
+       "login": "0",
+       "id": 6
+      },
+      {
+       "login": "1-a",
+       "id": 7
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "letters, digits and single hyphens; a login that starts with a digit needs quotes"
+  },
+  {
+   "id": "o05-39-char-login",
+   "text": "owners: [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "id": 1
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "the longest login"
+  },
+  {
+   "id": "o06-15-digit-id",
+   "text": "owners: [a/999999999999999]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "a",
+       "id": 999999999999999
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "the largest ID: 15 digits"
+  },
+  {
+   "id": "o07-quoted-owner",
+   "text": "owners: ['alice/1001', \"bob/1002\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "quoted items are the same strings"
+  },
+  {
+   "id": "o08-empty-owners",
+   "text": "owners: []\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "no owners"
+  },
+  {
+   "id": "o09-owners-comment",
+   "text": "owners: [alice/1001] # the maintainer\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "a comment after the list"
+  },
+  {
+   "id": "o10-same-login-two-ids",
+   "text": "owners: [alice/1001, alice/1002]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "alice",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "the login is for people; only the ID must differ"
+  },
+  {
+   "id": "o11-approvals-range",
+   "text": "approvals: 99\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 99
+    },
+    "problems": []
+   },
+   "note": "the largest count"
+  },
+  {
+   "id": "o12-approvals-comment",
+   "text": "approvals: 3 # three\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 3
+    },
+    "problems": []
+   },
+   "note": "a comment after an integer"
+  },
+  {
+   "id": "o13-approvals-spaces",
+   "text": "approvals:    1   \n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 1
+    },
+    "problems": []
+   },
+   "note": "spaces around an integer"
+  },
+  {
+   "id": "o14-approvals-crlf",
+   "text": "approvals: 2\r\nowners: [a/1]\r\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "a",
+       "id": 1
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "line ends"
+  },
+  {
+   "id": "o15-all-five",
+   "text": "folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "core",
+     "extraKeys": [
+      "repos"
+     ],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "problems": []
+   },
+   "note": "every setting"
+  },
+  {
+   "id": "o16-owners-no-login-class",
+   "text": "owners: [a_b/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a_b/1"
+     }
+    ]
+   },
+   "note": "an underscore is not in a login"
+  },
+  {
+   "id": "o17-owner-without-id",
+   "text": "owners: [alice]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "alice"
+     }
+    ]
+   },
+   "note": "a login alone"
+  },
+  {
+   "id": "o18-owner-id-only",
+   "text": "owners: [\"1001\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "1001"
+     }
+    ]
+   },
+   "note": "an ID alone"
+  },
+  {
+   "id": "o19-owner-integer-item",
+   "text": "owners: [1001]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "1001"
+     }
+    ]
+   },
+   "note": "an integer is a number, not an owner"
+  },
+  {
+   "id": "o20-owner-two-slashes",
+   "text": "owners: [a/b/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/b/1"
+     }
+    ]
+   },
+   "note": "one slash"
+  },
+  {
+   "id": "o21-owner-leading-hyphen",
+   "text": "owners: [\"-a/1\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "-a/1"
+     }
+    ]
+   },
+   "note": "a login does not start with a hyphen"
+  },
+  {
+   "id": "o22-owner-trailing-hyphen",
+   "text": "owners: [a-/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a-/1"
+     }
+    ]
+   },
+   "note": "or end with one"
+  },
+  {
+   "id": "o23-owner-double-hyphen",
+   "text": "owners: [a--b/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a--b/1"
+     }
+    ]
+   },
+   "note": "or hold two in a row"
+  },
+  {
+   "id": "o24-owner-40-char-login",
+   "text": "owners: [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    ]
+   },
+   "note": "a login of 40 characters; the detail is cut at 40"
+  },
+  {
+   "id": "o25-owner-id-zero",
+   "text": "owners: [a/0]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/0"
+     }
+    ]
+   },
+   "note": "an ID is not 0"
+  },
+  {
+   "id": "o26-owner-id-leading-zero",
+   "text": "owners: [a/01]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/01"
+     }
+    ]
+   },
+   "note": "an ID has no leading zero"
+  },
+  {
+   "id": "o27-owner-id-16-digits",
+   "text": "owners: [a/1000000000000000]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/1000000000000000"
+     }
+    ]
+   },
+   "note": "an ID of 16 digits does not fit a double for sure"
+  },
+  {
+   "id": "o28-owner-id-letters",
+   "text": "owners: [a/12x]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/12x"
+     }
+    ]
+   },
+   "note": "an ID is digits"
+  },
+  {
+   "id": "o29-owner-empty-login",
+   "text": "owners: [\"/1\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "/1"
+     }
+    ]
+   },
+   "note": "a login is not empty"
+  },
+  {
+   "id": "o30-owner-empty-id",
+   "text": "owners: [a/]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/"
+     }
+    ]
+   },
+   "note": "an ID is not empty"
+  },
+  {
+   "id": "o31-owner-non-ascii-login",
+   "text": "owners: [\"\u00e9/1\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "\u00e9/1"
+     }
+    ]
+   },
+   "note": "a login is ASCII"
+  },
+  {
+   "id": "o32-owner-non-ascii-digit",
+   "text": "owners: [\"a/\u0661\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a/\u0661"
+     }
+    ]
+   },
+   "note": "an ID is ASCII digits"
+  },
+  {
+   "id": "o33-owner-space",
+   "text": "owners: [\"a b/1\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a b/1"
+     }
+    ]
+   },
+   "note": "no space in a login"
+  },
+  {
+   "id": "o34-owner-bot",
+   "text": "owners: [\"copilot[bot]/1\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "copilot[bot]/1"
+     }
+    ]
+   },
+   "note": "an app account is not an owner"
+  },
+  {
+   "id": "o35-owner-same-id",
+   "text": "owners: [alice/1001, bob/1001]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "bob/1001"
+     }
+    ]
+   },
+   "note": "two items with one ID: the second is the problem, and the list has its default"
+  },
+  {
+   "id": "o36-owner-same-id-later",
+   "text": "owners: [a/1, b/2, c/3, d/2]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "d/2"
+     }
+    ]
+   },
+   "note": "the first item that is not acceptable, here the repeat"
+  },
+  {
+   "id": "o37-owner-bad-then-same",
+   "text": "owners: [bad, a/1, b/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "bad"
+     }
+    ]
+   },
+   "note": "the first bad item is reported, not the repeat after it"
+  },
+  {
+   "id": "o38-owners-single-value",
+   "text": "owners: alice/1001\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a single value for a list"
+  },
+  {
+   "id": "o39-owners-none",
+   "text": "owners:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "no value for a list"
+  },
+  {
+   "id": "o40-owners-twice",
+   "text": "owners: [a/1]\nowners: [b/2]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "owners"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "owners"
+     }
+    ]
+   },
+   "note": "a key set twice: neither is believed"
+  },
+  {
+   "id": "o41-owners-no-slash-plain",
+   "text": "owners: [alice-1001]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "alice-1001"
+     }
+    ]
+   },
+   "note": "a hyphen is not the separator"
+  },
+  {
+   "id": "o42-owners-colon",
+   "text": "owners: [\"alice:1001\"]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "alice:1001"
+     }
+    ]
+   },
+   "note": "a colon is not the separator"
+  },
+  {
+   "id": "o43-owners-mapping",
+   "text": "owners: [{login: alice, id: 1001}]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "owners: [{login: alice, id: 1001}]"
+     }
+    ]
+   },
+   "note": "a mapping is not in the subset"
+  },
+  {
+   "id": "a01-approvals-zero",
+   "text": "approvals: 0\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "0"
+     }
+    ]
+   },
+   "note": "zero would switch the layer off"
+  },
+  {
+   "id": "a02-approvals-100",
+   "text": "approvals: 100\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "100"
+     }
+    ]
+   },
+   "note": "above 99"
+  },
+  {
+   "id": "a03-approvals-quoted",
+   "text": "approvals: \"2\"\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "2"
+     }
+    ]
+   },
+   "note": "a string is not a number"
+  },
+  {
+   "id": "a04-approvals-single-quoted",
+   "text": "approvals: '2'\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "2"
+     }
+    ]
+   },
+   "note": "a string is not a number"
+  },
+  {
+   "id": "a05-approvals-word",
+   "text": "approvals: two\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "two"
+     }
+    ]
+   },
+   "note": "a word"
+  },
+  {
+   "id": "a06-approvals-list",
+   "text": "approvals: [2]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "approvals"
+     }
+    ]
+   },
+   "note": "a list for a single value"
+  },
+  {
+   "id": "a07-approvals-none",
+   "text": "approvals:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "approvals"
+     }
+    ]
+   },
+   "note": "nothing for a single value"
+  },
+  {
+   "id": "a08-approvals-twice",
+   "text": "approvals: 1\napprovals: 2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "approvals"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "approvals"
+     }
+    ]
+   },
+   "note": "set twice"
+  },
+  {
+   "id": "a09-approvals-float",
+   "text": "approvals: 1.5\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 1.5"
+     }
+    ]
+   },
+   "note": "a float is not an integer of the subset"
+  },
+  {
+   "id": "a10-approvals-exponent",
+   "text": "approvals: 1e1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 1e1"
+     }
+    ]
+   },
+   "note": "nor an exponent"
+  },
+  {
+   "id": "a11-approvals-leading-zero",
+   "text": "approvals: 02\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 02"
+     }
+    ]
+   },
+   "note": "a leading zero reads as octal to some YAML readers"
+  },
+  {
+   "id": "a12-approvals-sign",
+   "text": "approvals: +2\napprovals2: 1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: +2"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "approvals2"
+     }
+    ]
+   },
+   "note": "a sign"
+  },
+  {
+   "id": "a13-approvals-negative",
+   "text": "approvals: -1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: -1"
+     }
+    ]
+   },
+   "note": "a negative number"
+  },
+  {
+   "id": "a14-approvals-hex",
+   "text": "approvals: 0x2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 0x2"
+     }
+    ]
+   },
+   "note": "a hexadecimal number"
+  },
+  {
+   "id": "a15-approvals-underscore",
+   "text": "approvals: 1_0\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 1_0"
+     }
+    ]
+   },
+   "note": "a digit group"
+  },
+  {
+   "id": "a16-approvals-sexagesimal",
+   "text": "approvals: 1:30\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 1:30"
+     }
+    ]
+   },
+   "note": "a base-60 number"
+  },
+  {
+   "id": "a17-approvals-ten-digits",
+   "text": "approvals: 1234567890\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 1234567890"
+     }
+    ]
+   },
+   "note": "more than nine digits is not an integer of the subset"
+  },
+  {
+   "id": "a18-approvals-nine-digits",
+   "text": "approvals: 123456789\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "123456789"
+     }
+    ]
+   },
+   "note": "nine digits is an integer, and above 99"
+  },
+  {
+   "id": "a19-approvals-comment-no-space",
+   "text": "approvals: 2#c\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2#c"
+     }
+    ]
+   },
+   "note": "a comment needs a space"
+  },
+  {
+   "id": "a20-approvals-trailing-text",
+   "text": "approvals: 2 x\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2 x"
+     }
+    ]
+   },
+   "note": "text after the integer"
+  },
+  {
+   "id": "a21-approvals-dot",
+   "text": "approvals: 2.\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2."
+     }
+    ]
+   },
+   "note": "a dot after the digits"
+  },
+  {
+   "id": "a22-approvals-slash",
+   "text": "approvals: 2/3\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2/3"
+     }
+    ]
+   },
+   "note": "a slash after the digits"
+  },
+  {
+   "id": "a23-approvals-hyphen",
+   "text": "approvals: 2-3\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "approvals: 2-3"
+     }
+    ]
+   },
+   "note": "a hyphen after the digits"
+  },
+  {
+   "id": "a24-integer-in-list",
+   "text": "extra-keys: [1, a]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "1"
+     }
+    ]
+   },
+   "note": "an integer in a list of keys"
+  },
+  {
+   "id": "a25-integer-in-list-ok-shape",
+   "text": "owners: [a/1, 7]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "7"
+     }
+    ]
+   },
+   "note": "an integer among owners"
+  },
+  {
+   "id": "a26-list-of-integers-spacing",
+   "text": "extra-keys: [ 12 , 0 ]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "12"
+     }
+    ]
+   },
+   "note": "spaces around integers in a list; the first is reported"
+  },
+  {
+   "id": "a27-integer-for-folder",
+   "text": "folder: 2024\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "2024"
+     }
+    ]
+   },
+   "note": "a number for a folder"
+  },
+  {
+   "id": "a28-integer-for-shared",
+   "text": "shared-folder: 0\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "0"
+     }
+    ]
+   },
+   "note": "a number for the shared folder"
+  },
+  {
+   "id": "a29-quoted-number-for-folder",
+   "text": "folder: \"2024\"\nshared-folder: '0'\n",
+   "expect": {
+    "settings": {
+     "folder": "2024",
+     "sharedFolder": "0",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "quoted, it is a string"
+  },
+  {
+   "id": "a30-unknown-key-integer-twice",
+   "text": "branches: 1\nbranches: 2\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "branches"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "branches"
+     }
+    ]
+   },
+   "note": "an unknown key with integers"
+  },
+  {
+   "id": "a31-list-integer-trailing",
+   "text": "extra-keys: [1x]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-03",
+      "detail": "extra-keys: [1x]"
+     }
+    ]
+   },
+   "note": "a number with letters in a list"
+  },
+  {
+   "id": "a32-approvals-and-owners-lines",
+   "text": "owners: [alice/1001]\napprovals: 3\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 3
+    },
+    "problems": []
+   },
+   "note": "more approvals than owners is for the setup check, not a problem here"
+  },
+  {
+   "id": "a33-problem-keeps-other-default",
+   "text": "owners: [bad]\napprovals: 1\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 1
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "bad"
+     }
+    ]
+   },
+   "note": "a bad owners line leaves nobody, and approvals is read"
+  },
+  {
+   "id": "a34-approvals-bad-owners-ok",
+   "text": "owners: [alice/1001]\napprovals: 0\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-07",
+      "detail": "0"
+     }
+    ]
+   },
+   "note": "a bad approvals line leaves 2, and owners is read"
+  },
+  {
+   "id": "a35-approvals-case",
+   "text": "Approvals: 1\nOwners: [a/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-05",
+      "detail": "Approvals"
+     },
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "Owners"
+     }
+    ]
+   },
+   "note": "keys are compared exactly"
   }
  ],
  "trees": [
@@ -4215,7 +6319,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4235,7 +6341,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4256,7 +6364,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4274,7 +6384,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4298,7 +6410,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4322,7 +6436,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4350,7 +6466,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4374,7 +6492,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4406,7 +6526,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4430,7 +6552,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4454,7 +6578,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4482,7 +6608,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
@@ -4522,7 +6650,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4540,7 +6670,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4558,7 +6690,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4569,20 +6703,22 @@
    "files": [
     {
      "path": ".github/record-keeper/settings.yml",
-     "content": "owners: [a]\nfolder: docs/adr\n"
+     "content": "witnesses: [a]\nfolder: docs/adr\n"
     }
    ],
    "expect": {
     "settings": {
      "folder": "docs/adr",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "owners"
+      "detail": "witnesses"
      }
     ]
    },
@@ -4606,7 +6742,9 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
@@ -4630,11 +6768,42 @@
      "sharedFolder": "shared",
      "extraKeys": [
       "repos"
-     ]
+     ],
+     "owners": [],
+     "approvals": 2
     },
     "problems": []
    },
    "note": "other files in the folder change nothing"
+  },
+  {
+   "id": "t20-owners-in-a-tree",
+   "files": [
+    {
+     "path": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "problems": []
+   },
+   "note": "owners and approvals are read from a commit"
   },
   {
    "id": "t19-bad-utf8-file",
@@ -4648,7 +6817,9 @@
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
-     "extraKeys": []
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2
     },
     "problems": [
      {

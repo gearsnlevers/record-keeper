@@ -96,7 +96,7 @@ describe('the cases of the page', () => {
     const rules = new Set(cases.flatMap((c) => c.expect.problems.map((e) => e.rule)));
     for (const rule of Object.keys(CHANGE_RULES)) assert.ok(rules.has(rule), `${rule} has no case`);
     const acts = new Set(cases.flatMap((c) => c.expect.acts.map((e) => e.kind)));
-    assert.deepEqual([...acts].sort(), ['accept', 'pin', 'settings']);
+    assert.deepEqual([...acts].sort(), ['accept', 'owners', 'pin', 'settings']);
     const settings = new Set(cases.flatMap((c) => c.expect.settings.map((e) => e.rule)));
     assert.ok(settings.size >= 3);
   });
@@ -193,7 +193,7 @@ describe('reading the commits', () => {
     const started = Date.now();
     const got = checkChange(repo, 'b', 'h');
     assert.ok(Date.now() - started < 8000, `took ${Date.now() - started} ms`);
-    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [] });
+    assert.deepEqual(got, { folder: 'docs/decisions', settings: [], problems: [], acts: [], approval: null });
   });
 });
 
@@ -221,7 +221,7 @@ describe('the command check-pr', () => {
   test('a detail is shown in brackets, and a problem of the settings comes first, with its line', () => {
     const got = go('k04-repair-incomplete');
     assert.equal(got.code, 1);
-    assert.match(got.stderr, new RegExp(`^${SETTINGS_PATH.replaceAll('.', '\\.')}:1: \\[S-05\\] .*\\(owners\\)\\n${SETTINGS_PATH.replaceAll('.', '\\.')}:2: \\[S-05\\]`));
+    assert.match(got.stderr, new RegExp(`^${SETTINGS_PATH.replaceAll('.', '\\.')}:1: \\[S-05\\] .*\\(witnesses\\)\\n${SETTINGS_PATH.replaceAll('.', '\\.')}:2: \\[S-05\\]`));
     const second = go('d09-trailing-space');
     assert.match(second.stderr, /docs\/decisions\/0002-second\.md: \[P-02\] is sealed and its text has changed \(line 17\)\n/);
   });

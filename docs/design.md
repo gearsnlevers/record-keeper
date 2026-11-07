@@ -285,7 +285,7 @@ channel: stable
 ```yaml
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
-owners: [{login: alice, id: 1001}, {login: bob, id: 1002}]   # accounts matched by numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings
+owners: [alice/1001, bob/1002]    # accounts as login/id, matched by the numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings (M2.4 wrote it as one word; docs/settings.md says why)
 approvals: 2                      # how many owners must approve: 2 by default; 1 is the single-owner mode ("Single-owner mode"), which the setup check reports on every run
 witnesses: []                     # accounts that are told, by mention, of every announced act but cannot approve; worth having in the single-owner mode
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
