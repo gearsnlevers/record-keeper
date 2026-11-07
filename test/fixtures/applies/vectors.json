@@ -451,6 +451,61 @@
 "match": true
 },
 {
+"item": "a{2}",
+"path": "a{2}",
+"match": true
+},
+{
+"item": "a{2}",
+"path": "aa",
+"match": false
+},
+{
+"item": "a{1,}",
+"path": "a{1,}",
+"match": true
+},
+{
+"item": "a{1,}",
+"path": "a",
+"match": false
+},
+{
+"item": "a{,2}",
+"path": "a{,2}",
+"match": true
+},
+{
+"item": "a{2}b",
+"path": "a{2}b",
+"match": true
+},
+{
+"item": "a{2}b",
+"path": "aab",
+"match": false
+},
+{
+"item": "a{",
+"path": "a{",
+"match": true
+},
+{
+"item": "a}",
+"path": "a}",
+"match": true
+},
+{
+"item": "a]",
+"path": "a]",
+"match": true
+},
+{
+"item": "a{2,3}",
+"path": "aaa",
+"match": false
+},
+{
 "item": "b/*",
 "path": "b/",
 "match": true
