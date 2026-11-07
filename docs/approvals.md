@@ -51,7 +51,7 @@ The file is refused, and the command exits 2, when:
 
 An entry that is refused is counted from 1 in the order of the reviews, and the message says which and why. An entry whose `user` is `null` is read and then ignored: no owner is a deleted account.
 
-The kit does not check that the reviews belong to the pull request whose head it is judging, and it does not page: the caller reads every page. A caller that forgets a page loses approvals, which fails closed, and could miss a later request for changes, which does not. The workflow that calls the check (M2.5) reads all the pages, and has a test for it.
+The kit does not check that the reviews belong to the pull request whose head it is judging, and it does not page: the caller reads every page. A caller that forgets a page loses approvals, which fails closed, and could miss a later request for changes, which does not. [The workflow](workflow.md) (M2.5) reads all the pages, and has a test for it.
 
 ## Which acts the approval can meet
 
@@ -84,7 +84,7 @@ The count line gets ` approved` after the acts when every act is met (`docs/deci
 ## What this does not do
 
 - **It does not count days.** The seven days of an amendment (M2.7), the 48 hours of an erratum that changes prose (M2.6) and the approval of all owners are not checked. The act `owners` stands in for the first and the last until then.
-- **It does not read the pull request.** It does not know whether the reviews are those of the pull request, whether they are complete, or when the pull request was opened. The workflow does (M2.5).
+- **It does not read the pull request.** It does not know whether the reviews are those of the pull request, whether they are complete, or when the pull request was opened. [The workflow](workflow.md) does (M2.5).
 - **It cannot bootstrap.** A repository whose base has no owners cannot approve anything, the change that names the owners included. The first settings are installed by an administrator, before the check is required.
 - **It cannot repair a broken `owners` or `approvals` line by approval.** While the base has a problem in either, the owners are nobody or the count is 2, and the change that repairs the line (which the [repair rule](checking-a-change.md#problems-in-the-settings) lets through as far as the settings go) is still an act that nobody can approve. An administrator repairs it. The alternative, reading the items that are fine, is choice 9 of the settings page.
 - **It does not read teams.** Owners are named accounts.
