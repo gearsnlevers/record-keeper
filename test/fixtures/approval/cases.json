@@ -2959,6 +2959,41 @@
    }
   },
   {
+   "id": "b29-pending-review-has-no-time",
+   "note": "a pending review of an owner who approved has no time and is not an approval",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 218,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-03T00:00:00Z"
+    },
+    {
+     "id": 219,
+     "user": 1001,
+     "state": "PENDING",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": null
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "48h of 168h"
+   }
+  },
+  {
    "id": "b28-not-an-owner-approves",
    "note": "the reviews of an account that is not an owner",
    "owners": [
@@ -2971,7 +3006,7 @@
    "author": 7,
    "reviews": [
     {
-     "id": 218,
+     "id": 220,
      "user": 2000,
      "state": "APPROVED",
      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",

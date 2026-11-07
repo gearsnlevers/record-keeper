@@ -1352,7 +1352,7 @@
    },
    {
     "path": "docs/decisions/README.md",
-    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n| g 1 | [0001](x.md) | a |\n| xg1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
    },
    {
     "path": "docs/decisions/template.md",
@@ -1420,7 +1420,7 @@
    },
    {
     "path": "docs/decisions/README.md",
-    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n|  g1\t| \t[0001](x.md)|\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n|  g1\t| \t[0001](x.md)|\n|\tg2 \t|\t[0002](x.md)\t|\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
    },
    {
     "path": "docs/decisions/template.md",
@@ -11519,7 +11519,7 @@
     },
     {
      "write": "docs/decisions/README.md",
-     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n| g 1 | [0001](x.md) | a |\n| xg1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
     }
    ],
    "expect": {
@@ -11585,6 +11585,48 @@
     ]
    },
    "note": "Spaces and tabs around the cells do not matter."
+  },
+  {
+   "id": "z16b-one-of-two-rows-with-white-space",
+   "base": "proto-spaces",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n|  g1\t| \t[0001](x.md)|\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "Two rows with tabs and spaces around their cells; the second is taken away: the set changes."
+  },
+  {
+   "id": "z16c-row-kept-with-white-space",
+   "base": "proto-spaces",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n|\tg2 \t|\t[0002](x.md)\t|\n|  g1\t| \t[0001](x.md)|\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "The same rows, with the order of the two swapped: the same set."
   },
   {
    "id": "z17-one-of-two-rows-removed",
