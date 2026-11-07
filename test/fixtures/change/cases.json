@@ -462,6 +462,158 @@
     "path": "docs/decisions/template.md",
     "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
    }
+  ],
+  "owned": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [alice/1001, bob/1002]\napprovals: 2\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "owned-one": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [alice/1001]\napprovals: 1\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "owned-three": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [alice/1001, bob/1002, carol/1003]\napprovals: 3\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "broken-owners": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [bad]\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
   ]
  },
  "cases": [
@@ -4383,6 +4535,632 @@
     "acts": []
    },
    "note": "One file with a rule of each kind: P before V in the order."
+  },
+  {
+   "id": "w01-owner-added",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "A third owner is named: the list of owners changes."
+  },
+  {
+   "id": "w02-owner-removed",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "An owner is taken out."
+  },
+  {
+   "id": "w03-login-changed",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alicia/1001, bob/1002]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "Only a login changes: the IDs are the same, so only the settings act."
+  },
+  {
+   "id": "w04-order-changed",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [bob/1002, alice/1001]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The owners are listed in another order."
+  },
+  {
+   "id": "w05-approvals-lowered",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The number of approvals is lowered."
+  },
+  {
+   "id": "w06-approvals-raised",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002]\napprovals: 3\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The number of approvals is raised: one owner is enough for that, so only the settings act."
+  },
+  {
+   "id": "w07-approvals-line-removed",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The line with the default value is taken away: the same number."
+  },
+  {
+   "id": "w08-approvals-back-to-default",
+   "base": "owned-one",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "From 1 to the default 2: raised."
+  },
+  {
+   "id": "w09-approvals-to-default-lower",
+   "base": "owned-three",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bob/1002, carol/1003]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "From 3 to the default 2: lowered."
+  },
+  {
+   "id": "w10-settings-deleted",
+   "base": "owned",
+   "changes": [
+    {
+     "remove": ".github/record-keeper/settings.yml"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The settings file is deleted: nobody is an owner any more."
+  },
+  {
+   "id": "w11-owners-line-broken",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001, bad]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "bad"
+     }
+    ],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The head breaks the line: no owners, a problem of the settings, and the act."
+  },
+  {
+   "id": "w12-other-setting-changes",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "folder: docs/decisions\nowners: [alice/1001, bob/1002]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "Another setting changes, the owners stay."
+  },
+  {
+   "id": "w13-owners-named-first-time",
+   "base": "world",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "A repository without settings names its owners."
+  },
+  {
+   "id": "w14-id-changed",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1005, bob/1002]\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The login stays and the ID changes: another account."
+  },
+  {
+   "id": "w15-link-in-front",
+   "base": "owned",
+   "changes": [
+    {
+     "remove": ".github/record-keeper/settings.yml"
+    },
+    {
+     "symlink": ".github/record-keeper",
+     "target": "elsewhere"
+    }
+   ],
+   "expect": {
+    "settings": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github/record-keeper"
+     }
+    ],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "A link in front of the file: the settings of the head cannot be read, so there are no owners."
+  },
+  {
+   "id": "w16-repair-of-owners",
+   "base": "broken-owners",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The base has a broken owners line (so no owners) and the change names owners: a repair, and the act."
+  },
+  {
+   "id": "w17-head-has-a-bom",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "\ufeffowners: [alice/1001, bob/1002]\n"
+    }
+   ],
+   "expect": {
+    "settings": [
+     {
+      "line": 1,
+      "rule": "S-02",
+      "detail": "byte order mark"
+     }
+    ],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The head file starts with a byte order mark, so it is not read: the default, so no owners."
+  },
+  {
+   "id": "w18-both-lists-empty",
+   "base": "broken-owners",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "extra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "Owners are empty before and after: nothing for the bar."
+  },
+  {
+   "id": "w19-owners-and-pin",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\n"
+    },
+    {
+     "write": ".github/record-keeper.yml",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "pin",
+      "path": ".github/record-keeper.yml"
+     }
+    ]
+   },
+   "note": "The owners change together with the pin: the acts are listed in their order."
+  },
+  {
+   "id": "w20-shorter-and-lower",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\napprovals: 1\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "Both: fewer owners and fewer approvals: one act."
+  },
+  {
+   "id": "w22-accept-with-owners",
+   "base": "owned",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record is accepted in a repository that has owners: the act accept alone."
+  },
+  {
+   "id": "w23-accept-and-a-problem",
+   "base": "owned",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2. \n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 17"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "An acceptance together with an edit of a sealed record: the act and the problem."
+  },
+  {
+   "id": "w24-every-act",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper.yml",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     },
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "pin",
+      "path": ".github/record-keeper.yml"
+     }
+    ]
+   },
+   "note": "An acceptance, a change of the owners and a change of the pin together: the four acts, in their order."
+  },
+  {
+   "id": "w21-same-owners-new-spelling",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [\"alice/1001\", 'bob/1002']  # both\napprovals: 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The same IDs and logins, written with quotes and a comment."
   }
  ]
 }

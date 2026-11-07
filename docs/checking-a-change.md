@@ -1,6 +1,6 @@
 # Checking a change
 
-Status: draft for review (M2.3). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; the owners' approvals (M2.4), the workflow (M2.5), errata and deviations (M2.6) and the protection of the settings, the pin and the workflows (M2.7) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
+Status: draft for review (M2.3, with the owners' approval added in M2.4). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; [the owners' approval](approvals.md) says which acts are approved, and the workflow (M2.5), errata and deviations (M2.6) and the protection of the workflows and the bar for an amendment (M2.7) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
 
 The check never trusts the change. It reads both commits through git ([reading a commit](reading-a-commit.md)), takes the settings from the base ([settings](settings.md)), and decides what the head may differ in. Everything it does not yet decide fails closed: a change it cannot judge is a problem, not a pass.
 
@@ -61,15 +61,16 @@ A record **new** in the head, or **not sealed at the base and changed**, is judg
 
 ## Acts
 
-An **act** is a change the owners must approve. This version finds the acts and does not check the approvals: `check-pr` fails when there is one (M2.4 adds the approvals and then fails only for an act that lacks them).
+An **act** is a change the owners must approve. This page finds the acts; [the page on approvals](approvals.md) decides whether they are approved. Without the reviews of the pull request (`--reviews`) every act is unapproved, and `check-pr` fails when there is one.
 
 | Act | Found when | Path |
 | --- | ---------- | ---- |
 | `accept` | a record file of the head is sealed at the head and is not sealed at the base: it is new, or it was not sealed there | the record |
 | `settings` | a changed path is the settings file, a folder in front of it, or something below it | `.github/record-keeper/settings.yml` |
+| `owners` | the act `settings` is found, and the settings of the head (read as for the base) name other owners, by ID, or a lower `approvals` | `.github/record-keeper/settings.yml` |
 | `pin` | a changed path is the pin, a folder in front of it, or something below it | `.github/record-keeper.yml` |
 
-A record that is not sealed is never an acceptance. Further acts (errata, deviation entries, the workflow files) come with M2.6 and M2.7.
+A record that is not sealed is never an acceptance. The act `owners` is one that the approval of the owners cannot meet: the design puts a change of the owners under the bar of an amendment (all owners, seven days), which M2.7 checks. Further acts (errata, deviation entries, the workflow files) come with M2.6 and M2.7.
 
 ## Problems in the settings
 
@@ -83,7 +84,7 @@ The records are judged by the base's settings in every case, with the default fo
 
 ## How a problem is reported
 
-`record-keeper check-pr --base <revision> --head <revision> [--repo <path>]` prints, on the error output, the problems of the settings (as `config` does), then one line for each problem, `<folder>/<file>: [P-02] <what is wrong> (<detail>)` (the folder alone for a problem without a file), then one line for each act, `<path>: needs the owners' approval (accept)`, and last a count, `<folder>: N problems` (the problems of the settings included), with `, M acts` when there are acts. The lines come in this order: the problems of the settings by line (one without a line first), then rule, then detail; the problems of the records by file (one without a file first), then rule, then detail; the acts by kind (`accept`, `settings`, `pin`), then path. Texts are ordered by their UTF-8 bytes. Names and details are printed as `validate` prints them ([the format page](record-format.md#how-a-problem-is-reported)): a control character in a file name is written out, not sent to the log. It exits 0 when there is no problem and no act, in which case the count goes to the standard output, 1 when there is at least one of either, and 2 for wrong usage: also when a revision names no commit, the repository cannot be read, or `git` cannot be run. `--repo` defaults to the current folder.
+`record-keeper check-pr --base <revision> --head <revision> [--repo <path>]` prints, on the error output, the problems of the settings (as `config` does), then one line for each problem, `<folder>/<file>: [P-02] <what is wrong> (<detail>)` (the folder alone for a problem without a file), then one line for each act that is not approved, `<path>: needs the owners' approval (accept)` (for the act `owners`: `<path>: needs the amendment bar, which this version cannot check (owners)`), then, when the reviews were given and there is an act, the line of the approvals ([approvals](approvals.md)), and last a count, `<folder>: N problems` (the problems of the settings included), with `, M acts` when there are acts, and ` approved` after them when all of them are. The lines come in this order: the problems of the settings by line (one without a line first), then rule, then detail; the problems of the records by file (one without a file first), then rule, then detail; the acts by kind (`accept`, `settings`, `owners`, `pin`), then path. Texts are ordered by their UTF-8 bytes. Names and details are printed as `validate` prints them ([the format page](record-format.md#how-a-problem-is-reported)): a control character in a file name is written out, not sent to the log. It exits 0 when there is no problem and no act that is not approved, in which case the line of the approvals and the count go to the standard output, 1 when there is at least one of either, and 2 for wrong usage: also when a revision names no commit, the repository cannot be read, `git` cannot be run, or the reviews cannot be read. `--repo` defaults to the current folder.
 
 ## What changes for the repositories
 
@@ -95,7 +96,7 @@ None of the maintainers' repositories installs the check yet, and none keeps a s
 
 ## What this does not do
 
-- **It does not check the owners' approvals** (M2.4), the 48 hours and the diff comment of an erratum, the chain of errata, or deviation entries (M2.6), the workflow files, the list of owners and the bar for amending the protocol (M2.7). The acts above are the places where M2.4 plugs in.
+- **It does not check the 48 hours and the diff comment of an erratum, the chain of errata, or deviation entries** (M2.6), nor the workflow files and the bar for amending the protocol: the approval of all owners and the seven days (M2.7). The acts above are the places where they plug in; the approvals are on [their own page](approvals.md).
 - **It does not check that the files an `applies-to` names still exist** when a change moves the code. That needs a glob dialect and the tree of the head; it belongs with M2.7.
 - **It does not read the shared folder** (P-08), and it does not read the pin.
 - **It does not look at the history between the commits**, only at the two trees. The audit (M2.8) looks at the history.
@@ -108,7 +109,7 @@ None of the maintainers' repositories installs the check yet, and none keeps a s
 2. **Any byte of a sealed record other than its status line is P-02,** also white space and line endings, which g1 would not see. 0001 says "any other change to a record is a violation, however small". The cost is that fixing a trailing space needs an erratum, which will be an act (M2.6).
 3. **Superseding is two-sided and atomic:** a record is `superseded by` N only if N is sealed and lists it (P-04), and a sealed N that lists a record needs that record to be `superseded by` N (P-05). Accepting a replacement therefore flips the replaced records in the same change, and two replacements of one record cannot both be accepted.
 4. **A repair of the settings is let through** when it touches nothing else (the rule above). The alternative, judging the repair against the last settings that read cleanly, needs the history; the alternative of the owners' approval alone would make a broken file wait for M2.4.
-5. **Acts fail the command for now.** The command does not pass a change that accepts a record, until the approvals can be checked.
+5. **Acts fail the command unless the owners approved them.** In M2.3 that meant always; with M2.4 and the reviews of the pull request, an act passes when enough owners approved the head commit.
 6. **A stale head fails (P-09).** The ruleset's up-to-date branch would do it too, but the check has to be right where the ruleset is not set.
 7. **A change in the shared folder fails (P-08).** A repository that has shared records cannot use the check until they are read; none of the first repositories does.
 

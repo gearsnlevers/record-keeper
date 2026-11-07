@@ -1,0 +1,3051 @@
+{
+ "counts": [
+  {
+   "id": "c01-no-owners",
+   "note": "nobody can approve: the count is 0 and is never met",
+   "owners": [],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [],
+   "expect": {
+    "have": 0,
+    "needed": 2,
+    "met": false,
+    "owners": []
+   }
+  },
+  {
+   "id": "c02-one-approval",
+   "note": "an owner approves the head commit",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 101,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c03-author-counts",
+   "note": "the author is an owner and has no review",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "author"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c04-author-and-one",
+   "note": "two owners needed: the author and another that approves",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [
+    {
+     "id": 102,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 2,
+    "needed": 2,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "author"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c05-one-of-two",
+   "note": "one of two needed approvals",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 103,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 2,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c06-earlier-commit",
+   "note": "an approval of an earlier commit does not count",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 104,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c07-changes-after-approval",
+   "note": "a later request for changes takes the approval back",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 105,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 106,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c08-approval-after-changes",
+   "note": "a later approval replaces a request for changes",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 107,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 108,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c09-dismissed-alone",
+   "note": "a dismissed review is not an approval",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 109,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "dismissed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c10-approval-then-dismissed",
+   "note": "a dismissal after an approval takes it back",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 110,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 111,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "dismissed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c11-dismissed-then-approval",
+   "note": "an approval after a dismissal counts",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 112,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 113,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c12-comment-after-approval",
+   "note": "a comment does not take an approval back",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 114,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 115,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c13-comment-only",
+   "note": "a comment is not an approval",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 116,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c14-pending-only",
+   "note": "a pending review has not been submitted",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 117,
+     "user": 1001,
+     "state": "PENDING",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": null
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c15-pending-after-approval",
+   "note": "a pending review does not take an approval back",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 118,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 119,
+     "user": 1001,
+     "state": "PENDING",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": null
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c16-same-second-approval-and-changes",
+   "note": "two reviews of one second: the owner does not count",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 120,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 121,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c17-same-second-two-commits",
+   "note": "two approvals of one second, one for an earlier commit",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 122,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 123,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c18-same-second-approval-dismissed",
+   "note": "an approval and a dismissal of one second",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 124,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 125,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "dismissed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c19-same-second-two-approvals",
+   "note": "two approvals of the head commit in one second",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 126,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 127,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c20-unknown-state-latest",
+   "note": "a state that is not known takes the approval back",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 128,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 129,
+     "user": 1001,
+     "state": "MERGED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "other"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c21-unknown-state-older",
+   "note": "an approval after an unknown state counts",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 130,
+     "user": 1001,
+     "state": "MERGED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 131,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c22-changes-beats-dismissed",
+   "note": "with both in one second the request for changes is the answer",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 132,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 133,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c23-dismissed-beats-unknown",
+   "note": "with both in one second the dismissal is the answer",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 134,
+     "user": 1001,
+     "state": "MERGED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 135,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "dismissed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c24-unknown-beats-approval",
+   "note": "with both in one second the unknown state is the answer",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 136,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 137,
+     "user": 1001,
+     "state": "MERGED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "other"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c25-not-an-owner",
+   "note": "the reviews of an account that is not an owner count for nothing",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 138,
+     "user": 2000,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c26-author-not-an-owner",
+   "note": "an author that is not an owner counts for nothing",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 2000,
+   "reviews": [],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c27-twice-counted-once",
+   "note": "an owner that approves twice counts once",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 139,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 140,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 2,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c28-author-with-reviews",
+   "note": "the author is an owner: reviews do not matter",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [
+    {
+     "id": 141,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "author"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c29-deleted-user",
+   "note": "a review of a deleted account is read and ignored",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 142,
+     "user": null,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c30-more-needed-than-owners",
+   "note": "more approvals needed than there are owners: never met",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 143,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 2,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c31-three-of-two",
+   "note": "all three approve and two are needed",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    },
+    {
+     "login": "carol",
+     "id": 1003
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 144,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 145,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 146,
+     "user": 1003,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 3,
+    "needed": 2,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "approved"
+     },
+     {
+      "login": "carol",
+      "id": 1003,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c32-two-of-three",
+   "note": "two of three needed",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    },
+    {
+     "login": "carol",
+     "id": 1003
+    }
+   ],
+   "approvals": 3,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 147,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 148,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 2,
+    "needed": 3,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "approved"
+     },
+     {
+      "login": "carol",
+      "id": 1003,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c33-commit-case",
+   "note": "a commit id is compared without regard to case",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 149,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "A1B2C3D4E5A1B2C3D4E5A1B2C3D4E5A1B2C3D4E5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c34-commit-null",
+   "note": "an approval of no commit is not an approval of the head",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 150,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": null,
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c35-commit-prefix",
+   "note": "a commit id is compared whole",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 151,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c36-commit-longer",
+   "note": "a commit id with more characters is another commit",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 152,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c37-sha256",
+   "note": "a 64-digit commit id",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 153,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c38-order-of-file",
+   "note": "the position in the file does not matter, the time does",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 154,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    },
+    {
+     "id": 155,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c39-order-of-file-2",
+   "note": "the same, the other way round",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 156,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    },
+    {
+     "id": 157,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c40-changes-then-comment",
+   "note": "a comment does not take back a request for changes",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 158,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 159,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c41-dismissed-then-comment",
+   "note": "nor a dismissal",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 160,
+     "user": 1001,
+     "state": "DISMISSED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 161,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "dismissed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c42-owners-keep-their-order",
+   "note": "the result is in the order of the settings, not of the IDs",
+   "owners": [
+    {
+     "login": "bob",
+     "id": 1002
+    },
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 162,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "none"
+     },
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c43-years-compare",
+   "note": "times compare as times: a later year",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 163,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2025-12-31T23:59:59Z"
+    },
+    {
+     "id": 164,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-01-01T00:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c44-seconds-compare",
+   "note": "times compare to the second",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 165,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-06T10:00:00Z"
+    },
+    {
+     "id": 166,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-06T10:00:01Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c45-hours-compare",
+   "note": "times compare in hours",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 167,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-06T09:59:59Z"
+    },
+    {
+     "id": 168,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-06T10:00:00Z"
+    },
+    {
+     "id": 169,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-06T10:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c46-another-owner-changes",
+   "note": "a request for changes of one owner does not touch the other",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 170,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 171,
+     "user": 1002,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "bob",
+      "id": 1002,
+      "how": "changes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c47-latest-is-all-that-counts",
+   "note": "only the latest reviews are read: an old request for changes is replaced",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 172,
+     "user": 1001,
+     "state": "CHANGES_REQUESTED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 173,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T09:00:00Z"
+    },
+    {
+     "id": 174,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-03T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c48-approval-of-old-after-new",
+   "note": "the latest decisive review is of an earlier commit",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 175,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 176,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-02T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "earlier"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c49-single-owner-mode",
+   "note": "approvals 1 with the owner as author",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "author"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c50-single-owner-other-opens",
+   "note": "approvals 1: someone else opens the pull request and the owner approves",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 2000,
+   "reviews": [
+    {
+     "id": 177,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c51-single-owner-not-yet",
+   "note": "approvals 1: someone else opens it and nobody approved",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 2000,
+   "reviews": [],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c52-author-equals-reviewer-id-type",
+   "note": "a large ID matches exactly",
+   "owners": [
+    {
+     "login": "big",
+     "id": 999999999999999
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 178,
+     "user": 999999999999999,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 1,
+    "needed": 1,
+    "met": true,
+    "owners": [
+     {
+      "login": "big",
+      "id": 999999999999999,
+      "how": "approved"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c53-near-id",
+   "note": "an ID that differs by one does not match",
+   "owners": [
+    {
+     "login": "big",
+     "id": 999999999999999
+    }
+   ],
+   "approvals": 1,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 179,
+     "user": 999999999999998,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 0,
+    "needed": 1,
+    "met": false,
+    "owners": [
+     {
+      "login": "big",
+      "id": 999999999999999,
+      "how": "none"
+     }
+    ]
+   }
+  },
+  {
+   "id": "c54-login-is-not-matched",
+   "note": "two owners with one login and different IDs are two owners",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "alice",
+     "id": 1002
+    }
+   ],
+   "approvals": 2,
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 180,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 181,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "expect": {
+    "have": 2,
+    "needed": 2,
+    "met": true,
+    "owners": [
+     {
+      "login": "alice",
+      "id": 1001,
+      "how": "approved"
+     },
+     {
+      "login": "alice",
+      "id": 1002,
+      "how": "approved"
+     }
+    ]
+   }
+  }
+ ],
+ "files": [
+  {
+   "id": "f01-empty-list",
+   "note": "no reviews",
+   "text": "[]",
+   "expect": {
+    "reviews": []
+   }
+  },
+  {
+   "id": "f02-one",
+   "note": "one review",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 11,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f03-two",
+   "note": "two reviews",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, {\"id\": 12, \"user\": {\"id\": 1002, \"login\": \"x\"}, \"state\": \"CHANGES_REQUESTED\", \"commit_id\": \"0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f\", \"submitted_at\": \"2026-11-02T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 11,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     },
+     {
+      "id": 12,
+      "user": 1002,
+      "state": "CHANGES_REQUESTED",
+      "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+      "at": "2026-11-02T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f04-pages",
+   "note": "a list of pages, as gh api --paginate --slurp writes it",
+   "text": "[[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}], [{\"id\": 12, \"user\": {\"id\": 1002, \"login\": \"x\"}, \"state\": \"CHANGES_REQUESTED\", \"commit_id\": \"0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f\", \"submitted_at\": \"2026-11-02T09:00:00Z\"}]]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 11,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     },
+     {
+      "id": 12,
+      "user": 1002,
+      "state": "CHANGES_REQUESTED",
+      "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+      "at": "2026-11-02T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f05-empty-pages",
+   "note": "pages with no review",
+   "text": "[[], []]",
+   "expect": {
+    "reviews": []
+   }
+  },
+  {
+   "id": "f06-one-empty-page",
+   "note": "one empty page",
+   "text": "[[]]",
+   "expect": {
+    "reviews": []
+   }
+  },
+  {
+   "id": "f07-deleted-user",
+   "note": "a deleted account: user is null",
+   "text": "[{\"id\": 13, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 13,
+      "user": null,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f08-extra-fields",
+   "note": "fields that are not read are ignored",
+   "text": "[{\"id\": 14, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\", \"body\": \"x\", \"html_url\": \"https://example.com\", \"author_association\": \"OWNER\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 14,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f09-pending-null-time",
+   "note": "a pending review has no time",
+   "text": "[{\"id\": 15, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"PENDING\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": null}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 15,
+      "user": 1001,
+      "state": "PENDING",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "f10-pending-no-time-key",
+   "note": "or no key for it",
+   "text": "[{\"id\": 16, \"user\": {\"id\": 1001}, \"state\": \"PENDING\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 16,
+      "user": 1001,
+      "state": "PENDING",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "f11-null-commit",
+   "note": "commit_id may be null",
+   "text": "[{\"id\": 17, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 17,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": null,
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f12-no-commit-key",
+   "note": "or absent",
+   "text": "[{\"id\": 18, \"user\": {\"id\": 1001}, \"state\": \"COMMENTED\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 18,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f13-unknown-state",
+   "note": "a state that is not known is read as it is",
+   "text": "[{\"id\": 19, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"SOMETHING_NEW\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 19,
+      "user": 1001,
+      "state": "SOMETHING_NEW",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f14-whitespace",
+   "note": "white space around the document",
+   "text": " \n[ ]\n ",
+   "expect": {
+    "reviews": []
+   }
+  },
+  {
+   "id": "f15-float-ids",
+   "note": "a number written 1001.0 is the integer 1001",
+   "text": "[{\"id\": 20.0, \"user\": {\"id\": 1.001e3}, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 20,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": null,
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f16-largest-id",
+   "note": "the largest ID that a double holds exactly",
+   "text": "[{\"id\": 9007199254740991, \"user\": {\"id\": 9007199254740991}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 9007199254740991,
+      "user": 9007199254740991,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f17-duplicate-keys",
+   "note": "the last of two equal keys is read, as JSON readers do",
+   "text": "[{\"id\": 0, \"id\": 21, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 21,
+      "user": null,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f18-time-edge",
+   "note": "the last second of a day and of a year",
+   "text": "[{\"id\": 22, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-12-31T23:59:59Z\"}, {\"id\": 23, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-01-01T00:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 22,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-12-31T23:59:59Z"
+     },
+     {
+      "id": 23,
+      "user": 1001,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-01-01T00:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "f19-times-of-every-shape",
+   "note": "times with every digit class: months 01 to 12, days 01 to 31, hours 00 to 23, minutes and seconds up to 59",
+   "text": "[{\"id\": 30, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-01-01T00:00:00Z\"}, {\"id\": 31, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-02-09T09:09:09Z\"}, {\"id\": 32, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-03-10T10:10:10Z\"}, {\"id\": 33, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-04-19T19:19:19Z\"}, {\"id\": 34, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-05-20T20:20:20Z\"}, {\"id\": 35, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-06-29T23:59:59Z\"}, {\"id\": 36, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-07-30T12:30:45Z\"}, {\"id\": 37, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-08-31T01:02:03Z\"}, {\"id\": 38, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-09-15T15:45:15Z\"}, {\"id\": 39, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-10-01T04:05:06Z\"}, {\"id\": 40, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-11T11:11:11Z\"}, {\"id\": 41, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-12-12T21:22:23Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 30,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-01-01T00:00:00Z"
+     },
+     {
+      "id": 31,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-02-09T09:09:09Z"
+     },
+     {
+      "id": 32,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-03-10T10:10:10Z"
+     },
+     {
+      "id": 33,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-04-19T19:19:19Z"
+     },
+     {
+      "id": 34,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-05-20T20:20:20Z"
+     },
+     {
+      "id": 35,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-06-29T23:59:59Z"
+     },
+     {
+      "id": 36,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-07-30T12:30:45Z"
+     },
+     {
+      "id": 37,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-08-31T01:02:03Z"
+     },
+     {
+      "id": 38,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-09-15T15:45:15Z"
+     },
+     {
+      "id": 39,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-10-01T04:05:06Z"
+     },
+     {
+      "id": 40,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-11-11T11:11:11Z"
+     },
+     {
+      "id": 41,
+      "user": 1001,
+      "state": "COMMENTED",
+      "commit": null,
+      "at": "2026-12-12T21:22:23Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "e01-not-json",
+   "note": "text that is not JSON",
+   "text": "x",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e02-two-documents",
+   "note": "gh api --paginate without --slurp writes one document for each page",
+   "text": "[][]",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e03-empty-file",
+   "note": "an empty file",
+   "text": "",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e04-trailing-comma",
+   "note": "a trailing comma",
+   "text": "[,]",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e05-nan",
+   "note": "NaN is not JSON",
+   "text": "[NaN]",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e06-bom",
+   "note": "a byte order mark",
+   "text": "\ufeff[]",
+   "expect": {
+    "error": "is not one JSON document"
+   }
+  },
+  {
+   "id": "e07-not-utf8",
+   "note": "bytes that are not UTF-8",
+   "expect": {
+    "error": "is not one JSON document"
+   },
+   "hex": "5b22ff225d"
+  },
+  {
+   "id": "e08-object",
+   "note": "an object",
+   "text": "{}",
+   "expect": {
+    "error": "is not a list"
+   }
+  },
+  {
+   "id": "e09-string",
+   "note": "a string",
+   "text": "\"x\"",
+   "expect": {
+    "error": "is not a list"
+   }
+  },
+  {
+   "id": "e10-null",
+   "note": "null",
+   "text": "null",
+   "expect": {
+    "error": "is not a list"
+   }
+  },
+  {
+   "id": "e11-number",
+   "note": "a number",
+   "text": "1",
+   "expect": {
+    "error": "is not a list"
+   }
+  },
+  {
+   "id": "e12-mixed",
+   "note": "reviews and pages together",
+   "text": "[[], {\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "mixes reviews and pages"
+   }
+  },
+  {
+   "id": "e13-mixed-2",
+   "note": "the other way round",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, []]",
+   "expect": {
+    "error": "mixes reviews and pages"
+   }
+  },
+  {
+   "id": "e14-list-in-page",
+   "note": "a list inside a page",
+   "text": "[[[]]]",
+   "expect": {
+    "error": "entry 1: is not an object"
+   }
+  },
+  {
+   "id": "e15-number-entry",
+   "note": "an entry that is a number",
+   "text": "[1]",
+   "expect": {
+    "error": "entry 1: is not an object"
+   }
+  },
+  {
+   "id": "e16-null-entry",
+   "note": "an entry that is null",
+   "text": "[null]",
+   "expect": {
+    "error": "entry 1: is not an object"
+   }
+  },
+  {
+   "id": "e17-string-entry",
+   "note": "an entry that is a string",
+   "text": "[\"a\"]",
+   "expect": {
+    "error": "entry 1: is not an object"
+   }
+  },
+  {
+   "id": "e18-second-entry",
+   "note": "the entries are counted from 1",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, 5]",
+   "expect": {
+    "error": "entry 2: is not an object"
+   }
+  },
+  {
+   "id": "e19-counted-across-pages",
+   "note": "and across pages",
+   "text": "[[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}], [{\"id\": 12, \"user\": {\"id\": 1002, \"login\": \"x\"}, \"state\": \"CHANGES_REQUESTED\", \"commit_id\": \"0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f\", \"submitted_at\": \"2026-11-02T09:00:00Z\"}, 7]]",
+   "expect": {
+    "error": "entry 3: is not an object"
+   }
+  },
+  {
+   "id": "e20-no-id",
+   "note": "no id",
+   "text": "[{\"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21a-id-a-string",
+   "note": "id is a string",
+   "text": "[{\"id\": \"1\", \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21b-id-zero",
+   "note": "id is zero",
+   "text": "[{\"id\": 0, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21c-id-a-negative-number",
+   "note": "id is a negative number",
+   "text": "[{\"id\": -1, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21d-id-a-fraction",
+   "note": "id is a fraction",
+   "text": "[{\"id\": 1.5, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21e-id-a-boolean",
+   "note": "id is a boolean",
+   "text": "[{\"id\": true, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21f-id-null",
+   "note": "id is null",
+   "text": "[{\"id\": null, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21g-id-more-than-a-double-holds-exactly",
+   "note": "id is more than a double holds exactly",
+   "text": "[{\"id\": 9007199254740992, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21h-id-a-number-too-large-for-a-double",
+   "note": "id is a number too large for a double",
+   "text": "[{\"id\": 1e400, \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e21i-id-a-list",
+   "note": "id is a list",
+   "text": "[{\"id\": [1], \"user\": null, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e22a-user-a-string",
+   "note": "user is a string",
+   "text": "[{\"id\": 1, \"user\": \"x\", \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22b-user-a-number",
+   "note": "user is a number",
+   "text": "[{\"id\": 1, \"user\": 1, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22c-user-an-object-without-an-id",
+   "note": "user is an object without an id",
+   "text": "[{\"id\": 1, \"user\": {}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22d-user-an-object-with-id-0",
+   "note": "user is an object with id 0",
+   "text": "[{\"id\": 1, \"user\": {\"id\": 0}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22e-user-an-object-with-a-string-id",
+   "note": "user is an object with a string id",
+   "text": "[{\"id\": 1, \"user\": {\"id\": \"1\"}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22f-user-an-object-with-a-fraction-as-id",
+   "note": "user is an object with a fraction as id",
+   "text": "[{\"id\": 1, \"user\": {\"id\": 1.5}, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22g-user-a-list",
+   "note": "user is a list",
+   "text": "[{\"id\": 1, \"user\": [], \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e22h-user-true",
+   "note": "user is true",
+   "text": "[{\"id\": 1, \"user\": true, \"state\": \"COMMENTED\", \"commit_id\": null, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e23-no-user-key",
+   "note": "no user key: it is not null either",
+   "text": "[{\"id\": 11, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 11,
+      "user": null,
+      "state": "APPROVED",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "2026-11-01T09:00:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "id": "e24-state-number",
+   "note": "state is a number",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": 1, \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: state is not text"
+   }
+  },
+  {
+   "id": "e25-state-null",
+   "note": "state is null",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": null, \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: state is not text"
+   }
+  },
+  {
+   "id": "e26-no-state",
+   "note": "no state",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: state is not text"
+   }
+  },
+  {
+   "id": "e27-commit-number",
+   "note": "commit_id is a number",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": 5, \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: commit_id is neither null nor text"
+   }
+  },
+  {
+   "id": "e28-commit-list",
+   "note": "commit_id is a list",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": [], \"submitted_at\": \"2026-11-01T09:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: commit_id is neither null nor text"
+   }
+  },
+  {
+   "id": "e29a-time-a-space-for-the-T",
+   "note": "submitted_at has a space for the T",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06 12:00:00\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29b-time-an-offset",
+   "note": "submitted_at has an offset",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:00+00:00\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29c-time-month-13",
+   "note": "submitted_at has month 13",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-13-06T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29d-time-month-0",
+   "note": "submitted_at has month 0",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-00-06T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29e-time-day-32",
+   "note": "submitted_at has day 32",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-32T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29f-time-day-0",
+   "note": "submitted_at has day 0",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-00T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29g-time-hour-24",
+   "note": "submitted_at has hour 24",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T24:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29h-time-minute-60",
+   "note": "submitted_at has minute 60",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:60:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29i-time-second-60",
+   "note": "submitted_at has second 60",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:60Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29j-time-a-lowercase-z",
+   "note": "submitted_at has a lowercase z",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:00z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29k-time-fractions-of-a-second",
+   "note": "submitted_at has fractions of a second",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:00.000Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29l-time-no-Z",
+   "note": "submitted_at has no Z",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:00\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29m-time-a-two-digit-year",
+   "note": "submitted_at has a two-digit year",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"26-11-06T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29n-time-a-space-after",
+   "note": "submitted_at has a space after",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"2026-11-06T12:00:00Z \"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29o-time-a-space-before",
+   "note": "submitted_at has a space before",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \" 2026-11-06T12:00:00Z\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29p-time-a-number",
+   "note": "submitted_at has a number",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": 1}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29q-time-null",
+   "note": "submitted_at has null",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": null}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e29r-time-an-empty-string",
+   "note": "submitted_at has an empty string",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": null, \"submitted_at\": \"\"}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e30-comment-without-time",
+   "note": "a comment without a time is refused: only a pending review has none",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"COMMENTED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": null}]",
+   "expect": {
+    "error": "entry 1: submitted_at is not a time like 2026-11-06T12:00:00Z"
+   }
+  },
+  {
+   "id": "e31-pending-with-bad-time",
+   "note": "the time of a pending review is not looked at: text is kept as it is",
+   "text": "[{\"id\": 15, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"PENDING\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"later\"}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 15,
+      "user": 1001,
+      "state": "PENDING",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": "later"
+     }
+    ]
+   }
+  },
+  {
+   "id": "e31b-pending-with-number-time",
+   "note": "and what is not text is read as no time",
+   "text": "[{\"id\": 15, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"PENDING\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": 5}]",
+   "expect": {
+    "reviews": [
+     {
+      "id": 15,
+      "user": 1001,
+      "state": "PENDING",
+      "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+      "at": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "e32-first-problem-only",
+   "note": "only the first problem of an entry is reported",
+   "text": "[{\"id\": 0, \"state\": 1}]",
+   "expect": {
+    "error": "entry 1: id is not a positive integer"
+   }
+  },
+  {
+   "id": "e33-order-of-checks",
+   "note": "id, user, state, commit_id, time: in that order",
+   "text": "[{\"id\": 1, \"user\": 1, \"state\": 1}]",
+   "expect": {
+    "error": "entry 1: user is neither null nor an object with a positive integer id"
+   }
+  },
+  {
+   "id": "e34-order-of-checks-2",
+   "note": "state before commit_id",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": 1, \"commit_id\": 1}]",
+   "expect": {
+    "error": "entry 1: state is not text"
+   }
+  },
+  {
+   "id": "e35-order-of-checks-3",
+   "note": "commit_id before the time",
+   "text": "[{\"id\": 1, \"user\": null, \"state\": \"APPROVED\", \"commit_id\": 1}]",
+   "expect": {
+    "error": "entry 1: commit_id is neither null nor text"
+   }
+  },
+  {
+   "id": "e36-large-then-bad",
+   "note": "a bad entry after good ones",
+   "text": "[{\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, {\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, {\"id\": 11, \"user\": {\"id\": 1001, \"login\": \"x\"}, \"state\": \"APPROVED\", \"commit_id\": \"a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5\", \"submitted_at\": \"2026-11-01T09:00:00Z\"}, {\"id\": \"x\"}]",
+   "expect": {
+    "error": "entry 4: id is not a positive integer"
+   }
+  }
+ ]
+}
