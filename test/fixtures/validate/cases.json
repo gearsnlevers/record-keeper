@@ -1745,6 +1745,68 @@
       "note": "A record cannot replace itself."
     },
     {
+      "id": "ok46-emergency",
+      "folder": "ok46-emergency",
+      "expect": [],
+      "note": "The key emergency is a standard key: a single value with the reason."
+    },
+    {
+      "id": "ok47-emergency-500-characters",
+      "folder": "ok47-emergency-500-characters",
+      "expect": [],
+      "note": "A reason of exactly 500 characters."
+    },
+    {
+      "id": "ok47b-emergency-500-wide-characters",
+      "folder": "ok47b-emergency-500-wide-characters",
+      "expect": [],
+      "note": "500 characters that take two bytes each: the limit counts characters."
+    },
+    {
+      "id": "bad37a-emergency-501-characters",
+      "folder": "bad37a-emergency-501-characters",
+      "expect": [
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-37"
+        }
+      ],
+      "note": "A reason of 501 characters."
+    },
+    {
+      "id": "bad37b-emergency-501-wide-characters",
+      "folder": "bad37b-emergency-501-wide-characters",
+      "expect": [
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-37"
+        }
+      ],
+      "note": "501 characters that take two bytes each."
+    },
+    {
+      "id": "bad14g-emergency-as-list",
+      "folder": "bad14g-emergency-as-list",
+      "expect": [
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-14"
+        }
+      ],
+      "note": "emergency is a single value, here a list."
+    },
+    {
+      "id": "bad15f-emergency-empty",
+      "folder": "bad15f-emergency-empty",
+      "expect": [
+        {
+          "file": "0003-third-decision.md",
+          "rule": "V-15"
+        }
+      ],
+      "note": "emergency has no value."
+    },
+    {
       "id": "bad36c-supersedes-a-higher-number",
       "folder": "bad36c-supersedes-a-higher-number",
       "expect": [

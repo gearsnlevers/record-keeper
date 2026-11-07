@@ -304,6 +304,7 @@ export const FORMAT_RULES = {
   'V-34': 'has an index row that does not show its title',
   'V-35': 'has a supersedes entry that is not a number of four digits',
   'V-36': 'supersedes a record that does not exist or does not have a lower number',
+  'V-37': 'has an emergency entry of more than 500 characters',
 };
 
 /** What each rule of docs/reading-a-commit.md reports, for the folder as it is in a commit. */
@@ -313,9 +314,9 @@ export const COMMIT_RULES = {
   'T-03': 'is not the only folder that holds records',
 };
 
-const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'supersedes', 'seal'];
+const STANDARD_KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues', 'supersedes', 'seal', 'emergency'];
 const LIST_KEYS = ['decision-makers', 'applies-to', 'issues', 'supersedes'];
-const VALUE_KEYS = ['status', 'date', 'seal'];
+const VALUE_KEYS = ['status', 'date', 'seal', 'emergency'];
 const REQUIRED_KEYS = ['status', 'date', 'decision-makers'];
 const SECTIONS = ['Context and problem statement', 'Decision', 'Consequences', 'Known deviations', 'Alternatives considered', 'Errata'];
 const REQUIRED_SECTIONS = SECTIONS.slice(0, 3);
@@ -426,6 +427,8 @@ function checkFrontMatter(name, number, entries, numbers, extraKeys, report) {
   if (date !== undefined && !isRealDate(date)) report(name, 'V-21', date);
   const seal = single('seal');
   if (seal !== undefined && !SEAL_FORM.test(seal)) report(name, 'V-22', seal);
+  const emergency = single('emergency');
+  if (emergency !== undefined && [...emergency].length > 500) report(name, 'V-37');
   const issues = byKey.get('issues');
   if (issues?.shape === 'list') for (const item of issues.items) if (!ISSUE_FORM.test(item)) report(name, 'V-23', item);
   const supersedes = byKey.get('supersedes');
@@ -901,7 +904,7 @@ const NAMES_THE_CHECK = /records[ _-]?integrity/i;
 /** Rules of the format page that judge what a sealed record says; a change that leaves a sealed record's text alone cannot bring them. */
 const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
-  'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36',
+  'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36', 'V-37',
 ]);
 const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'pin', 'workflow', 'code'];
 const SUPERSEDED = /^superseded by (\d{4})$/;
