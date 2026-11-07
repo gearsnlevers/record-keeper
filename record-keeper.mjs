@@ -881,6 +881,11 @@ export const CHANGE_RULES = {
   'P-07': 'has a seal and is not accepted',
   'P-08': 'is in the shared folder, which this version does not check',
   'P-09': 'is not on top of the base: the base is not an ancestor of the head',
+  'P-10': 'is sealed and its Errata section is not a chain of erratum entries',
+  'P-11': 'has an erratum entry that does not follow from the base',
+  'P-12': 'has an erratum that changes a key an erratum may not change',
+  'P-13': 'has an erratum that changes the sealed text and has not been open for 48 hours',
+  'P-14': 'has a deviation entry that is not allowed',
 };
 
 /** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
@@ -891,7 +896,7 @@ const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
   'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36',
 ]);
-const ACT_ORDER = ['accept', 'settings', 'owners', 'pin'];
+const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'pin'];
 const SUPERSEDED = /^superseded by (\d{4})$/;
 
 /** The UTF-8 order of two texts; null sorts first. */
@@ -919,9 +924,12 @@ function readRecord(bytes) {
   const check = verify(bytes);
   return {
     bytes,
+    parsed: record,
+    chain: readChain(record),
     readable: true,
     status,
     statusAt: entry('status')?.at,
+    sealAt: entry('seal')?.at,
     seal: entry('seal')?.value,
     supersedes: items.filter((item) => NUMBER_FORM.test(item)).map(Number),
     claims,
@@ -968,6 +976,7 @@ function stateProblems(records) {
       else if (reason === 'mismatch') out.push({ file: name, rule: 'P-06', detail: 'seal does not match' });
     }
     if (record.seal !== undefined && (record.status === 'proposed' || record.status === 'rejected')) out.push({ file: name, rule: 'P-07' });
+    if (record.sealed && record.chain.reason !== null) out.push({ file: name, rule: 'P-10', detail: record.chain.reason });
   }
   return out;
 }
@@ -1008,6 +1017,194 @@ function compareSealed(record, headBytes) {
   return { rule: 'P-02', detail: `line ${(differing.length > 0 ? differing[0] : common) + 1}` };
 }
 
+// ---- errata and deviation notes: docs/errata-and-deviations.md --------------------------------------------------------------
+
+const DEVIATIONS_HEADING = '## Known deviations';
+const ERRATA_HEADING = '## Errata';
+const WAIT_MS = 48 * 60 * 60 * 1000;
+const ERRATUM_KEYS = ['date', 'previous entry', 'previous seal', 'seal', 'reason'];
+const DEVIATION_KEYS = ['date', 'case', 'reason'];
+const ENTRY_HEADING = /^### (Erratum|Deviation) ([1-9][0-9]{0,3})$/;
+const ENTRY_ITEM = /^- ([a-z]+(?: [a-z]+)*): (\S(?:.*\S)?)$/;
+const ENTRY_HASH = /^sha256:[0-9a-f]{64}$/;
+const G1_SEAL = /^sha256-g1:[0-9a-f]{64}$/;
+const CASE_FORM = /^(?:(issue|pull) ([1-9][0-9]{0,8})|commit ([0-9a-f]{40}|[0-9a-f]{64}))$/;
+const FIXED_KEYS = ['applies-to', 'repos', 'window', 'supersedes'];
+/** The rules of the format page that still judge a record that only gains a deviation note. */
+const DEVIATION_RULES = new Set(['V-11', 'V-12', 'V-27', 'V-28']);
+
+/** Where the two excluded sections of a parsed record are, each as [line of the heading, line after the last line] or null. */
+function sectionsOf({ lines, end, fenced }) {
+  const found = { deviations: null, errata: null };
+  lines.forEach((line, i) => {
+    if (i <= end || fenced[i - end - 1]) return;
+    const which = line === DEVIATIONS_HEADING ? 'deviations' : line === ERRATA_HEADING ? 'errata' : null;
+    if (which === null) return;
+    let stop = i + 1;
+    while (stop < lines.length && (fenced[stop - end - 1] || !SECTION_HEADING.test(lines[stop]))) stop++;
+    found[which] = [i, stop];
+  });
+  return found;
+}
+
+/** The entries of a section, from the lines after its heading: the blocks that start at an entry heading of `kind`, and whether any other line is in none. */
+function entriesOf(lines, kind) {
+  const blocks = [];
+  let stray = false;
+  let current = null;
+  for (const line of lines) {
+    if (line.startsWith('### ')) {
+      const heading = ENTRY_HEADING.exec(line);
+      current = heading && heading[1] === kind ? { number: Number(heading[2]), lines: [line] } : null;
+      if (current === null) stray = true;
+      else blocks.push(current);
+    } else if (current !== null) current.lines.push(line);
+    else if (line !== '') stray = true;
+  }
+  for (const block of blocks) while (block.lines.at(-1) === '') block.lines.pop();
+  return { blocks, stray };
+}
+
+const hashOf = (block) => `sha256:${createHash('sha256').update(`${block.lines.join('\n')}\n`, 'utf8').digest('hex')}`;
+const reasonFits = (text) => [...text].length >= 1 && [...text].length <= 500;
+
+/** The values of an entry whose keys are `keys`, or the first reason it is not that entry as number `number`. */
+function readNote(block, keys, number) {
+  if (block.number !== number) return { reason: `number: expected ${number}` };
+  const body = block.lines.slice(1);
+  const items = body.slice(1).map((line) => ENTRY_ITEM.exec(line));
+  if (body.length !== keys.length + 1 || body[0] !== '' || items.some((item, i) => item === null || item[1] !== keys[i])) return { reason: `keys: expected ${keys.join(', ')}` };
+  const values = Object.fromEntries(items.map((item) => [item[1], item[2]]));
+  if (!isRealDate(values.date)) return { reason: 'date: not a date' };
+  return { values };
+}
+
+/** An erratum entry as number `number`, after an entry whose hash and seal are `previous` (its seal null for the first): { values } or { reason }. */
+function readErratum(block, number, previous) {
+  const { values, reason } = readNote(block, ERRATUM_KEYS, number);
+  if (reason !== undefined) return { reason };
+  if (values['previous entry'] !== previous.hash) return { reason: `previous entry: expected ${previous.hash}` };
+  if (previous.seal === null ? !G1_SEAL.test(values['previous seal']) : values['previous seal'] !== previous.seal) {
+    return { reason: previous.seal === null ? 'previous seal: not a seal' : `previous seal: expected ${previous.seal}` };
+  }
+  if (!G1_SEAL.test(values.seal)) return { reason: 'seal: not a seal' };
+  if (!reasonFits(values.reason)) return { reason: 'reason: empty or too long' };
+  return { values };
+}
+
+/** The section `Errata` of a parsed record: how many entries it has, and why it is not a chain (null when it is). */
+function readChain(parsed) {
+  const { errata } = sectionsOf(parsed);
+  if (errata === null) return { count: 0, reason: null };
+  const { blocks, stray } = entriesOf(parsed.lines.slice(errata[0] + 1, errata[1]), 'Erratum');
+  if (stray) return { count: blocks.length, reason: 'text outside an entry' };
+  let previous = { hash: 'none', seal: null };
+  for (const [i, block] of blocks.entries()) {
+    const { values, reason } = readErratum(block, i + 1, previous);
+    if (reason !== undefined) return { count: blocks.length, reason: `entry ${i + 1}: ${reason}` };
+    previous = { hash: hashOf(block), seal: values.seal };
+  }
+  const stored = parsed.entries.find(({ key }) => key === 'seal')?.value;
+  if (blocks.length > 0 && previous.seal !== stored) return { count: blocks.length, reason: 'seal: the last entry is not the seal of the record' };
+  return { count: blocks.length, reason: null };
+}
+
+const sameLines = (a, b) => a.length === b.length && a.every((line, i) => line.equals(b[i]));
+const inside = (range, i) => range !== null && i >= range[0] && i < range[1];
+
+/** The lines of a record that are in neither excluded section, and the lines of each section, as raw buffers. */
+function partsOf(record) {
+  const raw = splitLines(record.bytes);
+  const sections = sectionsOf(record.parsed);
+  const part = (range) => (range === null ? [] : raw.slice(range[0], range[1]));
+  const kept = (i) => !inside(sections.deviations, i) && !inside(sections.errata, i);
+  return { raw, sections, rest: raw.filter((_, i) => kept(i)), unsealed: raw.filter((_, i) => kept(i) && i !== record.sealAt), deviations: part(sections.deviations), errata: part(sections.errata) };
+}
+
+/** Which allowed addition the change of a sealed record is: 'deviation', 'erratum' or null (docs/errata-and-deviations.md, "Which change is which"). */
+function additionOf(before, after) {
+  if (!after.readable) return null;
+  const from = partsOf(before);
+  const to = partsOf(after);
+  const sameErrata = sameLines(from.errata, to.errata);
+  const sameDeviations = sameLines(from.deviations, to.deviations);
+  if (sameErrata && !sameDeviations && sameLines(from.rest, to.rest)) return 'deviation';
+  if (!sameErrata && sameDeviations) {
+    const keyLine = (parts, record, key) => { const found = record.parsed.entries.find((entry) => entry.key === key); return found === undefined ? null : parts.raw[found.at]; };
+    const same = (key) => { const a = keyLine(from, before, key); const b = keyLine(to, after, key); return a !== null && b !== null && a.equals(b); };
+    if (same('status') && same('date')) return 'erratum';
+  }
+  return null;
+}
+
+/** True when the commit `id` exists in the repository and is `base` or one of its ancestors. */
+function commitIn(repo, id, base) {
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
+  const result = spawnSync('git', ['-C', repo, 'rev-parse', '--verify', '--quiet', `${id}^{commit}`], { env: { ...inherited, GIT_TERMINAL_PROMPT: '0' } });
+  if (result.error) throw new Unreadable(`cannot run git: ${result.error.message}`);
+  if (result.status === 1) return false;
+  if (result.status !== 0) throw new Unreadable(`git rev-parse failed: ${result.stderr.toString('utf8').trim()}`);
+  return isAncestor(repo, id, base);
+}
+
+/** P-11 to P-13 for an erratum; `needs.clock` is set when the change waits. */
+function judgeErratum(before, after, { since, now, needs }) {
+  const found = [];
+  const from = partsOf(before);
+  const to = partsOf(after);
+  const reason = (() => {
+    if (to.errata.length < from.errata.length || !sameLines(to.errata.slice(0, from.errata.length), from.errata)) return 'earlier entry changed';
+    if (after.chain.count !== before.chain.count + 1) return 'not one new entry';
+    const { blocks } = entriesOf(after.parsed.lines.slice(to.sections.errata[0] + 1, to.sections.errata[1]), 'Erratum');
+    const added = readNote(blocks.at(-1), ERRATUM_KEYS, blocks.length);
+    if (added.values !== undefined && added.values['previous seal'] !== before.seal) return `previous seal: expected ${before.seal}`;
+    if (sameLines(from.unsealed, to.unsealed)) return 'no change of the text';
+    return null;
+  })();
+  if (reason !== null) found.push({ rule: 'P-11', detail: reason });
+  for (const key of FIXED_KEYS) {
+    const entry = (record) => { const e = record.parsed.entries.find((candidate) => asciiLower(candidate.key) === key); return e === undefined ? null : [record.parsed.lines[e.at], ...e.owned].join('\n'); };
+    if (entry(before) !== entry(after)) found.push({ rule: 'P-12', detail: key });
+  }
+  if (seal(after.bytes) !== before.seal) {
+    needs.clock = true;
+    const elapsed = since === undefined ? null : Math.max(0, now - since);
+    if (elapsed === null) found.push({ rule: 'P-13', detail: 'no clock' });
+    else if (elapsed < WAIT_MS) found.push({ rule: 'P-13', detail: `${Math.floor(elapsed / 3_600_000)}h of 48h` });
+  }
+  return found;
+}
+
+/** P-14 for a deviation note; the issues and pull requests it cites are added to `needs.cases`. */
+function judgeDeviation(before, after, { repo, base, cases, needs }) {
+  const from = partsOf(before);
+  const to = partsOf(after);
+  if (to.deviations.length < from.deviations.length || !sameLines(to.deviations.slice(0, from.deviations.length), from.deviations)) return [{ rule: 'P-14', detail: 'earlier entry changed' }];
+  const [heading, stop] = to.sections.deviations;
+  const first = from.sections.deviations === null ? 1 : from.deviations.length;
+  const { blocks, stray } = entriesOf(after.parsed.lines.slice(heading + first, stop), 'Deviation');
+  if (stray) return [{ rule: 'P-14', detail: 'text outside an entry' }];
+  if (blocks.length === 0) return [{ rule: 'P-14', detail: 'no new entry' }];
+  const earlier = before.parsed.lines.slice(...(from.sections.deviations ?? [0, 0])).map((line) => /^### Deviation ([1-9][0-9]{0,3})$/.exec(line)).filter(Boolean).map((m) => Number(m[1]));
+  const greatest = Math.max(0, ...earlier);
+  const found = [];
+  blocks.forEach((block, k) => {
+    const fail = (reason) => found.push({ rule: 'P-14', detail: `entry ${k + 1}: ${reason}` });
+    const { values, reason } = readNote(block, DEVIATION_KEYS, greatest + k + 1);
+    if (reason !== undefined) return fail(reason);
+    const cited = CASE_FORM.exec(values.case);
+    if (cited === null) return fail('case: expected issue N, pull N or commit HEX');
+    if (!reasonFits(values.reason)) return fail('reason: empty or too long');
+    if (cited[1] !== undefined) {
+      const number = Number(cited[2]);
+      needs.cases.set(`${cited[1]} ${number}`, { kind: cited[1], number });
+      if (!(cases?.[cited[1]] ?? []).includes(number)) return fail('case does not resolve');
+    } else if (!commitIn(repo, cited[3], base)) return fail('case does not resolve');
+    return undefined;
+  });
+  return found;
+}
+
 const isRelated = (changed, path) => changed === path || path.startsWith(`${changed}/`) || changed.startsWith(`${path}/`);
 
 /** True when `ancestor` is `descendant` or one of its ancestors. */
@@ -1027,15 +1224,18 @@ const identity = (problem) => JSON.stringify([problem.file, problem.rule, sameDe
  * Judges the head against the base (docs/checking-a-change.md). Returns { folder, settings, problems, acts, approval }: the records
  * folder, the problems of the settings of the base (and of the head, when the change touches them), the problems of the records, the
  * acts that need the owners' approval, and the count of that approval (docs/approvals.md; null unless `reviews`, as `readReviews`
- * returns them, and the ID of the `author` of the pull request are given). Throws Unreadable.
+ * returns them, and the ID of the `author` of the pull request are given), and what the caller could still look up (`needs`:
+ * the cited issues and pull requests, and whether the time since the head was first seen matters). `cases` is what exists, as
+ * `readCases` returns it; `since` and `now` are milliseconds (docs/errata-and-deviations.md). Throws Unreadable.
  */
-export function checkChange(repo, baseRev, headRev, { author, reviews } = {}) {
+export function checkChange(repo, baseRev, headRev, { author, reviews, cases, since, now = Date.now() } = {}) {
   const base = openCommit(repo, baseRev);
   const head = openCommit(repo, headRev);
   const read = readSettings(base);
   const { folder, sharedFolder, extraKeys } = read.settings;
   const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: head.commit, author, reviews });
-  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval };
+  const needs = { cases: new Map(), clock: false };
+  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, needs: { cases: [], clock: false } };
   const leavesOfBase = base.leaves();
   const leavesOfHead = head.leaves();
   const changed = [...new Set([...leavesOfBase.keys(), ...leavesOfHead.keys()])].filter((path) => leavesOfBase.get(path) !== leavesOfHead.get(path)).sort(byBytes);
@@ -1066,16 +1266,32 @@ export function checkChange(repo, baseRev, headRev, { author, reviews } = {}) {
   const problems = [];
   for (const name of before.keys()) if (!after.has(name)) problems.push({ file: name, rule: 'P-01' });
   const sealedKept = new Set([...before].filter(([name, record]) => record.sealed && after.has(name)).map(([name]) => name));
+  const additions = new Map();
   for (const name of sealedKept) {
     const got = compareSealed(before.get(name), after.get(name).bytes);
-    if (got) problems.push({ file: name, ...got });
+    if (got === null) continue;
+    const kind = got.rule === 'P-02' ? additionOf(before.get(name), after.get(name)) : null;
+    if (kind === null) {
+      problems.push({ file: name, ...got });
+      continue;
+    }
+    additions.set(name, kind);
+    const found = kind === 'erratum'
+      ? judgeErratum(before.get(name), after.get(name), { since, now, needs })
+      : judgeDeviation(before.get(name), after.get(name), { repo, base: base.commit, cases, needs });
+    for (const problem of found) problems.push({ file: name, ...problem });
   }
   const shared = `${folder}/${sharedFolder}`;
   for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
 
   const known = new Set(validateOpened(base, folder, { extraKeys, sharedFolder }).map(identity));
   for (const problem of validateOpened(head, folder, { extraKeys, sharedFolder })) {
-    if (sealedKept.has(problem.file) && CONTENT_RULES.has(problem.rule)) continue;
+    if (sealedKept.has(problem.file) && CONTENT_RULES.has(problem.rule)) {
+      const kind = additions.get(problem.file);
+      const applies = kind === 'erratum' ? problem.rule !== 'V-10' : kind === 'deviation' && DEVIATION_RULES.has(problem.rule);
+      if (applies && !known.has(identity(problem))) problems.push(problem);
+      continue;
+    }
     if (known.has(identity(problem)) && (problem.file === null || sameEntry(problem.file))) continue;
     problems.push(problem);
   }
@@ -1084,6 +1300,7 @@ export function checkChange(repo, baseRev, headRev, { author, reviews } = {}) {
 
   const acts = [];
   for (const [name, record] of after) if (record.sealed && !before.get(name)?.sealed) acts.push({ kind: 'accept', path: `${folder}/${name}` });
+  for (const [name, kind] of additions) acts.push({ kind, path: `${folder}/${name}` });
   if (settingsTouched) {
     acts.push({ kind: 'settings', path: SETTINGS_PATH });
     if (changesOwners(read.settings, headRead.settings)) acts.push({ kind: 'owners', path: SETTINGS_PATH });
@@ -1092,7 +1309,8 @@ export function checkChange(repo, baseRev, headRev, { author, reviews } = {}) {
 
   problems.sort((a, b) => byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
   acts.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
-  return { folder, settings, problems, acts, approval };
+  const wanted = [...needs.cases.values()].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'issue' ? -1 : 1) || a.number - b.number);
+  return { folder, settings, problems, acts, approval, needs: { cases: wanted, clock: needs.clock } };
 }
 
 // ---- the owners' approval: docs/approvals.md --------------------------------------------------------------------------------
@@ -1134,6 +1352,36 @@ export function readReviews(bytes) {
 }
 
 /** How one owner counts: 'author' and 'approved' count; 'none', 'changes', 'dismissed', 'other' and 'earlier' do not. */
+const MAX_CASE = 999_999_999;
+const MAX_CASES = 1000;
+
+/** The issues and pull requests that exist, from the JSON file `--cases`: { issue: [numbers], pull: [numbers] }. Throws Unreadable. */
+export function readCases(bytes) {
+  let document;
+  try {
+    document = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes));
+  } catch {
+    throw new Unreadable('is not one JSON document');
+  }
+  if (typeof document !== 'object' || document === null || Array.isArray(document) || Object.keys(document).sort().join() !== 'issue,pull') {
+    throw new Unreadable('is not an object with the keys issue and pull');
+  }
+  for (const kind of ['issue', 'pull']) {
+    const list = document[kind];
+    if (!Array.isArray(list) || list.length > MAX_CASES || !list.every((n) => Number.isSafeInteger(n) && n >= 1 && n <= MAX_CASE) || new Set(list).size !== list.length) {
+      throw new Unreadable(`${kind}: is not a list of at most ${MAX_CASES} distinct numbers from 1 to ${MAX_CASE}`);
+    }
+  }
+  return { issue: [...document.issue], pull: [...document.pull] };
+}
+
+/** The milliseconds of a UTC time written YYYY-MM-DDTHH:MM:SSZ, or null when the text is not one. */
+export function readTime(text) {
+  if (!REVIEW_TIME.test(text)) return null;
+  const at = Date.parse(text);
+  return Number.isNaN(at) || new Date(at).toISOString() !== `${text.slice(0, -1)}.000Z` ? null : at;
+}
+
 function howOwnerCounts(id, { head, author, reviews }) {
   if (id === author) return 'author';
   const decisive = reviews.filter((review) => review.user === id && review.state !== 'COMMENTED' && review.state !== 'PENDING');
@@ -1180,9 +1428,15 @@ const USAGE = `Usage:
   record-keeper.mjs config --commit <revision> [--repo <path>]
                                             print the settings of a commit and what is wrong with its settings file
   record-keeper.mjs check-pr --base <revision> --head <revision> [--repo <path>] [--reviews <file> --author <id>]
+                             [--cases <file>] [--since <time>]
                                             judge the records folder of the head against the base, with the settings of the base;
                                             with the reviews of the pull request (a JSON file) and the ID of its author, also
-                                            say whether the owners have approved the acts
+                                            say whether the owners have approved the acts; with the issues and pull requests
+                                            that exist (a JSON file) and the time the head was first seen (UTC, like
+                                            2026-11-07T15:50:34Z), also judge the deviation notes and the 48 hours of an erratum
+  record-keeper.mjs needs --base <revision> --head <revision> [--repo <path>]
+                                            print what the caller has to look up for check-pr: the cited issues and pull
+                                            requests ("case issue 12") and "clock"
 `;
 
 function describeFailure(file, result) {
@@ -1304,14 +1558,35 @@ function runConfig(args) {
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
 
-function runCheckPr(args, readFile) {
-  const options = readOptions(args, ['--base', '--head', '--repo', '--reviews', '--author']);
+function runCheckPr(args, readFile, now) {
+  const options = readOptions(args, ['--base', '--head', '--repo', '--reviews', '--author', '--cases', '--since']);
   if (!options || options.rest.length > 0 || !options.values.has('--base') || !options.values.has('--head')) return usageError;
   const only = (name) => options.values.get(name)?.at(-1);
   const reviewsFile = only('--reviews');
   const authorText = only('--author');
   if ((reviewsFile === undefined) !== (authorText === undefined) || (authorText !== undefined && !/^[1-9][0-9]{0,14}$/.test(authorText))) return usageError;
-  let given = {};
+  let given = { now };
+  const sinceText = only('--since');
+  if (sinceText !== undefined) {
+    const since = readTime(sinceText);
+    if (since === null) return usageError;
+    given.since = since;
+  }
+  const casesFile = only('--cases');
+  if (casesFile !== undefined) {
+    let bytes;
+    try {
+      bytes = readFile(casesFile);
+    } catch (error) {
+      return { code: 2, stdout: '', stderr: `record-keeper: cannot read ${printable(casesFile)}: ${printable(error.message)}\n` };
+    }
+    try {
+      given.cases = readCases(bytes);
+    } catch (error) {
+      if (!(error instanceof Unreadable)) throw error;
+      return { code: 2, stdout: '', stderr: `record-keeper: ${printable(casesFile)}: ${error.message}\n` };
+    }
+  }
   if (reviewsFile !== undefined) {
     let bytes;
     try {
@@ -1320,7 +1595,7 @@ function runCheckPr(args, readFile) {
       return { code: 2, stdout: '', stderr: `record-keeper: cannot read ${printable(reviewsFile)}: ${printable(error.message)}\n` };
     }
     try {
-      given = { author: Number(authorText), reviews: readReviews(bytes) };
+      given = { ...given, author: Number(authorText), reviews: readReviews(bytes) };
     } catch (error) {
       if (!(error instanceof Unreadable)) throw error;
       return { code: 2, stdout: '', stderr: `record-keeper: ${printable(reviewsFile)}: ${error.message}\n` };
@@ -1350,15 +1625,32 @@ function runCheckPr(args, readFile) {
   return { code: 1, stdout: '', stderr: lines.join('') + actLines.join('') + approvalLine + count };
 }
 
+function runNeeds(args) {
+  const options = readOptions(args, ['--base', '--head', '--repo']);
+  if (!options || options.rest.length > 0 || !options.values.has('--base') || !options.values.has('--head')) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  let result;
+  try {
+    result = checkChange(only('--repo') ?? '.', only('--base'), only('--head'));
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  const lines = result.needs.cases.map(({ kind, number }) => `case ${kind} ${number}\n`);
+  if (result.needs.clock) lines.push('clock\n');
+  return { code: 0, stdout: lines.join(''), stderr: '' };
+}
+
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
-export function run(argv, { readFile = fs.readFileSync } = {}) {
+export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   const args = [...argv];
   if (args[0] === '--help' || args[0] === '-h') return { code: 0, stdout: USAGE, stderr: '' };
   const command = args.shift();
   if (command === 'seal') return runSeal(args, readFile);
   if (command === 'validate') return runValidate(args);
   if (command === 'config') return runConfig(args);
-  if (command === 'check-pr') return runCheckPr(args, readFile);
+  if (command === 'check-pr') return runCheckPr(args, readFile, now());
+  if (command === 'needs') return runNeeds(args);
   return usageError;
 }
 
