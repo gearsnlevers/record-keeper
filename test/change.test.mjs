@@ -167,6 +167,8 @@ describe('reading the commits', () => {
     process.env.GIT_INDEX_FILE = path.join(scratch, 'index');
     try {
       assert.deepEqual(checkChange(big, `b${i}`, `h${i}`).problems.map(({ rule }) => rule), ['V-08', 'P-01']);
+      const note = cases.findIndex((c) => c.id === 'x03-deviation-commit-in-the-base');
+      assert.deepEqual(checkChange(big, `b${note}`, `h${note}`).problems, []);
     } finally {
       for (const [name, value] of Object.entries(saved)) {
         if (value === undefined) delete process.env[name];
@@ -390,6 +392,7 @@ describe('errata and deviation notes: the options and the command needs', () => 
     assert.equal(missing.code, 2);
     assert.match(missing.stderr, /^record-keeper: cannot read nothing\.json: /);
     assert.throws(() => readCases(Buffer.from([0xff])), Unreadable);
+    assert.throws(() => readCases(Buffer.from('\ufeff{"issue":[],"pull":[]}')), Unreadable);
     assert.deepEqual(readCases(Buffer.from('{"pull":[2],"issue":[9,1]}')), { issue: [9, 1], pull: [2] });
     assert.deepEqual(readCases(Buffer.from(JSON.stringify({ issue: Array.from({ length: 1000 }, (_, i) => i + 1), pull: [999999999] }))).pull, [999999999]);
   });

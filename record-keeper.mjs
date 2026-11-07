@@ -1026,7 +1026,6 @@ const ERRATUM_KEYS = ['date', 'previous entry', 'previous seal', 'seal', 'reason
 const DEVIATION_KEYS = ['date', 'case', 'reason'];
 const ENTRY_HEADING = /^### (Erratum|Deviation) ([1-9][0-9]{0,3})$/;
 const ENTRY_ITEM = /^- ([a-z]+(?: [a-z]+)*): (\S(?:.*\S)?)$/;
-const ENTRY_HASH = /^sha256:[0-9a-f]{64}$/;
 const G1_SEAL = /^sha256-g1:[0-9a-f]{64}$/;
 const CASE_FORM = /^(?:(issue|pull) ([1-9][0-9]{0,8})|commit ([0-9a-f]{40}|[0-9a-f]{64}))$/;
 const FIXED_KEYS = ['applies-to', 'repos', 'window', 'supersedes'];
