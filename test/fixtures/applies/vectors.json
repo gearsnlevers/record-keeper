@@ -1,0 +1,8389 @@
+{
+"vectors": [
+{
+"item": "src/**",
+"path": "src/a.ts",
+"match": true
+},
+{
+"item": "src/**",
+"path": "src/x/a.ts",
+"match": true
+},
+{
+"item": "src/**",
+"path": "src",
+"match": false
+},
+{
+"item": "src/**",
+"path": "src/",
+"match": true
+},
+{
+"item": "src/**",
+"path": "srcx/a",
+"match": false
+},
+{
+"item": "src/**",
+"path": "a/src/b",
+"match": false
+},
+{
+"item": "src/**/*.ts",
+"path": "src/a.ts",
+"match": true
+},
+{
+"item": "src/**/*.ts",
+"path": "src/x/y/a.ts",
+"match": true
+},
+{
+"item": "src/**/*.ts",
+"path": "src/a.js",
+"match": false
+},
+{
+"item": "src/**/*.ts",
+"path": "src/x/a.tsx",
+"match": false
+},
+{
+"item": "src/**/*.ts",
+"path": "src/.ts",
+"match": true
+},
+{
+"item": "**/README.md",
+"path": "README.md",
+"match": true
+},
+{
+"item": "**/README.md",
+"path": "docs/README.md",
+"match": true
+},
+{
+"item": "**/README.md",
+"path": "docs/x/README.md",
+"match": true
+},
+{
+"item": "**/README.md",
+"path": "xREADME.md",
+"match": false
+},
+{
+"item": "*.mjs",
+"path": "record-keeper.mjs",
+"match": true
+},
+{
+"item": "*.mjs",
+"path": "src/a.mjs",
+"match": false
+},
+{
+"item": "*.mjs",
+"path": ".mjs",
+"match": true
+},
+{
+"item": "lib/*.mjs",
+"path": "lib/a.mjs",
+"match": true
+},
+{
+"item": "lib/*.mjs",
+"path": "lib/x/a.mjs",
+"match": false
+},
+{
+"item": "a**b",
+"path": "ab",
+"match": true
+},
+{
+"item": "a**b",
+"path": "a/x/b",
+"match": true
+},
+{
+"item": "a**b",
+"path": "axb",
+"match": true
+},
+{
+"item": "a**b",
+"path": "ba",
+"match": false
+},
+{
+"item": "a*b",
+"path": "a/b",
+"match": false
+},
+{
+"item": "a*b",
+"path": "ab",
+"match": true
+},
+{
+"item": "a*b",
+"path": "axxb",
+"match": true
+},
+{
+"item": "a/**/b",
+"path": "a/b",
+"match": true
+},
+{
+"item": "a/**/b",
+"path": "a/x/b",
+"match": true
+},
+{
+"item": "a/**/b",
+"path": "a/x/y/b",
+"match": true
+},
+{
+"item": "a/**/b",
+"path": "a/xb",
+"match": false
+},
+{
+"item": "a/**/b",
+"path": "a//b",
+"match": true
+},
+{
+"item": "a/**",
+"path": "a/",
+"match": true
+},
+{
+"item": "a/**",
+"path": "a",
+"match": false
+},
+{
+"item": "src/***",
+"path": "src/a",
+"match": true
+},
+{
+"item": "src/***",
+"path": "src/x/a",
+"match": true
+},
+{
+"item": "src/***",
+"path": "src/",
+"match": true
+},
+{
+"item": "**/**",
+"path": "a/b",
+"match": true
+},
+{
+"item": "**/",
+"path": "a/",
+"match": true
+},
+{
+"item": "**/",
+"path": "a",
+"match": false
+},
+{
+"item": "**",
+"path": "",
+"match": true
+},
+{
+"item": "**",
+"path": "a/b/c",
+"match": true
+},
+{
+"item": "*",
+"path": "a",
+"match": true
+},
+{
+"item": "*",
+"path": "a/b",
+"match": false
+},
+{
+"item": "*",
+"path": "",
+"match": true
+},
+{
+"item": "README.md",
+"path": "README.md",
+"match": true
+},
+{
+"item": "README.md",
+"path": "readme.md",
+"match": false
+},
+{
+"item": "README.md",
+"path": "README.mdx",
+"match": false
+},
+{
+"item": "README.md",
+"path": "x/README.md",
+"match": false
+},
+{
+"item": "README.md",
+"path": "READMEXmd",
+"match": false
+},
+{
+"item": "a?b",
+"path": "a?b",
+"match": true
+},
+{
+"item": "a?b",
+"path": "axb",
+"match": false
+},
+{
+"item": "a[b]c",
+"path": "a[b]c",
+"match": true
+},
+{
+"item": "a[b]c",
+"path": "abc",
+"match": false
+},
+{
+"item": "a{b,c}",
+"path": "a{b,c}",
+"match": true
+},
+{
+"item": "a{b,c}",
+"path": "ab",
+"match": false
+},
+{
+"item": "a(b)",
+"path": "a(b)",
+"match": true
+},
+{
+"item": "a+b",
+"path": "a+b",
+"match": true
+},
+{
+"item": "a+b",
+"path": "aab",
+"match": false
+},
+{
+"item": "a.b",
+"path": "a.b",
+"match": true
+},
+{
+"item": "a.b",
+"path": "axb",
+"match": false
+},
+{
+"item": "a\\b",
+"path": "a\\b",
+"match": true
+},
+{
+"item": "a^b",
+"path": "a^b",
+"match": true
+},
+{
+"item": "a$b",
+"path": "a$b",
+"match": true
+},
+{
+"item": "a|b",
+"path": "a|b",
+"match": true
+},
+{
+"item": "a|b",
+"path": "a",
+"match": false
+},
+{
+"item": "my file.txt",
+"path": "my file.txt",
+"match": true
+},
+{
+"item": "my file.txt",
+"path": "my_file.txt",
+"match": false
+},
+{
+"item": "docs/\u00e9.md",
+"path": "docs/\u00e9.md",
+"match": true
+},
+{
+"item": "docs/*.md",
+"path": "docs/\u00e9.md",
+"match": true
+},
+{
+"item": "docs/*.md",
+"path": "docs/e\u0301.md",
+"match": true
+},
+{
+"item": "d\u00f6cs/**",
+"path": "d\u00f6cs/a",
+"match": true
+},
+{
+"item": "a\ud83d\ude00*",
+"path": "a\ud83d\ude00b",
+"match": true
+},
+{
+"item": "a*",
+"path": "a\ud83d\ude00",
+"match": true
+},
+{
+"item": "a/\n",
+"path": "a/\n",
+"match": true
+},
+{
+"item": "a*",
+"path": "a\nb",
+"match": true
+},
+{
+"item": "a**",
+"path": "a\nb/c",
+"match": true
+},
+{
+"item": "a/*",
+"path": "a/\n",
+"match": true
+},
+{
+"item": "",
+"path": "",
+"match": true
+},
+{
+"item": "",
+"path": "a",
+"match": false
+},
+{
+"item": "/",
+"path": "/",
+"match": true
+},
+{
+"item": "/a",
+"path": "/a",
+"match": true
+},
+{
+"item": "./a",
+"path": "a",
+"match": false
+},
+{
+"item": "./a",
+"path": "./a",
+"match": true
+},
+{
+"item": "a/",
+"path": "a/",
+"match": true
+},
+{
+"item": "a//b",
+"path": "a//b",
+"match": true
+},
+{
+"item": "a//b",
+"path": "a/b",
+"match": false
+},
+{
+"item": "-",
+"path": "-",
+"match": true
+},
+{
+"item": "--",
+"path": "--",
+"match": true
+},
+{
+"item": "a-b",
+"path": "a-b",
+"match": true
+},
+{
+"item": "b/*",
+"path": "b/",
+"match": true
+},
+{
+"item": "b/*",
+"path": "b/a",
+"match": true
+},
+{
+"item": "b/*",
+"path": "b/ab.",
+"match": true
+},
+{
+"item": "b/*",
+"path": "B/.",
+"match": false
+},
+{
+"item": "b/*",
+"path": "b//.",
+"match": false
+},
+{
+"item": "b/*",
+"path": "b/ab.a",
+"match": true
+},
+{
+"item": "b/*",
+"path": "B/A",
+"match": false
+},
+{
+"item": "b/*",
+"path": "a/bba",
+"match": false
+},
+{
+"item": "b/*",
+"path": "a//a",
+"match": false
+},
+{
+"item": "b/*",
+"path": ".a//a",
+"match": false
+},
+{
+"item": "b/*",
+"path": "/b",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "bbb/b",
+"match": true
+},
+{
+"item": "bbb/b",
+"path": "BBB/B",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "bxbb/b",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "bbb/ba",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "ab/ba",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "aaa/",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "aaaa.",
+"match": false
+},
+{
+"item": "bbb/b",
+"path": "//.a",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "b/ab",
+"match": true
+},
+{
+"item": "b/ab",
+"path": "b/b",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "b//ab",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "b/xab",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "/a.a.",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "b.a",
+"match": false
+},
+{
+"item": "b/ab",
+"path": "bbb",
+"match": false
+},
+{
+"item": "b/ab",
+"path": ".a//a",
+"match": false
+},
+{
+"item": ".a//.",
+"path": ".a//.",
+"match": true
+},
+{
+"item": ".a//.",
+"path": ".ax//.",
+"match": false
+},
+{
+"item": ".a//.",
+"path": ".a/.",
+"match": false
+},
+{
+"item": ".a//.",
+"path": ".b.ab",
+"match": false
+},
+{
+"item": ".a//.",
+"path": "b..aa",
+"match": false
+},
+{
+"item": ".a//.",
+"path": ".bb//",
+"match": false
+},
+{
+"item": ".a//.",
+"path": "b./",
+"match": false
+},
+{
+"item": "b../",
+"path": "b../",
+"match": true
+},
+{
+"item": "b../",
+"path": "b../a",
+"match": false
+},
+{
+"item": "b../",
+"path": "bx../",
+"match": false
+},
+{
+"item": "b../",
+"path": "b..x/",
+"match": false
+},
+{
+"item": "b../",
+"path": "bba",
+"match": false
+},
+{
+"item": "b../",
+"path": "/b.",
+"match": false
+},
+{
+"item": "b../",
+"path": "bb.ab",
+"match": false
+},
+{
+"item": "b../",
+"path": "b//b.",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "//.a/",
+"match": true
+},
+{
+"item": "//.a/",
+"path": "/.a/",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "//.xa/",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "///.a/",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "//./a/",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "..b/a",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "a//b",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "aa//a",
+"match": false
+},
+{
+"item": "//.a/",
+"path": "a.bb/",
+"match": false
+},
+{
+"item": "ba//",
+"path": "ba//",
+"match": true
+},
+{
+"item": "ba//",
+"path": "BA//",
+"match": false
+},
+{
+"item": "ba//",
+"path": "b//",
+"match": false
+},
+{
+"item": "ba//",
+"path": "b/a//",
+"match": false
+},
+{
+"item": "ba//",
+"path": "ba//a",
+"match": false
+},
+{
+"item": "ba//",
+"path": "bb./a",
+"match": false
+},
+{
+"item": "ba//",
+"path": "abbaa",
+"match": false
+},
+{
+"item": "ba//",
+"path": "a//ba",
+"match": false
+},
+{
+"item": "ba//",
+"path": ".ab/.",
+"match": false
+},
+{
+"item": "**a**",
+"path": "b/a/.aa",
+"match": true
+},
+{
+"item": "**a**",
+"path": "b/a/.aa/b",
+"match": true
+},
+{
+"item": "**a**",
+"path": "a/bab/a/.",
+"match": true
+},
+{
+"item": "**a**",
+"path": "x/ab/a/.",
+"match": true
+},
+{
+"item": "**a**",
+"path": "a//baa/b",
+"match": true
+},
+{
+"item": "**a**",
+"path": "AAB/A/.",
+"match": false
+},
+{
+"item": "**a**",
+"path": "aa/a",
+"match": true
+},
+{
+"item": "**a**",
+"path": "aaab/",
+"match": true
+},
+{
+"item": "**a**",
+"path": ".aa./",
+"match": true
+},
+{
+"item": "**a**",
+"path": "b/b..",
+"match": false
+},
+{
+"item": "**a**",
+"path": "bbbbb",
+"match": false
+},
+{
+"item": ".b**/",
+"path": ".ba/b/",
+"match": true
+},
+{
+"item": ".b**/",
+"path": ".bb.a/",
+"match": true
+},
+{
+"item": ".b**/",
+"path": ".ba/",
+"match": true
+},
+{
+"item": ".b**/",
+"path": "b",
+"match": false
+},
+{
+"item": ".b**/",
+"path": ".ba",
+"match": false
+},
+{
+"item": ".b**/",
+"path": ".B",
+"match": false
+},
+{
+"item": ".b**/",
+"path": "/./",
+"match": false
+},
+{
+"item": ".b**/",
+"path": "a./ba",
+"match": false
+},
+{
+"item": ".b**/",
+"path": "./b./",
+"match": false
+},
+{
+"item": ".b**/",
+"path": "bba",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "aaaa/",
+"match": true
+},
+{
+"item": "aaaa/",
+"path": "AAAA/",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "axaaa/",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "aaaa/a",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "..a",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": ".ab",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "/a/",
+"match": false
+},
+{
+"item": "aaaa/",
+"path": "/b",
+"match": false
+},
+{
+"item": "*/*/",
+"path": "//",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "/a/",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "ab./ab./",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "aab.//",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "/ab.//",
+"match": false
+},
+{
+"item": "*/*/",
+"path": "ab/a/",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "./a//",
+"match": false
+},
+{
+"item": "*/*/",
+"path": "aa/.a",
+"match": false
+},
+{
+"item": "*/*/",
+"path": "a.b//",
+"match": true
+},
+{
+"item": "*/*/",
+"path": "/b..a",
+"match": false
+},
+{
+"item": "*/*/",
+"path": "baa.",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "/./.b",
+"match": true
+},
+{
+"item": "/./*b",
+"path": "/./ab",
+"match": true
+},
+{
+"item": "/./*b",
+"path": "/./ab.b",
+"match": true
+},
+{
+"item": "/./*b",
+"path": "/./AB.B",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "//./ab",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "/./b.b",
+"match": true
+},
+{
+"item": "/./*b",
+"path": "x/./ab",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "a./ba",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "baa/a",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "/abb",
+"match": false
+},
+{
+"item": "/./*b",
+"path": "a.b/.",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "//ab./b",
+"match": true
+},
+{
+"item": "//*/b",
+"path": "//./b",
+"match": true
+},
+{
+"item": "//*/b",
+"path": "///b",
+"match": true
+},
+{
+"item": "//*/b",
+"path": "/x/./b",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "//a/b./b",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "//./B",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "//ax/b",
+"match": true
+},
+{
+"item": "//*/b",
+"path": "a.bb/",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "a/a./",
+"match": false
+},
+{
+"item": "//*/b",
+"path": ".bbb.",
+"match": false
+},
+{
+"item": "//*/b",
+"path": "baa.",
+"match": false
+},
+{
+"item": "/b*",
+"path": "/ba",
+"match": true
+},
+{
+"item": "/b*",
+"path": "/bab.",
+"match": true
+},
+{
+"item": "/b*",
+"path": "/b",
+"match": true
+},
+{
+"item": "/b*",
+"path": "/bab.a",
+"match": true
+},
+{
+"item": "/b*",
+"path": "/B.",
+"match": false
+},
+{
+"item": "/b*",
+"path": "a/ba",
+"match": false
+},
+{
+"item": "/b*",
+"path": "bb.",
+"match": false
+},
+{
+"item": "/b*",
+"path": "",
+"match": false
+},
+{
+"item": "/b*",
+"path": "bab",
+"match": false
+},
+{
+"item": "/b*",
+"path": "//a/.",
+"match": false
+},
+{
+"item": "*.*a",
+"path": "ab..aa",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "a.aa",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "ab..a",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "...a",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "..a",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "A..A",
+"match": false
+},
+{
+"item": "*.*a",
+"path": "a/.ab.a",
+"match": false
+},
+{
+"item": "*.*a",
+"path": "..x.a",
+"match": true
+},
+{
+"item": "*.*a",
+"path": ".a./b",
+"match": false
+},
+{
+"item": "*.*a",
+"path": ".ba.a",
+"match": true
+},
+{
+"item": "*.*a",
+"path": "b/.b.",
+"match": false
+},
+{
+"item": "*.*a",
+"path": "aab/a",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "/bb.b",
+"match": true
+},
+{
+"item": "/bb.b",
+"path": "/xbb.b",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "/BB.B",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "/bb.xb",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "/bb/.b",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "a//bb",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "a/.ba",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "/bb.b",
+"path": ".a./",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "b/ab",
+"match": true
+},
+{
+"item": "b*/ab",
+"path": "ba/ab",
+"match": true
+},
+{
+"item": "b*/ab",
+"path": "b./ab",
+"match": true
+},
+{
+"item": "b*/ab",
+"path": "b/axb",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "bab.//ab",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "ba/axb",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "ba./ab",
+"match": true
+},
+{
+"item": "b*/ab",
+"path": "a/..",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "bb.",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": ".///b",
+"match": false
+},
+{
+"item": "b*/ab",
+"path": "abba/",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "a/baa",
+"match": true
+},
+{
+"item": "a/baa",
+"path": "a//baa",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "a/xbaa",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "A/BAA",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "/baa",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "bbab.",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "aab/",
+"match": false
+},
+{
+"item": "a/baa",
+"path": "./.a",
+"match": false
+},
+{
+"item": "a/baa",
+"path": ".bb//",
+"match": false
+},
+{
+"item": "b//a",
+"path": "b//a",
+"match": true
+},
+{
+"item": "b//a",
+"path": "bx//a",
+"match": false
+},
+{
+"item": "b//a",
+"path": "b//aa",
+"match": false
+},
+{
+"item": "b//a",
+"path": "b/a",
+"match": false
+},
+{
+"item": "b//a",
+"path": "ab//a",
+"match": false
+},
+{
+"item": "b//a",
+"path": ".ba.a",
+"match": false
+},
+{
+"item": "b//a",
+"path": "/.aa/",
+"match": false
+},
+{
+"item": "b//a",
+"path": "",
+"match": false
+},
+{
+"item": "b//a",
+"path": "//a.b",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "/..aa",
+"match": true
+},
+{
+"item": "/*.aa",
+"path": "/a.aa",
+"match": true
+},
+{
+"item": "/*.aa",
+"path": "/ab..aa",
+"match": true
+},
+{
+"item": "/*.aa",
+"path": "x/..aa",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "/.aaa",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "/.a/a",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": ".bbb.",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "/aa/",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "..aba",
+"match": false
+},
+{
+"item": "/*.aa",
+"path": "//b/b",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "./a.b",
+"match": true
+},
+{
+"item": "./a.b",
+"path": "a./a.b",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "./a.ba",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "./ab",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "aba",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "bb.",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "a/aa.",
+"match": false
+},
+{
+"item": "./a.b",
+"path": "b/b",
+"match": false
+},
+{
+"item": "/./*",
+"path": "/./.",
+"match": true
+},
+{
+"item": "/./*",
+"path": "/./ab.",
+"match": true
+},
+{
+"item": "/./*",
+"path": "a/./a",
+"match": false
+},
+{
+"item": "/./*",
+"path": "/./A",
+"match": true
+},
+{
+"item": "/./*",
+"path": "./a",
+"match": false
+},
+{
+"item": "/./*",
+"path": "b.a/b",
+"match": false
+},
+{
+"item": "/./*",
+"path": "/abb",
+"match": false
+},
+{
+"item": "/./*",
+"path": "a./",
+"match": false
+},
+{
+"item": "/./*",
+"path": "....",
+"match": false
+},
+{
+"item": "/../a",
+"path": "/../a",
+"match": true
+},
+{
+"item": "/../a",
+"path": "/../aa",
+"match": false
+},
+{
+"item": "/../a",
+"path": "/..//a",
+"match": false
+},
+{
+"item": "/../a",
+"path": "/x../a",
+"match": false
+},
+{
+"item": "/../a",
+"path": "/..x/a",
+"match": false
+},
+{
+"item": "/../a",
+"path": "//a.b",
+"match": false
+},
+{
+"item": "/../a",
+"path": "a.//",
+"match": false
+},
+{
+"item": "/../a",
+"path": "b/..",
+"match": false
+},
+{
+"item": "/../a",
+"path": "abb/.",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "a.a/",
+"match": true
+},
+{
+"item": "a.**/",
+"path": "a.b.a/",
+"match": true
+},
+{
+"item": "a.**/",
+"path": "a.",
+"match": true
+},
+{
+"item": "a.**/",
+"path": "aa.a/b/",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "a.b.a/a",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "a./",
+"match": true
+},
+{
+"item": "a.**/",
+"path": "/a.a/",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "./a/b",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "///.",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "./",
+"match": false
+},
+{
+"item": "a.**/",
+"path": "baa/a",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "ab.aa./",
+"match": true
+},
+{
+"item": "*aa./",
+"path": "aaa./",
+"match": true
+},
+{
+"item": "*aa./",
+"path": "aa./",
+"match": true
+},
+{
+"item": "*aa./",
+"path": "aa./a",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "aa/./",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "aaaa./",
+"match": true
+},
+{
+"item": "*aa./",
+"path": "a/b",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "a.b//",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "//a.b",
+"match": false
+},
+{
+"item": "*aa./",
+"path": "a//",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "bb/..",
+"match": true
+},
+{
+"item": "bb/*.",
+"path": "bb/.",
+"match": true
+},
+{
+"item": "bb/*.",
+"path": "bb/xa.",
+"match": true
+},
+{
+"item": "bb/*.",
+"path": "bb//ab..",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "BB/..",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "bb/ab.",
+"match": true
+},
+{
+"item": "bb/*.",
+"path": "ab..",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "..b/a",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "b.",
+"match": false
+},
+{
+"item": "bb/*.",
+"path": "a.a./",
+"match": false
+},
+{
+"item": "..*b",
+"path": "..ab.b",
+"match": true
+},
+{
+"item": "..*b",
+"path": "..ab",
+"match": true
+},
+{
+"item": "..*b",
+"path": "...b",
+"match": true
+},
+{
+"item": "..*b",
+"path": "...ba",
+"match": false
+},
+{
+"item": "..*b",
+"path": "a..ab",
+"match": false
+},
+{
+"item": "..*b",
+"path": "..xab",
+"match": true
+},
+{
+"item": "..*b",
+"path": "..",
+"match": false
+},
+{
+"item": "..*b",
+"path": "a..",
+"match": false
+},
+{
+"item": "..*b",
+"path": "./aab",
+"match": false
+},
+{
+"item": "..*b",
+"path": "..ab.",
+"match": false
+},
+{
+"item": "..*b",
+"path": "ab/ba",
+"match": false
+},
+{
+"item": "a.aa",
+"path": "a.aa",
+"match": true
+},
+{
+"item": "a.aa",
+"path": "a.a/a",
+"match": false
+},
+{
+"item": "a.aa",
+"path": "A.AA",
+"match": false
+},
+{
+"item": "a.aa",
+"path": ".aa",
+"match": false
+},
+{
+"item": "a.aa",
+"path": "bab.a",
+"match": false
+},
+{
+"item": "a.aa",
+"path": ".a/",
+"match": false
+},
+{
+"item": "a.aa",
+"path": "/bb.a",
+"match": false
+},
+{
+"item": "a.aa",
+"path": "//a/.",
+"match": false
+},
+{
+"item": "*a/",
+"path": "a/",
+"match": true
+},
+{
+"item": "*a/",
+"path": ".a/",
+"match": true
+},
+{
+"item": "*a/",
+"path": "ab.a/",
+"match": true
+},
+{
+"item": "*a/",
+"path": "aa/",
+"match": true
+},
+{
+"item": "*a/",
+"path": "A/",
+"match": false
+},
+{
+"item": "*a/",
+"path": "aa",
+"match": false
+},
+{
+"item": "*a/",
+"path": "a/ab.",
+"match": false
+},
+{
+"item": "*a/",
+"path": "./a..",
+"match": false
+},
+{
+"item": "*a/",
+"path": ".aba",
+"match": false
+},
+{
+"item": "*a/",
+"path": "////.",
+"match": false
+},
+{
+"item": "///*b",
+"path": "///.b",
+"match": true
+},
+{
+"item": "///*b",
+"path": "///ab.b",
+"match": true
+},
+{
+"item": "///*b",
+"path": "///ab",
+"match": true
+},
+{
+"item": "///*b",
+"path": "///ab.",
+"match": false
+},
+{
+"item": "///*b",
+"path": "///ba",
+"match": false
+},
+{
+"item": "///*b",
+"path": "//b",
+"match": false
+},
+{
+"item": "///*b",
+"path": "///.B",
+"match": false
+},
+{
+"item": "///*b",
+"path": "b.ab.",
+"match": false
+},
+{
+"item": "///*b",
+"path": "/.",
+"match": false
+},
+{
+"item": "///*b",
+"path": "ab..",
+"match": false
+},
+{
+"item": "///*b",
+"path": "bbab.",
+"match": false
+},
+{
+"item": "..///",
+"path": "..///",
+"match": true
+},
+{
+"item": "..///",
+"path": "..////",
+"match": false
+},
+{
+"item": "..///",
+"path": "..///a",
+"match": false
+},
+{
+"item": "..///",
+"path": "..//",
+"match": false
+},
+{
+"item": "..///",
+"path": "//.ba",
+"match": false
+},
+{
+"item": "..///",
+"path": "a.b",
+"match": false
+},
+{
+"item": "..///",
+"path": "ab.",
+"match": false
+},
+{
+"item": "..///",
+"path": "/a./a",
+"match": false
+},
+{
+"item": ".abab",
+"path": ".abab",
+"match": true
+},
+{
+"item": ".abab",
+"path": ".ABAB",
+"match": false
+},
+{
+"item": ".abab",
+"path": ".a/bab",
+"match": false
+},
+{
+"item": ".abab",
+"path": ".aba",
+"match": false
+},
+{
+"item": ".abab",
+"path": "a//a/",
+"match": false
+},
+{
+"item": ".abab",
+"path": "/a/.b",
+"match": false
+},
+{
+"item": ".abab",
+"path": "/./",
+"match": false
+},
+{
+"item": ".abab",
+"path": "/abb",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "a.a/a",
+"match": true
+},
+{
+"item": "a.a/a",
+"path": "a.a/aa",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "A.A/A",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "a./a/a",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "/.aa",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "a",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "a/aa.",
+"match": false
+},
+{
+"item": "a.a/a",
+"path": "//.a",
+"match": false
+},
+{
+"item": "*.///",
+"path": "a.///",
+"match": true
+},
+{
+"item": "*.///",
+"path": "..///",
+"match": true
+},
+{
+"item": "*.///",
+"path": "ab..///",
+"match": true
+},
+{
+"item": "*.///",
+"path": "A.///",
+"match": true
+},
+{
+"item": "*.///",
+"path": "a.//",
+"match": false
+},
+{
+"item": "*.///",
+"path": ".////",
+"match": false
+},
+{
+"item": "*.///",
+"path": "a.///a",
+"match": false
+},
+{
+"item": "*.///",
+"path": "b.aaa",
+"match": false
+},
+{
+"item": "*.///",
+"path": "ab/bb",
+"match": false
+},
+{
+"item": "*.///",
+"path": ".bb..",
+"match": false
+},
+{
+"item": "*.///",
+"path": "/bab",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "bb.a.",
+"match": true
+},
+{
+"item": "bb*a.",
+"path": "bbaa.",
+"match": true
+},
+{
+"item": "bb*a.",
+"path": "bba.",
+"match": true
+},
+{
+"item": "bb*a.",
+"path": "bbab.a.",
+"match": true
+},
+{
+"item": "bb*a.",
+"path": "abba.",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "xbb.a.",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "bb./a.",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "bb.a.a",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "b./a",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "b.ab/",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "aaa//",
+"match": false
+},
+{
+"item": "bb*a.",
+"path": "b/a.a",
+"match": false
+},
+{
+"item": "*b/",
+"path": "ab.b/",
+"match": true
+},
+{
+"item": "*b/",
+"path": ".b/",
+"match": true
+},
+{
+"item": "*b/",
+"path": "axb/",
+"match": true
+},
+{
+"item": "*b/",
+"path": "aab.b/",
+"match": true
+},
+{
+"item": "*b/",
+"path": "xb/",
+"match": true
+},
+{
+"item": "*b/",
+"path": "b/a",
+"match": false
+},
+{
+"item": "*b/",
+"path": "ba/b.",
+"match": false
+},
+{
+"item": "*b/",
+"path": "//..",
+"match": false
+},
+{
+"item": "*b/",
+"path": "baa/",
+"match": false
+},
+{
+"item": "*b/",
+"path": "a.b.a",
+"match": false
+},
+{
+"item": "/..b.",
+"path": "/..b.",
+"match": true
+},
+{
+"item": "/..b.",
+"path": "/..b.a",
+"match": false
+},
+{
+"item": "/..b.",
+"path": "/..B.",
+"match": false
+},
+{
+"item": "/..b.",
+"path": "/.x.b.",
+"match": false
+},
+{
+"item": "/..b.",
+"path": "/..b/.",
+"match": false
+},
+{
+"item": "/..b.",
+"path": ".b/b.",
+"match": false
+},
+{
+"item": "/..b.",
+"path": ".b//a",
+"match": false
+},
+{
+"item": "/..b.",
+"path": "./b//",
+"match": false
+},
+{
+"item": "/..b.",
+"path": ".b./a",
+"match": false
+},
+{
+"item": "/b.a*",
+"path": "/b.aa",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "/b.a.",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "/b.aab.",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "/b.a",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "//b.aa",
+"match": false
+},
+{
+"item": "/b.a*",
+"path": "/b.aaa",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "/b.aab.a",
+"match": true
+},
+{
+"item": "/b.a*",
+"path": "a.//",
+"match": false
+},
+{
+"item": "/b.a*",
+"path": "/...",
+"match": false
+},
+{
+"item": "/b.a*",
+"path": "/b/",
+"match": false
+},
+{
+"item": "/b.a*",
+"path": "a.b/b",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "/bba/",
+"match": true
+},
+{
+"item": "/bba/",
+"path": "a/bba/",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "/bb/",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "x/bba/",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "/bba/a",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "/.a",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "../bb",
+"match": false
+},
+{
+"item": "/bba/",
+"path": "ab./",
+"match": false
+},
+{
+"item": "/bba/",
+"path": ".a./",
+"match": false
+},
+{
+"item": ".baab",
+"path": ".baab",
+"match": true
+},
+{
+"item": ".baab",
+"path": ".ba/ab",
+"match": false
+},
+{
+"item": ".baab",
+"path": ".BAAB",
+"match": false
+},
+{
+"item": ".baab",
+"path": ".baa",
+"match": false
+},
+{
+"item": ".baab",
+"path": "a.baab",
+"match": false
+},
+{
+"item": ".baab",
+"path": "///.",
+"match": false
+},
+{
+"item": ".baab",
+"path": "/",
+"match": false
+},
+{
+"item": ".baab",
+"path": "./.bb",
+"match": false
+},
+{
+"item": ".baab",
+"path": "/b",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "/b.b",
+"match": true
+},
+{
+"item": "/b.b*",
+"path": "/b.b.",
+"match": true
+},
+{
+"item": "/b.b*",
+"path": "/b.xba",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "/b.b.a",
+"match": true
+},
+{
+"item": "/b.b*",
+"path": "/xb.b.",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "/B.B",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "a.//",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": ".bb..",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "bb./a",
+"match": false
+},
+{
+"item": "/b.b*",
+"path": "////.",
+"match": false
+},
+{
+"item": ".**a",
+"path": ".b/a/.a",
+"match": true
+},
+{
+"item": ".**a",
+"path": ".a/ba",
+"match": true
+},
+{
+"item": ".**a",
+"path": ".a",
+"match": true
+},
+{
+"item": ".**a",
+"path": ".a/b",
+"match": false
+},
+{
+"item": ".**a",
+"path": ".aa",
+"match": true
+},
+{
+"item": ".**a",
+"path": "a.a/ba",
+"match": false
+},
+{
+"item": ".**a",
+"path": "a.b/a/.a",
+"match": false
+},
+{
+"item": ".**a",
+"path": "a.b/.",
+"match": false
+},
+{
+"item": ".**a",
+"path": "a.ba/",
+"match": false
+},
+{
+"item": ".**a",
+"path": "ba",
+"match": false
+},
+{
+"item": ".**a",
+"path": "aaab/",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "/ab.a/",
+"match": true
+},
+{
+"item": "/*a*/",
+"path": "/aa/",
+"match": true
+},
+{
+"item": "/*a*/",
+"path": "/aaa/",
+"match": true
+},
+{
+"item": "/*a*/",
+"path": "/axa./",
+"match": true
+},
+{
+"item": "/*a*/",
+"path": "/aba./",
+"match": true
+},
+{
+"item": "/*a*/",
+"path": "a/aa/",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "//",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "../.a",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "a/./b",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "b/a.b",
+"match": false
+},
+{
+"item": "/*a*/",
+"path": "/bbb",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "..",
+"match": true
+},
+{
+"item": ".**/.",
+"path": ".b.a/.",
+"match": true
+},
+{
+"item": ".**/.",
+"path": ".a/.",
+"match": true
+},
+{
+"item": ".**/.",
+"path": ".x.",
+"match": false
+},
+{
+"item": ".**/.",
+"path": ".a//b/.",
+"match": true
+},
+{
+"item": ".**/.",
+"path": "a.b.a/.",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "..a",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "..b",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "ab/",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "baa/",
+"match": false
+},
+{
+"item": ".**/.",
+"path": "a./",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "b./a.",
+"match": true
+},
+{
+"item": "b./a.",
+"path": "bx./a.",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "b.a.",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "./a.",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "ab./a.",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "a//.a",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "b.b",
+"match": false
+},
+{
+"item": "b./a.",
+"path": "a//a",
+"match": false
+},
+{
+"item": "..*.*",
+"path": "..ab..",
+"match": true
+},
+{
+"item": "..*.*",
+"path": "....ab.",
+"match": true
+},
+{
+"item": "..*.*",
+"path": "....",
+"match": true
+},
+{
+"item": "..*.*",
+"path": "..ab...",
+"match": true
+},
+{
+"item": "..*.*",
+"path": "...",
+"match": true
+},
+{
+"item": "..*.*",
+"path": ".../.",
+"match": false
+},
+{
+"item": "..*.*",
+"path": "a.bb",
+"match": false
+},
+{
+"item": "..*.*",
+"path": "ba..a",
+"match": false
+},
+{
+"item": "..*.*",
+"path": "bbb.b",
+"match": false
+},
+{
+"item": "..*.*",
+"path": "ba",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "bbab.ab",
+"match": true
+},
+{
+"item": "bb*ab",
+"path": "bbab",
+"match": true
+},
+{
+"item": "bb*ab",
+"path": "bb.ab",
+"match": true
+},
+{
+"item": "bb*ab",
+"path": "bbaxb",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "abbab.ab",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "bb.aba",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "bbaba",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "aa//",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "/./a/",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "bb//b",
+"match": false
+},
+{
+"item": "bb*ab",
+"path": "aaab/",
+"match": false
+},
+{
+"item": ".*.",
+"path": "...",
+"match": true
+},
+{
+"item": ".*.",
+"path": "..",
+"match": true
+},
+{
+"item": ".*.",
+"path": ".a/.",
+"match": false
+},
+{
+"item": ".*.",
+"path": "./..",
+"match": false
+},
+{
+"item": ".*.",
+"path": "./.",
+"match": false
+},
+{
+"item": ".*.",
+"path": "..a",
+"match": false
+},
+{
+"item": ".*.",
+"path": "b/.",
+"match": false
+},
+{
+"item": ".*.",
+"path": "b.bb.",
+"match": false
+},
+{
+"item": ".*.",
+"path": ".//",
+"match": false
+},
+{
+"item": ".*.",
+"path": "ba../",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "/.ba.",
+"match": true
+},
+{
+"item": "/.b*.",
+"path": "/.b.",
+"match": true
+},
+{
+"item": "/.b*.",
+"path": "/.bab..",
+"match": true
+},
+{
+"item": "/.b*.",
+"path": "/.bxa.",
+"match": true
+},
+{
+"item": "/.b*.",
+"path": "/.BAB..",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "x/.ba.",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "a/.b..",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "/aa",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": ".b./",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "babbb",
+"match": false
+},
+{
+"item": "/.b*.",
+"path": "a.a./",
+"match": false
+},
+{
+"item": ".b/**",
+"path": ".b/a",
+"match": true
+},
+{
+"item": ".b/**",
+"path": ".b/b/a/.",
+"match": true
+},
+{
+"item": ".b/**",
+"path": ".b/a/b",
+"match": true
+},
+{
+"item": ".b/**",
+"path": "b//",
+"match": false
+},
+{
+"item": ".b/**",
+"path": "a.b/a",
+"match": false
+},
+{
+"item": ".b/**",
+"path": ".b/b/a/.a",
+"match": true
+},
+{
+"item": ".b/**",
+"path": "/a.a.",
+"match": false
+},
+{
+"item": ".b/**",
+"path": "./a..",
+"match": false
+},
+{
+"item": ".b/**",
+"path": ".b./a",
+"match": false
+},
+{
+"item": ".b/**",
+"path": "/b/",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "b/a/",
+"match": true
+},
+{
+"item": "b/a/",
+"path": "b/a/a",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "B/A/",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "ab/a/",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "bb/.",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "b/a/",
+"path": ".a/b/",
+"match": false
+},
+{
+"item": "b/a/",
+"path": "/.",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": ".aabab.",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".aab",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".abab.",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".aba",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".a.babx.",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".aaba/b.",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": "a.a.ba",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": ".aab.babx.",
+"match": true
+},
+{
+"item": ".a*b*",
+"path": ".ab/.",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": "ab/ba",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": "/b",
+"match": false
+},
+{
+"item": ".a*b*",
+"path": ".b..a",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "/.aaa",
+"match": true
+},
+{
+"item": "/.*aa",
+"path": "/.aa",
+"match": true
+},
+{
+"item": "/.*aa",
+"path": "/.ab.a",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "/.b.aa",
+"match": true
+},
+{
+"item": "/.*aa",
+"path": "/.ab.a/a",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "/..axa",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "a./bb",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": ".a.b/",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "./bbb",
+"match": false
+},
+{
+"item": "/.*aa",
+"path": "/aa.",
+"match": false
+},
+{
+"item": "*...b",
+"path": "....b",
+"match": true
+},
+{
+"item": "*...b",
+"path": "a...b",
+"match": true
+},
+{
+"item": "*...b",
+"path": "..b",
+"match": false
+},
+{
+"item": "*...b",
+"path": "x....b",
+"match": true
+},
+{
+"item": "*...b",
+"path": "a../.b",
+"match": false
+},
+{
+"item": "*...b",
+"path": ".../b",
+"match": false
+},
+{
+"item": "*...b",
+"path": "a.a//",
+"match": false
+},
+{
+"item": "*...b",
+"path": ".a/ab",
+"match": false
+},
+{
+"item": "*...b",
+"path": "..a//",
+"match": false
+},
+{
+"item": "*...b",
+"path": "/baa.",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": ".ab.bab",
+"match": true
+},
+{
+"item": ".*b*b",
+"path": ".ab.b",
+"match": true
+},
+{
+"item": ".*b*b",
+"path": ".ab.b.b",
+"match": true
+},
+{
+"item": ".*b*b",
+"path": "a..bb",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": ".xab.bab.b",
+"match": true
+},
+{
+"item": ".*b*b",
+"path": "..bab.ba",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": "a.ab.b",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": "aba./",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": "./b//",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": ".a/b.",
+"match": false
+},
+{
+"item": ".*b*b",
+"path": "a.a//",
+"match": false
+},
+{
+"item": "*.b..",
+"path": ".b..",
+"match": true
+},
+{
+"item": "*.b..",
+"path": "..b..",
+"match": true
+},
+{
+"item": "*.b..",
+"path": "ab..b..",
+"match": true
+},
+{
+"item": "*.b..",
+"path": "a..b..",
+"match": true
+},
+{
+"item": "*.b..",
+"path": ".B..",
+"match": false
+},
+{
+"item": "*.b..",
+"path": "aa.b..",
+"match": true
+},
+{
+"item": "*.b..",
+"path": "/b/a",
+"match": false
+},
+{
+"item": "*.b..",
+"path": "bbaa.",
+"match": false
+},
+{
+"item": "*.b..",
+"path": "bbab.",
+"match": false
+},
+{
+"item": "*.b..",
+"path": "/a//b",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "/b/ab",
+"match": true
+},
+{
+"item": "/b/ab",
+"path": "/b//ab",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "/B/AB",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "a/b/ab",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "/b/aba",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "/bbb",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "a/aa/",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": ".aa.a",
+"match": false
+},
+{
+"item": "/b/ab",
+"path": "///.b",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "/b/ab.a",
+"match": true
+},
+{
+"item": "/b/*a",
+"path": "/b/.a",
+"match": true
+},
+{
+"item": "/b/*a",
+"path": "/B/.A",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "/b/aaa",
+"match": true
+},
+{
+"item": "/b/*a",
+"path": "/b//a",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "/B/A",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "bb/",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "a//b",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "/b.",
+"match": false
+},
+{
+"item": "/b/*a",
+"path": "bb/ba",
+"match": false
+},
+{
+"item": "...aa",
+"path": "...aa",
+"match": true
+},
+{
+"item": "...aa",
+"path": "a...aa",
+"match": false
+},
+{
+"item": "...aa",
+"path": ".../aa",
+"match": false
+},
+{
+"item": "...aa",
+"path": "./..aa",
+"match": false
+},
+{
+"item": "...aa",
+"path": "bab.a",
+"match": false
+},
+{
+"item": "...aa",
+"path": "b.a/a",
+"match": false
+},
+{
+"item": "...aa",
+"path": "b//b",
+"match": false
+},
+{
+"item": "...aa",
+"path": "./bbb",
+"match": false
+},
+{
+"item": ".**.",
+"path": "..",
+"match": true
+},
+{
+"item": ".**.",
+"path": ".a.",
+"match": true
+},
+{
+"item": ".**.",
+"path": ".a/b.",
+"match": true
+},
+{
+"item": ".**.",
+"path": "./.",
+"match": true
+},
+{
+"item": ".**.",
+"path": ".a.a",
+"match": false
+},
+{
+"item": ".**.",
+"path": ".b/a//..",
+"match": true
+},
+{
+"item": ".**.",
+"path": "a./.",
+"match": false
+},
+{
+"item": ".**.",
+"path": ".a/.",
+"match": true
+},
+{
+"item": ".**.",
+"path": "/..//",
+"match": false
+},
+{
+"item": ".**.",
+"path": "./a",
+"match": false
+},
+{
+"item": ".**.",
+"path": "//aba",
+"match": false
+},
+{
+"item": ".**.",
+"path": "a/ab.",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "//a/",
+"match": true
+},
+{
+"item": "//a*/",
+"path": "//a./",
+"match": true
+},
+{
+"item": "//a*/",
+"path": "//aab./",
+"match": true
+},
+{
+"item": "//a*/",
+"path": "/x/a./",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "//a./a",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "a//a./",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "aaaa.",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "a/a/",
+"match": false
+},
+{
+"item": "//a*/",
+"path": ".bba/",
+"match": false
+},
+{
+"item": "//a*/",
+"path": "b..//",
+"match": false
+},
+{
+"item": "a//",
+"path": "a//",
+"match": true
+},
+{
+"item": "a//",
+"path": "xa//",
+"match": false
+},
+{
+"item": "a//",
+"path": "a//a",
+"match": false
+},
+{
+"item": "a//",
+"path": "a/",
+"match": false
+},
+{
+"item": "a//",
+"path": "a//b.",
+"match": false
+},
+{
+"item": "a//",
+"path": "ba/b",
+"match": false
+},
+{
+"item": "a//",
+"path": "//a..",
+"match": false
+},
+{
+"item": "a//",
+"path": "a./bb",
+"match": false
+},
+{
+"item": "*b*",
+"path": ".b",
+"match": true
+},
+{
+"item": "*b*",
+"path": "b",
+"match": true
+},
+{
+"item": "*b*",
+"path": "aba",
+"match": true
+},
+{
+"item": "*b*",
+"path": "b.",
+"match": true
+},
+{
+"item": "*b*",
+"path": "abb.",
+"match": true
+},
+{
+"item": "*b*",
+"path": "abaxb.",
+"match": true
+},
+{
+"item": "*b*",
+"path": "ab",
+"match": true
+},
+{
+"item": "*b*",
+"path": "ab./b",
+"match": false
+},
+{
+"item": "*b*",
+"path": "b////",
+"match": false
+},
+{
+"item": "*b*",
+"path": "//.b",
+"match": false
+},
+{
+"item": "*b*",
+"path": "/b",
+"match": false
+},
+{
+"item": "*b*",
+"path": "a.a.",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "aaaba",
+"match": true
+},
+{
+"item": "*aaba",
+"path": "ab.aaba",
+"match": true
+},
+{
+"item": "*aaba",
+"path": ".aaba",
+"match": true
+},
+{
+"item": "*aaba",
+"path": "aaaaba",
+"match": true
+},
+{
+"item": "*aaba",
+"path": "ab.aabxa",
+"match": false
+},
+{
+"item": "*aaba",
+"path": ".aab",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "aaabaa",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "b./b",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "//.a",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "aa.",
+"match": false
+},
+{
+"item": "*aaba",
+"path": "/./a/",
+"match": false
+},
+{
+"item": ".b**",
+"path": ".b",
+"match": true
+},
+{
+"item": ".b**",
+"path": ".bb/a/.",
+"match": true
+},
+{
+"item": ".b**",
+"path": ".ba/b",
+"match": true
+},
+{
+"item": ".b**",
+"path": ".b/",
+"match": true
+},
+{
+"item": ".b**",
+"path": ".baa",
+"match": true
+},
+{
+"item": ".b**",
+"path": "a.b",
+"match": false
+},
+{
+"item": ".b**",
+"path": ".b//",
+"match": true
+},
+{
+"item": ".b**",
+"path": "a.ba/b",
+"match": false
+},
+{
+"item": ".b**",
+"path": "/./..",
+"match": false
+},
+{
+"item": ".b**",
+"path": "aab/",
+"match": false
+},
+{
+"item": ".b**",
+"path": "b.bb/",
+"match": false
+},
+{
+"item": ".b**",
+"path": "/...",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "/bbaa",
+"match": true
+},
+{
+"item": "/bbaa",
+"path": "/bxbaa",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "/BBAA",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "/b/baa",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "/b.a",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "./abb",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "..../",
+"match": false
+},
+{
+"item": "/bbaa",
+"path": "aab/.",
+"match": false
+},
+{
+"item": "a//..",
+"path": "a//..",
+"match": true
+},
+{
+"item": "a//..",
+"path": "A//..",
+"match": false
+},
+{
+"item": "a//..",
+"path": "a//./.",
+"match": false
+},
+{
+"item": "a//..",
+"path": "a///..",
+"match": false
+},
+{
+"item": "a//..",
+"path": "aa//..",
+"match": false
+},
+{
+"item": "a//..",
+"path": ".bbb",
+"match": false
+},
+{
+"item": "a//..",
+"path": "a.//",
+"match": false
+},
+{
+"item": "a//..",
+"path": "baa",
+"match": false
+},
+{
+"item": "a//..",
+"path": "b",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "/a/ba",
+"match": true
+},
+{
+"item": "/a/ba",
+"path": "/A/BA",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "a/a/ba",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "/a/baa",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "a.bb/",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "ba/a",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "",
+"match": false
+},
+{
+"item": "/a/ba",
+"path": "b.ab.",
+"match": false
+},
+{
+"item": "b*../",
+"path": "bab.../",
+"match": true
+},
+{
+"item": "b*../",
+"path": "ba../",
+"match": true
+},
+{
+"item": "b*../",
+"path": "b.../",
+"match": true
+},
+{
+"item": "b*../",
+"path": "BA../",
+"match": false
+},
+{
+"item": "b*../",
+"path": "b...x/",
+"match": false
+},
+{
+"item": "b*../",
+"path": "aba../",
+"match": false
+},
+{
+"item": "b*../",
+"path": "ab.../",
+"match": false
+},
+{
+"item": "b*../",
+"path": "//a",
+"match": false
+},
+{
+"item": "b*../",
+"path": "/aa.",
+"match": false
+},
+{
+"item": "b*../",
+"path": "b//aa",
+"match": false
+},
+{
+"item": "b*../",
+"path": ".bb",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".a//",
+"match": true
+},
+{
+"item": ".a//",
+"path": ".xa//",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".a///",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".a/",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".A//",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".b..",
+"match": false
+},
+{
+"item": ".a//",
+"path": ".a.",
+"match": false
+},
+{
+"item": ".a//",
+"path": "//aa",
+"match": false
+},
+{
+"item": ".a//",
+"path": "/.aa/",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "b/a/.aa/",
+"match": true
+},
+{
+"item": "**aa/",
+"path": "/aa/",
+"match": true
+},
+{
+"item": "**aa/",
+"path": "a/baa/",
+"match": true
+},
+{
+"item": "**aa/",
+"path": "a/baa//",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "b/a/.aa/a",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "aa/a",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "aaxa/",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "bab",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "a./",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "/.b/a",
+"match": false
+},
+{
+"item": "**aa/",
+"path": "/a//b",
+"match": false
+},
+{
+"item": "/a.",
+"path": "/a.",
+"match": true
+},
+{
+"item": "/a.",
+"path": "//a.",
+"match": false
+},
+{
+"item": "/a.",
+"path": "/a.a",
+"match": false
+},
+{
+"item": "/a.",
+"path": "/.",
+"match": false
+},
+{
+"item": "/a.",
+"path": ".aba",
+"match": false
+},
+{
+"item": "/a.",
+"path": ".bbbb",
+"match": false
+},
+{
+"item": "/a.",
+"path": "/ab/b",
+"match": false
+},
+{
+"item": "/a.",
+"path": ".a/ab",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "/aab.aab.",
+"match": true
+},
+{
+"item": "/a*a*",
+"path": "/aaa",
+"match": true
+},
+{
+"item": "/a*a*",
+"path": "/a.aab.",
+"match": true
+},
+{
+"item": "/a*a*",
+"path": "/aa.",
+"match": true
+},
+{
+"item": "/a*a*",
+"path": "/A.AAB.",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "/AAAB.",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "a/aab.aa",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "/aab.aaa",
+"match": true
+},
+{
+"item": "/a*a*",
+"path": "ab/.b",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "b.aaa",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": ".a./",
+"match": false
+},
+{
+"item": "/a*a*",
+"path": "/./a/",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "//ba/",
+"match": true
+},
+{
+"item": "//b*/",
+"path": "//b/",
+"match": true
+},
+{
+"item": "//b*/",
+"path": "//BA/",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "a//b./",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "//bab/",
+"match": true
+},
+{
+"item": "//b*/",
+"path": "a//ba/",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "a/ab.",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "a/",
+"match": false
+},
+{
+"item": "//b*/",
+"path": ".baab",
+"match": false
+},
+{
+"item": "//b*/",
+"path": "./.",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "a/b/.b",
+"match": true
+},
+{
+"item": "**/.b",
+"path": ".b",
+"match": true
+},
+{
+"item": "**/.b",
+"path": "aa/b/.b",
+"match": true
+},
+{
+"item": "**/.b",
+"path": "a//.b",
+"match": true
+},
+{
+"item": "**/.b",
+"path": "a.b",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "a/x.b",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "ab",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "ba../",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "/a.bb",
+"match": false
+},
+{
+"item": "**/.b",
+"path": "a.bb",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": "bbbbb",
+"match": true
+},
+{
+"item": "bbbbb",
+"path": "abbbbb",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": "bbbbba",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": "a//.a",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": ".bb/b",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": ".bb//",
+"match": false
+},
+{
+"item": "bbbbb",
+"path": "aa//a",
+"match": false
+},
+{
+"item": "////b",
+"path": "////b",
+"match": true
+},
+{
+"item": "////b",
+"path": "////",
+"match": false
+},
+{
+"item": "////b",
+"path": "/////b",
+"match": false
+},
+{
+"item": "////b",
+"path": "////B",
+"match": false
+},
+{
+"item": "////b",
+"path": "////ba",
+"match": false
+},
+{
+"item": "////b",
+"path": ".b../",
+"match": false
+},
+{
+"item": "////b",
+"path": ".a.a",
+"match": false
+},
+{
+"item": "////b",
+"path": ".bab.",
+"match": false
+},
+{
+"item": "////b",
+"path": "baa",
+"match": false
+},
+{
+"item": "*ab*a",
+"path": "ab.abab.a",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "ab.a",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "aba",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "ab.ab.a",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": ".ab.aa",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "aab.aba",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "aabaa",
+"match": true
+},
+{
+"item": "*ab*a",
+"path": "/.abaa",
+"match": false
+},
+{
+"item": "*ab*a",
+"path": "./abb",
+"match": false
+},
+{
+"item": "*ab*a",
+"path": "a/bba",
+"match": false
+},
+{
+"item": "*ab*a",
+"path": "b.bb/",
+"match": false
+},
+{
+"item": "*ab*a",
+"path": "bbb.b",
+"match": false
+},
+{
+"item": "/*b*b",
+"path": "/bab",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "/b.b",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "/.bab.b",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "/ab.bb",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "/.ba.b",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "/abx.bab",
+"match": true
+},
+{
+"item": "/*b*b",
+"path": "a/ab.bab",
+"match": false
+},
+{
+"item": "/*b*b",
+"path": "/ab//",
+"match": false
+},
+{
+"item": "/*b*b",
+"path": ".",
+"match": false
+},
+{
+"item": "/*b*b",
+"path": "a.//",
+"match": false
+},
+{
+"item": "/*b*b",
+"path": "a...b",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "/.bb",
+"match": true
+},
+{
+"item": "/.*bb",
+"path": "/..bb",
+"match": true
+},
+{
+"item": "/.*bb",
+"path": "a/..bb",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "/x..bb",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "/..BB",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "/..bba",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "./b",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "/./b/",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": ".a/ab",
+"match": false
+},
+{
+"item": "/.*bb",
+"path": "a.b.a",
+"match": false
+},
+{
+"item": "*b..*",
+"path": "ab.b..",
+"match": true
+},
+{
+"item": "*b..*",
+"path": "ab..a",
+"match": true
+},
+{
+"item": "*b..*",
+"path": "ab..",
+"match": true
+},
+{
+"item": "*b..*",
+"path": "b..ab.",
+"match": true
+},
+{
+"item": "*b..*",
+"path": "a..ab.",
+"match": false
+},
+{
+"item": "*b..*",
+"path": "b..",
+"match": true
+},
+{
+"item": "*b..*",
+"path": "b../.",
+"match": false
+},
+{
+"item": "*b..*",
+"path": "ab/...",
+"match": false
+},
+{
+"item": "*b..*",
+"path": "abb",
+"match": false
+},
+{
+"item": "*b..*",
+"path": ".bba/",
+"match": false
+},
+{
+"item": "*b..*",
+"path": ".b",
+"match": false
+},
+{
+"item": "*b..*",
+"path": "aaa",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "b/b.a",
+"match": true
+},
+{
+"item": "b/b.a",
+"path": "ab/b.a",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "b/bx.a",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "b/b.aa",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "b/b.xa",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "babbb",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "/a.bb",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": ".a/b.",
+"match": false
+},
+{
+"item": "b/b.a",
+"path": "b//b",
+"match": false
+},
+{
+"item": "*..",
+"path": "a..",
+"match": true
+},
+{
+"item": "*..",
+"path": "...",
+"match": true
+},
+{
+"item": "*..",
+"path": "..",
+"match": true
+},
+{
+"item": "*..",
+"path": "AB...",
+"match": true
+},
+{
+"item": "*..",
+"path": "a./.",
+"match": false
+},
+{
+"item": "*..",
+"path": "b/bbb",
+"match": false
+},
+{
+"item": "*..",
+"path": "a../b",
+"match": false
+},
+{
+"item": "*..",
+"path": "aab/",
+"match": false
+},
+{
+"item": "*..",
+"path": "./.aa",
+"match": false
+},
+{
+"item": "b.*",
+"path": "b.a",
+"match": true
+},
+{
+"item": "b.*",
+"path": "b.ab.",
+"match": true
+},
+{
+"item": "b.*",
+"path": "b..",
+"match": true
+},
+{
+"item": "b.*",
+"path": "bx.",
+"match": false
+},
+{
+"item": "b.*",
+"path": "ab.ab.",
+"match": false
+},
+{
+"item": "b.*",
+"path": "b.aa",
+"match": true
+},
+{
+"item": "b.*",
+"path": "B.AB.",
+"match": false
+},
+{
+"item": "b.*",
+"path": "./b/b",
+"match": false
+},
+{
+"item": "b.*",
+"path": "a./ba",
+"match": false
+},
+{
+"item": "b.*",
+"path": "../",
+"match": false
+},
+{
+"item": "b.*",
+"path": "/a.//",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "bb.a.",
+"match": true
+},
+{
+"item": "bb.a.",
+"path": "abb.a.",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "BB.A.",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "bb.a.a",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "..aba",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "/./b/",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "aaaaa",
+"match": false
+},
+{
+"item": "bb.a.",
+"path": "...b/",
+"match": false
+},
+{
+"item": "...*",
+"path": "...a",
+"match": true
+},
+{
+"item": "...*",
+"path": "...",
+"match": true
+},
+{
+"item": "...*",
+"path": "...ab.",
+"match": true
+},
+{
+"item": "...*",
+"path": "....",
+"match": true
+},
+{
+"item": "...*",
+"path": "x...ab.",
+"match": false
+},
+{
+"item": "...*",
+"path": "...aa",
+"match": true
+},
+{
+"item": "...*",
+"path": "a....",
+"match": false
+},
+{
+"item": "...*",
+"path": "x...",
+"match": false
+},
+{
+"item": "...*",
+"path": "bab",
+"match": false
+},
+{
+"item": "...*",
+"path": "bb.",
+"match": false
+},
+{
+"item": "...*",
+"path": "baa/a",
+"match": false
+},
+{
+"item": "...*",
+"path": "/ab/b",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "..b/b",
+"match": true
+},
+{
+"item": "..b/b",
+"path": "..b/ba",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "..b//b",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "..bx/b",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "a..b/b",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "b//b",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "/.",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "./a",
+"match": false
+},
+{
+"item": "..b/b",
+"path": "b/.b/",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "abaa/",
+"match": true
+},
+{
+"item": "abaa/",
+"path": "aba/a/",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "aabaa/",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "abaax/",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "/abaa/",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "ab...",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "....",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "a../b",
+"match": false
+},
+{
+"item": "abaa/",
+"path": "/bba",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "ab/a/",
+"match": true
+},
+{
+"item": "ab/a/",
+"path": "AB/A/",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "aab/a/",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "abx/a/",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "aab/",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "/a./a",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "./b/b",
+"match": false
+},
+{
+"item": "ab/a/",
+"path": "a./ba",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "baaab..",
+"match": true
+},
+{
+"item": "b*a*.",
+"path": "baab..",
+"match": true
+},
+{
+"item": "b*a*.",
+"path": "ba.",
+"match": true
+},
+{
+"item": "b*a*.",
+"path": "bab.a..",
+"match": true
+},
+{
+"item": "b*a*.",
+"path": "baaab.",
+"match": true
+},
+{
+"item": "b*a*.",
+"path": "B.A.",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "BAAA.",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "BAAAB..",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "b.a/b",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "//.ab",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "a.a.",
+"match": false
+},
+{
+"item": "b*a*.",
+"path": "ba/b.",
+"match": false
+},
+{
+"item": "./aaa",
+"path": "./aaa",
+"match": true
+},
+{
+"item": "./aaa",
+"path": "./aaaa",
+"match": false
+},
+{
+"item": "./aaa",
+"path": ".//aaa",
+"match": false
+},
+{
+"item": "./aaa",
+"path": "./axaa",
+"match": false
+},
+{
+"item": "./aaa",
+"path": "./aaxa",
+"match": false
+},
+{
+"item": "./aaa",
+"path": "ab..",
+"match": false
+},
+{
+"item": "./aaa",
+"path": ".bb",
+"match": false
+},
+{
+"item": "./aaa",
+"path": "a.a",
+"match": false
+},
+{
+"item": "./aaa",
+"path": ".ab",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": ".bbb.",
+"match": true
+},
+{
+"item": ".bbb.",
+"path": "./bbb.",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": ".bxbb.",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": ".bbb.a",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": "a.bbb.",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": "/ba/b",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": ".b./a",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": "ba/..",
+"match": false
+},
+{
+"item": ".bbb.",
+"path": "/ab/a",
+"match": false
+},
+{
+"item": "*a./.",
+"path": "a./.",
+"match": true
+},
+{
+"item": "*a./.",
+"path": ".a./.",
+"match": true
+},
+{
+"item": "*a./.",
+"path": "ab.a./.",
+"match": true
+},
+{
+"item": "*a./.",
+"path": "aa./.",
+"match": true
+},
+{
+"item": "*a./.",
+"path": "ab.a.x/.",
+"match": false
+},
+{
+"item": "*a./.",
+"path": ".ax./.",
+"match": false
+},
+{
+"item": "*a./.",
+"path": "aa/./.",
+"match": false
+},
+{
+"item": "*a./.",
+"path": ".A./.",
+"match": false
+},
+{
+"item": "*a./.",
+"path": "ab./a",
+"match": false
+},
+{
+"item": "*a./.",
+"path": ".bba/",
+"match": false
+},
+{
+"item": "*a./.",
+"path": ".aba",
+"match": false
+},
+{
+"item": "*a./.",
+"path": ".b/b.",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "..a/.",
+"match": true
+},
+{
+"item": "..a/.",
+"path": "../a/.",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "..a/.a",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "/..a/.",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "..ax/.",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "./a",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "/.b/",
+"match": false
+},
+{
+"item": "..a/.",
+"path": "./b/b",
+"match": false
+},
+{
+"item": "..a/.",
+"path": ".bbbb",
+"match": false
+},
+{
+"item": "bb*",
+"path": "bb",
+"match": true
+},
+{
+"item": "bb*",
+"path": "bbab.",
+"match": true
+},
+{
+"item": "bb*",
+"path": "bb.",
+"match": true
+},
+{
+"item": "bb*",
+"path": "bbaa",
+"match": true
+},
+{
+"item": "bb*",
+"path": "/bbab.",
+"match": false
+},
+{
+"item": "bb*",
+"path": "b",
+"match": false
+},
+{
+"item": "bb*",
+"path": "a/bba",
+"match": false
+},
+{
+"item": "bb*",
+"path": "./a/b",
+"match": false
+},
+{
+"item": "bb*",
+"path": "bb/.",
+"match": false
+},
+{
+"item": "bb*",
+"path": "abaa",
+"match": false
+},
+{
+"item": ".a**/",
+"path": ".ab.a/",
+"match": true
+},
+{
+"item": ".a**/",
+"path": ".aa/",
+"match": true
+},
+{
+"item": ".a**/",
+"path": ".aab/",
+"match": true
+},
+{
+"item": ".a**/",
+"path": ".a/b/",
+"match": true
+},
+{
+"item": ".a**/",
+"path": ".ab.a/a",
+"match": false
+},
+{
+"item": ".a**/",
+"path": ".aa/b",
+"match": false
+},
+{
+"item": ".a**/",
+"path": "b/abb",
+"match": false
+},
+{
+"item": ".a**/",
+"path": ".bb//",
+"match": false
+},
+{
+"item": ".a**/",
+"path": "bb",
+"match": false
+},
+{
+"item": ".a**/",
+"path": "bbbbb",
+"match": false
+},
+{
+"item": "./b**",
+"path": "./bb/a/.",
+"match": true
+},
+{
+"item": "./b**",
+"path": "./ba/b",
+"match": true
+},
+{
+"item": "./b**",
+"path": "./bab",
+"match": true
+},
+{
+"item": "./b**",
+"path": "/ba",
+"match": false
+},
+{
+"item": "./b**",
+"path": "./bb/a/.a",
+"match": true
+},
+{
+"item": "./b**",
+"path": ".//bb/a/.",
+"match": false
+},
+{
+"item": "./b**",
+"path": "a./aa",
+"match": false
+},
+{
+"item": "./b**",
+"path": "/a/.",
+"match": false
+},
+{
+"item": "./b**",
+"path": "//..",
+"match": false
+},
+{
+"item": "./b**",
+"path": "/.aa",
+"match": false
+},
+{
+"item": "a.",
+"path": "a.",
+"match": true
+},
+{
+"item": "a.",
+"path": "/a.",
+"match": false
+},
+{
+"item": "a.",
+"path": "ax.",
+"match": false
+},
+{
+"item": "a.",
+"path": "A.",
+"match": false
+},
+{
+"item": "a.",
+"path": ".",
+"match": false
+},
+{
+"item": "a.",
+"path": "/.a",
+"match": false
+},
+{
+"item": "a.",
+"path": "/abb",
+"match": false
+},
+{
+"item": "a.",
+"path": "a/aa/",
+"match": false
+},
+{
+"item": "a.",
+"path": "a/",
+"match": false
+},
+{
+"item": "b**",
+"path": "ba",
+"match": true
+},
+{
+"item": "b**",
+"path": "bb/a/.",
+"match": true
+},
+{
+"item": "b**",
+"path": "b/",
+"match": true
+},
+{
+"item": "b**",
+"path": "/",
+"match": false
+},
+{
+"item": "b**",
+"path": "a/b",
+"match": false
+},
+{
+"item": "b**",
+"path": "b/b",
+"match": true
+},
+{
+"item": "b**",
+"path": "xbb/a/.",
+"match": false
+},
+{
+"item": "b**",
+"path": ".aa.a",
+"match": false
+},
+{
+"item": "b**",
+"path": "//aa",
+"match": false
+},
+{
+"item": "b**",
+"path": "///a",
+"match": false
+},
+{
+"item": "b**",
+"path": "bb/",
+"match": true
+},
+{
+"item": "ab/ba",
+"path": "ab/ba",
+"match": true
+},
+{
+"item": "ab/ba",
+"path": "AB/BA",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": "aab/ba",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": "ab/baa",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": ".b/b",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": ".ab.a",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": "a.a./",
+"match": false
+},
+{
+"item": "ab/ba",
+"path": ".b.b.",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": "/.b.a",
+"match": true
+},
+{
+"item": "/*b.a",
+"path": "/ab.a",
+"match": true
+},
+{
+"item": "/*b.a",
+"path": "/abx.b.a",
+"match": true
+},
+{
+"item": "/*b.a",
+"path": "/ab.xb.a",
+"match": true
+},
+{
+"item": "/*b.a",
+"path": "/..a",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": "a/ab.b.a",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": "b/abb",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": ".a",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": "ba../",
+"match": false
+},
+{
+"item": "/*b.a",
+"path": "b/b.",
+"match": false
+},
+{
+"item": "*b*.*",
+"path": "bab..",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "abab..ab.",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": ".b.",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "ba..",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "ab/.bab..",
+"match": false
+},
+{
+"item": "*b*.*",
+"path": "ab.b.ab.a",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "ab...a",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "ab.ba..",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "/ab",
+"match": false
+},
+{
+"item": "*b*.*",
+"path": "b/..",
+"match": false
+},
+{
+"item": "*b*.*",
+"path": "b.ab.",
+"match": true
+},
+{
+"item": "*b*.*",
+"path": "aa",
+"match": false
+},
+{
+"item": "*.../",
+"path": "..../",
+"match": true
+},
+{
+"item": "*.../",
+"path": "ab..../",
+"match": true
+},
+{
+"item": "*.../",
+"path": "a..../",
+"match": true
+},
+{
+"item": "*.../",
+"path": "ab.../",
+"match": true
+},
+{
+"item": "*.../",
+"path": "a../",
+"match": false
+},
+{
+"item": "*.../",
+"path": ".../",
+"match": true
+},
+{
+"item": "*.../",
+"path": "aa/",
+"match": false
+},
+{
+"item": "*.../",
+"path": ".ba",
+"match": false
+},
+{
+"item": "*.../",
+"path": "/bbb",
+"match": false
+},
+{
+"item": "*.../",
+"path": "aaa.",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "ab//a",
+"match": true
+},
+{
+"item": "ab//a",
+"path": "ab//",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "axb//a",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "/ab//a",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "a/b//a",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "a./bb",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "abba.",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "aba/",
+"match": false
+},
+{
+"item": "ab//a",
+"path": "bb.",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "/baa",
+"match": true
+},
+{
+"item": "/*baa",
+"path": "/abaa",
+"match": true
+},
+{
+"item": "/*baa",
+"path": "/xbaa",
+"match": true
+},
+{
+"item": "/*baa",
+"path": "/.baxa",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "/aba/a",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "/.baaa",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "..",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "ba/b.",
+"match": false
+},
+{
+"item": "/*baa",
+"path": "/./..",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "a/aab.",
+"match": true
+},
+{
+"item": "a/a*",
+"path": "a/a.",
+"match": true
+},
+{
+"item": "a/a*",
+"path": "a/a",
+"match": true
+},
+{
+"item": "a/a*",
+"path": "a/axab.",
+"match": true
+},
+{
+"item": "a/a*",
+"path": "A/A.",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "a/aab",
+"match": true
+},
+{
+"item": "a/a*",
+"path": "aa.",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "/a/",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "a/.",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "b/.//",
+"match": false
+},
+{
+"item": "a/a*",
+"path": "bb/ba",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "b.a./",
+"match": true
+},
+{
+"item": "b.a./",
+"path": "b.a./a",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "b.a.",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "b.a/",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "ab.a./",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "./a/.",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "./b//",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "aab",
+"match": false
+},
+{
+"item": "b.a./",
+"path": "/bab",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "bab./a/",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "bab././",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "b/./",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "b./ab./",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "bab././/",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "aba/./",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "b/ab.x/",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "bx./a/",
+"match": true
+},
+{
+"item": "b*/*/",
+"path": "/.a",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "/...a",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "/a/.b",
+"match": false
+},
+{
+"item": "b*/*/",
+"path": "../b",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": ".aab..ab.",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": "a..",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": "ab.a..ab.",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": "aa...",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": "aab...",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": ".AAB..A",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": "a..aa",
+"match": true
+},
+{
+"item": "*a*.*",
+"path": "AB.A.AB.",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": "/ab",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": "/aa.",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": "/ba",
+"match": false
+},
+{
+"item": "*a*.*",
+"path": "ab.aa",
+"match": true
+},
+{
+"item": "a//*b",
+"path": "a//b",
+"match": true
+},
+{
+"item": "a//*b",
+"path": "a//ab.b",
+"match": true
+},
+{
+"item": "a//*b",
+"path": "ax//ab.b",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "aa//b",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "A//AB.B",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "a//ba",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "/.",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "/bba",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "aa.a.",
+"match": false
+},
+{
+"item": "a//*b",
+"path": "/.b.b",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "aab.a.a",
+"match": true
+},
+{
+"item": "a*a.a",
+"path": "aa.a",
+"match": true
+},
+{
+"item": "a*a.a",
+"path": "AAB.A.A",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "a.a.aa",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "aaa.a",
+"match": true
+},
+{
+"item": "a*a.a",
+"path": "../bb",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "//a",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "/.abb",
+"match": false
+},
+{
+"item": "a*a.a",
+"path": "../",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "ab.ba/",
+"match": true
+},
+{
+"item": "*b*a/",
+"path": "baa/",
+"match": true
+},
+{
+"item": "*b*a/",
+"path": ".ba/",
+"match": true
+},
+{
+"item": "*b*a/",
+"path": "axb.bab.a/",
+"match": true
+},
+{
+"item": "*b*a/",
+"path": "b.ax/",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "abab.a/a",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": ".BAB.A/",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "aaa/",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "aab/",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "bbb/",
+"match": false
+},
+{
+"item": "*b*a/",
+"path": "bb/",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "./b/a",
+"match": true
+},
+{
+"item": "./b/a",
+"path": ".b/a",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "./B/A",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "x./b/a",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "bab",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "bb/a/",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "a./b.",
+"match": false
+},
+{
+"item": "./b/a",
+"path": "/a//b",
+"match": false
+},
+{
+"item": "./*.*",
+"path": "./a..",
+"match": true
+},
+{
+"item": "./*.*",
+"path": "./..ab.",
+"match": true
+},
+{
+"item": "./*.*",
+"path": "./..a",
+"match": true
+},
+{
+"item": "./*.*",
+"path": "./.",
+"match": true
+},
+{
+"item": "./*.*",
+"path": "a./a.a",
+"match": false
+},
+{
+"item": "./*.*",
+"path": "./A.",
+"match": true
+},
+{
+"item": "./*.*",
+"path": "/ab..ab.",
+"match": false
+},
+{
+"item": "./*.*",
+"path": ".x/..ab.",
+"match": false
+},
+{
+"item": "./*.*",
+"path": "ab...",
+"match": false
+},
+{
+"item": "./*.*",
+"path": ".a.b/",
+"match": false
+},
+{
+"item": "./*.*",
+"path": "a.a//",
+"match": false
+},
+{
+"item": "./*.*",
+"path": ".bbb.",
+"match": false
+},
+{
+"item": "a",
+"path": "a",
+"match": true
+},
+{
+"item": "a",
+"path": "/a",
+"match": false
+},
+{
+"item": "a",
+"path": "",
+"match": false
+},
+{
+"item": "a",
+"path": "xa",
+"match": false
+},
+{
+"item": "a",
+"path": "aa",
+"match": false
+},
+{
+"item": "a",
+"path": "ab.",
+"match": false
+},
+{
+"item": "a",
+"path": ".a///",
+"match": false
+},
+{
+"item": "a",
+"path": "/a./a",
+"match": false
+},
+{
+"item": "a",
+"path": "a.//",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": "/ab./a.",
+"match": true
+},
+{
+"item": "/*/a*",
+"path": "/a/a.",
+"match": true
+},
+{
+"item": "/*/a*",
+"path": "/./aa",
+"match": true
+},
+{
+"item": "/*/a*",
+"path": "/./a",
+"match": true
+},
+{
+"item": "/*/a*",
+"path": "//a",
+"match": true
+},
+{
+"item": "/*/a*",
+"path": "//xaa",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": "a//a.",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": "/b.a",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": "b.aa",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": ".aba",
+"match": false
+},
+{
+"item": "/*/a*",
+"path": "ab/a.",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "/b./",
+"match": true
+},
+{
+"item": "/b.**",
+"path": "/b.a",
+"match": true
+},
+{
+"item": "/b.**",
+"path": "/b.ab",
+"match": true
+},
+{
+"item": "/b.**",
+"path": "/b.b/a/.a",
+"match": true
+},
+{
+"item": "/b.**",
+"path": "/B.A/B",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "a/b.a",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "b.aaa",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "bb.b",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "/ba.a",
+"match": false
+},
+{
+"item": "/b.**",
+"path": "a//bb",
+"match": false
+},
+{
+"item": "//.",
+"path": "//.",
+"match": true
+},
+{
+"item": "//.",
+"path": "a//.",
+"match": false
+},
+{
+"item": "//.",
+"path": "///.",
+"match": false
+},
+{
+"item": "//.",
+"path": "x//.",
+"match": false
+},
+{
+"item": "//.",
+"path": "//.a",
+"match": false
+},
+{
+"item": "//.",
+"path": "bbaa.",
+"match": false
+},
+{
+"item": "//.",
+"path": "/a.a/",
+"match": false
+},
+{
+"item": "//.",
+"path": ".///b",
+"match": false
+},
+{
+"item": "//.",
+"path": "./a..",
+"match": false
+},
+{
+"item": "**/b/",
+"path": "a/b/b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "b.a/b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "a/b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "b.a/b//",
+"match": false
+},
+{
+"item": "**/b/",
+"path": "ab.a/b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "B/",
+"match": false
+},
+{
+"item": "**/b/",
+"path": "ba/b/",
+"match": true
+},
+{
+"item": "**/b/",
+"path": "a/b/b",
+"match": false
+},
+{
+"item": "**/b/",
+"path": "abaaa",
+"match": false
+},
+{
+"item": "**/b/",
+"path": ".aa./",
+"match": false
+},
+{
+"item": "**/b/",
+"path": ".bba",
+"match": false
+},
+{
+"item": "./a.",
+"path": "./a.",
+"match": true
+},
+{
+"item": "./a.",
+"path": "a./a.",
+"match": false
+},
+{
+"item": "./a.",
+"path": "./xa.",
+"match": false
+},
+{
+"item": "./a.",
+"path": ".//a.",
+"match": false
+},
+{
+"item": "./a.",
+"path": "./A.",
+"match": false
+},
+{
+"item": "./a.",
+"path": "/.b/a",
+"match": false
+},
+{
+"item": "./a.",
+"path": ".bba",
+"match": false
+},
+{
+"item": "./a.",
+"path": "ba/b",
+"match": false
+},
+{
+"item": "./a.",
+"path": "..",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": "aab/a",
+"match": true
+},
+{
+"item": "*ab/a",
+"path": "ab.ab/a",
+"match": true
+},
+{
+"item": "*ab/a",
+"path": "ab/a",
+"match": true
+},
+{
+"item": "*ab/a",
+"path": "AB.AB/A",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": ".ab/aa",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": "ab/xa",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": "ab..",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": "..aba",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": ".b./b",
+"match": false
+},
+{
+"item": "*ab/a",
+"path": "bba",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "/..ab",
+"match": true
+},
+{
+"item": "/.*ab",
+"path": "/.ab.ab",
+"match": true
+},
+{
+"item": "/.*ab",
+"path": "/.aba",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": ".ab.ab",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "/.a",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "//..ab",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "a/..",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "bb..a",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "/.*ab",
+"path": "baa/a",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "/aab",
+"match": true
+},
+{
+"item": "/aa*b",
+"path": "/aaab.b",
+"match": true
+},
+{
+"item": "/aa*b",
+"path": "/AA.B",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "/aaxab",
+"match": true
+},
+{
+"item": "/aa*b",
+"path": "/AAB",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "/aa/b",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "ba.ba",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "babb/",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "aaab/",
+"match": false
+},
+{
+"item": "/aa*b",
+"path": "aabbb",
+"match": false
+},
+{
+"item": "b/",
+"path": "b/",
+"match": true
+},
+{
+"item": "b/",
+"path": "B/",
+"match": false
+},
+{
+"item": "b/",
+"path": "/",
+"match": false
+},
+{
+"item": "b/",
+"path": "xb/",
+"match": false
+},
+{
+"item": "b/",
+"path": "/a./a",
+"match": false
+},
+{
+"item": "b/",
+"path": "/a/.b",
+"match": false
+},
+{
+"item": "b/",
+"path": "/ba.a",
+"match": false
+},
+{
+"item": "b/",
+"path": ".//",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "/b.bb",
+"match": true
+},
+{
+"item": "/b.bb",
+"path": "a/b.bb",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "/B.BB",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "/b.xbb",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "...",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "ba..a",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": ".bba",
+"match": false
+},
+{
+"item": "/b.bb",
+"path": "/a/",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": ".a./a",
+"match": true
+},
+{
+"item": ".a*/a",
+"path": ".aa/a",
+"match": true
+},
+{
+"item": ".a*/a",
+"path": ".aab./aa",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": ".a./xa",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": "a.a./a",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": "a/a",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": ".a.b/",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": "//b.",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": "aa/.a",
+"match": false
+},
+{
+"item": ".a*/a",
+"path": ".aa..",
+"match": false
+},
+{
+"item": "/..*",
+"path": "/...",
+"match": true
+},
+{
+"item": "/..*",
+"path": "/..",
+"match": true
+},
+{
+"item": "/..*",
+"path": "//..a",
+"match": false
+},
+{
+"item": "/..*",
+"path": "/..A",
+"match": true
+},
+{
+"item": "/..*",
+"path": "/..x.",
+"match": true
+},
+{
+"item": "/..*",
+"path": "/.x.ab.",
+"match": false
+},
+{
+"item": "/..*",
+"path": "abba.",
+"match": false
+},
+{
+"item": "/..*",
+"path": "/a/.",
+"match": false
+},
+{
+"item": "/..*",
+"path": "abaaa",
+"match": false
+},
+{
+"item": "/..*",
+"path": "a.b..",
+"match": false
+},
+{
+"item": "b***/",
+"path": "ba./",
+"match": true
+},
+{
+"item": "b***/",
+"path": "ba/b./",
+"match": true
+},
+{
+"item": "b***/",
+"path": "bab./",
+"match": true
+},
+{
+"item": "b***/",
+"path": "baa/",
+"match": true
+},
+{
+"item": "b***/",
+"path": "b/ab/./",
+"match": true
+},
+{
+"item": "b***/",
+"path": "/bb/a/.ab./",
+"match": false
+},
+{
+"item": "b***/",
+"path": "b/a/.a/",
+"match": true
+},
+{
+"item": "b***/",
+"path": "xbaa/",
+"match": false
+},
+{
+"item": "b***/",
+"path": "a//a/",
+"match": false
+},
+{
+"item": "b***/",
+"path": ".b.ab",
+"match": false
+},
+{
+"item": "b***/",
+"path": "...",
+"match": false
+},
+{
+"item": "b***/",
+"path": "aa/.a",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "//ab.",
+"match": true
+},
+{
+"item": "//ab.",
+"path": "//ab.a",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "//axb.",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "//a.",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "///ab.",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "/.a..",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "/a./a",
+"match": false
+},
+{
+"item": "//ab.",
+"path": ".ab/.",
+"match": false
+},
+{
+"item": "//ab.",
+"path": "a.",
+"match": false
+},
+{
+"item": "b...*",
+"path": "b...ab.",
+"match": true
+},
+{
+"item": "b...*",
+"path": "B...A",
+"match": false
+},
+{
+"item": "b...*",
+"path": "B...AB.",
+"match": false
+},
+{
+"item": "b...*",
+"path": "/b....",
+"match": false
+},
+{
+"item": "b...*",
+"path": "ab...a",
+"match": false
+},
+{
+"item": "b...*",
+"path": "a.b..",
+"match": false
+},
+{
+"item": "b...*",
+"path": "b.../",
+"match": false
+},
+{
+"item": "b...*",
+"path": ".bba/",
+"match": false
+},
+{
+"item": "b...*",
+"path": "bbaa",
+"match": false
+},
+{
+"item": "*../.",
+"path": ".../.",
+"match": true
+},
+{
+"item": "*../.",
+"path": "a../.",
+"match": true
+},
+{
+"item": "*../.",
+"path": "../.",
+"match": true
+},
+{
+"item": "*../.",
+"path": "../.a",
+"match": false
+},
+{
+"item": "*../.",
+"path": "A../.",
+"match": true
+},
+{
+"item": "*../.",
+"path": ".../",
+"match": false
+},
+{
+"item": "*../.",
+"path": "b.../",
+"match": false
+},
+{
+"item": "*../.",
+"path": "../",
+"match": false
+},
+{
+"item": "*../.",
+"path": ".bb/",
+"match": false
+},
+{
+"item": "*../.",
+"path": "bbaab",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "a/bb/a/.",
+"match": true
+},
+{
+"item": "a/b**",
+"path": "a/ba/b",
+"match": true
+},
+{
+"item": "a/b**",
+"path": "a/b",
+"match": true
+},
+{
+"item": "a/b**",
+"path": "a/baa",
+"match": true
+},
+{
+"item": "a/b**",
+"path": "A/B",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "a/xb/",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "A/BA/B",
+"match": false
+},
+{
+"item": "a/b**",
+"path": ".a/ab",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "b./b",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "a..",
+"match": false
+},
+{
+"item": "a/b**",
+"path": "/./a",
+"match": false
+},
+{
+"item": "aaab*",
+"path": "aaabab.",
+"match": true
+},
+{
+"item": "aaab*",
+"path": "aaab.",
+"match": true
+},
+{
+"item": "aaab*",
+"path": "aaab",
+"match": true
+},
+{
+"item": "aaab*",
+"path": "aaabx.",
+"match": true
+},
+{
+"item": "aaab*",
+"path": "aaabaa",
+"match": true
+},
+{
+"item": "aaab*",
+"path": "AAABA",
+"match": false
+},
+{
+"item": "aaab*",
+"path": ".b///",
+"match": false
+},
+{
+"item": "aaab*",
+"path": ".bba/",
+"match": false
+},
+{
+"item": "aaab*",
+"path": "/.a",
+"match": false
+},
+{
+"item": "aaab*",
+"path": ".ba/a",
+"match": false
+},
+{
+"item": "/*...",
+"path": "/a...",
+"match": true
+},
+{
+"item": "/*...",
+"path": "/....",
+"match": true
+},
+{
+"item": "/*...",
+"path": "/...",
+"match": true
+},
+{
+"item": "/*...",
+"path": "/ab....a",
+"match": false
+},
+{
+"item": "/*...",
+"path": "/..",
+"match": false
+},
+{
+"item": "/*...",
+"path": "//...",
+"match": false
+},
+{
+"item": "/*...",
+"path": "...",
+"match": false
+},
+{
+"item": "/*...",
+"path": "ba/",
+"match": false
+},
+{
+"item": "/*...",
+"path": "/abb/",
+"match": false
+},
+{
+"item": "/*...",
+"path": "/.a",
+"match": false
+},
+{
+"item": "/*...",
+"path": "ab...",
+"match": false
+},
+{
+"item": ".aba/",
+"path": ".aba/",
+"match": true
+},
+{
+"item": ".aba/",
+"path": ".ABA/",
+"match": false
+},
+{
+"item": ".aba/",
+"path": ".aba/a",
+"match": false
+},
+{
+"item": ".aba/",
+"path": "aa/",
+"match": false
+},
+{
+"item": ".aba/",
+"path": "bbab.",
+"match": false
+},
+{
+"item": ".aba/",
+"path": "b.aab",
+"match": false
+},
+{
+"item": ".aba/",
+"path": ".b.b",
+"match": false
+},
+{
+"item": "a*bb",
+"path": "abb",
+"match": true
+},
+{
+"item": "a*bb",
+"path": "aab.bb",
+"match": true
+},
+{
+"item": "a*bb",
+"path": "aabb",
+"match": true
+},
+{
+"item": "a*bb",
+"path": "aaabb",
+"match": true
+},
+{
+"item": "a*bb",
+"path": "a.b/b",
+"match": false
+},
+{
+"item": "a*bb",
+"path": "//..",
+"match": false
+},
+{
+"item": "a*bb",
+"path": "b//",
+"match": false
+},
+{
+"item": "a*bb",
+"path": "//a/.",
+"match": false
+},
+{
+"item": "a*bb",
+"path": "a./aa",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "bbab.bb",
+"match": true
+},
+{
+"item": "bb*bb",
+"path": "bb.bb",
+"match": true
+},
+{
+"item": "bb*bb",
+"path": "bbbb",
+"match": true
+},
+{
+"item": "bb*bb",
+"path": "BB.BB",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "bbbxb",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "bbb.bb",
+"match": true
+},
+{
+"item": "bb*bb",
+"path": "bb.b",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "./a..",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": ".b//a",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "a./b.",
+"match": false
+},
+{
+"item": "bb*bb",
+"path": "a.a",
+"match": false
+},
+{
+"item": "a./*",
+"path": "a./ab.",
+"match": true
+},
+{
+"item": "a./*",
+"path": "a./.",
+"match": true
+},
+{
+"item": "a./*",
+"path": "aa./.",
+"match": false
+},
+{
+"item": "a./*",
+"path": "A./",
+"match": false
+},
+{
+"item": "a./*",
+"path": "a./a",
+"match": true
+},
+{
+"item": "a./*",
+"path": "a./aa",
+"match": true
+},
+{
+"item": "a./*",
+"path": "/a./",
+"match": false
+},
+{
+"item": "a./*",
+"path": "b/a.b",
+"match": false
+},
+{
+"item": "a./*",
+"path": "a",
+"match": false
+},
+{
+"item": "a./*",
+"path": "a//a",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": "aba/",
+"match": true
+},
+{
+"item": "a*ba/",
+"path": "aaba/",
+"match": true
+},
+{
+"item": "a*ba/",
+"path": "aaab.ba/",
+"match": true
+},
+{
+"item": "a*ba/",
+"path": "aabx.ba/",
+"match": true
+},
+{
+"item": "a*ba/",
+"path": "A.BA/",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": "aba/a",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": "b.aaa",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": "..aba",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": "b/.b",
+"match": false
+},
+{
+"item": "a*ba/",
+"path": ".b",
+"match": false
+},
+{
+"item": "**/a*",
+"path": "aab.",
+"match": true
+},
+{
+"item": "**/a*",
+"path": "a/b/a.",
+"match": true
+},
+{
+"item": "**/a*",
+"path": "b.a/aab.",
+"match": true
+},
+{
+"item": "**/a*",
+"path": "a/aaxb.",
+"match": true
+},
+{
+"item": "**/a*",
+"path": "a/xa.",
+"match": false
+},
+{
+"item": "**/a*",
+"path": "ab.a/a",
+"match": true
+},
+{
+"item": "**/a*",
+"path": "a",
+"match": true
+},
+{
+"item": "**/a*",
+"path": ".a/b.",
+"match": false
+},
+{
+"item": "**/a*",
+"path": "ba..a",
+"match": false
+},
+{
+"item": "**/a*",
+"path": ".a./b",
+"match": false
+},
+{
+"item": "**/a*",
+"path": "/ab.a",
+"match": true
+},
+{
+"item": "*.b./",
+"path": "..b./",
+"match": true
+},
+{
+"item": "*.b./",
+"path": "a.b./",
+"match": true
+},
+{
+"item": "*.b./",
+"path": ".b./",
+"match": true
+},
+{
+"item": "*.b./",
+"path": "..b./a",
+"match": false
+},
+{
+"item": "*.b./",
+"path": "a.bx./",
+"match": false
+},
+{
+"item": "*.b./",
+"path": "./b./",
+"match": false
+},
+{
+"item": "*.b./",
+"path": "aa.b./",
+"match": true
+},
+{
+"item": "*.b./",
+"path": "ab.b",
+"match": false
+},
+{
+"item": "*.b./",
+"path": ".b..a",
+"match": false
+},
+{
+"item": "*.b./",
+"path": "/../.",
+"match": false
+},
+{
+"item": "*.b./",
+"path": "a/..",
+"match": false
+},
+{
+"item": "b/...",
+"path": "b/...",
+"match": true
+},
+{
+"item": "b/...",
+"path": "ab/...",
+"match": false
+},
+{
+"item": "b/...",
+"path": "/...",
+"match": false
+},
+{
+"item": "b/...",
+"path": "b/...a",
+"match": false
+},
+{
+"item": "b/...",
+"path": "B/...",
+"match": false
+},
+{
+"item": "b/...",
+"path": "bbb/",
+"match": false
+},
+{
+"item": "b/...",
+"path": "ab/a.",
+"match": false
+},
+{
+"item": "b/...",
+"path": "///",
+"match": false
+},
+{
+"item": "b/...",
+"path": ".a.b/",
+"match": false
+},
+{
+"item": "//b.",
+"path": "//b.",
+"match": true
+},
+{
+"item": "//b.",
+"path": "//B.",
+"match": false
+},
+{
+"item": "//b.",
+"path": "//b.a",
+"match": false
+},
+{
+"item": "//b.",
+"path": "/x/b.",
+"match": false
+},
+{
+"item": "//b.",
+"path": "a/aa.",
+"match": false
+},
+{
+"item": "//b.",
+"path": "ab",
+"match": false
+},
+{
+"item": "//b.",
+"path": "a.b.a",
+"match": false
+},
+{
+"item": "//b.",
+"path": ".ab.a",
+"match": false
+},
+{
+"item": "a*ab/",
+"path": "a.ab/",
+"match": true
+},
+{
+"item": "a*ab/",
+"path": "aab/",
+"match": true
+},
+{
+"item": "a*ab/",
+"path": "aaab/",
+"match": true
+},
+{
+"item": "a*ab/",
+"path": "aab.ab/a",
+"match": false
+},
+{
+"item": "a*ab/",
+"path": "aabx.ab/",
+"match": true
+},
+{
+"item": "a*ab/",
+"path": "/.b",
+"match": false
+},
+{
+"item": "a*ab/",
+"path": "ba/b",
+"match": false
+},
+{
+"item": "a*ab/",
+"path": "b/a.b",
+"match": false
+},
+{
+"item": "a*ab/",
+"path": ".a//a",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "./aa/",
+"match": true
+},
+{
+"item": "./a*/",
+"path": "./a./",
+"match": true
+},
+{
+"item": "./a*/",
+"path": "./aa/a",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "./A./",
+"match": false
+},
+{
+"item": "./a*/",
+"path": ".x/a./",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "a./aa/",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "....b",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "ba/",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "ab/a.",
+"match": false
+},
+{
+"item": "./a*/",
+"path": "a/.a.",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": "b.ab",
+"match": true
+},
+{
+"item": "b*.ab",
+"path": "b..ab",
+"match": true
+},
+{
+"item": "b*.ab",
+"path": "b/a.ab",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": "bx.ab",
+"match": true
+},
+{
+"item": "b*.ab",
+"path": "b.b",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": "B.AB",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": "/ab./",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": ".a./",
+"match": false
+},
+{
+"item": "b*.ab",
+"path": "b/.a",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": ".b.a",
+"match": true
+},
+{
+"item": ".*b.a",
+"path": ".ab.a",
+"match": true
+},
+{
+"item": ".*b.a",
+"path": "..b.a",
+"match": true
+},
+{
+"item": ".*b.a",
+"path": "...a",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": ".ab.ba",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": ".b.",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": "x.ab.b.a",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": "/.b/a",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": "ab.//",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": "abb/.",
+"match": false
+},
+{
+"item": ".*b.a",
+"path": "aaa",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "b.b",
+"match": true
+},
+{
+"item": "b*.b",
+"path": "bab..b",
+"match": true
+},
+{
+"item": "b*.b",
+"path": "B..B",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "xb..b",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "a.b",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "./a/.",
+"match": false
+},
+{
+"item": "b*.b",
+"path": ".b/b",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "/.b/a",
+"match": false
+},
+{
+"item": "b*.b",
+"path": "aab/",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "/aa/b/",
+"match": true
+},
+{
+"item": "/a**/",
+"path": "/aa/",
+"match": true
+},
+{
+"item": "/a**/",
+"path": "/a",
+"match": true
+},
+{
+"item": "/a**/",
+"path": "/AA/B/",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "/A",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "/AA/",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "a",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "/...a",
+"match": false
+},
+{
+"item": "/a**/",
+"path": ".b/b/",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "b..",
+"match": false
+},
+{
+"item": "/a**/",
+"path": "./.a",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "...",
+"match": true
+},
+{
+"item": ".*..*",
+"path": ".ab...ab.",
+"match": true
+},
+{
+"item": ".*..*",
+"path": ".....",
+"match": true
+},
+{
+"item": ".*..*",
+"path": ".ab....",
+"match": true
+},
+{
+"item": ".*..*",
+"path": "...A",
+"match": true
+},
+{
+"item": ".*..*",
+"path": "../..",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "a.....",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "....A",
+"match": true
+},
+{
+"item": ".*..*",
+"path": "bbaba",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "/a./",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "ab",
+"match": false
+},
+{
+"item": ".*..*",
+"path": "a.bba",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "a/.b",
+"match": true
+},
+{
+"item": "*a/.b",
+"path": "aa/.b",
+"match": true
+},
+{
+"item": "*a/.b",
+"path": "ab.a/.b",
+"match": true
+},
+{
+"item": "*a/.b",
+"path": "AB.A/.B",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": ".a//.b",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "a/b",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "..a/.",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "aa.",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "/../.",
+"match": false
+},
+{
+"item": "*a/.b",
+"path": "/b/ba",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": ".aa.b",
+"match": true
+},
+{
+"item": ".aa*b",
+"path": ".aaab",
+"match": true
+},
+{
+"item": ".aa*b",
+"path": ".aaab.b",
+"match": true
+},
+{
+"item": ".aa*b",
+"path": ".aaab.ba",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": "aab",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": ".AAAB.B",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": "a./bb",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": "/.b/a",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": "b.a/a",
+"match": false
+},
+{
+"item": ".aa*b",
+"path": "//a..",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "/bbb/",
+"match": true
+},
+{
+"item": "/bbb/",
+"path": "a/bbb/",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "/bxbb/",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "//bbb/",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "/BBB/",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "baa.",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": ".a.a",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": ".a/ab",
+"match": false
+},
+{
+"item": "/bbb/",
+"path": "/..",
+"match": false
+},
+{
+"item": "*a*/*",
+"path": "ab.a/ab.",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": ".a./.",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": ".a/ab.",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": "ab.a/.",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": "a./.a",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": "ab.a/",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": ".aab./xa",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": "a/./",
+"match": false
+},
+{
+"item": "*a*/*",
+"path": "/b/a",
+"match": false
+},
+{
+"item": "*a*/*",
+"path": "ab./a",
+"match": true
+},
+{
+"item": "*a*/*",
+"path": ".a.a",
+"match": false
+},
+{
+"item": "*a*/*",
+"path": "b..",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "///.",
+"match": true
+},
+{
+"item": "/*//.",
+"path": "/.//.",
+"match": true
+},
+{
+"item": "/*//.",
+"path": "//.",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "//ab.//.",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "/x//.",
+"match": true
+},
+{
+"item": "/*//.",
+"path": "a///.",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "bb..a",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "/bbb",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "/a/.b",
+"match": false
+},
+{
+"item": "/*//.",
+"path": "b.a",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "aaaaa",
+"match": true
+},
+{
+"item": "a*aaa",
+"path": "aab.aaa",
+"match": true
+},
+{
+"item": "a*aaa",
+"path": "aaaa",
+"match": true
+},
+{
+"item": "a*aaa",
+"path": "AAAA",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "A.AAA",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "aab.aaaa",
+"match": true
+},
+{
+"item": "a*aaa",
+"path": "aaa/aa",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "./.",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "b.../",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "bbbb",
+"match": false
+},
+{
+"item": "a*aaa",
+"path": "abbaa",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "ba/.",
+"match": true
+},
+{
+"item": "ba/.",
+"path": "bxa/.",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "a/.",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "ba/.a",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "ba/",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "/a./",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "b.bb/",
+"match": false
+},
+{
+"item": "ba/.",
+"path": ".b/a",
+"match": false
+},
+{
+"item": "ba/.",
+"path": "baa/",
+"match": false
+},
+{
+"item": "***.",
+"path": "b/a/.a.",
+"match": true
+},
+{
+"item": "***.",
+"path": "/ab..",
+"match": true
+},
+{
+"item": "***.",
+"path": "a/bab..",
+"match": true
+},
+{
+"item": "***.",
+"path": "a..",
+"match": true
+},
+{
+"item": "***.",
+"path": "b/a/.ab..a",
+"match": false
+},
+{
+"item": "***.",
+"path": "bx/a/.a.",
+"match": true
+},
+{
+"item": "***.",
+"path": "a//b..",
+"match": true
+},
+{
+"item": "***.",
+"path": "a/.",
+"match": true
+},
+{
+"item": "***.",
+"path": ".//",
+"match": false
+},
+{
+"item": "***.",
+"path": "//.",
+"match": true
+},
+{
+"item": "***.",
+"path": "ba/",
+"match": false
+},
+{
+"item": "***.",
+"path": "abb/.",
+"match": true
+},
+{
+"item": "*//",
+"path": "ab.//",
+"match": true
+},
+{
+"item": "*//",
+"path": "//",
+"match": true
+},
+{
+"item": "*//",
+"path": ".//a",
+"match": false
+},
+{
+"item": "*//",
+"path": "a//",
+"match": true
+},
+{
+"item": "*//",
+"path": "A//",
+"match": true
+},
+{
+"item": "*//",
+"path": "/a//",
+"match": false
+},
+{
+"item": "*//",
+"path": "a.bb/",
+"match": false
+},
+{
+"item": "*//",
+"path": ".aa.a",
+"match": false
+},
+{
+"item": "*//",
+"path": "b..aa",
+"match": false
+},
+{
+"item": "*//",
+"path": "//b",
+"match": false
+},
+{
+"item": "*a*a*",
+"path": "ab.aa.",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": ".aaa.",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "aab.a.",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "aab.a",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "ab.aaax.",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "ab.a.xa",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "ab.ab.aa",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": ".aab.aab",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "ba../",
+"match": false
+},
+{
+"item": "*a*a*",
+"path": "aab..",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "b.aa",
+"match": true
+},
+{
+"item": "*a*a*",
+"path": "//.",
+"match": false
+}
+]
+}

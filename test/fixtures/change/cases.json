@@ -1498,6 +1498,68 @@
     "path": "docs/decisions/template.md",
     "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
    }
+  ],
+  "app": [
+   {
+    "path": "README.md",
+    "content": "r\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nseal: sha256-g1:f9f49f22a40e63991c6c67cb934bbbb26aa1f3ace03ab3922ccd48084c0d6935\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - old/**\nseal: sha256-g1:49a73346514a2120fe76e1c989d47b46e4f5bc84c075f1540fbd1b28bca9ba9b\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   },
+   {
+    "path": "docs/\u00e9.md",
+    "content": "e\n"
+   },
+   {
+    "path": "lib/c.js",
+    "content": "c\n"
+   },
+   {
+    "path": "my file.txt",
+    "content": "m\n"
+   },
+   {
+    "path": "old/x.js",
+    "content": "o\n"
+   },
+   {
+    "path": "src/a.ts",
+    "content": "a\n"
+   },
+   {
+    "path": "src/x/b.ts",
+    "content": "b\n"
+   }
   ]
  },
  "cases": [
@@ -12025,6 +12087,699 @@
     "acts": []
    },
    "note": "A sealed record gets a long emergency and a new seal: P-02 only, the content rules are not asked of a sealed record."
+  },
+  {
+   "id": "q01-last-file-of-an-item-deleted",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "README.md"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "README.md"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The only file that README.md matches is deleted."
+  },
+  {
+   "id": "q02-one-of-two-files-deleted",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "src/a.ts"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "One of the two files src/** matches is deleted: it still matches the other."
+  },
+  {
+   "id": "q03-all-files-of-a-folder-deleted",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "src/a.ts"
+    },
+    {
+     "remove": "src/x/b.ts"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0001-first.md",
+      "rule": "P-18",
+      "detail": "src/**"
+     }
+    ],
+    "acts": []
+   },
+   "note": "Both files src/** matches are deleted."
+  },
+  {
+   "id": "q04-code-moved",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "src/a.ts"
+    },
+    {
+     "remove": "src/x/b.ts"
+    },
+    {
+     "write": "lib/a.ts",
+     "content": "a\n"
+    },
+    {
+     "write": "lib/b.ts",
+     "content": "b\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0001-first.md",
+      "rule": "P-18",
+      "detail": "src/**"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The code moves to another folder: nothing in src/ remains."
+  },
+  {
+   "id": "q05-file-becomes-a-link",
+   "base": "app",
+   "changes": [
+    {
+     "symlink": "README.md",
+     "target": "lib/c.js"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "README.md"
+     }
+    ],
+    "acts": []
+   },
+   "note": "README.md becomes a symbolic link: not a regular file."
+  },
+  {
+   "id": "q06-file-becomes-a-folder",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "README.md"
+    },
+    {
+     "write": "README.md/x",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "README.md"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A folder stands where README.md was."
+  },
+  {
+   "id": "q07-record-superseded-in-the-same-change",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nseal: sha256-g1:f9f49f22a40e63991c6c67cb934bbbb26aa1f3ace03ab3922ccd48084c0d6935\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\napplies-to:\n  - lib/**\nseal: sha256-g1:61398c68feb703785723681a4022d4139d77f1bf4afaac3aca34cf73a8d3140b\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    },
+    {
+     "remove": "src/a.ts"
+    },
+    {
+     "remove": "src/x/b.ts"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The record is replaced in the same change and the code moves: the new record has the new list, the old one binds no longer."
+  },
+  {
+   "id": "q08-star-item-loses-its-file",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "lib/c.js"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "lib/*.js"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The only file lib/*.js matches is deleted."
+  },
+  {
+   "id": "q09-two-items-lose-files",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "README.md"
+    },
+    {
+     "remove": "lib/c.js"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "README.md"
+     },
+     {
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "lib/*.js"
+     }
+    ],
+    "acts": []
+   },
+   "note": "Both items of one record lose their files: two problems, in the order of the items as bytes."
+  },
+  {
+   "id": "q10-superseded-record-is-not-judged",
+   "base": "app",
+   "changes": [
+    {
+     "remove": "old/x.js"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "A record that is already superseded binds no longer: its files can go."
+  },
+  {
+   "id": "q11-dead-item-at-the-base",
+   "base": "app",
+   "changes": [
+    {
+     "write": "nothing/x",
+     "content": "x\n"
+    },
+    {
+     "remove": "docs/\u00e9.md"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "An item that matched nothing at the base is not reported again; and the same item when a file arrives."
+  },
+  {
+   "id": "q12-acceptance-with-a-dead-item",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - missing/**\n  - src/**\nseal: sha256-g1:caf242f5c0662cdef76307e2359eece3383d2d3ecb2a53e695f9894a2ed63100\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "missing/**"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record is accepted with an item that matches no file, and one that does."
+  },
+  {
+   "id": "q13-acceptance-with-live-items",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\n  - README.md\n  - lib/*.js\nseal: sha256-g1:b0b907b1746515c43bf85d28613dc648dfe9fd58550bb44fdd1538fe9ec28a02\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "Every item matches."
+  },
+  {
+   "id": "q14-duplicate-item-reported-once",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - gone.txt\n  - gone.txt\n  - README.md\nseal: sha256-g1:27290756f8f05631faacad18c1f97515ca7e205b6f8cd7b721b2b118a215c482\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "gone.txt"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The same dead item twice."
+  },
+  {
+   "id": "q15-the-dialect",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**/*.ts\n  - src/**/a.ts\n  - src/**/x/b.ts\n  - src/***\n  - src/**/*\n  - my file.txt\n  - docs/*.md\n  - docs/\u00e9.md\n  - l**/c.js\n  - lib/c.j*\n  - src/x/*\n  - src/**\n  - lib/**/c.js\n  - README.m*\nseal: sha256-g1:3a95124bccd2009c93f82edc5fe53173d1a81fd746f0a1e7555094ff540969d3\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "Every kind of live item: folders in the middle, zero folders, stars next to text, a space, a letter outside ASCII."
+  },
+  {
+   "id": "q16-items-that-match-nothing",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/\n  - src\n  - /src/a.ts\n  - ./src/a.ts\n  - readme.md\n  - README.md/\n  - src/a.t?\n  - src/[a].ts\n  - src/{a,b}.ts\n  - src/x*\n  - src//a.ts\n  - lib/*/c.js\nseal: sha256-g1:5723175e345de2a9f8fc2511560f1fe59b3fe576bf9db06abca3de534457ddfa\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "./src/a.ts"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "/src/a.ts"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "README.md/"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "lib/*/c.js"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "readme.md"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src/"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src//a.ts"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src/[a].ts"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src/a.t?"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src/x*"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "src/{a,b}.ts"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "Items that look like folders, are absolute or case wrong, or use characters that are not patterns: all dead."
+  },
+  {
+   "id": "q17-single-value-has-no-items",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to: src/**\nseal: sha256-g1:2adfc402d4fb67ca24febc9a061e18feeafea21389cddf3a8d3b29111534d009\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "V-14"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "applies-to as a single value is a format problem, and has no items to match."
+  },
+  {
+   "id": "q18-no-applies-to",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record without the key binds everything and is not looked at."
+  },
+  {
+   "id": "q19-executable-file-counts",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - bin/tool\nseal: sha256-g1:cddb3eda69d1670a2f34b94dcf4ee4a078b79f5e3bd7a775511a8ac3c3a7bf53\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    },
+    {
+     "write": "bin/tool",
+     "content": "#!/bin/sh\n",
+     "mode": "100755"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A file with the executable mode added in the same change."
+  },
+  {
+   "id": "q20-link-and-submodule-do-not-count",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - bin/link\n  - vendor/lib\nseal: sha256-g1:5c7161c4de8e14d404b6d3312eeb94d6e645f9276f3d0cd1048cb51639557e60\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    },
+    {
+     "symlink": "bin/link",
+     "target": "x"
+    },
+    {
+     "submodule": "vendor/lib"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "bin/link"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "vendor/lib"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A symbolic link and a submodule are not files."
+  },
+  {
+   "id": "q21-accepting-a-proposed-record",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0003-third.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - missing.txt\nseal: sha256-g1:a3cdd0893de29921e0b9c5836f80cacb3beb2b813a27ccfc23fe1417883e8a81\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | accepted |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0003-third.md",
+      "rule": "P-17",
+      "detail": "missing.txt"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0003-third.md"
+     }
+    ]
+   },
+   "note": "A proposed record with a dead item is accepted."
+  },
+  {
+   "id": "q22-proposed-record-with-dead-item",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0003-third.md",
+     "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - missing.txt\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "A record that is only proposed may name what it likes."
+  },
+  {
+   "id": "q23-amendment-with-a-dead-item",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\napplies-to:\n  - nothing.txt\nseal: sha256-g1:d6cd0d42cd67b90da565077f3970dec71cea7661934426014b38554d22b3fd81\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-17",
+      "detail": "nothing.txt"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record that replaces the protocol is judged too."
+  },
+  {
+   "id": "q24-erratum-does-not-start-p17",
+   "base": "app",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2. \n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 20"
+     }
+    ],
+    "acts": []
+   },
+   "note": "An erratum on a record with a dead item does not report it: only an acceptance does."
   }
  ]
 }
