@@ -891,6 +891,8 @@ export const CHANGE_RULES = {
   'P-14': 'has a deviation entry that is not allowed',
   'P-15': 'has a workflow other than the kit\'s that names the check',
   'P-16': 'has an emergency key and does not replace a protocol record',
+  'P-17': 'has an applies-to item that no file matches',
+  'P-18': 'has an applies-to item that this change leaves without a file',
 };
 
 /** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
@@ -1219,6 +1221,24 @@ function judgeDeviation(before, after, { repo, base, cases, needs }) {
   return found;
 }
 
+/** The items of the `applies-to` list of a parsed record, each different one once, in the order written (none when the entry is not a list). */
+function appliesToItems(record) {
+  const entry = record.parsed.entries.find(({ key }) => key === 'applies-to');
+  return entry && shapeOf(entry).shape === 'list' ? [...new Set(shapeOf(entry).items)] : [];
+}
+
+/** The expression for an item of `applies-to` (docs/applies-to.md): `**` + `/` is zero or more folders, `**` any run, `*` a run without `/`. */
+export function appliesToPattern(item) {
+  let source = '';
+  for (let at = 0; at < item.length;) {
+    if (item.startsWith('**/', at)) { source += '(?:[^]*/)?'; at += 3; }
+    else if (item.startsWith('**', at)) { source += '[^]*'; at += 2; }
+    else if (item[at] === '*') { source += '[^/]*'; at += 1; }
+    else { source += item[at].replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&'); at += 1; }
+  }
+  return new RegExp(`^${source}$`);
+}
+
 /** The numbers of the protocol records of a commit: the rows `| gN | [NNNN](...) | ... |` of the README of its records folder (docs/amendments.md). */
 export function protocolRecords(commit, folder) {
   const found = new Set();
@@ -1355,6 +1375,25 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
   if (changed.some((path) => isRelated(path, PIN_PATH))) acts.push({ kind: 'pin', path: PIN_PATH });
   for (const [kind, files] of [['workflow', WORKFLOW_FILES], ['code', CODE_FILES]]) {
     for (const file of files) if (changed.some((path) => isRelated(path, file))) acts.push({ kind, path: file });
+  }
+
+  const regularFiles = (leaves) => [...leaves].filter(([, value]) => /^(?:file|executable) /.test(value)).map(([entryPath]) => entryPath);
+  const filesBefore = regularFiles(leavesOfBase);
+  const filesAfter = regularFiles(leavesOfHead);
+  for (const [name, record] of after) {
+    if (!record.sealed || before.get(name)?.sealed) continue;
+    for (const item of appliesToItems(record)) {
+      const pattern = appliesToPattern(item);
+      if (!filesAfter.some((file) => pattern.test(file))) problems.push({ file: name, rule: 'P-17', detail: item });
+    }
+  }
+  for (const [name, record] of before) {
+    const now = after.get(name);
+    if (!record.sealed || record.status !== 'accepted' || !now?.readable || now.status !== 'accepted') continue;
+    for (const item of appliesToItems(record)) {
+      const pattern = appliesToPattern(item);
+      if (filesBefore.some((file) => pattern.test(file)) && !filesAfter.some((file) => pattern.test(file))) problems.push({ file: name, rule: 'P-18', detail: item });
+    }
   }
 
   const bars = [];

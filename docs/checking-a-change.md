@@ -1,6 +1,6 @@
 # Checking a change
 
-Status: draft for review (M2.3, with the owners' approval added in M2.4, errata and deviation notes in M2.6, the files of the check in M2.7a and the bar for an amendment in M2.7b). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; [the owners' approval](approvals.md) says which acts are approved, and [the workflow](workflow.md) (M2.5), [errata and deviation notes](errata-and-deviations.md) (M2.6), [the files of the check](protected-files.md) (M2.7a) and [the bar for an amendment](amendments.md) (M2.7b) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
+Status: draft for review (M2.3, with the owners' approval added in M2.4, errata and deviation notes in M2.6, the files of the check in M2.7a, the bar for an amendment in M2.7b and where a record applies in M2.7c). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; [the owners' approval](approvals.md) says which acts are approved, and [the workflow](workflow.md) (M2.5), [errata and deviation notes](errata-and-deviations.md) (M2.6), [the files of the check](protected-files.md) (M2.7a) and [the bar for an amendment](amendments.md) (M2.7b) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
 
 The check never trusts the change. It reads both commits through git ([reading a commit](reading-a-commit.md)), takes the settings from the base ([settings](settings.md)), and decides what the head may differ in. Everything it does not yet decide fails closed: a change it cannot judge is a problem, not a pass.
 
@@ -45,6 +45,8 @@ A problem has a file (relative to F; none for the folder as a whole), a rule and
 | P-14 | a deviation note is wrong | change | the first reason |
 | P-15 | a workflow file other than the kit's is added or changed and names the check | change | the path |
 | P-16 | a record becomes sealed with the key `emergency` and does not replace a protocol record | change | |
+| P-17 | a record becomes sealed and an item of its `applies-to` matches no file of the head | change | the item |
+| P-18 | an item of an accepted record matched a file at the base and matches none at the head | change | the item |
 
 - **P-01.** A record is never deleted, renamed, renumbered or moved, whatever its status. The file is the name at the base. It is also reported when the head's entry of that name is not a regular file, and when the head has no records folder at all.
 - **P-02.** Compare the two versions as lines. If they are the same, nothing happened. Otherwise the change is a **status change** exactly when the lines differ at one index only, that index is the line of the `status` key in the base, the head's line at that index is a `status` key line, and the two status values differ. (A key line is `status:`, then nothing or a space and the rest; trailing spaces, tabs and a carriage return are cut off first, and the value is the rest without the spaces that follow the colon, as in the format page.) If the change is not a status change the text has changed and P-02 is reported. The detail is the index of the first line that differs, counted from 1; when one version is the start of the other, the number of the first line the shorter one lacks. A change of white space, of a line ending, of the `date`, of the `seal:` line: all of it is P-02. So is an added erratum or deviation entry, unless the change is exactly one of the two additions that [errata and deviation notes](errata-and-deviations.md#which-change-is-which) describe, which are acts and have rules of their own (P-10 to P-14).
@@ -58,6 +60,7 @@ A problem has a file (relative to F; none for the folder as a whole), a rule and
 - **P-10 to P-14.** [Errata and deviation notes](errata-and-deviations.md) say what they mean, and which changes of a sealed record they judge. P-10 is a state rule like P-04 to P-07; the others are change rules.
 - **P-15.** [The files of the check](protected-files.md#the-rule) says what it means. It has no file; its detail is the path of the workflow file.
 - **P-16.** [The bar for an amendment](amendments.md#emergency) says what it means.
+- **P-17, P-18.** [Where a record applies](applies-to.md) says what they mean and in which dialect the items are read. Their detail is the item.
 
 ### Format and commit rules in a change
 
@@ -85,7 +88,7 @@ An **act** is a change the owners must approve. This page finds the acts; [the p
 | `workflow` | a changed path is one of the kit's workflow files, a folder in front of it, or something below it ([the files of the check](protected-files.md)) | that file |
 | `code` | the same for the files the workflow runs | that file |
 
-A record that is not sealed is never an acceptance. The acts `owners` and `amendment` are met by the bar for an amendment (all owners, seven days), not by the count of approvals: [that page](amendments.md) says how. The rule on `applies-to` (M2.7c) comes next.
+A record that is not sealed is never an acceptance. The acts `owners` and `amendment` are met by the bar for an amendment (all owners, seven days), not by the count of approvals: [that page](amendments.md) says how. The rules on `applies-to` (P-17, P-18) are on [their own page](applies-to.md).
 
 ## Problems in the settings
 
@@ -112,7 +115,7 @@ None of the maintainers' repositories installs the check yet, and none keeps a s
 ## What this does not do
 
 - **It does not post the diff of an erratum, or read the history of the errata** (see [errata and deviation notes](errata-and-deviations.md#what-this-version-does-not-do)), and it does not judge that an amendment replaces the protocol in full ([the bar](amendments.md#what-this-does-not-do)). The acts above are the places where they plug in; the approvals are on [their own page](approvals.md).
-- **It does not check that the files an `applies-to` names still exist** when a change moves the code. That needs a glob dialect and the tree of the head; it belongs with M2.7.
+- **It does not know that code moved,** only that the files an `applies-to` item matched are gone ([where a record applies](applies-to.md#what-this-does-not-do)).
 - **It does not read the shared folder** (P-08), and it does not read the pin.
 - **It does not look at the history between the commits**, only at the two trees. The audit (M2.8) looks at the history.
 - **It does not decide which commits are the base and the head.** [The workflow](workflow.md) (M2.5) does: the tip of the base branch and the head commit of the pull request.

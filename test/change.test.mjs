@@ -75,7 +75,7 @@ function buildRepo(dir, list) {
 }
 
 // The detail of a V rule only helps the reader; the other rules have an answer that includes it.
-const withDetail = (rule) => /^(?:P-0[2-7]|P-1[0-5]|T-0[23])$/.test(rule);
+const withDetail = (rule) => /^(?:P-0[2-7]|P-1[0-8]|T-0[23])$/.test(rule);
 const shownProblem = ({ file, rule, detail }) => ({ file, rule, ...(withDetail(rule) && detail ? { detail } : {}) });
 const shownSetting = ({ line, rule, detail }) => ({ line: line ?? null, rule, ...(detail ? { detail } : {}) });
 /** What a case gives besides the two commits: the issues and pull requests that exist, since when the head was seen, and now. */
