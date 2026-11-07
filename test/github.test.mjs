@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { after, before, describe } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { CannotRun, checkPullRequest, runCli } from '../check-pull-request.mjs';
+import { CannotRun, checkPullRequest, readNeeds, runCli } from '../check-pull-request.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const script = path.join(root, 'check-pull-request.mjs');
@@ -54,6 +54,14 @@ const baseTree = treeOf(change.trees.owned);
 baseTree.set(SETTINGS, 'owners: [alice/1001, bob/1002]\napprovals: 1\n');
 const headTree = new Map(baseTree);
 for (const c of change.cases.find((x) => x.id === 'w22-accept-with-owners').changes) headTree.set(c.write, c.content);
+// The tree `world` with owners, and three heads of it: an erratum, deviation notes (an issue and a pull request), and both together.
+const worldTree = treeOf(change.trees.world);
+worldTree.set(SETTINGS, 'owners: [alice/1001, bob/1002]\napprovals: 1\n');
+const headOf = (id) => {
+  const tree = new Map(worldTree);
+  for (const c of change.cases.find((x) => x.id === id).changes) if (c.write !== undefined) tree.set(c.write, c.content);
+  return tree;
+};
 
 let origin;
 let ids;
@@ -67,9 +75,16 @@ before(() => {
     commitStream('release', baseTree),
     commitStream('pr', headTree, 'main'),
     commitStream('moved', ahead, 'main'),
+    commitStream('world', worldTree),
+    commitStream('erratum', headOf('r01-erratum'), 'world'),
+    commitStream('notes', headOf('x10-deviation-two-notes-at-once'), 'world'),
+    commitStream('both', headOf('x40-deviation-and-erratum-on-two-records'), 'world'),
   ]));
-  ids = Object.fromEntries(['main', 'release', 'pr', 'moved'].map((name) => [name, git(origin, ['rev-parse', `refs/heads/${name}`])]));
+  ids = Object.fromEntries(['main', 'release', 'pr', 'moved', 'world', 'erratum', 'notes', 'both'].map((name) => [name, git(origin, ['rev-parse', `refs/heads/${name}`])]));
   git(origin, ['update-ref', 'refs/pull/1/head', ids.pr]);
+  git(origin, ['update-ref', 'refs/pull/2/head', ids.erratum]);
+  git(origin, ['update-ref', 'refs/pull/3/head', ids.notes]);
+  git(origin, ['update-ref', 'refs/pull/4/head', ids.both]);
   git(origin, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
 });
 
@@ -108,17 +123,19 @@ const filler = (from, count) => Array.from({ length: count }, (_, i) => review(f
  * GitHub for the repository o/r: `pulls` are the answers to the successive reads of the pull request (the last one repeats) and `pages`
  * the pages of the reviews. The Link header is written the way GitHub writes it, to the path `/repositories/7/...`.
  */
-const github = ({ pulls = [pullBody()], pages = [[]], link } = {}) => {
+const github = ({ pulls = [pullBody()], pages = [[]], link, number: n = 1, extra } = {}) => {
   let reads = 0;
   return (url, count, origin) => {
     const address = new URL(url, origin);
-    if (address.pathname === '/repos/o/r/pulls/1') {
+    const more = extra?.(address, origin);
+    if (more) return more;
+    if (address.pathname === `/repos/o/r/pulls/${n}`) {
       reads += 1;
       return { body: pulls[Math.min(reads, pulls.length) - 1] };
     }
-    if (address.pathname === '/repos/o/r/pulls/1/reviews' || address.pathname === '/repositories/7/pulls/1/reviews') {
+    if (address.pathname === `/repos/o/r/pulls/${n}/reviews` || address.pathname === `/repositories/7/pulls/${n}/reviews`) {
       const number = Number(address.searchParams.get('page') ?? 1);
-      const here = (n) => `${origin}/repositories/7/pulls/1/reviews?per_page=100&page=${n}`;
+      const here = (page) => `${origin}/repositories/7/pulls/${n}/reviews?per_page=100&page=${page}`;
       const parts = [];
       if (number < pages.length) parts.push(`<${here(number + 1)}>; rel="next"`, `<${here(pages.length)}>; rel="last"`);
       if (number > 1) parts.push(`<${here(1)}>; rel="first"`, `<${here(number - 1)}>; rel="prev"`);
@@ -129,8 +146,8 @@ const github = ({ pulls = [pullBody()], pages = [[]], link } = {}) => {
 };
 const play = (options) => serve(github(options));
 
-async function check({ server, cwd = workdir(), number = 1, repo = 'o/r', token = TOKEN, api } = {}) {
-  const run = await checkPullRequest({ repo, number, token, api: api ?? server.url, cwd });
+async function check({ server, cwd = workdir(), number = 1, repo = 'o/r', token = TOKEN, api, now } = {}) {
+  const run = await checkPullRequest({ repo, number, token, api: api ?? server.url, cwd, ...(now === undefined ? {} : { now }) });
   assert.ok(!`${run.stdout}${run.stderr}`.includes(token ?? '\0'), 'the token is never printed');
   return run;
 }
@@ -450,9 +467,9 @@ describe('git', () => {
   test('a pull request that origin does not have ends the run, with the message of git', async () => {
     const server = await serve((url, n, origin) => {
       const address = new URL(url, origin);
-      return address.pathname.includes('/pulls/2/reviews') ? { body: [] } : { body: pullBody({ number: 2 }) };
+      return address.pathname.includes('/pulls/9/reviews') ? { body: [] } : { body: pullBody({ number: 9 }) };
     });
-    const got = await check({ server, number: 2 });
+    const got = await check({ server, number: 9 });
     assert.equal(got.code, 2);
     assert.match(got.stderr, /^Records integrity could not run: git fetch failed: /);
   });
@@ -751,5 +768,179 @@ describe('names and numbers that fit', () => {
   test('importing the file runs nothing', () => {
     const got = spawnSync(process.execPath, ['--input-type=module', '-e', `import ${JSON.stringify(pathToFileURL(script).href)}`], { env: CLEAN });
     assert.deepEqual({ status: got.status, out: got.stdout.toString(), err: got.stderr.toString() }, { status: 0, out: '', err: '' });
+  });
+});
+
+// ---- errata and deviation notes: what the program looks up (docs/errata-and-deviations.md) -----------------------------------------------
+
+describe('errata and deviation notes', () => {
+  const NOW = Date.parse('2026-11-10T00:00:00Z');
+  const hoursAgo = (h) => new Date(NOW - h * 3600 * 1000).toISOString().replace(/\.\d+Z$/, 'Z');
+  const run = (started_at, over = {}) => ({ id: 1, name: 'Records integrity', app: { slug: 'github-actions' }, status: 'completed', started_at, ...over });
+  /** Pull request `number` with the head `ids[head]`, approved by alice, and the check runs `runs` (pages) for that head. */
+  const notes = ({ number, head, runs = [[]], issues = {}, approved = true, extra } = {}) => github({
+    number,
+    pulls: [pullBody({ number, head: { sha: ids[head] }, base: { ref: 'world' } })],
+    pages: [approved ? [review(1, 1001, 'APPROVED', T1, ids[head])] : []],
+    extra: (address, origin) => {
+      const given = extra?.(address, origin);
+      if (given) return given;
+      if (address.pathname === `/repos/o/r/commits/${ids[head]}/check-runs`) {
+        const page = Number(address.searchParams.get('page') ?? 1);
+        const headers = page < runs.length ? { link: `<${origin}/repos/o/r/commits/${ids[head]}/check-runs?check_name=Records%20integrity&filter=all&per_page=100&page=${page + 1}>; rel="next"` } : {};
+        return { body: { total_count: 1, check_runs: runs[page - 1] }, headers };
+      }
+      const issue = /^\/repos\/o\/r\/issues\/(\d+)$/.exec(address.pathname);
+      if (issue) return issues[issue[1]] ?? { status: 404, body: { message: 'Not Found' } };
+      return null;
+    },
+  });
+  const go = async (options, extra = {}) => {
+    const server = await serve(notes(options));
+    return { got: await check({ server, number: options.number, now: () => NOW, ...extra }), server };
+  };
+  const ERRATUM = { number: 2, head: 'erratum' };
+  const mentions = (server, part) => server.requests.filter(({ url }) => url.includes(part));
+
+  test('an erratum that has been open for three days is met by the approval', async () => {
+    const { got, server } = await go({ ...ERRATUM, runs: [[run(hoursAgo(72)), run(hoursAgo(1))]] });
+    assert.deepEqual(got, { code: 0, stdout: 'approvals: 1 of 1 (alice/1001: approved, bob/1002: none)\ndocs/decisions: 0 problems, 1 act approved\n', stderr: '' });
+    const asked = mentions(server, '/check-runs');
+    assert.equal(asked.length, 1);
+    assert.equal(asked[0].url, `/repos/o/r/commits/${ids.erratum}/check-runs?check_name=Records%20integrity&filter=all&per_page=100`);
+    assert.equal(asked[0].headers.authorization, `Bearer ${TOKEN}`);
+  });
+
+  test('an erratum of one hour fails with the hours it has had', async () => {
+    const { got } = await go({ ...ERRATUM, runs: [[run(hoursAgo(1))]] });
+    assert.equal(got.code, 1);
+    assert.match(got.stderr, /\[P-13\] .*\(1h of 48h\)\n/);
+  });
+
+  test('the earliest run counts, in any order and on any page; other names, other apps and runs that never began do not', async () => {
+    const early = run(hoursAgo(100));
+    const others = [run(hoursAgo(200), { name: 'Test (Node 22)' }), run(hoursAgo(300), { app: { slug: 'someone-else' } }), run(hoursAgo(400), { app: null }), run(null, { status: 'queued' })];
+    for (const runs of [[[run(hoursAgo(2)), early, ...others]], [[run(hoursAgo(2)), ...others], [early]], [[early], [run(hoursAgo(2)), ...others]]]) {
+      const { got } = await go({ ...ERRATUM, runs });
+      assert.equal(got.code, 0, JSON.stringify(runs).slice(0, 80));
+    }
+    const { got } = await go({ ...ERRATUM, runs: [[run(hoursAgo(3)), ...others]] });
+    assert.match(got.stderr, /\(3h of 48h\)/);
+  });
+
+  test('no run listed counts as no time at all', async () => {
+    const { got } = await go({ ...ERRATUM, runs: [[]] });
+    assert.match(got.stderr, /\(0h of 48h\)/);
+    const { got: nameless } = await go({ ...ERRATUM, runs: [[run(hoursAgo(100), { name: 'Other' })]] });
+    assert.match(nameless.stderr, /\(0h of 48h\)/);
+  });
+
+  test('the clock of the process is the default for now', async () => {
+    const server = await serve(notes({ ...ERRATUM, runs: [[run(new Date(Date.now() - 72 * 3600 * 1000).toISOString().replace(/\.\d+Z$/, 'Z'))]] }));
+    assert.equal((await check({ server, number: 2 })).code, 0);
+    const fresh = await serve(notes({ ...ERRATUM, runs: [[]] }));
+    assert.match((await check({ server: fresh, number: 2 })).stderr, /\(0h of 48h\)/);
+  });
+
+  test('a list of check runs that does not fit ends the run', async () => {
+    const bad = [
+      { total_count: 0 }, [], 'x', { check_runs: {} }, { check_runs: [null] }, { check_runs: ['x'] }, { check_runs: [{ started_at: hoursAgo(1) }] },
+      { check_runs: [{ name: 'Records integrity', started_at: 'yesterday' }] }, { check_runs: [{ name: 'Records integrity', started_at: 5 }] },
+      { check_runs: [{ name: 'Records integrity', started_at: '2026-11-09T00:00:00.000Z' }] }, { check_runs: [{ name: 'Records integrity', started_at: hoursAgo(1), app: 'x' }] },
+      { check_runs: [{ name: 5, started_at: hoursAgo(1) }] },
+    ];
+    for (const body of bad) {
+      const server = await serve(notes({ ...ERRATUM, extra: (address) => (address.pathname.endsWith('/check-runs') ? { body } : null) }));
+      const got = await check({ server, number: 2, now: () => NOW });
+      assert.equal(got.code, 2, JSON.stringify(body));
+      assert.match(got.stderr, /^Records integrity could not run: the answer to \/repos\/o\/r\/commits\/[0-9a-f]{40}\/check-runs\?check_name=Records%20integrity&filter=all&per_page=100 is not what the check needs\n$/, JSON.stringify(body));
+    }
+  });
+
+  test('check runs that cannot be read end the run: an error, a redirect, a link to another place', async () => {
+    const failing = (answer) => notes({ ...ERRATUM, extra: (address) => (address.pathname.endsWith('/check-runs') ? answer : null) });
+    const server500 = await serve(failing({ status: 500, body: {} }));
+    assert.match((await check({ server: server500, number: 2, now: () => NOW })).stderr, /^Records integrity could not run: GET \/repos\/o\/r\/commits\/[0-9a-f]{40}\/check-runs\?[^ ]+ answered 500\n$/);
+    const redirect = await serve(failing({ status: 302, headers: { location: 'https://example.com/' }, body: {} }));
+    assert.match((await check({ server: redirect, number: 2, now: () => NOW })).stderr, /failed: /);
+    const elsewhere = await serve(failing({ body: { check_runs: [] }, headers: { link: '<https://example.com/x?page=2>; rel="next"' } }));
+    assert.equal((await check({ server: elsewhere, number: 2, now: () => NOW })).stderr, 'Records integrity could not run: the link to the next page is not the API\n');
+    const endless = await serve(notes({ ...ERRATUM, extra: (address, origin) => (address.pathname.endsWith('/check-runs') ? { body: { check_runs: [] }, headers: { link: `<${origin}/repos/o/r/commits/${ids.erratum}/check-runs?page=${Number(address.searchParams.get('page') ?? 1) + 1}>; rel="next"` } } : null) }));
+    assert.equal((await check({ server: endless, number: 2, now: () => NOW })).stderr, 'Records integrity could not run: more than 200 pages of check runs\n');
+  });
+
+  test('a pull request that needs nothing makes no request for it', async () => {
+    const server = await play({ pages: [[review(1, 1001, 'APPROVED', T1)]] });
+    await check({ server });
+    assert.equal(mentions(server, '/check-runs').length + mentions(server, '/issues/').length, 0);
+  });
+
+  test('deviation notes: the cases are looked up in the order they are needed, an issue and a pull request by their kind', async () => {
+    const issues = { 3: { body: { number: 3 } }, 5: { body: { number: 5, pull_request: { url: 'x' } } } };
+    const { got, server } = await go({ number: 3, head: 'notes', issues });
+    assert.deepEqual(got, { code: 0, stdout: 'approvals: 1 of 1 (alice/1001: approved, bob/1002: none)\ndocs/decisions: 0 problems, 1 act approved\n', stderr: '' });
+    assert.deepEqual(mentions(server, '/issues/').map(({ url }) => url), ['/repos/o/r/issues/3', '/repos/o/r/issues/5']);
+    assert.equal(mentions(server, '/check-runs').length, 0);
+  });
+
+  test('a case that is the other kind, or absent, or gone, does not resolve', async () => {
+    const wrongKind = await go({ number: 3, head: 'notes', issues: { 3: { body: { number: 3, pull_request: {} } }, 5: { body: { number: 5 } } } });
+    assert.match(wrongKind.got.stderr, /\[P-14\] .*\(entry 1: case does not resolve\)\n.*\[P-14\] .*\(entry 2: case does not resolve\)\n.*\[P-14\] .*\(entry 3: case does not resolve\)/s);
+    const absent = await go({ number: 3, head: 'notes', issues: { 3: { body: { number: 3 } } } });
+    assert.match(absent.got.stderr, /\(entry 1: case does not resolve\)/);
+    assert.doesNotMatch(absent.got.stderr, /entry 2/);
+    assert.match(absent.got.stderr, /\(entry 3: case does not resolve\)/);
+    const gone = await go({ number: 3, head: 'notes', issues: { 3: { status: 410, body: { message: 'Gone' } }, 5: { body: { number: 5, pull_request: {} } } } });
+    assert.match(gone.got.stderr, /\(entry 2: case does not resolve\)/);
+    assert.doesNotMatch(gone.got.stderr, /entry 1|entry 3/);
+  });
+
+  test('an answer about a case that does not fit, or an error, ends the run', async () => {
+    const bodies = [{ number: 4 }, { number: '3' }, 'x', [], null, { number: 3, pull_request: 'yes' }, { number: 3, pull_request: null }];
+    for (const body of bodies) {
+      const { got } = await go({ number: 3, head: 'notes', issues: { 3: { body }, 5: { body: { number: 5, pull_request: {} } } } });
+      assert.equal(got.code, 2, JSON.stringify(body));
+      assert.equal(got.stderr, 'Records integrity could not run: the answer to /repos/o/r/issues/3 is not what the check needs\n', JSON.stringify(body));
+    }
+    const { got } = await go({ number: 3, head: 'notes', issues: { 3: { status: 500, body: {} } } });
+    assert.equal(got.stderr, 'Records integrity could not run: GET /repos/o/r/issues/3 answered 500\n');
+    const { got: forbidden } = await go({ number: 3, head: 'notes', issues: { 3: { status: 403, body: {} } } });
+    assert.equal(forbidden.stderr, 'Records integrity could not run: GET /repos/o/r/issues/3 answered 403\n');
+  });
+
+  test('a pull request with an erratum and a note asks for both', async () => {
+    const issues = { 5: { body: { number: 5, pull_request: {} } } };
+    const { got, server } = await go({ number: 4, head: 'both', runs: [[run(hoursAgo(72))]], issues });
+    assert.equal(got.code, 0, got.stderr);
+    assert.deepEqual(mentions(server, '/issues/').map(({ url }) => url), ['/repos/o/r/issues/5']);
+    assert.equal(mentions(server, '/check-runs').length, 1);
+  });
+
+  test('more than 50 cases are too many to look up', async () => {
+    const entries = Array.from({ length: 51 }, (_, i) => `### Deviation ${i + 1}\n\n- date: 2026-11-08\n- case: issue ${i + 1}\n- reason: One.`).join('\n\n');
+    const bigTree = new Map(worldTree);
+    const second = change.trees.world.find((f) => f.path.endsWith('0002-second.md')).content;
+    bigTree.set('docs/decisions/0002-second.md', second.replace('\n## Alternatives considered', `\n## Known deviations\n\n${entries}\n\n## Alternatives considered`));
+    const repo = path.join(scratch, 'many-cases.git');
+    git(scratch, ['init', '-q', '--bare', repo]);
+    git(repo, ['fast-import', '--quiet'], Buffer.concat([commitStream('world', worldTree), commitStream('pr', bigTree, 'world')]));
+    git(repo, ['update-ref', 'refs/pull/5/head', git(repo, ['rev-parse', 'refs/heads/pr'])]);
+    const head = git(repo, ['rev-parse', 'refs/heads/pr']);
+    const server = await serve(github({ number: 5, pulls: [pullBody({ number: 5, head: { sha: head }, base: { ref: 'world' } })] }));
+    const got = await check({ server, number: 5, cwd: workdir(repo), now: () => NOW });
+    assert.equal(got.stderr, 'Records integrity could not run: more than 50 cases to look up\n');
+    assert.equal(mentions(server, '/issues/').length, 0);
+  });
+
+  test('what record-keeper needs prints is read strictly', () => {
+    assert.deepEqual(readNeeds(''), { cited: [], clock: false });
+    assert.deepEqual(readNeeds('case issue 3\ncase pull 5\nclock\n'), { cited: [{ kind: 'issue', number: 3 }, { kind: 'pull', number: 5 }], clock: true });
+    assert.deepEqual(readNeeds('clock\n').clock, true);
+    for (const bad of ['case issue 0\n', 'case issue 05\n', 'case commit 3\n', 'case issue 3 \n', 'Clock\n', 'case  issue 3\n', 'x\n', 'case issue 1234567890\n']) {
+      assert.throws(() => readNeeds(bad), (error) => error instanceof CannotRun && error.message === 'record-keeper needs printed something that is not a need', bad);
+    }
+    const many = Array.from({ length: 51 }, (_, i) => `case issue ${i + 1}\n`).join('');
+    assert.throws(() => readNeeds(many), (error) => error.message === 'more than 50 cases to look up');
+    assert.equal(readNeeds(many.split('\n').slice(0, 50).join('\n')).cited.length, 50);
   });
 });

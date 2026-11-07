@@ -1,6 +1,6 @@
 # The pull request check
 
-Status: draft for review (M2.5). This page says how the `Records integrity` workflow runs [`check-pr`](checking-a-change.md) on a pull request: what it reads from GitHub, what it runs, what it does when it cannot read, and what a repository must set so that the check means something. It is not part of the protocol. The rules for *what is allowed* are on [the page about checking a change](checking-a-change.md) and [the page about approvals](approvals.md); this page is only the plumbing between GitHub and those rules, and the plumbing is where a check is most easily turned off.
+Status: draft for review (M2.5, with the lookups of errata and deviation notes added in M2.6). This page says how the `Records integrity` workflow runs [`check-pr`](checking-a-change.md) on a pull request: what it reads from GitHub, what it runs, what it does when it cannot read, and what a repository must set so that the check means something. It is not part of the protocol. The rules for *what is allowed* are on [the page about checking a change](checking-a-change.md) and [the page about approvals](approvals.md); this page is only the plumbing between GitHub and those rules, and the plumbing is where a check is most easily turned off.
 
 Two files make the check. `.github/workflows/records-integrity.yml` is the workflow. `check-pull-request.mjs` is the program it runs: it is the only part of the kit that talks to the network, and it does nothing but read, ask `check-pr`, and pass on the answer. `record-keeper.mjs`, which holds every rule, still has no network code and no token.
 
@@ -8,7 +8,7 @@ Two files make the check. `.github/workflows/records-integrity.yml` is the workf
 
 - **One trigger: `pull_request_target`**, for the events `opened`, `synchronize`, `reopened`, `ready_for_review` and `edited` (a change of title, text or **base branch**). GitHub runs a `pull_request_target` workflow from the **default branch** of the repository, so a pull request cannot change the check it is judged by. A copy of the workflow that exists only in a pull request or on another branch does not run for it ([the design](design.md#how-a-pull-request-is-checked), experiment E1).
 - **One job, named `Records integrity`.** The name of the job is the name of the check that a ruleset requires. The job has no `if:` and the trigger has no `paths:` and no `branches:`, because a skipped or neutral job satisfies a required check and a `paths:` filter leaves a pull request blocked for ever. A job that fails, or is cancelled, blocks.
-- **A token that reads and cannot write:** `contents: read` and `pull-requests: read`, and nothing else. The check reports through the result of its own job.
+- **A token that reads and cannot write:** `checks: read`, `contents: read` and `pull-requests: read`, and nothing else. The check reports through the result of its own job. `checks: read` is for one thing, the start of the first run of the check on the head commit (step 5).
 - **It never runs what the pull request holds.** The job checks out the **default branch**, with its whole history, and nothing else. The commits of the pull request are fetched as git objects and read through git; no file of them is checked out, installed, imported or run. The program and `record-keeper.mjs` are the ones of the default branch.
 - **Nothing from the event goes into a shell.** The pull request number reaches the program as an environment variable, and the repository as `GITHUB_REPOSITORY`. Everything else the program needs it reads from the API itself.
 - **Every action is pinned to a commit.** The same two as the tests use: `actions/checkout` and `actions/setup-node`.
@@ -21,7 +21,8 @@ Two files make the check. `.github/workflows/records-integrity.yml` is the workf
 2. **Read every review** (`GET .../pulls/{number}/reviews?per_page=100`), following the `Link` header with `rel="next"` until there is none.
 3. **Read the pull request again.** If its head commit or its base branch is not the one of step 1, the run stops: the reviews were read for a commit that is no longer the head.
 4. **Fetch the commits** with git: the head from `refs/pull/{number}/head`, the tip of the base branch from `refs/heads/{base}`. The id that came out of the head must be the id of step 1, or the run stops.
-5. **Run `check-pr`** with the tip of the base branch as `--base`, the head commit as `--head`, the reviews as `--reviews` and the id of the author as `--author`, and print what it prints. The exit status of the job is the exit status of `check-pr`.
+5. **Ask `record-keeper needs`** with the same two commits what the change cites or waits for ([errata and deviation notes](errata-and-deviations.md#what-needs-prints)), and look it up. For each distinct issue or pull request that a new deviation entry cites, in the order `needs` prints them, `GET /repos/{repo}/issues/{number}`: a `404` or a `410` means it does not exist, and a pull request is an answer that has a `pull_request` key. If `needs` printed `clock`, `GET /repos/{repo}/commits/{head}/check-runs?check_name=Records%20integrity&filter=all&per_page=100` (every page) and take the earliest `started_at` of the runs of the app `github-actions` with that name; with none, the time of now. A change that needs neither makes neither request.
+6. **Run `check-pr`** with the tip of the base branch as `--base`, the head commit as `--head`, the reviews as `--reviews`, the id of the author as `--author`, and, when step 5 looked something up, the issues and pull requests that exist as `--cases` and the start of the first run as `--since`. Print what it prints. The exit status of the job is the exit status of `check-pr`.
 
 The program is the same code as `check-pr` for everything after that, so the result for a pull request is the one the command gives for the same two commits and the same reviews. The pull request is judged against the **tip of the base branch**, not against the point where it branched: a branch that is behind the base fails with P-09 (a stale head), whatever the ruleset says.
 
@@ -33,13 +34,15 @@ The program ends with the status 2 and prints `Records integrity could not run:`
 | ------ | ---- |
 | `no token` | `GITHUB_TOKEN` is empty or missing. |
 | `repository: must be owner/name`, `pull request number: must be a positive integer of at most 9 digits`, `API address: ...` | an argument is not what it must be: `owner/name` of letters, digits, dots, hyphens and underscores (neither part `.` or `..`); a positive integer of at most 9 digits; an address that is `https` (or `http` for `localhost` or `127.0.0.1`, used by the tests) without credentials, query or fragment. |
-| `GET <path> answered <status>` | the API answered with anything but 200. |
+| `GET <path> answered <status>` | the API answered with anything but 200 (for an issue, also but 404 and 410, which mean it does not exist). |
 | `GET <path> failed: <why>` | no answer: the connection failed, the 30 seconds for one request ran out, or the API answered with a redirect (a redirect is never followed, so the token cannot be sent to another place). |
-| `the answer to <path> is not what the check needs` | the answer is not JSON, is not a list where a list is needed, or lacks a field the check reads or holds one of the wrong kind. |
+| `the answer to <path> is not what the check needs` | the answer is not JSON, is not a list (or an object with a list of check runs) where that is needed, or lacks a field the check reads or holds one of the wrong kind. |
 | `the pull request is not open` | its state is not `open`. |
 | `the pull request has no author` | its author is `null` (an account that was deleted). |
 | `the link to the next page is not the API` | the `Link` header points to another origin than the API, or to a page that was already read. |
-| `more than 200 pages of reviews` | the reviews do not end. 200 pages are 20,000 reviews. |
+| `more than 200 pages of reviews`, `more than 200 pages of check runs` | the list does not end. 200 pages are 20,000 entries. |
+| `more than 50 cases to look up` | a change cites more than 50 distinct issues and pull requests. |
+| `record-keeper needs printed something that is not a need` | the answer of the kit does not have the form the page of errata gives; a sign that the two files are not of one version. |
 | `the head moved` | step 3 or 4 found another head commit or base branch than step 1. |
 | `git fetch failed: ...`, `git rev-parse failed: ...` | git could not fetch or resolve, for instance because the base branch or `refs/pull/{number}/head` is not in `origin`. The message of git is printed without control characters. |
 
@@ -69,7 +72,7 @@ The workflow does nothing for a pull request that can be merged without it. Thes
 ## What this version does not do
 
 - **It does not protect the workflow file or the program.** A change to `.github/workflows/records-integrity.yml` or to `check-pull-request.mjs` is an ordinary change until M2.7 makes it an act. Until then the repository's normal review is all that guards them.
-- **It does not count days, check errata or announce anything** (M2.6, M2.9).
+- **It does not announce anything or post the diff of an erratum** (M2.9). It reads the issues and pull requests that a deviation note cites and the time of the first run on the head commit, and the kit counts the 48 hours ([errata and deviation notes](errata-and-deviations.md)).
 - **It does not re-run itself** when a review arrives (see above). Whether a workflow that is started by another event could do it is not tested yet.
 - **It does not read the pull request's files** for anything but `check-pr`. It does not look at code, and it has no opinion on any file outside the records folder, the settings file and the pin.
 - **It has no job summary and no annotations.** The output is the output of `check-pr`.
@@ -85,6 +88,7 @@ The workflow does nothing for a pull request that can be merged without it. Thes
 7. **The credentials of the checkout stay.** The job needs them to fetch `refs/pull/{number}/head` from a private repository. The token is read-only and nothing the pull request holds is run, so the only code that can use it is the code of the default branch.
 8. **A pull request that is not open fails.** A re-run on a merged pull request has no base to compare with and says so.
 9. **A page of reviews that cannot be read ends the run**, whatever the reason, and the run says why. The alternative, judging the pages that were read, could miss the later review that requests changes.
+10. **The token reads checks** (`checks: read`), for the 48 hours of an erratum. It is the one permission added since the first version of this page; the lookup is made only for a change that needs it, so a failure of that API ends the run of that kind of change and of no other. The alternative, the creation time of the pull request, needs no permission and lets a change be swapped after 48 hours ([errata and deviation notes](errata-and-deviations.md#choices-in-this-draft-for-you-to-decide), choice 9).
 
 ## The tests
 

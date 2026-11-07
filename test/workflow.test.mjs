@@ -38,7 +38,7 @@ function lint(text) {
   const job = under('jobs', 0);
   if (!job.includes('    name: Records integrity')) found.push('job name');
   const permissions = under('permissions', 4).map((line) => line.trim());
-  if (JSON.stringify(permissions) !== JSON.stringify(['contents: read', 'pull-requests: read'])) found.push(`job permissions: ${permissions.join(',')}`);
+  if (JSON.stringify(permissions) !== JSON.stringify(['checks: read', 'contents: read', 'pull-requests: read'])) found.push(`job permissions: ${permissions.join(',')}`);
   if (!code.some((line) => /^ {4}timeout-minutes: [1-9][0-9]*$/.test(line))) found.push('timeout');
   for (const line of code) {
     const key = line.trim().replace(/^- /, '').split(':')[0];
@@ -116,6 +116,8 @@ describe('the rules of the page, tried on damaged copies', () => {
     ['a condition on a step', damage('      - name: Judge', '      - if: always()\n        name: Judge'), /condition: if/],
     ['continue-on-error', damage('    runs-on:', '    continue-on-error: true\n    runs-on:'), /continue-on-error/],
     ['write permission on the job', damage('      contents: read', '      contents: write'), /job permissions/],
+    ['checks: write', damage('      checks: read', '      checks: write'), /job permissions/],
+    ['no checks permission', damage('      checks: read\n', ''), /job permissions/],
     ['an extra permission', damage('      pull-requests: read', '      pull-requests: read\n      checks: write'), /job permissions/],
     ['pull-requests: write', damage('      pull-requests: read', '      pull-requests: write'), /job permissions/],
     ['no permissions at the top', damage('permissions: {}\n', ''), /top-level permissions/],
