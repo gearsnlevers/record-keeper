@@ -7,12 +7,13 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { after, before, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CHANGE_RULES, FORMAT_RULES, PIN_PATH, SETTINGS_PATH, Unreadable, checkChange, readCases, readTime, run, seal } from '../record-keeper.mjs';
+import { CHANGE_RULES, CODE_FILES, FORMAT_RULES, PIN_PATH, SETTINGS_PATH, Unreadable, WORKFLOW_FILES, checkChange, readCases, readTime, run, seal } from '../record-keeper.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const { trees, cases } = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/change/cases.json'), 'utf8'));
 const page = fs.readFileSync(path.join(root, 'docs/checking-a-change.md'), 'utf8');
 const errataPage = fs.readFileSync(path.join(root, 'docs/errata-and-deviations.md'), 'utf8');
+const filesPage = fs.readFileSync(path.join(root, 'docs/protected-files.md'), 'utf8');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-change-'));
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 
@@ -74,7 +75,7 @@ function buildRepo(dir, list) {
 }
 
 // The detail of a V rule only helps the reader; the other rules have an answer that includes it.
-const withDetail = (rule) => /^(?:P-0[2-7]|P-1[0-4]|T-0[23])$/.test(rule);
+const withDetail = (rule) => /^(?:P-0[2-7]|P-1[0-5]|T-0[23])$/.test(rule);
 const shownProblem = ({ file, rule, detail }) => ({ file, rule, ...(withDetail(rule) && detail ? { detail } : {}) });
 const shownSetting = ({ line, rule, detail }) => ({ line: line ?? null, rule, ...(detail ? { detail } : {}) });
 /** What a case gives besides the two commits: the issues and pull requests that exist, since when the head was seen, and now. */
@@ -101,7 +102,7 @@ describe('the cases of the page', () => {
     const rules = new Set(cases.flatMap((c) => c.expect.problems.map((e) => e.rule)));
     for (const rule of Object.keys(CHANGE_RULES)) assert.ok(rules.has(rule), `${rule} has no case`);
     const acts = new Set(cases.flatMap((c) => c.expect.acts.map((e) => e.kind)));
-    assert.deepEqual([...acts].sort(), ['accept', 'deviation', 'erratum', 'owners', 'pin', 'settings']);
+    assert.deepEqual([...acts].sort(), ['accept', 'code', 'deviation', 'erratum', 'owners', 'pin', 'settings', 'workflow']);
     const settings = new Set(cases.flatMap((c) => c.expect.settings.map((e) => e.rule)));
     assert.ok(settings.size >= 3);
   });
@@ -444,5 +445,36 @@ describe('errata and deviation notes: the options and the command needs', () => 
     for (const rule of ['P-10', 'P-11', 'P-12', 'P-13', 'P-14']) assert.ok([...got].some((g) => g.startsWith(`${rule} `)), rule);
     for (const key of ['applies-to', 'repos', 'window', 'supersedes']) assert.ok(got.has(`P-12 ${key}`), key);
     for (const detail of ['no clock', 'Nh of 48h']) assert.ok(got.has(`P-13 ${detail}`), detail);
+  });
+});
+
+describe('the files of the check', () => {
+  test('the files of the page are the files of the code, and the code files exist', () => {
+    for (const file of [...WORKFLOW_FILES, ...CODE_FILES]) assert.ok(filesPage.includes(`\`${file}\``), file);
+    for (const file of ['.github/record-keeper/settings.yml', '.github/record-keeper.yml']) assert.ok(filesPage.includes(`\`${file}\``), file);
+    for (const file of [...CODE_FILES, WORKFLOW_FILES[0]]) assert.ok(fs.existsSync(path.join(root, file)), file);
+    assert.equal(new Set([...WORKFLOW_FILES, ...CODE_FILES]).size, 4);
+  });
+
+  test('the workflows of this repository that are not the kit\'s do not name the check', () => {
+    const folder = path.join(root, '.github/workflows');
+    for (const name of fs.readdirSync(folder)) {
+      if (WORKFLOW_FILES.includes(`.github/workflows/${name}`)) continue;
+      assert.doesNotMatch(name, /records[ _-]?integrity/i);
+      assert.doesNotMatch(fs.readFileSync(path.join(folder, name), 'latin1'), /records[ _-]?integrity/i, name);
+    }
+  });
+
+  test('a problem without a file prints the folder and the path of the workflow', () => {
+    const i = cases.findIndex((c) => c.id === 'y15-name-in-a-new-workflow');
+    const got = run(['check-pr', '--repo', big, '--base', `b${i}`, '--head', `h${i}`]);
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, `docs/decisions: [P-15] ${CHANGE_RULES['P-15']} (.github/workflows/fake.yml)\ndocs/decisions: 1 problem\n`);
+  });
+
+  test('an act on a code file or a workflow file is named in the line the command prints', () => {
+    const i = cases.findIndex((c) => c.id === 'y07-both-code-files');
+    const got = run(['check-pr', '--repo', big, '--base', `b${i}`, '--head', `h${i}`]);
+    assert.equal(got.stderr, "check-pull-request.mjs: needs the owners' approval (code)\nrecord-keeper.mjs: needs the owners' approval (code)\ndocs/decisions: 0 problems, 2 acts\n");
   });
 });

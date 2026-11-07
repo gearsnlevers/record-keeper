@@ -71,7 +71,7 @@ The workflow does nothing for a pull request that can be merged without it. Thes
 
 ## What this version does not do
 
-- **It does not protect the workflow file or the program.** A change to `.github/workflows/records-integrity.yml` or to `check-pull-request.mjs` is an ordinary change until M2.7 makes it an act. Until then the repository's normal review is all that guards them.
+- **It guards the workflow file and the program only as acts.** A change to `.github/workflows/records-integrity.yml` or to `check-pull-request.mjs` needs the approval of the owners ([the files of the check](protected-files.md)); the amendment bar of M2.7b is not asked of it. Whether the owners notice a change that weakens the check is for them.
 - **It does not announce anything or post the diff of an erratum** (M2.9). It reads the issues and pull requests that a deviation note cites and the time of the first run on the head commit, and the kit counts the 48 hours ([errata and deviation notes](errata-and-deviations.md)).
 - **It does not re-run itself** when a review arrives (see above). Whether a workflow that is started by another event could do it is not tested yet.
 - **It does not read the pull request's files** for anything but `check-pr`. It does not look at code, and it has no opinion on any file outside the records folder, the settings file and the pin.
