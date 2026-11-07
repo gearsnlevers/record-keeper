@@ -544,7 +544,7 @@ const KINDS = { '100644': 'file', '100755': 'executable', '040000': 'directory',
 const CONVENTIONAL_FOLDERS = ['docs/decisions', 'docs/adr', 'docs/adrs', 'docs/architecture/decisions', 'doc/adr', 'doc/decisions', 'decisions', 'adr', 'adrs'];
 
 /** Runs git with nothing of the caller's git environment, and returns what it printed. */
-function runGit(args, { cwd, env = {}, input } = {}) {
+export function runGit(args, { cwd, env = {}, input } = {}) {
   const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
   const result = spawnSync('git', args, { cwd, input, env: { ...inherited, GIT_TERMINAL_PROMPT: '0', ...env }, maxBuffer: 1 << 30 });
   if (result.error) throw new Unreadable(`cannot run git: ${result.error.message}`);
@@ -1249,7 +1249,7 @@ const problemWord = (count) => `${count} problem${count === 1 ? '' : 's'}`;
  * control and a byte order mark are written as \u{hex}, so that a file name cannot start a line, a command of a log, or hide the end
  * of its own line.
  */
-function printable(text) {
+export function printable(text) {
   const unsafe = (code) => code === 0x09 || code === 0x0a || code === 0x0d || code === BOM || code >= 0xfffe && code <= 0xffff || inRanges(code, CONTROLS) || inRanges(code, SEPARATORS_AND_BIDI);
   return Array.from(String(text), (character) => (unsafe(character.codePointAt(0)) ? `\\u{${character.codePointAt(0).toString(16)}}` : character)).join('');
 }

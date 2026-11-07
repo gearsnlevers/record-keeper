@@ -1,6 +1,6 @@
 # Checking a change
 
-Status: draft for review (M2.3, with the owners' approval added in M2.4). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; [the owners' approval](approvals.md) says which acts are approved, and the workflow (M2.5), errata and deviations (M2.6) and the protection of the workflows and the bar for an amendment (M2.7) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
+Status: draft for review (M2.3, with the owners' approval added in M2.4). This page says how `record-keeper check-pr` judges a change: the records folder of a **head** commit against the records folder of a **base** commit. It is the core of the pull request check; [the owners' approval](approvals.md) says which acts are approved, and [the workflow](workflow.md) (M2.5), errata and deviations (M2.6) and the protection of the workflows and the bar for an amendment (M2.7) are added to it. It is not part of the protocol, but it is the place where [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) becomes checkable, so a rule here is read with that record next to it.
 
 The check never trusts the change. It reads both commits through git ([reading a commit](reading-a-commit.md)), takes the settings from the base ([settings](settings.md)), and decides what the head may differ in. Everything it does not yet decide fails closed: a change it cannot judge is a problem, not a pass.
 
@@ -100,7 +100,7 @@ None of the maintainers' repositories installs the check yet, and none keeps a s
 - **It does not check that the files an `applies-to` names still exist** when a change moves the code. That needs a glob dialect and the tree of the head; it belongs with M2.7.
 - **It does not read the shared folder** (P-08), and it does not read the pin.
 - **It does not look at the history between the commits**, only at the two trees. The audit (M2.8) looks at the history.
-- **It does not decide which commits are the base and the head.** The workflow (M2.5) does: the tip of the base branch and the head commit of the pull request.
+- **It does not decide which commits are the base and the head.** [The workflow](workflow.md) (M2.5) does: the tip of the base branch and the head commit of the pull request.
 - **It cannot stop two changes that are valid alone and invalid together** if the ruleset does not require an up-to-date branch; P-09 makes the stale one fail, and the ruleset makes the second one wait.
 
 ## Choices in this draft for you to decide

@@ -4,7 +4,7 @@ Keeps a repository's decision records trustworthy: templates, one validator, sea
 
 A decision record binds people and coding agents once it is accepted, and the rule that an accepted record is never edited, only superseded, is usually only text. Record Keeper makes it checkable: an accepted record carries a seal, a pull request that changes a sealed record fails a required check, and a nightly audit finds what got past it and reports it.
 
-Status: in progress, milestone M2. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request. The workflow of the pull request check, errata, the protection of the workflows, the audit and the updater are still to come.
+Status: in progress, milestone M2. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request, and the `Records integrity` workflow runs all of that on a pull request. Errata, the protection of the workflows, the audit and the updater are still to come.
 
 ```sh
 node record-keeper.mjs seal <file>             # print the seal of a record
@@ -17,10 +17,12 @@ node record-keeper.mjs config --commit <revision>
 node record-keeper.mjs check-pr --base <revision> --head <revision> [--reviews <file> --author <id>]
                                                # judge the records folder of the head against the base, with the settings of the base;
                                                # with the reviews of the pull request, also say whether the owners approved the acts
+node check-pull-request.mjs --repo <owner/name> --pr <number>
+                                               # what the workflow runs: read the pull request from GitHub, then check-pr
 npm test                                       # the library, the command line, the test vectors and the fixtures
 ```
 
-It needs Node.js 22 or later, has no dependencies and never writes a file.
+It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no network code and never writes a file; `check-pull-request.mjs` only reads from GitHub and adds git objects and two refs to the clone it runs in.
 
 - [docs/design.md](docs/design.md): what it is, the layers, how a pull request is checked, the audit, delivery, adoption, and what is decided and what is open.
 - [docs/decisions/](docs/decisions/README.md): the decisions of the kit itself. Record 0001 is the protocol.
@@ -30,6 +32,7 @@ It needs Node.js 22 or later, has no dependencies and never writes a file.
 - [docs/settings.md](docs/settings.md): the settings file `.github/record-keeper/settings.yml`, the subset of YAML it is read in and what is wrong with a file, with [fixtures](test/fixtures/config/README.md).
 - [docs/checking-a-change.md](docs/checking-a-change.md): how a change is judged, which changes a sealed record allows, what needs the owners' approval, with [fixtures](test/fixtures/change/README.md).
 - [docs/approvals.md](docs/approvals.md): when the owners have approved a change: which reviews count, what the command prints, with [fixtures](test/fixtures/approval/README.md).
+- [docs/workflow.md](docs/workflow.md): the `Records integrity` workflow: what it reads from GitHub, what it runs, when it cannot run, and what a repository must set for it to mean anything.
 
 ## License
 
