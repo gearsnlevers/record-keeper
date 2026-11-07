@@ -11961,6 +11961,28 @@
     ]
    },
    "note": "A change of the table in a repository that has owners."
+  },
+  {
+   "id": "z28-sealed-record-with-a-long-emergency",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nemergency: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nseal: sha256-g1:3085cc8581c19d062983e04e5632a73000647ff08e9e3b4b250ee0f5d15d754c\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 6"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A sealed record gets a long emergency and a new seal: P-02 only, the content rules are not asked of a sealed record."
   }
  ]
 }
