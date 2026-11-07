@@ -10824,6 +10824,30 @@
     ]
    },
    "note": "A change of the check that also adds a colliding workflow."
+  },
+  {
+   "id": "y32-extension-must-end-the-name",
+   "base": "kit",
+   "changes": [
+    {
+     "write": ".github/workflows/a.yml.bak",
+     "content": "Records integrity\n"
+    },
+    {
+     "write": ".github/workflows/b.ymlx",
+     "content": "Records integrity\n"
+    },
+    {
+     "write": ".github/workflows/c.yaml.orig",
+     "content": "Records integrity\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "A name that only contains .yml is not a workflow file."
   }
  ]
 }
