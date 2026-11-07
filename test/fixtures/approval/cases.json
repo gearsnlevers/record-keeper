@@ -2100,6 +2100,893 @@
    }
   }
  ],
+ "bars": [
+  {
+   "id": "b01-no-owners",
+   "note": "nobody can approve",
+   "owners": [],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "no owners"
+   }
+  },
+  {
+   "id": "b02-no-owners-waived",
+   "note": "a waiver does not help without owners",
+   "owners": [],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": true,
+   "expect": {
+    "met": false,
+    "reason": "no owners"
+   }
+  },
+  {
+   "id": "b03-one-of-two",
+   "note": "one owner approved, the other did not",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 182,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-10T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "1 of 2 owners"
+   }
+  },
+  {
+   "id": "b04-none-of-two",
+   "note": "no owner approved",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "0 of 2 owners"
+   }
+  },
+  {
+   "id": "b05-both-after-eight-days",
+   "note": "both approved eight days after the head was first seen",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 183,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-09T00:00:00Z"
+    },
+    {
+     "id": 184,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-09T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b06-exactly-seven-days",
+   "note": "the last approval comes exactly seven days after since",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 185,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-08T00:00:00Z"
+    },
+    {
+     "id": 186,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-08T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b07-one-second-short",
+   "note": "one second short of seven days",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 187,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-07T23:59:59Z"
+    },
+    {
+     "id": 188,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-07T23:59:59Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "167h of 168h"
+   }
+  },
+  {
+   "id": "b08-last-approval-counts",
+   "note": "the first approval is old enough and the last is not",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 189,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-15T00:00:00Z"
+    },
+    {
+     "id": 190,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-03T05:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b09-last-approval-too-early",
+   "note": "both approvals came three days after since",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 191,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-04T00:00:00Z"
+    },
+    {
+     "id": 192,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-04T10:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "82h of 168h"
+   }
+  },
+  {
+   "id": "b10-later-comment-does-not-move-it",
+   "note": "a comment after the approval is no approval",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 193,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-03T00:00:00Z"
+    },
+    {
+     "id": 194,
+     "user": 1001,
+     "state": "COMMENTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-19T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "48h of 168h"
+   }
+  },
+  {
+   "id": "b11-reapproval-after-the-wait",
+   "note": "an owner approves again after the wait: the latest approval is the time",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 195,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T00:00:00Z"
+    },
+    {
+     "id": 196,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-12T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b12-author-and-an-approval",
+   "note": "the author counts without a time; the other owner approved after the wait",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [
+    {
+     "id": 197,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-12T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b13-author-and-an-early-approval",
+   "note": "the author counts without a time; the other owner approved too early",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [
+    {
+     "id": 198,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-02T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "24h of 168h"
+   }
+  },
+  {
+   "id": "b14-author-alone-uses-now",
+   "note": "the only owner is the author: the time is now, nineteen days after since",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b15-author-alone-too-early",
+   "note": "the only owner is the author and now is three days after since",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-04T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "72h of 168h"
+   }
+  },
+  {
+   "id": "b16-no-clock",
+   "note": "no time is given for the head",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 199,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-19T00:00:00Z"
+    }
+   ],
+   "since": null,
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "no clock"
+   }
+  },
+  {
+   "id": "b17-waived",
+   "note": "waived: every owner approved, no clock is asked",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 200,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    },
+    {
+     "id": 201,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "since": null,
+   "now": "2026-11-20T00:00:00Z",
+   "waived": true,
+   "expect": {
+    "met": true,
+    "waived": true
+   }
+  },
+  {
+   "id": "b18-waived-not-all",
+   "note": "waived, but an owner did not approve",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 202,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-01T09:00:00Z"
+    }
+   ],
+   "since": null,
+   "now": "2026-11-20T00:00:00Z",
+   "waived": true,
+   "expect": {
+    "met": false,
+    "reason": "1 of 2 owners"
+   }
+  },
+  {
+   "id": "b19-approval-before-since",
+   "note": "an approval that came before since: negative time",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 203,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-10-30T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "0h of 168h"
+   }
+  },
+  {
+   "id": "b20-since-in-the-future",
+   "note": "since after now, the author alone",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 1001,
+   "reviews": [],
+   "since": "2026-12-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "0h of 168h"
+   }
+  },
+  {
+   "id": "b21-earlier-commit-is-not-approval",
+   "note": "an approval of an earlier commit",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 204,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+     "at": "2026-11-15T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "0 of 1 owners"
+   }
+  },
+  {
+   "id": "b22-changes-requested-after",
+   "note": "a request for changes after the approval",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 205,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-12T00:00:00Z"
+    },
+    {
+     "id": 206,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-12T00:00:00Z"
+    },
+    {
+     "id": 207,
+     "user": 1002,
+     "state": "CHANGES_REQUESTED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-13T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "1 of 2 owners"
+   }
+  },
+  {
+   "id": "b23-three-owners",
+   "note": "three owners, all approved after the wait",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    },
+    {
+     "login": "carol",
+     "id": 1003
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 208,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-10T00:00:00Z"
+    },
+    {
+     "id": 209,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-11T00:00:00Z"
+    },
+    {
+     "id": 210,
+     "user": 1003,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-12T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b24-three-owners-in-any-order",
+   "note": "three owners; the latest approval is the one that counts, whoever gave it",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    },
+    {
+     "login": "bob",
+     "id": 1002
+    },
+    {
+     "login": "carol",
+     "id": 1003
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 211,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-10T00:00:00Z"
+    },
+    {
+     "id": 212,
+     "user": 1002,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-11T00:00:00Z"
+    },
+    {
+     "id": 213,
+     "user": 1003,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-05T12:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b25-hours-are-whole",
+   "note": "the hours are whole: 100 hours and 59 minutes",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 214,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-05T04:59:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "100h of 168h"
+   }
+  },
+  {
+   "id": "b26-same-second",
+   "note": "two approvals of one second",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 215,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-09T00:00:00Z"
+    },
+    {
+     "id": 216,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-09T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b27-the-wait-across-a-leap-day",
+   "note": "the wait is counted in seconds, across a leap day",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 217,
+     "user": 1001,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2028-03-04T00:00:00Z"
+    }
+   ],
+   "since": "2028-02-26T00:00:00Z",
+   "now": "2028-03-10T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": true
+   }
+  },
+  {
+   "id": "b28-not-an-owner-approves",
+   "note": "the reviews of an account that is not an owner",
+   "owners": [
+    {
+     "login": "alice",
+     "id": 1001
+    }
+   ],
+   "head": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+   "author": 7,
+   "reviews": [
+    {
+     "id": 218,
+     "user": 2000,
+     "state": "APPROVED",
+     "commit": "a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5",
+     "at": "2026-11-15T00:00:00Z"
+    }
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "now": "2026-11-20T00:00:00Z",
+   "waived": false,
+   "expect": {
+    "met": false,
+    "reason": "0 of 1 owners"
+   }
+  }
+ ],
  "files": [
   {
    "id": "f01-empty-list",

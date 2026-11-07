@@ -63,7 +63,7 @@ The kit does not check that the reviews belong to the pull request whose head it
 | `workflow`, `code` | yes |
 | `settings` | yes |
 | `pin` | yes |
-| `owners` | **no** |
+| `owners`, `amendment` | **no**: [the bar for an amendment](amendments.md) |
 
 The act `owners` is new here. It is found when the change touches the settings and the settings of the head differ from those of the base in a way the amendment bar governs: the set of owner IDs is not the same, or `approvals` is lower. (A change of login only, a different order, or a higher `approvals` is not.) Each side is read as the check reads settings: a setting with a problem has its default, so an `owners` line that the head breaks counts as no owners. The design says that a change to the owners meets the bar of an amendment, the approval of **all** owners after the pull request has been open seven days, and that lowering `approvals` meets it too (M2.7). This version cannot check the bar, so the act cannot be approved, and the command fails. A change that is also a `settings` act shows both.
 
@@ -79,14 +79,14 @@ It is the count, the number needed, and the result of each owner in the order of
 
 ```
 docs/decisions/0007-seventh.md: needs the owners' approval (accept)
-.github/record-keeper/settings.yml: needs the amendment bar, which this version cannot check (owners)
+.github/record-keeper/settings.yml: needs the amendment bar (owners): 1 of 2 owners
 ```
 
 The count line gets ` approved` after the acts when every act is met (`docs/decisions: 0 problems, 1 act approved`), and that is the only case in which a command with acts exits 0. The command exits 1 when there is a problem or an act that is not met, and 2 for wrong usage, which also covers a reviews file that is refused and an author that is not a positive integer of at most 15 digits.
 
 ## What this does not do
 
-- **It does not count days.** The seven days of an amendment (M2.7) and the approval of all owners are not checked here; the act `owners` stands in for both until then. The 48 hours of an erratum are counted, by [their own rule](errata-and-deviations.md#the-48-hours).
+- **It does not count days.** The 48 hours of an erratum and the seven days of an amendment are counted by [their own rules](errata-and-deviations.md#the-48-hours) and by [the bar for an amendment](amendments.md).
 - **It does not read the pull request.** It does not know whether the reviews are those of the pull request, whether they are complete, or when the pull request was opened. [The workflow](workflow.md) does (M2.5).
 - **It cannot bootstrap.** A repository whose base has no owners cannot approve anything, the change that names the owners included. The first settings are installed by an administrator, before the check is required.
 - **It cannot repair a broken `owners` or `approvals` line by approval.** While the base has a problem in either, the owners are nobody or the count is 2, and the change that repairs the line (which the [repair rule](checking-a-change.md#problems-in-the-settings) lets through as far as the settings go) is still an act that nobody can approve. An administrator repairs it. The alternative, reading the items that are fine, is choice 9 of the settings page.
@@ -100,7 +100,7 @@ The count line gets ` approved` after the acts when every act is met (`docs/deci
 3. **Reviews of one second are all read.** When an owner approves and requests changes in the same second, the order is unknown, and the owner does not count.
 4. **A state the kit does not know takes an approval back** (`other`), so that a state GitHub adds later fails closed for that owner and does not stop the whole check.
 5. **The author counts as an approval of their own pull request,** as the design says. With `approvals: 1` the owner's own pull request is approved; with 2, the author and one other owner are needed.
-6. **The act `owners` is new and cannot be met.** It closes the gap between M2.4 and M2.7: otherwise two owners could change the list of owners, or lower `approvals`, with no more than a settings approval, which the design says is not enough. The cost is that a legitimate change of owners needs an administrator until M2.7.
+6. **The act `owners` is not met by this count,** but by [the bar for an amendment](amendments.md) (M2.7b): otherwise two owners could change the list of owners, or lower `approvals`, with no more than a settings approval, which the design says is not enough. Until M2.7b nobody could meet it and a legitimate change of owners needed an administrator.
 7. **No bootstrap.** See above. The alternative, letting a pull request name the first owners when the base has none, would let any change that gets past the normal review of the repository install owners, in a repository that has no protection to lose and in which the check is not yet required. I would not add it before the setup check exists.
 8. **A review that does not fit is an error and not a skipped entry.** A skipped entry could be the review that requests changes.
 

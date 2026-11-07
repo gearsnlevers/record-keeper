@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parse, verify } from '../record-keeper.mjs';
+import { openCommit, parse, protocolRecords, verify } from '../record-keeper.mjs';
 
 const dir = new URL('../docs/decisions/', import.meta.url);
 const records = fs.readdirSync(dir).filter((name) => /^\d{4}-.+\.md$/.test(name)).sort();
@@ -39,3 +39,13 @@ for (const name of records) {
     }
   });
 }
+
+test('the README of the kit\'s records names record 0001 as the protocol, in the table the bar reads', () => {
+  const text = fs.readFileSync(new URL('README.md', dir), 'utf8');
+  const rows = text.split('\n').filter((line) => /^\| g[0-9]+ \|/.test(line));
+  assert.ok(rows.length >= 1);
+  assert.match(rows[0], /^\| g1 \| \[0001\]\(0001-[a-z0-9-]+\.md\) \| /);
+  assert.ok(fs.existsSync(new URL(/\]\(([^)]+)\)/.exec(rows[0])[1], dir)));
+  // the same as the bar reads it from a commit of this repository (not in a checkout without a git folder)
+  if (fs.existsSync(path.join(root, '.git'))) assert.deepEqual([...protocolRecords(openCommit(root, 'HEAD'), 'docs/decisions')], [1]);
+});

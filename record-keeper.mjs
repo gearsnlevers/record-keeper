@@ -890,6 +890,7 @@ export const CHANGE_RULES = {
   'P-13': 'has an erratum that changes the sealed text and has not been open for 48 hours',
   'P-14': 'has a deviation entry that is not allowed',
   'P-15': 'has a workflow other than the kit\'s that names the check',
+  'P-16': 'has an emergency key and does not replace a protocol record',
 };
 
 /** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
@@ -906,7 +907,9 @@ const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
   'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36', 'V-37',
 ]);
-const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'pin', 'workflow', 'code'];
+const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code'];
+/** The acts that the amendment bar governs (docs/amendments.md). */
+const BAR_KINDS = new Set(['owners', 'amendment']);
 const SUPERSEDED = /^superseded by (\d{4})$/;
 
 /** The UTF-8 order of two texts; null sorts first. */
@@ -940,6 +943,8 @@ function readRecord(bytes) {
     status,
     statusAt: entry('status')?.at,
     sealAt: entry('seal')?.at,
+    hasEmergency: entry('emergency') !== undefined,
+    emergency: entry('emergency') && shapeOf(entry('emergency')).shape === 'single' && [...entry('emergency').value].length <= 500 ? entry('emergency').value : undefined,
     seal: entry('seal')?.value,
     supersedes: items.filter((item) => NUMBER_FORM.test(item)).map(Number),
     claims,
@@ -1214,6 +1219,20 @@ function judgeDeviation(before, after, { repo, base, cases, needs }) {
   return found;
 }
 
+/** The numbers of the protocol records of a commit: the rows `| gN | [NNNN](...) | ... |` of the README of its records folder (docs/amendments.md). */
+export function protocolRecords(commit, folder) {
+  const found = new Set();
+  const readme = `${folder}/README.md`;
+  if (!['file', 'executable'].includes(commit.kind(readme))) return found;
+  for (const line of commit.read(readme).toString('utf8').split('\n')) {
+    if (!line.startsWith('|')) continue;
+    const cells = line.slice(1).split('|').map((cell) => cell.replace(/^[ \t\r]+|[ \t\r]+$/g, ''));
+    const link = /\[([0-9]{4})\]\(/.exec(cells[1] ?? '');
+    if (/^g[0-9]+$/.test(cells[0]) && link) found.add(Number(link[1]));
+  }
+  return found;
+}
+
 const isRelated = (changed, path) => changed === path || path.startsWith(`${changed}/`) || changed.startsWith(`${path}/`);
 
 /** True when `ancestor` is `descendant` or one of its ancestors. */
@@ -1244,7 +1263,7 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
   const { folder, sharedFolder, extraKeys } = read.settings;
   const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: head.commit, author, reviews });
   const needs = { cases: new Map(), clock: false };
-  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, needs: { cases: [], clock: false } };
+  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, bars: [], needs: { cases: [], clock: false } };
   const leavesOfBase = base.leaves();
   const leavesOfHead = head.leaves();
   const changed = [...new Set([...leavesOfBase.keys(), ...leavesOfHead.keys()])].filter((path) => leavesOfBase.get(path) !== leavesOfHead.get(path)).sort(byBytes);
@@ -1313,8 +1332,21 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
   const knownState = new Set(stateProblems(before).map(identity));
   for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !sameEntry(problem.file)) problems.push(problem);
 
+  const protocolBefore = protocolRecords(base, folder);
+  const protocolAfter = protocolRecords(head, folder);
+  const waived = new Set();
   const acts = [];
-  for (const [name, record] of after) if (record.sealed && !before.get(name)?.sealed) acts.push({ kind: 'accept', path: `${folder}/${name}` });
+  for (const [name, record] of after) {
+    if (!record.sealed || before.get(name)?.sealed) continue;
+    if (record.supersedes.some((number) => protocolBefore.has(number))) {
+      acts.push({ kind: 'amendment', path: `${folder}/${name}` });
+      if (record.emergency !== undefined) waived.add(`${folder}/${name}`);
+    } else {
+      acts.push({ kind: 'accept', path: `${folder}/${name}` });
+      if (record.hasEmergency) problems.push({ file: name, rule: 'P-16' });
+    }
+  }
+  if (protocolBefore.size !== protocolAfter.size || [...protocolBefore].some((number) => !protocolAfter.has(number))) acts.push({ kind: 'amendment', path: `${folder}/README.md` });
   for (const [name, kind] of additions) acts.push({ kind, path: `${folder}/${name}` });
   if (settingsTouched) {
     acts.push({ kind: 'settings', path: SETTINGS_PATH });
@@ -1325,10 +1357,22 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
     for (const file of files) if (changed.some((path) => isRelated(path, file))) acts.push({ kind, path: file });
   }
 
+  const bars = [];
+  for (const act of acts) {
+    if (!BAR_KINDS.has(act.kind)) continue;
+    const free = act.kind === 'amendment' && waived.has(act.path);
+    if (!free) needs.clock = true;
+    const result = reviews === undefined
+      ? { met: false, reason: 'no reviews were given' }
+      : amendmentBar({ owners: read.settings.owners, head: head.commit, author, reviews, since, now, waived: free });
+    bars.push({ kind: act.kind, path: act.path, ...result });
+  }
+
   problems.sort((a, b) => byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
   acts.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
+  bars.sort((a, b) => ACT_ORDER.indexOf(a.kind) - ACT_ORDER.indexOf(b.kind) || byBytes(a.path, b.path));
   const wanted = [...needs.cases.values()].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'issue' ? -1 : 1) || a.number - b.number);
-  return { folder, settings, problems, acts, approval, needs: { cases: wanted, clock: needs.clock } };
+  return { folder, settings, problems, acts, approval, bars, needs: { cases: wanted, clock: needs.clock } };
 }
 
 // ---- the owners' approval: docs/approvals.md --------------------------------------------------------------------------------
@@ -1429,8 +1473,28 @@ function changesOwners(before, after) {
   return ids(before) !== ids(after) || after.approvals < before.approvals;
 }
 
-/** True when the count of approvals meets an act. The act `owners` is met by none: it needs the bar of an amendment (M2.7). */
-export const actApproved = (act, approval) => act.kind !== 'owners' && approval !== null && approval.met;
+const BAR_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * The bar for an amendment (docs/amendments.md): every owner counts, and the last approval came at least seven days after `since`
+ * (milliseconds; `now` stands for the approval of an author), unless `waived`. Returns { met: true, waived? } or { met: false, reason }.
+ */
+export function amendmentBar({ owners, head, author, reviews, since, now, waived }) {
+  if (owners.length === 0) return { met: false, reason: 'no owners' };
+  const counted = countApprovals({ owners, needed: owners.length, head, author, reviews });
+  if (!counted.met) return { met: false, reason: `${counted.have} of ${owners.length} owners` };
+  if (waived) return { met: true, waived: true };
+  if (since === undefined) return { met: false, reason: 'no clock' };
+  const times = owners.filter(({ id }) => id !== author).map(({ id }) => Date.parse(reviews.filter((review) => review.user === id && review.state !== 'COMMENTED' && review.state !== 'PENDING').map((review) => review.at).sort().at(-1)));
+  const elapsed = (times.length > 0 ? Math.max(...times) : now) - since;
+  if (elapsed < BAR_MS) return { met: false, reason: `${Math.floor(Math.max(0, elapsed) / 3_600_000)}h of 168h` };
+  return { met: true };
+}
+
+/** True when an act is met: an act of the bar by `bars` (as checkChange returns them), any other by a met count of approvals. */
+export const actApproved = (act, approval, bars = []) => (BAR_KINDS.has(act.kind)
+  ? bars.some((bar) => bar.kind === act.kind && bar.path === act.path && bar.met)
+  : approval !== null && approval.met);
 
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
@@ -1626,21 +1690,22 @@ function runCheckPr(args, readFile, now) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, settings, problems, acts, approval } = result;
+  const { folder, settings, problems, acts, approval, bars } = result;
   const where = (file) => (file === null ? folder : path.join(folder, file));
   const lines = [
     ...settings.map(settingLine),
     ...problems.map(({ file, rule, detail }) => problemLine(where(file), rule, detail)),
   ];
-  const unmet = acts.filter((act) => !actApproved(act, approval));
-  const actLines = unmet.map(({ kind, path: actPath }) => (kind === 'owners'
-    ? `${printable(actPath)}: needs the amendment bar, which this version cannot check (owners)\n`
+  const unmet = acts.filter((act) => !actApproved(act, approval, bars));
+  const actLines = unmet.map(({ kind, path: actPath }) => (BAR_KINDS.has(kind)
+    ? `${printable(actPath)}: needs the amendment bar (${kind}): ${bars.find((bar) => bar.kind === kind && bar.path === actPath).reason}\n`
     : `${printable(actPath)}: needs the owners' approval (${kind})\n`));
+  const waiverLines = bars.filter((bar) => bar.met && bar.waived).map((bar) => `${printable(bar.path)}: the seven days were waived by the record (emergency)\n`);
   const owners = approval?.owners.map(({ login, id, how }) => `${printable(login)}/${id}: ${how}`).join(', ');
   const approvalLine = approval && acts.length > 0 ? `approvals: ${approval.have} of ${approval.needed} (${owners === '' ? 'no owners' : owners})\n` : '';
   const count = `${folder}: ${problemWord(lines.length)}${acts.length > 0 ? `, ${acts.length} act${acts.length === 1 ? '' : 's'}${unmet.length === 0 ? ' approved' : ''}` : ''}\n`;
-  if (lines.length === 0 && unmet.length === 0) return { code: 0, stdout: approvalLine + count, stderr: '' };
-  return { code: 1, stdout: '', stderr: lines.join('') + actLines.join('') + approvalLine + count };
+  if (lines.length === 0 && unmet.length === 0) return { code: 0, stdout: approvalLine + waiverLines.join('') + count, stderr: '' };
+  return { code: 1, stdout: '', stderr: lines.join('') + actLines.join('') + approvalLine + waiverLines.join('') + count };
 }
 
 function runNeeds(args) {

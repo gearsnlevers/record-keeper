@@ -1290,6 +1290,214 @@
     "path": "record-keeper.mjs",
     "content": "// the rules\n"
    }
+  ],
+  "proto": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "proto-junk": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "proto-crlf": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\r\n\r\nSome words about the records.\r\n\r\n## Generations\r\n\r\n| Generation | Record | Status |\r\n| - | - | - |\r\n| g1 | [0001](0001-first.md) | accepted |\r\n\r\n## Index\r\n\r\n| # | Title | Status |\r\n| - | - | - |\r\n| 0001 | [The first decision](0001-first.md) | accepted |\r\n| 0002 | [The second decision](0002-second.md) | accepted |\r\n| 0003 | [The third decision](0003-third.md) | proposed |\r\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\r\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\r\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\r\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "proto-spaces": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n|  g1\t| \t[0001](x.md)|\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "proto-two": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n| g2 | [0002](0002-second.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "proto-owned": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
   ]
  },
  "cases": [
@@ -5244,6 +5452,10 @@
      "content": "owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5269,6 +5481,10 @@
      "content": "owners: [alice/1001]\napprovals: 2\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5336,6 +5552,10 @@
      "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5424,6 +5644,10 @@
      "content": "owners: [alice/1001, bob/1002, carol/1003]\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5448,6 +5672,10 @@
      "remove": ".github/record-keeper/settings.yml"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5473,6 +5701,10 @@
      "content": "owners: [alice/1001, bad]\napprovals: 2\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [
      {
@@ -5525,6 +5757,10 @@
      "content": "owners: [alice/1001]\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5550,6 +5786,10 @@
      "content": "owners: [alice/1005, bob/1002]\napprovals: 2\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5578,6 +5818,10 @@
      "target": "elsewhere"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [
      {
@@ -5609,6 +5853,10 @@
      "content": "owners: [alice/1001]\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5634,6 +5882,10 @@
      "content": "\ufeffowners: [alice/1001, bob/1002]\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [
      {
@@ -5690,6 +5942,10 @@
      "content": "x\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5719,6 +5975,10 @@
      "content": "owners: [alice/1001]\napprovals: 1\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -5816,6 +6076,10 @@
      "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
     }
    ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
    "expect": {
     "settings": [],
     "problems": [],
@@ -10848,6 +11112,855 @@
     "acts": []
    },
    "note": "A name that only contains .yml is not a workflow file."
+  },
+  {
+   "id": "z01-amendment",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record that replaces the protocol record is an amendment, not an acceptance."
+  },
+  {
+   "id": "z02-amendment-with-emergency",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency: The hash function is broken.\nseal: sha256-g1:fab57afb981342cd32e517848693c69405f36f6b1b51cb3aeed69dd5a8da2fd8\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The same, with the reason in emergency: the seven days are waived, so no clock is needed."
+  },
+  {
+   "id": "z03-acceptance-of-another-replacement",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record that replaces an ordinary record is an acceptance."
+  },
+  {
+   "id": "z04-emergency-on-an-acceptance",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nemergency: Why not.\nseal: sha256-g1:9c60ac74e48f72a758fe32cf8c32c9f0eeb455d0fdbb25936c196c7157f644f6\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-16"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "emergency: on a record that replaces no protocol record."
+  },
+  {
+   "id": "z05-amendment-and-another-replacement",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\n  - 0002\nseal: sha256-g1:e5a7994d7dd048c64e2e1ba4e5221f9c4fe822cfc0cbc9c1456692565db81dc7\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record that replaces the protocol record and another record."
+  },
+  {
+   "id": "z06-table-row-removed",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The row of the table is taken away and nothing else changes."
+  },
+  {
+   "id": "z07-table-row-added",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n| g2 | [0002](0002-second.md) | proposed |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "A second generation is added to the table."
+  },
+  {
+   "id": "z08-table-row-repointed",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0002](0002-second.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The row of g1 points at another record."
+  },
+  {
+   "id": "z09-table-status-changed",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | proposed |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "Only the status column of the table changes: not an amendment."
+  },
+  {
+   "id": "z10-words-around-the-table",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nOther words.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "The words around the table change."
+  },
+  {
+   "id": "z11-amendment-and-table",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n| g2 | [0007](0007-seventh.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     },
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The amendment and a change of the table together: two acts, by path."
+  },
+  {
+   "id": "z12-no-table-no-amendment",
+   "base": "world",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A repository without a table has no protocol record: a record that replaces record 1 is an acceptance."
+  },
+  {
+   "id": "z13-table-added-with-the-acceptance",
+   "base": "world",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     },
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The table is read from the base: a table that arrives with the record does not make it an amendment, but the table is one."
+  },
+  {
+   "id": "z14-rows-that-are-not-generations",
+   "base": "proto-junk",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "Rows that only look like a generation are none: taking them away is no amendment, and a record replacing record 1 is an acceptance."
+  },
+  {
+   "id": "z14b-junk-rows-no-protocol",
+   "base": "proto-junk",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| G1 | [0001](x.md) | a |\n| g | [0001](x.md) | a |\n| g1 | [001](x.md) | a |\n| g1 | [00001](x.md) | a |\n| g1 | 0001 | a |\n| g1x | [0001](x.md) | a |\n|g1|\ng1 | [0001](x.md) | a |\n| g1 | a | [0001](x.md) |\n| 1 | [0001](x.md) | a |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "With such rows only, a record that replaces record 1 is an acceptance."
+  },
+  {
+   "id": "z15-table-with-crlf",
+   "base": "proto-crlf",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\r\n\r\nSome words about the records.\r\n\r\n## Generations\r\n\r\n| Generation | Record | Status |\r\n| - | - | - |\r\n\r\n## Index\r\n\r\n| # | Title | Status |\r\n| - | - | - |\r\n| 0001 | [The first decision](0001-first.md) | accepted |\r\n| 0002 | [The second decision](0002-second.md) | accepted |\r\n| 0003 | [The third decision](0003-third.md) | proposed |\r\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\r\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\r\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\r\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The README has CRLF line endings; the row is still read."
+  },
+  {
+   "id": "z16-cells-with-white-space",
+   "base": "proto-spaces",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "Spaces and tabs around the cells do not matter."
+  },
+  {
+   "id": "z17-one-of-two-rows-removed",
+   "base": "proto-two",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "Two generations; one row is taken away."
+  },
+  {
+   "id": "z17b-two-rows-swapped",
+   "base": "proto-two",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g2 | [0002](0002-second.md) | accepted |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "The same two rows in the other order: the same set."
+  },
+  {
+   "id": "z18-emergency-too-long",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nseal: sha256-g1:29905d56a55ed830b3db3908b77805c9372f527a7db565de669ae197b89148a7\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "V-37"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "emergency: of 501 characters on an amendment: V-37, and not a waiver."
+  },
+  {
+   "id": "z19-emergency-as-a-list",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency:\n  - a reason\nseal: sha256-g1:6c08a37a9d20a2acaa48000fe99f7bb2e85b1287fd3410740ddffe543b85acee\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "V-14"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "emergency: as a list on an amendment: V-14, and not a waiver."
+  },
+  {
+   "id": "z20-emergency-empty",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency:\nseal: sha256-g1:951dd62c374a22611c2b36743ad6cb326ccfa9adab217216791ee1f270251918\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0007-seventh.md",
+      "rule": "V-15"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "emergency: without a value on an amendment: V-15, and not a waiver."
+  },
+  {
+   "id": "z21-emergency-500-characters",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nseal: sha256-g1:ee3a66aec52b7d057c183e3eec5973f99c2969695c23b69c7bfea9d9e851df88\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A reason of 500 characters waives."
+  },
+  {
+   "id": "z22-readme-with-the-executable-mode",
+   "base": "proto",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n",
+     "mode": "100755"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "README.md",
+      "rule": "T-01"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The head README has the executable mode: it is read, and T-01 is reported for it."
+  },
+  {
+   "id": "z23-owners-needs-the-clock",
+   "base": "owned",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\napprovals: 1\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "A change of the owners meets the bar, so a clock is needed."
+  },
+  {
+   "id": "z24-readme-is-a-link",
+   "base": "proto",
+   "changes": [
+    {
+     "symlink": "docs/decisions/README.md",
+     "target": "x"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "README.md",
+      "rule": "V-02"
+     },
+     {
+      "file": "README.md",
+      "rule": "V-04"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "The README is a symbolic link: nothing is read from it."
+  },
+  {
+   "id": "z25-amendment-with-owners",
+   "base": "proto-owned",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nseal: sha256-g1:44c0d621309ca122f90664aef68dc1e8bfc905b59a493feddb82517bbc778bbc\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "An amendment in a repository that has owners."
+  },
+  {
+   "id": "z26-amendment-with-emergency-and-owners",
+   "base": "proto-owned",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency: The hash function is broken.\nseal: sha256-g1:fab57afb981342cd32e517848693c69405f36f6b1b51cb3aeed69dd5a8da2fd8\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "An amendment with the reason in emergency: in a repository that has owners."
+  },
+  {
+   "id": "z27-table-change-with-owners",
+   "base": "proto-owned",
+   "changes": [
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "amendment",
+      "path": "docs/decisions/README.md"
+     }
+    ]
+   },
+   "note": "A change of the table in a repository that has owners."
   }
  ]
 }
