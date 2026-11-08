@@ -1513,13 +1513,16 @@ export function audit(repo, headRev, { from, since } = {}) {
   const folder = readSettings(tip).settings.folder;
   const names = new Map();
   let at = null;
-  for (const line of gitLines(repo, ['log', '--first-parent', '--reverse', '--diff-merges=first-parent', '--no-renames', '--name-status', '--format=%x01%H', tip.commit, '--', folder])) {
+  for (const line of gitLines(repo, ['log', '--first-parent', '--reverse', '--diff-merges=first-parent', '--no-renames', '--raw', '--format=%x01%H', tip.commit, '--', folder])) {
     if (line.startsWith('\x01')) {
       at = line.slice(1);
       continue;
     }
-    const [status, file] = line.split('\t');
-    if (status !== 'A' || !file.startsWith(`${folder}/`)) continue;
+    const entry = /^:(\d{6}) (\d{6}) [0-9a-f]+ [0-9a-f]+ [A-Z]\t(.*)$/.exec(line);
+    if (!entry) continue;
+    const [, oldMode, newMode, file] = entry;
+    const regular = (mode) => mode === '100644' || mode === '100755';
+    if (!regular(newMode) || regular(oldMode) || !file.startsWith(`${folder}/`)) continue;
     const name = file.slice(folder.length + 1);
     if (name.includes('/') || !RECORD_FILE.test(name)) continue;
     const number = Number(name.slice(0, 4));
