@@ -578,6 +578,23 @@ function readBlobs(repo, ids) {
  * 'directory', 'symlink', 'submodule' or 'other'), `children(path)` the entries directly in a directory and `read(path)`
  * the bytes of a file, read from the object database.
  */
+/** The tree of nothing, as the base of a first commit: it has the interface of an open commit and holds no entry. */
+export function emptyCommit() {
+  return {
+    commit: '0'.repeat(40),
+    empty: true,
+    attributeFiles: false,
+    kind: () => undefined,
+    children: () => [],
+    prefetch: () => {},
+    leaves: () => new Map(),
+    read(entryPath) {
+      throw new Unreadable(`${entryPath} is not a file of the empty tree`);
+    },
+    attributes: (paths) => new Map(paths.map((entryPath) => [entryPath, []])),
+  };
+}
+
 export function openCommit(repo, rev) {
   if (typeof rev !== 'string' || rev === '' || rev.startsWith('-')) throw new Unreadable(`not a revision: ${rev}`);
   const commit = runGit(['-C', repo, 'rev-parse', '--verify', `${rev}^{commit}`]).toString('utf8').trim();
@@ -1154,17 +1171,21 @@ function additionOf(before, after) {
 }
 
 /** True when the commit `id` exists in the repository and is `base` or one of its ancestors. */
-function commitIn(repo, id, base) {
+function commitExists(repo, id) {
   const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
   const result = spawnSync('git', ['-C', repo, 'rev-parse', '--verify', '--quiet', `${id}^{commit}`], { env: { ...inherited, GIT_TERMINAL_PROMPT: '0' } });
   if (result.error) throw new Unreadable(`cannot run git: ${result.error.message}`);
   if (result.status === 1) return false;
   if (result.status !== 0) throw new Unreadable(`git rev-parse failed: ${result.stderr.toString('utf8').trim()}`);
-  return isAncestor(repo, id, base);
+  return true;
+}
+
+function commitIn(repo, id, base) {
+  return base !== null && commitExists(repo, id) && isAncestor(repo, id, base);
 }
 
 /** P-11 to P-13 for an erratum; `needs.clock` is set when the change waits. */
-function judgeErratum(before, after, { since, now, needs }) {
+function judgeErratum(before, after, { since, now, needs, assume }) {
   const found = [];
   const from = partsOf(before);
   const to = partsOf(after);
@@ -1185,14 +1206,14 @@ function judgeErratum(before, after, { since, now, needs }) {
   if (seal(after.bytes) !== before.seal) {
     needs.clock = true;
     const elapsed = since === undefined ? null : Math.max(0, now - since);
-    if (elapsed === null) found.push({ rule: 'P-13', detail: 'no clock' });
+    if (assume) { /* the audit cannot read when the head was first seen */ } else if (elapsed === null) found.push({ rule: 'P-13', detail: 'no clock' });
     else if (elapsed < WAIT_MS) found.push({ rule: 'P-13', detail: `${Math.floor(elapsed / 3_600_000)}h of 48h` });
   }
   return found;
 }
 
 /** P-14 for a deviation note; the issues and pull requests it cites are added to `needs.cases`. */
-function judgeDeviation(before, after, { repo, base, cases, needs }) {
+function judgeDeviation(before, after, { repo, base, cases, needs, assume }) {
   const from = partsOf(before);
   const to = partsOf(after);
   if (to.deviations.length < from.deviations.length || !sameLines(to.deviations.slice(0, from.deviations.length), from.deviations)) return [{ rule: 'P-14', detail: 'earlier entry changed' }];
@@ -1214,12 +1235,15 @@ function judgeDeviation(before, after, { repo, base, cases, needs }) {
     if (cited[1] !== undefined) {
       const number = Number(cited[2]);
       needs.cases.set(`${cited[1]} ${number}`, { kind: cited[1], number });
-      if (!(cases?.[cited[1]] ?? []).includes(number)) return fail('case does not resolve');
+      if (!assume && !(cases?.[cited[1]] ?? []).includes(number)) return fail('case does not resolve');
     } else if (!commitIn(repo, cited[3], base)) return fail('case does not resolve');
     return undefined;
   });
   return found;
 }
+
+/** The paths of the regular files among the leaves of a commit. */
+const regularFiles = (leaves) => [...leaves].filter(([, value]) => /^(?:file|executable) /.test(value)).map(([entryPath]) => entryPath);
 
 /** The items of the `applies-to` list of a parsed record, each different one once, in the order written (none when the entry is not a list). */
 function appliesToItems(record) {
@@ -1276,14 +1300,21 @@ const identity = (problem) => JSON.stringify([problem.file, problem.rule, sameDe
  * the cited issues and pull requests, and whether the time since the head was first seen matters). `cases` is what exists, as
  * `readCases` returns it; `since` and `now` are milliseconds (docs/errata-and-deviations.md). Throws Unreadable.
  */
-export function checkChange(repo, baseRev, headRev, { author, reviews, cases, since, now = Date.now() } = {}) {
-  const base = openCommit(repo, baseRev);
-  const head = openCommit(repo, headRev);
+export function checkChange(repo, baseRev, headRev, options = {}) {
+  return judgeChange(repo, openCommit(repo, baseRev), openCommit(repo, headRev), options);
+}
+
+/**
+ * checkChange for two commits that are already open (`openCommit`, or `emptyCommit` for the base of a first commit). `cache` is the
+ * map of the records read from blobs, which a caller that judges many commits shares; `assume` takes the issues and pull requests that
+ * a note cites to exist and does not count the 48 hours of an erratum (the audit, docs/audit.md).
+ */
+export function judgeChange(repo, base, head, { author, reviews, cases, since, now = Date.now(), assume = false, cache = new Map() } = {}) {
   const read = readSettings(base);
   const { folder, sharedFolder, extraKeys } = read.settings;
   const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: head.commit, author, reviews });
   const needs = { cases: new Map(), clock: false };
-  if (!isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, bars: [], needs: { cases: [], clock: false } };
+  if (!base.empty && !isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, bars: [], needs: { cases: [], clock: false } };
   const leavesOfBase = base.leaves();
   const leavesOfHead = head.leaves();
   const changed = [...new Set([...leavesOfBase.keys(), ...leavesOfHead.keys()])].filter((path) => leavesOfBase.get(path) !== leavesOfHead.get(path)).sort(byBytes);
@@ -1303,7 +1334,6 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
     settings.sort((a, b) => (a.line === b.line ? 0 : a.line === null ? -1 : b.line === null ? 1 : a.line - b.line) || byBytes(a.rule, b.rule) || byBytes(a.detail ?? '', b.detail ?? ''));
   }
 
-  const cache = new Map();
   const before = recordsOf(base, folder, cache);
   const after = recordsOf(head, folder, cache);
   const entriesOf = (commit) => new Map(commit.children(folder).map(({ name, kind, id }) => [name, `${kind} ${id}`]));
@@ -1325,8 +1355,8 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
     }
     additions.set(name, kind);
     const found = kind === 'erratum'
-      ? judgeErratum(before.get(name), after.get(name), { since, now, needs })
-      : judgeDeviation(before.get(name), after.get(name), { repo, base: base.commit, cases, needs });
+      ? judgeErratum(before.get(name), after.get(name), { since, now, needs, assume })
+      : judgeDeviation(before.get(name), after.get(name), { repo, base: base.empty ? null : base.commit, cases, needs, assume });
     for (const problem of found) problems.push({ file: name, ...problem });
   }
   const shared = `${folder}/${sharedFolder}`;
@@ -1377,7 +1407,6 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
     for (const file of files) if (changed.some((path) => isRelated(path, file))) acts.push({ kind, path: file });
   }
 
-  const regularFiles = (leaves) => [...leaves].filter(([, value]) => /^(?:file|executable) /.test(value)).map(([entryPath]) => entryPath);
   const filesBefore = regularFiles(leavesOfBase);
   const filesAfter = regularFiles(leavesOfHead);
   for (const [name, record] of after) {
@@ -1415,6 +1444,139 @@ export function checkChange(repo, baseRev, headRev, { author, reviews, cases, si
 }
 
 // ---- the owners' approval: docs/approvals.md --------------------------------------------------------------------------------
+
+// ---- the audit: docs/audit.md ---------------------------------------------------------------------------------------------------
+
+/** What each rule of the audit says, besides those of the pull request check that it replays. */
+export const AUDIT_RULES = {
+  'A-01': 'was started or last run from a commit that is not in the history of the head',
+  'A-02': 'is a record file under a number that another file name had before',
+  'P-19': 'is accepted and has an applies-to item that no file matches',
+};
+const FULL_COMMIT_ID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
+
+const gitLines = (repo, args) => runGit(['-C', repo, ...args]).toString('utf8').split('\n').filter((line) => line !== '');
+const messageOf = (repo, id) => runGit(['-C', repo, 'log', '-1', '--format=%B', id]).toString('utf8');
+const subjectOf = (message) => message.split('\n')[0];
+const pullOf = (subject) => {
+  const found = /^Merge pull request #([1-9][0-9]{0,8}) /.exec(subject) ?? /\(#([1-9][0-9]{0,8})\)$/.exec(subject);
+  return found ? Number(found[1]) : null;
+};
+
+/** True when the note (a cited case) names the commit with this message. */
+function namesCommit(cited, id, message) {
+  if (cited[3] !== undefined) return cited[3] === id;
+  const number = cited[2];
+  if (cited[1] === 'pull') {
+    const subject = subjectOf(message);
+    return subject.startsWith(`Merge pull request #${number} `) || subject.endsWith(`(#${number})`);
+  }
+  return new RegExp(`(?<![0-9A-Za-z_])#${number}(?![0-9])`).test(message);
+}
+
+/**
+ * Audits the history of a repository up to `headRev` (docs/audit.md). `from` is the full id of the commit where the protocol began and
+ * `since` that of the last commit audited; neither is judged. Returns { head, folder, judged, violations, excused, acts, cases }.
+ * Throws Unreadable.
+ */
+export function audit(repo, headRev, { from, since } = {}) {
+  const tip = openCommit(repo, headRev);
+  if (runGit(['-C', repo, 'rev-parse', '--is-shallow-repository']).toString('utf8').trim() === 'true') {
+    throw new Unreadable('the repository is a shallow clone: the audit needs the whole history');
+  }
+  const found = [];
+  const bounds = [];
+  for (const [which, id] of [['from', from], ['since', since]]) {
+    if (id === undefined) continue;
+    if (commitExists(repo, id) && isAncestor(repo, id, tip.commit)) bounds.push(id);
+    else found.push({ commit: tip.commit, kind: 'history', file: null, rule: 'A-01', detail: `${which} ${id}` });
+  }
+  const listing = gitLines(repo, ['rev-list', '--first-parent', '--reverse', '--parents', tip.commit, ...bounds.map((id) => `^${id}`)]);
+  const order = new Map(listing.map((line, index) => [line.split(' ')[0], index]));
+
+  const cache = new Map();
+  const acts = [];
+  const cases = [];
+  let previous = null;
+  for (const line of listing) {
+    const [id, parent] = line.split(' ');
+    const base = parent === undefined ? emptyCommit() : previous?.commit === parent ? previous : openCommit(repo, parent);
+    const commit = id === tip.commit ? tip : openCommit(repo, id);
+    const result = judgeChange(repo, base, commit, { assume: true, cache });
+    for (const problem of result.settings) found.push({ commit: id, kind: 'commit', file: null, rule: problem.rule, detail: problem.detail ?? '', line: problem.line });
+    for (const problem of result.problems) found.push({ commit: id, kind: 'commit', file: problem.file, rule: problem.rule, detail: problem.detail ?? '' });
+    for (const act of result.acts) acts.push({ commit: id, kind: act.kind, path: act.path });
+    for (const cited of result.needs.cases) cases.push({ commit: id, kind: cited.kind, number: cited.number });
+    previous = commit;
+  }
+
+  const folder = readSettings(tip).settings.folder;
+  const names = new Map();
+  let at = null;
+  for (const line of gitLines(repo, ['log', '--first-parent', '--reverse', '--diff-merges=first-parent', '--no-renames', '--name-status', '--format=%x01%H', tip.commit, '--', folder])) {
+    if (line.startsWith('\x01')) {
+      at = line.slice(1);
+      continue;
+    }
+    const [status, file] = line.split('\t');
+    if (status !== 'A' || !file.startsWith(`${folder}/`)) continue;
+    const name = file.slice(folder.length + 1);
+    if (name.includes('/') || !RECORD_FILE.test(name)) continue;
+    const number = Number(name.slice(0, 4));
+    if (!names.has(number)) names.set(number, name);
+    else if (names.get(number) !== name && order.has(at)) found.push({ commit: at, kind: 'register', file: name, rule: 'A-02', detail: `${name.slice(0, 4)}: ${names.get(number)} -> ${name}` });
+  }
+
+  const records = recordsOf(tip, folder, cache);
+  const seen = new Set(found.filter(({ kind }) => kind === 'commit').map(({ file, rule, detail }) => JSON.stringify([file, rule, detail])));
+  for (const problem of stateProblems(records)) {
+    if (!seen.has(JSON.stringify([problem.file, problem.rule, problem.detail ?? '']))) found.push({ commit: tip.commit, kind: 'state', file: problem.file, rule: problem.rule, detail: problem.detail ?? '' });
+  }
+  const files = regularFiles(tip.leaves());
+  for (const [name, record] of records) {
+    if (!record.sealed || record.status !== 'accepted') continue;
+    for (const item of appliesToItems(record)) {
+      const pattern = appliesToPattern(item);
+      if (!files.some((file) => pattern.test(file)) && !seen.has(JSON.stringify([name, 'P-18', item]))) found.push({ commit: tip.commit, kind: 'state', file: name, rule: 'P-19', detail: item });
+    }
+  }
+
+  const messages = new Map();
+  const message = (id) => {
+    if (!messages.has(id)) messages.set(id, messageOf(repo, id));
+    return messages.get(id);
+  };
+  const notes = new Map();
+  const notesOf = (name) => {
+    if (!notes.has(name)) {
+      const record = records.get(name);
+      const section = record?.readable ? sectionsOf(record.parsed).deviations : null;
+      const blocks = section ? entriesOf(record.parsed.lines.slice(section[0] + 1, section[1]), 'Deviation').blocks : [];
+      notes.set(name, blocks.flatMap((block) => {
+        const { values } = readNote(block, DEVIATION_KEYS, block.number);
+        const cited = values === undefined ? null : CASE_FORM.exec(values.case);
+        return cited ? [{ number: block.number, case: values.case, cited }] : [];
+      }));
+    }
+    return notes.get(name);
+  };
+  const violations = [];
+  const excused = [];
+  for (const violation of found) {
+    const note = (violation.kind === 'commit' || violation.kind === 'register') && violation.file !== null && RECORD_FILE.test(violation.file)
+      ? notesOf(violation.file).find(({ cited }) => namesCommit(cited, violation.commit, message(violation.commit)))
+      : undefined;
+    if (note) excused.push({ ...violation, note: { file: violation.file, number: note.number, case: note.case } });
+    else violations.push(violation);
+  }
+
+  const position = (violation) => (violation.kind === 'history' ? -1 : violation.kind === 'state' ? Infinity : order.get(violation.commit));
+  const sorter = (a, b) => (position(a) === position(b) ? 0 : position(a) < position(b) ? -1 : 1) || byBytes(a.file, b.file) || byBytes(a.rule, b.rule) || byBytes(a.detail, b.detail) || (a.line ?? 0) - (b.line ?? 0);
+  violations.sort(sorter);
+  excused.sort(sorter);
+  for (const act of acts) act.pull = pullOf(subjectOf(message(act.commit)));
+  return { head: tip.commit, folder, judged: listing.length, violations, excused, acts, cases };
+}
 
 const REVIEW_TIME = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/;
 const isPositiveInteger = (value) => Number.isSafeInteger(value) && value >= 1;
@@ -1555,6 +1717,9 @@ const USAGE = `Usage:
                                             say whether the owners have approved the acts; with the issues and pull requests
                                             that exist (a JSON file) and the time the head was first seen (UTC, like
                                             2026-11-07T15:50:34Z), also judge the deviation notes and the 48 hours of an erratum
+  record-keeper.mjs audit --head <revision> [--from <commit>] [--since <commit>] [--repo <path>]
+                                            read the whole history up to the head and report what the rules say of it:
+                                            the commits after --from and --since are judged one by one, and the tip as it is
   record-keeper.mjs needs --base <revision> --head <revision> [--repo <path>]
                                             print what the caller has to look up for check-pr: the cited issues and pull
                                             requests ("case issue 12") and "clock"
@@ -1630,7 +1795,7 @@ export function printable(text) {
 }
 
 const settingLine = ({ file, line, rule, detail }) => `${file}${line === null ? '' : `:${line}`}: [${rule}] ${SETTINGS_RULES[rule]}${detail ? ` (${printable(detail)})` : ''}\n`;
-const problemLine = (where, rule, detail) => `${printable(where)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule]}${detail ? ` (${printable(detail)})` : ''}\n`;
+const problemLine = (where, rule, detail) => `${printable(where)}: [${rule}] ${FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule] ?? AUDIT_RULES[rule]}${detail ? ` (${printable(detail)})` : ''}\n`;
 
 function runValidate(args) {
   const options = readOptions(args, ['--extra-key', '--shared-folder', '--commit', '--repo', '--settings-from']);
@@ -1763,6 +1928,26 @@ function runNeeds(args) {
   return { code: 0, stdout: lines.join(''), stderr: '' };
 }
 
+function runAudit(args) {
+  const options = readOptions(args, ['--head', '--from', '--since', '--repo']);
+  if (!options || options.rest.length > 0 || !options.values.has('--head')) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  for (const name of ['--from', '--since']) if (only(name) !== undefined && !FULL_COMMIT_ID.test(only(name))) return usageError;
+  let result;
+  try {
+    result = audit(only('--repo') ?? '.', only('--head'), { from: only('--from'), since: only('--since') });
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  const place = ({ kind, commit }) => (kind === 'history' ? 'history' : kind === 'state' ? 'tip' : commit.slice(0, 12));
+  const where = ({ rule, file, line }) => (rule.startsWith('S-') ? `${SETTINGS_PATH}${line ? `:${line}` : ''}` : file === null ? result.folder : path.join(result.folder, file));
+  const text = (rule) => SETTINGS_RULES[rule] ?? FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule] ?? AUDIT_RULES[rule];
+  const lines = result.violations.map((violation) => `${place(violation)}: ${printable(where(violation))}: [${violation.rule}] ${text(violation.rule)}${violation.detail ? ` (${printable(violation.detail)})` : ''}\n`);
+  const count = `audit: ${result.violations.length} violation${result.violations.length === 1 ? '' : 's'}, ${result.excused.length} excused, ${result.judged} commit${result.judged === 1 ? '' : 's'} judged\n`;
+  return result.violations.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
+}
+
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
 export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   const args = [...argv];
@@ -1773,6 +1958,7 @@ export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   if (command === 'config') return runConfig(args);
   if (command === 'check-pr') return runCheckPr(args, readFile, now());
   if (command === 'needs') return runNeeds(args);
+  if (command === 'audit') return runAudit(args);
   return usageError;
 }
 
