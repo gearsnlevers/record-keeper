@@ -1622,6 +1622,278 @@
     "path": "src/x/b.ts",
     "content": "b\n"
    }
+  ],
+  "broken-text": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "no-seal": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "broken-with-note": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "other-generation": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g2:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "malformed-seal": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: nope\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "broken-superseded": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "broken-long": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n- Filler 0.\n- Filler 1.\n- Filler 2.\n- Filler 3.\n- Filler 4.\n- Filler 5.\n- Filler 6.\n- Filler 7.\n- Filler 8.\n- Filler 9.\n- Filler 10.\n- Filler 11.\n- Filler 12.\n- Filler 13.\n- Filler 14.\n- Filler 15.\n- Filler 16.\n- Filler 17.\n- Filler 18.\n- Filler 19.\n- Filler 20.\n- Filler 21.\n- Filler 22.\n- Filler 23.\n- Filler 24.\n- Filler 25.\n- Filler 26.\n- Filler 27.\n- Filler 28.\n- Filler 29.\n- Filler 30.\n- Filler 31.\n- Filler 32.\n- Filler 33.\n- Filler 34.\n- Filler 35.\n- Filler 36.\n- Filler 37.\n- Filler 38.\n- Filler 39.\n- Filler 40.\n- Filler 41.\n- Filler 42.\n- Filler 43.\n- Filler 44.\n- Filler 45.\n- Filler 46.\n- Filler 47.\n- Filler 48.\n- Filler 49.\n- Filler 50.\n- Filler 51.\n- Filler 52.\n- Filler 53.\n- Filler 54.\n- Filler 55.\n- Filler 56.\n- Filler 57.\n- Filler 58.\n- Filler 59.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "errata-broken-chain": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n\n## Errata\n\nFree text.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
   ]
  },
  "cases": [
@@ -12863,6 +13135,702 @@
     "acts": []
    },
    "note": "An erratum on a record with a dead item does not report it: only an acceptance does."
+  },
+  {
+   "id": "v01-note-on-a-record-that-does-not-match",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The text of an accepted record was edited and the seal kept (P-06 at the base). A change that only adds a note is a note: the old P-06 is not repeated."
+  },
+  {
+   "id": "v02-note-on-a-record-without-a-seal",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "An accepted record that never had a seal (P-06 `no seal` at the base) takes a note the same way."
+  },
+  {
+   "id": "v03-note-on-a-broken-record-is-judged",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-14",
+      "detail": "entry 1: case does not resolve"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The note cites a pull request that does not exist: P-14, and the old P-06 is not repeated."
+  },
+  {
+   "id": "v04-note-and-an-edit-of-the-text",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited again.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A note together with another edit of the text is not a note: the record still does not verify, and P-06 is reported."
+  },
+  {
+   "id": "v05-note-and-another-seal",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:9999999999999999999999999999999999999999999999999999999999999999\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A note together with another seal line is not a note."
+  },
+  {
+   "id": "v06-erratum-on-a-record-that-does-not-match",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 2.\n\n## Errata\n\n### Erratum 1\n\n- date: 2026-11-08\n- previous entry: none\n- previous seal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n- seal: sha256-g1:cb7f36d1c08ded62ee94a21c9cd87a594720d7888f4f099bcc55cc0e10dcbdd5\n- reason: Fixed a typo.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": []
+   },
+   "note": "An Errata entry on a record that does not verify has no seal to chain from: not judged as an erratum, P-06 is reported and there is no act."
+  },
+  {
+   "id": "v07-note-on-an-unknown-generation",
+   "base": "other-generation",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g2:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "unknown generation g2"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A seal of generation g2: this version does not know where the sections of g2 are, so the change fails as a change to an unsealed record."
+  },
+  {
+   "id": "v08-note-on-a-seal-that-is-not-a-seal",
+   "base": "malformed-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: nope\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "V-22"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A seal that is not written as a seal is V-22, not P-06, and takes no note: the change is judged whole."
+  },
+  {
+   "id": "v09-superseding-a-record-that-does-not-match",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "Not changed here: the status of a record that does not verify changes to `superseded by`, and the record still does not verify, so P-06 is reported."
+  },
+  {
+   "id": "v10-second-note-on-a-broken-record",
+   "base": "broken-with-note",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n### Deviation 2\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "A second note after the first, on a record that does not verify."
+  },
+  {
+   "id": "v11-earlier-note-changed-on-a-broken-record",
+   "base": "broken-with-note",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: Another reason.\n\n### Deviation 2\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-14",
+      "detail": "earlier entry changed"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The first note is rewritten when the second is added."
+  },
+  {
+   "id": "v12-note-on-a-superseded-record-that-does-not-match",
+   "base": "broken-superseded",
+   "changes": [
+    {
+     "write": "docs/decisions/0005-fifth.md",
+     "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 5.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0005-fifth.md"
+     }
+    ]
+   },
+   "note": "A record that is superseded and whose seal does not match takes a note."
+  },
+  {
+   "id": "v13-note-on-a-broken-record-with-an-old-format-problem",
+   "base": "broken-long",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n- Filler 0.\n- Filler 1.\n- Filler 2.\n- Filler 3.\n- Filler 4.\n- Filler 5.\n- Filler 6.\n- Filler 7.\n- Filler 8.\n- Filler 9.\n- Filler 10.\n- Filler 11.\n- Filler 12.\n- Filler 13.\n- Filler 14.\n- Filler 15.\n- Filler 16.\n- Filler 17.\n- Filler 18.\n- Filler 19.\n- Filler 20.\n- Filler 21.\n- Filler 22.\n- Filler 23.\n- Filler 24.\n- Filler 25.\n- Filler 26.\n- Filler 27.\n- Filler 28.\n- Filler 29.\n- Filler 30.\n- Filler 31.\n- Filler 32.\n- Filler 33.\n- Filler 34.\n- Filler 35.\n- Filler 36.\n- Filler 37.\n- Filler 38.\n- Filler 39.\n- Filler 40.\n- Filler 41.\n- Filler 42.\n- Filler 43.\n- Filler 44.\n- Filler 45.\n- Filler 46.\n- Filler 47.\n- Filler 48.\n- Filler 49.\n- Filler 50.\n- Filler 51.\n- Filler 52.\n- Filler 53.\n- Filler 54.\n- Filler 55.\n- Filler 56.\n- Filler 57.\n- Filler 58.\n- Filler 59.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The record is past sixty lines (V-10 at the base) and does not verify: the note does not bring the old V-10 back."
+  },
+  {
+   "id": "v14-note-on-a-broken-record-with-a-mail-address",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: Ask someone@example.com.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "V-12"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The note brings an e-mail address into a record that does not verify: V-12, as for a sealed record."
+  },
+  {
+   "id": "v15-note-after-alternatives-on-a-broken-record",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "V-27"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "The section is added after Alternatives considered: V-27, as for a sealed record."
+  },
+  {
+   "id": "v16-note-on-a-sealed-record-with-a-broken-chain",
+   "base": "errata-broken-chain",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n\n## Errata\n\nFree text.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "A sealed record whose Errata is not a chain (P-10 at the base) takes a note: the old P-10 is not repeated."
+  },
+  {
+   "id": "v17-edit-of-a-sealed-record-with-a-broken-chain",
+   "base": "errata-broken-chain",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:75821543de75b180d0f0e8800c1f415d519c133b611f465281190b1c963b9049\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n\n## Errata\n\nFree text.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 6"
+     },
+     {
+      "file": "0002-second.md",
+      "rule": "P-10",
+      "detail": "text outside an entry"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The same record with the text edited and sealed again: not a note, P-02, and the old P-10 is reported again because the file changed."
+  },
+  {
+   "id": "v18-two-records-a-note-and-an-edit",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [
+     {
+      "kind": "pull",
+      "number": 5
+     }
+    ],
+    "clock": false
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0001-first.md",
+      "rule": "P-02",
+      "detail": "line 21"
+     },
+     {
+      "file": "0001-first.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "A note on a record that does not verify, and an edit of the text of a sealed one: the edit is P-02 and P-06, the note is not reported."
+  },
+  {
+   "id": "v19-erratum-on-a-sealed-record-with-a-broken-chain",
+   "base": "errata-broken-chain",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:cb7f36d1c08ded62ee94a21c9cd87a594720d7888f4f099bcc55cc0e10dcbdd5\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, corrected.\n\n## Alternatives considered\n\n- Not 2.\n\n## Errata\n\nFree text.\n\n### Erratum 1\n\n- date: 2026-11-08\n- previous entry: none\n- previous seal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n- seal: sha256-g1:cb7f36d1c08ded62ee94a21c9cd87a594720d7888f4f099bcc55cc0e10dcbdd5\n- reason: Fixed a typo.\n"
+    }
+   ],
+   "since": "2026-11-07T00:00:00Z",
+   "now": "2026-11-10T00:00:00Z",
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-10",
+      "detail": "text outside an entry"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "erratum",
+      "path": "docs/decisions/0002-second.md"
+     }
+    ]
+   },
+   "note": "An erratum on the record whose Errata is already not a chain: only a note leaves the old state problems alone, so the old P-10 is reported again."
+  },
+  {
+   "id": "v20-delete-a-record-that-does-not-verify",
+   "base": "broken-text",
+   "changes": [
+    {
+     "remove": "docs/decisions/0002-second.md"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": null,
+      "rule": "V-08"
+     },
+     {
+      "file": "0002-second.md",
+      "rule": "P-01"
+     }
+    ],
+    "acts": []
+   },
+   "note": "A record that does not verify is deleted: P-01 as for any record, and nothing is asked of a note."
   }
  ]
 }
