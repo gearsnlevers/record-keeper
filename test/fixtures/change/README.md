@@ -16,7 +16,7 @@ Each tree is the content of a commit, as a list of files.
 
 | Field | Meaning |
 | ----- | ------- |
-| `id` | A unique name. The letter says the group: a nothing to report, b a new record, c accepting, d a sealed record that changes, e the status of a sealed record, f supersedes lists, g concurrent supersession, h the base must be under the head, i the shared folder, j older problems, k settings, r an erratum, s the chain of Errata, x a deviation note (the keys an erratum may not change are `k01` to `k07` of the later group; see the ids). |
+| `id` | A unique name. The letter says the group: a nothing to report, b a new record, c accepting, d a sealed record that changes, e the status of a sealed record, f supersedes lists, g concurrent supersession, h the base must be under the head, i the shared folder, j older problems, k settings, r an erratum, s the chain of Errata, x a deviation note (the keys an erratum may not change are `k01` to `k07` of the later group; see the ids), v a deviation note on a record that does not verify. |
 | `base` | The tree of the base commit. |
 | `parent` | Optional. How the head commit stands to the base: `child` (the default: the head is a commit on top of the base), `none` (an unrelated commit), `ahead` (the head is an ancestor of the base) or `same` (the head has the tree of the base). |
 | `changes` | What is done to the tree of the base to make the tree of the head, in order (below). |

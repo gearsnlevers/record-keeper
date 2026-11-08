@@ -36,6 +36,8 @@ A violation of a record at a commit is **excused** when the section `Known devia
 | `pull N` | subject starts with `Merge pull request #N ` or ends with `(#N)` (GitHub's messages for a merge and a squash) |
 | `issue N` | message mentions `#N`, as a word: not followed by a digit and not part of another word |
 
+A note can be added after the fact to a record that the violation left without a seal that verifies: the pull request that adds it is judged as a note, and does not repeat the problems the record already had ([errata and deviation notes](errata-and-deviations.md#which-change-is-which)). A record with a seal from another generation, or whose seal is not a seal, takes no note.
+
 Only violations **of that record** are excused: a violation with no record (a problem of the folder, of the settings, of a workflow file, A-01) cannot be excused by a note, nor can another record's. An excused violation is not counted; it is listed, with the note, so that the log can show what was excused. A note does not excuse a later violation of the same record: that is another commit.
 
 ## What it returns

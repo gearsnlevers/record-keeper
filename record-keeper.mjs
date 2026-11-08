@@ -972,6 +972,9 @@ function readRecord(bytes) {
   };
 }
 
+/** True when the record says it is accepted and has no seal, or a seal of g1 that does not match (P-06 `no seal`, `seal does not match`). */
+const lacksSeal = (record) => record.claims && !record.sealed && (record.check.reason === 'not-sealed' || record.check.reason === 'mismatch');
+
 /** The record files of a commit's records folder, by name, read once for each blob. */
 function recordsOf(commit, folder, cache) {
   const files = commit.children(folder).filter(({ name, kind }) => (kind === 'file' || kind === 'executable') && RECORD_FILE.test(name)).sort((a, b) => byBytes(a.name, b.name));
@@ -1359,6 +1362,13 @@ export function judgeChange(repo, base, head, { author, reviews, cases, since, n
       : judgeDeviation(before.get(name), after.get(name), { repo, base: base.empty ? null : base.commit, cases, needs, assume });
     for (const problem of found) problems.push({ file: name, ...problem });
   }
+  const noted = new Set();
+  for (const [name, record] of before) {
+    if (!lacksSeal(record) || !after.has(name) || additionOf(record, after.get(name)) !== 'deviation') continue;
+    noted.add(name);
+    additions.set(name, 'deviation');
+    for (const problem of judgeDeviation(record, after.get(name), { repo, base: base.empty ? null : base.commit, cases, needs, assume })) problems.push({ file: name, ...problem });
+  }
   const shared = `${folder}/${sharedFolder}`;
   for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
   const isWorkflow = (path) => path.startsWith(`${WORKFLOW_FOLDER}/`) && !path.slice(WORKFLOW_FOLDER.length + 1).includes('/') && /\.ya?ml$/i.test(path) && !WORKFLOW_FILES.includes(path);
@@ -1370,7 +1380,7 @@ export function judgeChange(repo, base, head, { author, reviews, cases, since, n
 
   const known = new Set(validateOpened(base, folder, { extraKeys, sharedFolder }).map(identity));
   for (const problem of validateOpened(head, folder, { extraKeys, sharedFolder })) {
-    if (sealedKept.has(problem.file) && CONTENT_RULES.has(problem.rule)) {
+    if ((sealedKept.has(problem.file) || noted.has(problem.file)) && CONTENT_RULES.has(problem.rule)) {
       const kind = additions.get(problem.file);
       const applies = kind === 'erratum' ? problem.rule !== 'V-10' : kind === 'deviation' && DEVIATION_RULES.has(problem.rule);
       if (applies && !known.has(identity(problem))) problems.push(problem);
@@ -1380,7 +1390,7 @@ export function judgeChange(repo, base, head, { author, reviews, cases, since, n
     problems.push(problem);
   }
   const knownState = new Set(stateProblems(before).map(identity));
-  for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !sameEntry(problem.file)) problems.push(problem);
+  for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !(sameEntry(problem.file) || additions.get(problem.file) === 'deviation')) problems.push(problem);
 
   const protocolBefore = protocolRecords(base, folder);
   const protocolAfter = protocolRecords(head, folder);
