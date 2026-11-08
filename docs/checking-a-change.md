@@ -117,7 +117,7 @@ None of the maintainers' repositories installs the check yet, and none keeps a s
 - **It does not post the diff of an erratum, or read the history of the errata** (see [errata and deviation notes](errata-and-deviations.md#what-this-version-does-not-do)), and it does not judge that an amendment replaces the protocol in full ([the bar](amendments.md#what-this-does-not-do)). The acts above are the places where they plug in; the approvals are on [their own page](approvals.md).
 - **It does not know that code moved,** only that the files an `applies-to` item matched are gone ([where a record applies](applies-to.md#what-this-does-not-do)).
 - **It does not read the shared folder** (P-08), and it does not read the pin.
-- **It does not look at the history between the commits**, only at the two trees. The audit (M2.8) looks at the history.
+- **It does not look at the history between the commits**, only at the two trees. [The audit](audit.md) (M2.8) looks at the history.
 - **It does not decide which commits are the base and the head.** [The workflow](workflow.md) (M2.5) does: the tip of the base branch and the head commit of the pull request.
 - **It cannot stop two changes that are valid alone and invalid together** if the ruleset does not require an up-to-date branch; P-09 makes the stale one fail, and the ruleset makes the second one wait.
 

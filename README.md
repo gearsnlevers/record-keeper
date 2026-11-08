@@ -4,7 +4,7 @@ Keeps a repository's decision records trustworthy: templates, one validator, sea
 
 A decision record binds people and coding agents once it is accepted, and the rule that an accepted record is never edited, only superseded, is usually only text. Record Keeper makes it checkable: an accepted record carries a seal, a pull request that changes a sealed record fails a required check, and a nightly audit finds what got past it and reports it.
 
-Status: in progress, milestone M2. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request, judges an erratum (with its 48 hours) and a deviation note, and the `Records integrity` workflow runs all of that on a pull request. It guards the files of the check as acts and holds an amendment of the protocol, and a change of the owners, to the bar of all owners and seven days. It refuses a record that applies to nothing and a change that leaves an `applies-to` item without a file. The audit and the updater are still to come.
+Status: in progress, milestone M2. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request, judges an erratum (with its 48 hours) and a deviation note, and the `Records integrity` workflow runs all of that on a pull request. It guards the files of the check as acts and holds an amendment of the protocol, and a change of the owners, to the bar of all owners and seven days. It refuses a record that applies to nothing and a change that leaves an `applies-to` item without a file, and `audit` reads the whole history for what a push round the check left behind. The workflow that runs the audit, its issues and log, and the updater are still to come.
 
 ```sh
 node record-keeper.mjs seal <file>             # print the seal of a record
@@ -21,6 +21,9 @@ node record-keeper.mjs check-pr --base <revision> --head <revision> [--reviews <
                                                # also judge deviation notes and the 48 hours of an erratum
 node record-keeper.mjs needs --base <revision> --head <revision>
                                                # print what check-pr needs looked up: cited issues and pull requests, and the clock
+node record-keeper.mjs audit --head <revision> [--from <commit>] [--since <commit>]
+                                               # read the whole history up to the head: judge every first-parent commit by the rules of check-pr,
+                                               # keep the register of record numbers, and read the integrity of the tip
 node check-pull-request.mjs --repo <owner/name> --pr <number>
                                                # what the workflow runs: read the pull request from GitHub, then check-pr
 npm test                                       # the library, the command line, the test vectors and the fixtures
@@ -35,6 +38,7 @@ It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no
 - [docs/reading-a-commit.md](docs/reading-a-commit.md): how the folder is read from a commit, and the rules of what a commit can hold, with [fixtures](test/fixtures/commit/README.md).
 - [docs/settings.md](docs/settings.md): the settings file `.github/record-keeper/settings.yml`, the subset of YAML it is read in and what is wrong with a file, with [fixtures](test/fixtures/config/README.md).
 - [docs/checking-a-change.md](docs/checking-a-change.md): how a change is judged, which changes a sealed record allows, what needs the owners' approval, with [fixtures](test/fixtures/change/README.md).
+- [docs/audit.md](docs/audit.md): the audit core: what it reads, what it judges, what a note excuses, what it returns, with [fixtures](test/fixtures/audit/README.md).
 - [docs/applies-to.md](docs/applies-to.md): the dialect of the items of `applies-to`, and the two rules that keep a record from binding nothing.
 - [docs/amendments.md](docs/amendments.md): the bar for an amendment of the protocol or of the owners (all owners, seven days), and the key `emergency:` that waives the wait.
 - [docs/protected-files.md](docs/protected-files.md): the files that make the check, why a change to one is an act, and the rule against another workflow that names the check.
