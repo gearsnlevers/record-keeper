@@ -171,6 +171,20 @@ describe('the command audit', () => {
     assert.throws(() => audit(scratch, 'HEAD'), Unreadable);
   });
 
+  test('a commit id is forty or sixty-four lower case hexadecimal digits: digits only, letters only, and both are ids', () => {
+    const { repo, ids } = history('h01-clean-history-judged-from-the-root');
+    for (const id of ['1'.repeat(40), 'a'.repeat(40), 'f0'.repeat(20), '1'.repeat(64), 'a'.repeat(64), '9f'.repeat(32)]) {
+      for (const option of ['--from', '--since']) {
+        const got = run(['audit', '--repo', repo, '--head', ids.c2, option, id]);
+        assert.equal(got.code, 1, `${option} ${id}`);
+        assert.match(got.stderr, new RegExp(`^history: .*\\[A-01\\].*\\(${option.slice(2)} ${id}\\)\n`), `${option} ${id}`);
+      }
+    }
+    for (const id of ['1'.repeat(39), '1'.repeat(41), '1'.repeat(63), '1'.repeat(65), `${'1'.repeat(39)}g`, `${'1'.repeat(39)}A`, `${'1'.repeat(39)}-`, ` ${'1'.repeat(40)}`]) {
+      assert.equal(run(['audit', '--repo', repo, '--head', ids.c2, '--from', id]).code, 2, id);
+    }
+  });
+
   test('a shallow clone cannot be audited: its first commit would look like one that adds everything', () => {
     const { repo, ids } = history('h01-clean-history-judged-from-the-root');
     const clone = path.join(scratch, 'shallow');

@@ -4229,6 +4229,713 @@
     "acts": [],
     "cases": []
    }
+  },
+  {
+   "id": "h42-the-order-of-violations",
+   "note": "Many violations in two commits: oldest commit first, then no file before a file, then the rule, then the detail, as bytes; a violation of the register among those of the commit.",
+   "head": null,
+   "from": "c0",
+   "since": null,
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "commit c1",
+     "changes": [
+      {
+       "remove": "docs/decisions/0004-fourth.md"
+      },
+      {
+       "remove": "docs/decisions/0002-second.md"
+      },
+      {
+       "write": ".github/workflows/zzz.yml",
+       "content": "Records integrity\n"
+      },
+      {
+       "write": ".github/workflows/aaa.yml",
+       "content": "records-integrity\n"
+      },
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "parents": [
+      "c1"
+     ],
+     "message": "commit c2",
+     "changes": [
+      {
+       "remove": "docs/decisions/0006-sixth.md"
+      },
+      {
+       "write": "docs/decisions/0003-other.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "remove": "docs/decisions/0003-third.md"
+      },
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0003 | [The third decision](0003-other.md) | proposed |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "judged": 2,
+    "violations": [
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": null,
+      "rule": "P-15",
+      "detail": ".github/workflows/aaa.yml"
+     },
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": null,
+      "rule": "P-15",
+      "detail": ".github/workflows/zzz.yml"
+     },
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": null,
+      "rule": "V-08",
+      "detail": ""
+     },
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": "0002-second.md",
+      "rule": "P-01",
+      "detail": ""
+     },
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": "0004-fourth.md",
+      "rule": "P-01",
+      "detail": ""
+     },
+     {
+      "commit": "c2",
+      "kind": "register",
+      "file": "0003-other.md",
+      "rule": "A-02",
+      "detail": "0003: 0003-third.md -> 0003-other.md"
+     },
+     {
+      "commit": "c2",
+      "kind": "commit",
+      "file": "0003-third.md",
+      "rule": "P-01",
+      "detail": ""
+     },
+     {
+      "commit": "c2",
+      "kind": "commit",
+      "file": "0005-fifth.md",
+      "rule": "V-20",
+      "detail": ""
+     },
+     {
+      "commit": "c2",
+      "kind": "commit",
+      "file": "0006-sixth.md",
+      "rule": "P-01",
+      "detail": ""
+     }
+    ],
+    "excused": [],
+    "acts": [],
+    "cases": []
+   }
+  },
+  {
+   "id": "h43-the-pull-request-of-a-commit",
+   "note": "Subjects that do and do not name a pull request: nine digits do, ten do not, the number must be at the end, the merge text at the start.",
+   "head": null,
+   "from": "c0",
+   "since": null,
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #123456789 from a/b",
+     "changes": [
+      {
+       "write": "docs/decisions/0007-seventh.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+      },
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "parents": [
+      "c1"
+     ],
+     "message": "Merge pull request #1234567890 from a/b",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 1\n"
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "parents": [
+      "c2"
+     ],
+     "message": "Fix it (#12) now",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 2\n"
+      }
+     ]
+    },
+    {
+     "id": "c4",
+     "parents": [
+      "c3"
+     ],
+     "message": "See Merge pull request #5 from a/b",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 3\n"
+      }
+     ]
+    },
+    {
+     "id": "c5",
+     "parents": [
+      "c4"
+     ],
+     "message": "Fix it (#123456789)",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 4\n"
+      }
+     ]
+    },
+    {
+     "id": "c6",
+     "parents": [
+      "c5"
+     ],
+     "message": "Fix it (#1234567890)",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 5\n"
+      }
+     ]
+    },
+    {
+     "id": "c7",
+     "parents": [
+      "c6"
+     ],
+     "message": "Fix it (#12) ",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 6\n"
+      }
+     ]
+    },
+    {
+     "id": "c8",
+     "parents": [
+      "c7"
+     ],
+     "message": "Merge pull request #0 from a/b",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "// 7\n"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "judged": 8,
+    "violations": [],
+    "excused": [],
+    "acts": [
+     {
+      "commit": "c1",
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md",
+      "pull": 123456789
+     },
+     {
+      "commit": "c2",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     },
+     {
+      "commit": "c3",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     },
+     {
+      "commit": "c4",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     },
+     {
+      "commit": "c5",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": 123456789
+     },
+     {
+      "commit": "c6",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     },
+     {
+      "commit": "c7",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     },
+     {
+      "commit": "c8",
+      "kind": "code",
+      "path": "record-keeper.mjs",
+      "pull": null
+     }
+    ],
+    "cases": []
+   }
+  },
+  {
+   "id": "h44-an-issue-number-next-to-a-zero",
+   "note": "The message mentions #120 and 0#12, and the note cites issue 12: neither is #12.",
+   "head": null,
+   "from": "c0",
+   "since": null,
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nseal: sha256-g1:f9f49f22a40e63991c6c67cb934bbbb26aa1f3ace03ab3922ccd48084c0d6935\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": "src/a.ts",
+       "content": "a\n"
+      },
+      {
+       "write": "src/x/b.ts",
+       "content": "b\n"
+      },
+      {
+       "write": "README.md",
+       "content": "r\n"
+      },
+      {
+       "write": "lib/c.js",
+       "content": "c\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Remove the readme, refs #120 and 0#12",
+     "changes": [
+      {
+       "remove": "README.md"
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "parents": [
+      "c1"
+     ],
+     "message": "commit c2",
+     "changes": [
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: issue 12\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "judged": 2,
+    "violations": [
+     {
+      "commit": "c1",
+      "kind": "commit",
+      "file": "0002-second.md",
+      "rule": "P-18",
+      "detail": "README.md"
+     }
+    ],
+    "excused": [],
+    "acts": [
+     {
+      "commit": "c2",
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md",
+      "pull": null
+     }
+    ],
+    "cases": [
+     {
+      "commit": "c2",
+      "kind": "issue",
+      "number": 12
+     }
+    ]
+   }
+  },
+  {
+   "id": "h45-dead-items-of-records-that-do-not-bind",
+   "note": "A superseded record and an unsealed one have items that no file matches: only the unsealed one is reported, as a seal that is missing.",
+   "head": null,
+   "from": "c0",
+   "since": null,
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nseal: sha256-g1:f9f49f22a40e63991c6c67cb934bbbb26aa1f3ace03ab3922ccd48084c0d6935\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - gone.txt\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - old/**\nseal: sha256-g1:49a73346514a2120fe76e1c989d47b46e4f5bc84c075f1540fbd1b28bca9ba9b\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": "src/a.ts",
+       "content": "a\n"
+      },
+      {
+       "write": "src/x/b.ts",
+       "content": "b\n"
+      },
+      {
+       "write": "README.md",
+       "content": "r\n"
+      },
+      {
+       "write": "lib/c.js",
+       "content": "c\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "commit c1",
+     "changes": [
+      {
+       "write": "src/c.ts",
+       "content": "c\n"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "judged": 1,
+    "violations": [
+     {
+      "commit": "c1",
+      "kind": "state",
+      "file": "0003-third.md",
+      "rule": "P-06",
+      "detail": "no seal"
+     }
+    ],
+    "excused": [],
+    "acts": [],
+    "cases": []
+   }
+  },
+  {
+   "id": "h46-a-note-cannot-excuse-the-state-of-the-tip",
+   "note": "The tip reports an item without a file; the commit of the tip is the merge of pull request 7 and a note on the record cites pull 7: still reported.",
+   "head": null,
+   "from": "c0",
+   "since": "@c1@",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nseal: sha256-g1:f9f49f22a40e63991c6c67cb934bbbb26aa1f3ace03ab3922ccd48084c0d6935\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": "src/a.ts",
+       "content": "a\n"
+      },
+      {
+       "write": "src/x/b.ts",
+       "content": "b\n"
+      },
+      {
+       "write": "README.md",
+       "content": "r\n"
+      },
+      {
+       "write": "lib/c.js",
+       "content": "c\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "commit c1",
+     "changes": [
+      {
+       "remove": "README.md"
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "parents": [
+      "c1"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - README.md\n  - lib/*.js\nseal: sha256-g1:edf4770bd413c132e0df2590a351b11a4471279c2d615df4a9d4735a0de0f45d\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 7\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "judged": 1,
+    "violations": [
+     {
+      "commit": "c2",
+      "kind": "state",
+      "file": "0002-second.md",
+      "rule": "P-19",
+      "detail": "README.md"
+     }
+    ],
+    "excused": [],
+    "acts": [
+     {
+      "commit": "c2",
+      "kind": "deviation",
+      "path": "docs/decisions/0002-second.md",
+      "pull": 7
+     }
+    ],
+    "cases": [
+     {
+      "commit": "c2",
+      "kind": "pull",
+      "number": 7
+     }
+    ]
+   }
   }
  ]
 }
