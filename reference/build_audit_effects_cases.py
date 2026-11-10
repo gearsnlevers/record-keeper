@@ -267,6 +267,11 @@ amend_case('b26-amendment-waived', 'With the reason in emergency the seven days 
 amend_case('b27-amendment-waived-one-owner-missing', 'Waived, but only the author of the two owners approved.', entry(author=1001, started=None),
            PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', name(7), 'A-03', f'amendment {AMEND7}: 1 of 2 owners')])]), keys='emergency: The hash function is broken.')
 
+def amend_table(**kw): return amend(**kw)[:2] + [put(f'{D}/README.md', readme_gens(AROWS, GENS + [('g2', 7, 'accepted')]))]
+case('b27a-the-waiver-is-for-one-act', 'The record that replaces the protocol record has the reason in emergency and the table of generations changes too: the first act is waived and the second is not, and without a start it has no clock. The reason is that of its own act, and the table is not a record, so the issue is that of no record.',
+     [ROOT(PROTO), commit('c1', amend_table(keys='emergency: The hash function is broken.'), message=PULL7)], frm='c0', evidence={'@c1@': entry(author=1001, started=None, reviews=BOB_LATE)},
+     plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', None, 'A-03', f'amendment {D}/README.md: no clock')])]))
+
 ACC7 = [rput(7, rec(7, 'accepted', True)), index(ROWS + [(7, 'accepted')])]
 NOTE7 = rput(7, rec(7, 'accepted', True, deviations=txt([dev(1, 'commit @c1@')])))
 ACC7_V = lv('@c1@', 'commit', name(7), 'A-03', f'accept {D}/{name(7)}: no pull request')

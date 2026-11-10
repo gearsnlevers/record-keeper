@@ -3920,6 +3920,146 @@
    }
   },
   {
+   "id": "b27a-the-waiver-is-for-one-act",
+   "note": "The record that replaces the protocol record has the reason in emergency and the table of generations changes too: the first act is waived and the second is not, and without a start it has no clock. The reason is that of its own act, and the table is not a record, so the issue is that of no record.",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": ".github/record-keeper/settings.yml",
+       "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+      },
+      {
+       "write": ".github/record-keeper.yml",
+       "content": "version: 1\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0007-seventh.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\nemergency: The hash function is broken.\nseal: sha256-g1:fab57afb981342cd32e517848693c69405f36f6b1b51cb3aeed69dd5a8da2fd8\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+      },
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Generations\n\n| Generation | Record | Status |\n| - | - | - |\n| g1 | [0001](0001-first.md) | accepted |\n| g2 | [0007](0007-seventh.md) | accepted |\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+      }
+     ]
+    }
+   ],
+   "from": "c0",
+   "evidence": {
+    "@c1@": {
+     "pull": {
+      "number": 7,
+      "user": {
+       "id": 1001
+      },
+      "head": {
+       "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "merged_at": "2026-11-09T12:00:00Z"
+     },
+     "started": null,
+     "reviews": [
+      {
+       "id": 100208,
+       "user": {
+        "id": 1002
+       },
+       "state": "APPROVED",
+       "commit_id": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "submitted_at": "2026-11-09T11:00:00Z"
+      }
+     ]
+    }
+   },
+   "now": "2026-11-10T03:00:00Z",
+   "expect": {
+    "code": 0,
+    "plan": {
+     "run": {
+      "at": "2026-11-10T03:00:00Z",
+      "head": "@c1@",
+      "from": "@c0@",
+      "judged": 1,
+      "violations": 1,
+      "excused": 0
+     },
+     "failed": true,
+     "issues": [
+      {
+       "action": "open",
+       "key": "-:A-03",
+       "title": "Records: the repository: [A-03] is an act that was not approved as the protocol asks",
+       "body": "<!-- record-keeper:incident -:A-03 -->\nThe audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.\n\n- @c1@: docs/decisions: [A-03] is an act that was not approved as the protocol asks (amendment docs/decisions/README.md: no clock)\n"
+      }
+     ],
+     "log": [
+      {
+       "at": "2026-11-10T03:00:00Z",
+       "event": "opened",
+       "key": "-:A-03",
+       "violations": [
+        {
+         "commit": "@c1@",
+         "kind": "commit",
+         "file": null,
+         "rule": "A-03",
+         "detail": "amendment docs/decisions/README.md: no clock"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
    "id": "b28-an-acceptance-with-no-pull-request",
    "note": "A record is accepted by a push: the issue is that of the record.",
    "commits": [
