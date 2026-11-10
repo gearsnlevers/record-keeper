@@ -50,11 +50,12 @@ The command prints one line for each violation, `<12 hex digits of the commit>: 
 | ---- | ---------------------------- | ------ |
 | A-01 | `--from` or `--since` is not in the history of the head | `from` or `since`, and the id |
 | A-02 | a record file is added under a number that another file name already had | `NNNN: old name -> new name` |
+| A-03 | an act of a commit was not approved: with the evidence of [the effects of the audit](audit-effects.md), it came in with no pull request or with too few approvals or too soon | `<kind> <path>: <reason>` |
 | P-19 | an accepted record has an `applies-to` item that no file of the tip matches, and no commit judged reported its loss | the item |
 
 ## What this does not do
 
-- **It does not know whether an act was approved.** It lists the acts; M2.9 compares them with the reviews of the pull requests.
+- **It does not know whether an act was approved**, unless it is given the evidence for it ([the effects of the audit](audit-effects.md#evidence---evidence-file)). Without it the acts are listed.
 - **It does not check the 48 hours** of an erratum, or that a cited issue or pull request exists. Both need GitHub.
 - **It does not read the installed text that agents read, or hash the workflow files against a manifest.** The design lists both; they need the pin and the installed files of M3 and M4.
 - **It does not judge a history that is not on the first-parent line.** What a pull request did inside its branch is not on the default branch; its net change is.
