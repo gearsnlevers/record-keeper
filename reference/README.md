@@ -32,7 +32,7 @@ This folder is how the kit is checked against something other than itself. It is
 Needs Python 3.9 or later, git and Node 22 or later. `fuzz/config_oracle.py` also needs PyYAML and Ruby, and for its third reader a folder where `npm install yaml` was run, named in `YAML_DIR`, because it asks three real YAML readers what a settings file means.
 
 ```sh
-reference/check-fixtures.sh                       # rebuild every fixture and compare; a few minutes
+reference/check-fixtures.sh                       # rebuild every fixture and compare; a few minutes; CI runs it too
 
 # a fixture builder writes to the path it is given; build into a scratch folder, not into test/
 python3 reference/build_change_cases.py /tmp/cases.json && cmp /tmp/cases.json test/fixtures/change/cases.json
@@ -49,5 +49,7 @@ python3 reference/fuzz/mutate_diff.py . 4 <base commit>
 ```
 
 `fuzz/mutate_change.py` mutates every line of the part of the library that checks a change, `fuzz/mutate_pr.py` every line of `check-pull-request.mjs` and `mutate_pr2.py` only the lines that differ from a commit, and `fuzz/mutate_note_case.py` is an example of a hand-written list of mutants for one change. The batch scripts and the other fuzz scripts say how they are called in their first lines.
+
+CI runs `check-fixtures.sh` in the workflow `Reference` (`.github/workflows/reference.yml`), on a pull request or a push to `main` that changes `reference/`, `test/fixtures/` or `test/vectors/`. It is not a required check: it has a path filter, which is only safe for a check that nothing waits for.
 
 The builders delete the folder they are given (`build_vectors.py`, `build_cases.py`), so they are never pointed at a folder under `test/` that holds a hand-written `README.md`.
