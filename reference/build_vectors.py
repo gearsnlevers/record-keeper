@@ -71,7 +71,7 @@ seal('a10-key-order-of-excluded-keys', swap(BASE, 'status: proposed\ndate: 2026-
 seal('a11-known-deviations-at-the-end', BASE + '\n' + KD, 'A Known deviations section appended; it contains a level 3 heading and a fence with a fake heading in it.')
 seal('a12-errata-at-the-end', BASE + '\n' + ERR, 'An Errata section appended.')
 seal('a13-both-sections-at-the-end', BASE + '\n' + KD + '\n' + ERR, 'Both sections appended, in the order the rules require.')
-seal('a14-known-deviations-in-the-middle', swap(BASE, '## Alternatives considered', KD + '\n## Alternatives considered'), 'A Known deviations section between Consequences and Alternatives, where the Frodo core records keep it.')
+seal('a14-known-deviations-in-the-middle', swap(BASE, '## Alternatives considered', KD + '\n## Alternatives considered'), 'A Known deviations section between Consequences and Alternatives, where some repositories keep it.')
 seal('a15-errata-in-the-middle', swap(BASE, '## Alternatives considered', ERR + '\n## Alternatives considered'), 'An Errata section in the middle.')
 seal('a16-extra-blank-lines', BASE.replace('\n\n## ', '\n\n\n\n## ').replace('\n\n# Example', '\n\n\n# Example'), 'Runs of blank lines outside code are one blank line.')
 seal('a17-mixed-line-endings', swap(swap(BASE, 'Why a decision was needed.\n', 'Why a decision was needed.\r\n'), '- Do the thing.\n', '- Do the thing.\r\n'), 'Some lines CRLF, some LF.')

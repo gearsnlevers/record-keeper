@@ -89,7 +89,7 @@ describe('the validate command', () => {
   });
 
   test('prints a line for each problem on stderr, with the rule, and exits 1', () => {
-    const folder = materialize(caseNamed('multi01-frodo-cli-style'));
+    const folder = materialize(caseNamed('multi01-value-and-deprecated'));
     const result = run(['validate', folder]);
     assert.equal(result.code, 1);
     assert.equal(result.stdout, '');
