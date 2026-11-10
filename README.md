@@ -45,6 +45,7 @@ It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no
 - [docs/errata-and-deviations.md](docs/errata-and-deviations.md): the entries of Errata and Known deviations, the erratum chain, the 48 hours, and what the check looks up outside the commits.
 - [docs/approvals.md](docs/approvals.md): when the owners have approved a change: which reviews count, what the command prints, with [fixtures](test/fixtures/approval/README.md).
 - [docs/workflow.md](docs/workflow.md): the `Records integrity` workflow: what it reads from GitHub, what it runs, when it cannot run, and what a repository must set for it to mean anything.
+- [reference/](reference/README.md): the second implementations of the pages in Python and Node, the generators of the fixtures, the fuzz and the mutation scripts. Not part of the kit; `npm test` does not run it.
 
 ## License
 
