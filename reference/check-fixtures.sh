@@ -31,5 +31,6 @@ file config build_config_cases.py "$root/test/fixtures/config/cases.json"
 file approval build_approval_cases.py "$root/test/fixtures/approval/cases.json"
 file applies build_applies_vectors.py "$root/test/fixtures/applies/vectors.json"
 file audit build_audit_cases.py "$root/test/fixtures/audit/cases.json"
+file audit-effects build_audit_effects_cases.py "$root/test/fixtures/audit-effects/cases.json"
 file change build_change_cases.py "$root/test/fixtures/change/cases.json"
 exit $failed

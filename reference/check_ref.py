@@ -199,7 +199,7 @@ def judge_erratum(old, new, since, now, needs, assume=False):
         if key_text(old, k) != key_text(new, k): out.append(('P-12', k))
     if g1.seal_g1(new.data) != old.seal_text:
         needs['clock'] = True
-        if assume: pass
+        if assume is True: pass   # the audit without evidence cannot read when the head was first seen
         elif since is None: out.append(('P-13', 'no clock'))
         else:
             elapsed = max(0, now - since)
@@ -462,6 +462,7 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
         'settings': sorted(settings_out, key=lambda t: (t[0] is not None, t[0] or 0, t[1], t[2])),
         'problems': sorted(problems, key=lambda t: (t[0] is not None, t[0] or '', t[1], t[2])),
         'acts': sorted(acts, key=lambda t: (ACT_ORDER[t[0]], t[1])),
+        'waived': sorted(waived),
         'needs': {'cases': sorted(needs['cases'], key=lambda t: (t[0] != 'issue', t[1])), 'clock': needs['clock'] or any(k == 'owners' or (k == 'amendment' and pth not in waived) for k, pth in acts)},
     }
 

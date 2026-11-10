@@ -2,14 +2,20 @@
 reference of the pull request check) and does not share code with the library. The register of numbers is read from the trees of the
 commits, not from `git log --name-status` as the library does.
 
-audit(repo, head, from_=None, since=None) -> {'violations': [...], 'excused': [...], 'acts': [...], 'cases': [...], 'judged': n}
+audit(repo, head, from_=None, since=None, evidence=None) -> {'head', 'from', 'folder', 'violations': [...], 'excused': [...], 'acts': [...], 'cases': [...], 'judged': n}
+With `evidence` (docs/audit-effects.md; read_evidence of audit_effects_ref.py gives it) the acts of each commit are judged against the reviews; a commit with an
+act and no entry raises NoEvidence.
 A violation is {'commit', 'kind', 'file', 'rule', 'detail', 'line'?}; commits are ids."""
 import os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(__file__))
-import check_ref, config_ref
+import approval_ref, check_ref, config_ref
 from commit_ref import git, listing, RECORD_FILE
 
 EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+RECORD_ACTS = ('accept', 'erratum', 'deviation', 'amendment')
+
+
+class NoEvidence(Exception): pass
 
 
 def ok(repo, *args):
@@ -39,7 +45,7 @@ def pull_of(subject):
     return int(m.group(1)) if m else None
 
 
-def audit(repo, head_rev, from_=None, since=None):
+def audit(repo, head_rev, from_=None, since=None, evidence=None):
     head = git(repo, 'rev-parse', '--verify', head_rev + '^{commit}').decode().strip()
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
     env.update({'GIT_AUTHOR_NAME': 't', 'GIT_AUTHOR_EMAIL': 't@e', 'GIT_COMMITTER_NAME': 't', 'GIT_COMMITTER_EMAIL': 't@e'})
@@ -55,7 +61,30 @@ def audit(repo, head_rev, from_=None, since=None):
     for l in judged:
         parts = l.split(' ')
         cid, parent = parts[0], parts[1] if len(parts) > 1 else None
-        res = check_ref.check_pr(repo, parent or empty, cid, assume=True, root=parent is None)
+        base_id = parent or empty
+        res = check_ref.check_pr(repo, base_id, cid, assume=True, root=parent is None)
+        refused = []
+        if evidence is not None and res['acts']:
+            if cid not in evidence: raise NoEvidence(cid)
+            entry = evidence[cid]
+            if entry['pull'] is None:
+                refused = [(kind, p, 'no pull request') for kind, p in res['acts']]
+            else:
+                pull = entry['pull']
+                res = check_ref.check_pr(repo, base_id, cid, assume='cases', since=entry['started'], now=pull['merged'], root=parent is None)
+                reviews = [r for r in entry['reviews'] if r['at'] is None or r['at'] <= pull['merged_text']]
+                given = config_ref.read_settings(repo, base_id)[0]
+                for kind, p in res['acts']:
+                    if kind in ('owners', 'amendment'):
+                        got = approval_ref.bar(given['owners'], pull['head'], pull['author'], reviews, entry['started'], pull['merged'], kind == 'amendment' and p in res['waived'])
+                        if not got['met']: refused.append((kind, p, got['reason']))
+                    else:
+                        got = approval_ref.count(given['owners'], given['approvals'], pull['head'], pull['author'], reviews)
+                        if not got['met']: refused.append((kind, p, '%d of %d approvals' % (got['have'], got['needed'])))
+        folder_prefix = config_ref.read_settings(repo, base_id)[0]['folder'] + '/'
+        for kind, p, reason in refused:
+            name = p[len(folder_prefix):] if kind in RECORD_ACTS and p.startswith(folder_prefix) and RECORD_FILE.match(p[len(folder_prefix):]) else None
+            found.append({'commit': cid, 'kind': 'commit', 'file': name, 'rule': 'A-03', 'detail': '%s %s: %s' % (kind, p, reason)})
         for line, rule, detail in res['settings']: found.append({'commit': cid, 'kind': 'commit', 'file': None, 'rule': rule, 'detail': detail or '', 'line': line})
         for f, rule, detail in res['problems']: found.append({'commit': cid, 'kind': 'commit', 'file': f, 'rule': rule, 'detail': detail or ''})
         for kind, p in res['acts']: acts.append({'commit': cid, 'kind': kind, 'path': p})
@@ -120,4 +149,4 @@ def audit(repo, head_rev, from_=None, since=None):
     violations.sort(key=key)
     excused.sort(key=key)
     for a in acts: a['pull'] = pull_of(message(a['commit']).split('\n')[0])
-    return {'head': head, 'folder': folder, 'judged': len(judged), 'violations': violations, 'excused': excused, 'acts': acts, 'cases': cites}
+    return {'head': head, 'from': from_, 'folder': folder, 'judged': len(judged), 'violations': violations, 'excused': excused, 'acts': acts, 'cases': cites}
