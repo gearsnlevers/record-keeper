@@ -1,0 +1,47 @@
+name: Reference
+
+# Rebuilds every generated fixture with the scripts in reference/ and compares each with the committed file, byte for byte
+# (reference/README.md). It runs only when something that feeds a fixture, or a fixture, changes.
+#
+# It is not a required check and must not become one by accident: a path filter is only safe for a check that nothing waits for, because a
+# required check that does not run leaves a pull request blocked for ever. The checks a ruleset requires are in test.yml and in the workflow
+# of the kit, which have no path filter.
+on:
+  pull_request:
+    paths:
+      - 'reference/**'
+      - 'test/fixtures/**'
+      - 'test/vectors/**'
+      - '.github/workflows/reference.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'reference/**'
+      - 'test/fixtures/**'
+      - 'test/vectors/**'
+      - '.github/workflows/reference.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reference-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  fixtures:
+    name: Fixtures are what the builders write
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show the versions
+        run: |
+          python3 --version
+          git --version
+
+      - name: Rebuild every fixture and compare
+        run: reference/check-fixtures.sh
