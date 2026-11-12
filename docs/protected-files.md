@@ -9,10 +9,10 @@ A pull request cannot change the check it is judged by: `pull_request_target` ru
 | Kind | Files | Act |
 | ---- | ----- | --- |
 | workflow | `.github/workflows/records-integrity.yml`, `.github/workflows/records-audit.yml` | `workflow` |
-| code | `record-keeper.mjs`, `check-pull-request.mjs` | `code` |
+| code | `record-keeper.mjs`, `check-pull-request.mjs`, `run-audit.mjs` | `code` |
 
-- The workflow files are the two workflows of the kit: the pull request check ([the workflow](workflow.md)) and the audit (M2.9, which does not exist yet; its name is listed so that adding it is already an act).
-- The code files are the ones the workflow runs, at the root of the repository, where the workflow calls them. The updater of M3 decides where a deployment keeps them; it changes this list together with the workflow that calls them, which is itself an act.
+- The workflow files are the two workflows of the kit: the pull request check ([the workflow](workflow.md)) and the audit ([the audit run](audit-run.md)).
+- The code files are the ones the workflows run, at the root of the repository, where the workflows call them: the rules, the program that reads a pull request (it only reads) and the program that runs the audit (it also writes the incident issues and the log branch, which is why it is a file of its own). The updater of M3 decides where a deployment keeps them; it changes this list together with the workflow that calls them, which is itself an act.
 - The settings (`.github/record-keeper/settings.yml`) and the pin (`.github/record-keeper.yml`) stay acts of their own kind, as in [checking a change](checking-a-change.md#acts).
 - A repository's own workflows (a `test.yml`, say) are not the kit's and are not guarded here.
 

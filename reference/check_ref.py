@@ -16,7 +16,7 @@ ITEM = re.compile(r'^ +- +(\S.*)$')
 STATUS_SUPERSEDED = re.compile(r'superseded by ([0-9]{4})')
 ACT_ORDER = {'accept': 0, 'erratum': 1, 'deviation': 2, 'settings': 3, 'owners': 4, 'amendment': 5, 'pin': 6, 'workflow': 7, 'code': 8}
 WORKFLOW_FILES = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml']
-CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs']
+CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']
 DEVIATION_RULES = {'V-11', 'V-12', 'V-27', 'V-28'}
 FIXED_KEYS = ('applies-to', 'repos', 'window', 'supersedes')
 

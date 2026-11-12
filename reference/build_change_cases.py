@@ -703,11 +703,12 @@ case('s36-errata-before-another-section', 'Errata is followed by another section
 
 # ---- the files of the check (M2.7a): docs/protected-files.md ---------------------------------------------------------------------
 WF, AU, TY = '.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', '.github/workflows/test.yml'
-RK, CP = 'record-keeper.mjs', 'check-pull-request.mjs'
+RK, CP, RA = 'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs'
 TREES['kit'] = {**TREES['world'], WF: 'name: Records integrity\n', TY: 'name: Test\n', RK: '// the rules\n', CP: '// the program\n'}
 TREES['kit-both'] = {**TREES['kit'], AU: 'name: Records audit\n'}
+TREES['kit-run'] = {**TREES['kit'], RA: '// the audit run\n'}
 TREES['kit-collides'] = {**TREES['kit'], '.github/workflows/other.yml': 'name: Records integrity\n', '.github/workflows/clean.yml': 'name: Clean\n'}
-WFA, WFB, CPA, RKA = a('workflow', WF), a('workflow', AU), a('code', CP), a('code', RK)
+WFA, WFB, CPA, RKA, RAA = a('workflow', WF), a('workflow', AU), a('code', CP), a('code', RK), a('code', RA)
 P15 = lambda path: p(None, 'P-15', path)
 case('y01-workflow-edited', 'The workflow of the check is edited.', base='kit', changes=[put(WF, 'name: Records integrity\non: x\n')], acts=[WFA])
 case('y02-audit-workflow-added', 'The workflow of the audit is added.', base='kit', changes=[put(AU, 'name: Records audit\n')], acts=[WFB])
@@ -715,6 +716,9 @@ case('y03-workflow-deleted', 'The workflow of the check is deleted.', base='kit'
 case('y04-both-workflows', 'Both workflows change: two acts, by path.', base='kit-both', changes=[put(WF, 'name: Records integrity\n# x\n'), put(AU, 'name: Records audit\n# x\n')], acts=[WFA, WFB])
 case('y05-rules-edited', 'The file with the rules is edited.', base='kit', changes=[put(RK, '// the rules, changed\n')], acts=[RKA])
 case('y06-program-edited', 'The program that reads GitHub is edited.', base='kit', changes=[put(CP, '// the program, changed\n')], acts=[CPA])
+case('y07a-audit-program-edited', 'The program that runs the audit and writes the issues and the log is edited.', base='kit-run', changes=[put(RA, '// the audit run, changed\n')], acts=[RAA])
+case('y07b-all-three-code-files', 'The three code files change together: three acts, by path.', base='kit-run', changes=[put(RK, '// 1\n'), put(CP, '// 2\n'), put(RA, '// 3\n')], acts=[CPA, RKA, RAA])
+case('y07c-audit-program-added', 'The program is added where there was none.', base='kit', changes=[put(RA, '// the audit run\n')], acts=[RAA])
 case('y07-both-code-files', 'Both code files change: two acts, by path.', base='kit', changes=[put(RK, '// 1\n'), put(CP, '// 2\n')], acts=[CPA, RKA])
 case('y08-mode-changes', 'The rules file gets the executable mode and nothing else.', base='kit', changes=[put(RK, '// the rules\n', '100755')], acts=[RKA])
 case('y09-file-becomes-a-folder', 'A folder stands where the rules file was.', base='kit', changes=[drop(RK), put(RK + '/x', 'x\n')], acts=[RKA])

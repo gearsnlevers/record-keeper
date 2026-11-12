@@ -104,7 +104,7 @@ def world(rng):
     for tree_file in ['src/a.ts', 'src/x/b.ts', 'lib/c.js', 'README.md', 'my file.txt', 'docs/guide.md']:
         if rng.random() < 0.7: files[tree_file] = 'x\n'
     if rng.random() < 0.5:
-        for kit in ['.github/workflows/records-integrity.yml', '.github/workflows/test.yml', 'record-keeper.mjs', 'check-pull-request.mjs']:
+        for kit in ['.github/workflows/records-integrity.yml', '.github/workflows/test.yml', 'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']:
             if rng.random() < 0.8: files[kit] = '// ' + kit + '\n'
         if rng.random() < 0.2: files['.github/workflows/other.yml'] = 'name: Records integrity\n'
     return folder, files
@@ -218,7 +218,7 @@ def mutate(rng, folder, files):
             else: f['.github/record-keeper/settings.yml'] = choice
         elif what == 'pin': f['.github/record-keeper.yml'] = rng.choice(['source: a/b\n', 'x: y\n'])
         elif what == 'kit-file':
-            path = rng.choice(['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', 'record-keeper.mjs', 'check-pull-request.mjs', '.github/workflows', 'record-keeper.mjs/x', '.github'])
+            path = rng.choice(['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', 'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', '.github/workflows', 'record-keeper.mjs/x', '.github'])
             act = rng.choice(['write', 'write', 'delete', 'mode', 'link', 'file'])
             if act == 'delete': f.pop(path, None)
             elif act == 'mode': f[path] = ('100755', 'x')
