@@ -463,7 +463,7 @@
           "rule": "V-14"
         }
       ],
-      "note": "decision-makers is a list, here a single value (the form frodo-cli uses today)."
+      "note": "decision-makers is a list, here a single value (a form that records in the field have)."
     },
     {
       "id": "bad14b-date-as-list",
@@ -1104,8 +1104,8 @@
       "note": "The title is compared as written."
     },
     {
-      "id": "multi01-frodo-cli-style",
-      "folder": "multi01-frodo-cli-style",
+      "id": "multi01-value-and-deprecated",
+      "folder": "multi01-value-and-deprecated",
       "expect": [
         {
           "file": "0002-second-decision.md",
@@ -1116,7 +1116,7 @@
           "rule": "V-19"
         }
       ],
-      "note": "A record with decision-makers as a value (V-14), and one that is deprecated (V-19): frodo-cli and frodo-lib have both today."
+      "note": "A record with decision-makers as a value (V-14), and one that is deprecated (V-19): records in the field have both today."
     },
     {
       "id": "ok23-valid-dates",
