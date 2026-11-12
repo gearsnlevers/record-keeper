@@ -1,13 +1,14 @@
-"""Mutation test of every line of check-pull-request.mjs against test/github.test.mjs.
+"""Mutation test of every line of check-pull-request.mjs against test/github.test.mjs; MUT_FILE and MUT_TESTS name another program and its tests
+(run-audit.mjs and test/audit-run.test.mjs).
 Usage: mutate_pr.py <repo_dir> <workers>"""
 import concurrent.futures, os, re, shutil, subprocess, sys, tempfile
 repo, workers = sys.argv[1], int(sys.argv[2])
-FILE = 'check-pull-request.mjs'
+FILE = os.environ.get('MUT_FILE', 'check-pull-request.mjs')
 src = open(os.path.join(repo, FILE)).read()
 lines = src.split('\n')
 inrange = lambda i: True
 def tests_for(i):
-    return ['test/github.test.mjs']
+    return os.environ.get('MUT_TESTS', 'test/github.test.mjs').split()
 
 def skip(i, l):
     s = l.strip()
