@@ -29,7 +29,7 @@ Two files make the run. `.github/workflows/records-audit.yml` is the workflow. `
 6. **Say what the audit says:** what `audit --adopted --evidence` prints for the same history, on the standard output and the standard error, so that the job log shows the violations that stand, also when no issue has changed.
 7. **A dry run stops here.** It prints what it would do (below) and writes nothing: no log, no issue.
 8. **Write the log** ([the log branch](#the-log-branch)): the entries of the plan and the record of the run.
-9. **Carry out the issue actions** of the plan, in its order: `open` is `POST /repos/{repo}/issues` with `title` and `body`; `update` is `PATCH /repos/{repo}/issues/{number}` with `title` and `body`; `reopen` is the same with `state: "open"`; `close` is `PATCH` with `state: "closed"`, `state_reason` `completed` (`not_planned` for a duplicate) and `body`.
+9. **Make a fresh connection,** with one more `GET /repos/{repo}`: the audit and the log took their time, and a connection that the server closed meanwhile would fail the first write. Then **carry out the issue actions** of the plan, in its order: `open` is `POST /repos/{repo}/issues` with `title` and `body`; `update` is `PATCH /repos/{repo}/issues/{number}` with `title` and `body`; `reopen` is the same with `state: "open"`; `close` is `PATCH` with `state: "closed"`, `state_reason` `completed` (`not_planned` for a duplicate) and `body`.
 10. **Print the summary and end.** The exit status is 1 when the plan says `failed`, otherwise 0.
 
 The log is written before any issue is touched: if an issue request fails, the run ends with 2 and the next run plans the same effect again, so the log may then repeat an event but never lose one.
@@ -63,8 +63,8 @@ The program ends with the status 2 and prints `Records audit could not run:` and
 | ------ | ---- |
 | `no token` | `GITHUB_TOKEN` is empty or missing. |
 | `repository: must be owner/name`, `API address: ...` | as for [the pull request check](workflow.md#when-the-check-cannot-run). |
-| `GET <path> answered <status>`, `GET <path> failed: <why>` | as for the pull request check: anything but 200; no answer, 30 seconds, or a redirect (never followed). |
-| `<method> <path> answered <status>` | a request that writes was refused: anything but 200 or 201. |
+| `GET <path> answered <status>`, `GET <path> failed: <why>` | as for the pull request check: anything but 200; no answer, 30 seconds, or a redirect (never followed). A `GET` whose connection was reset (a connection that the server closed while the program computed) is made once more first. |
+| `<method> <path> answered <status>`, `<method> <path> failed: <why>` | a request that writes was refused (anything but 200 or 201) or got no answer. It is never made again: it may have been received. |
 | `the answer to <path> is not what the audit needs` | not JSON, not a list where one is needed, or a field the audit reads is missing or of the wrong kind. |
 | `the link to the next page is not the API`, `more than 200 pages of <what>` | as for the pull request check. |
 | `the audit could not read the history: <message>` | the audit exited with 2: the repository is a shallow clone, no commit holds the settings file, a revision is not a commit. |

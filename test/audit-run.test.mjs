@@ -742,3 +742,56 @@ describe('the command line', () => {
     assert.equal((await execute(script, [], { cwd: s.work, env: CLEAN })).status, 2);
   });
 });
+
+describe('a connection that was reset', () => {
+  /** A fetch that fails once, as undici does when a pooled connection was closed by the server, for the requests that `fails` picks out. */
+  const resetting = (fails) => {
+    const seen = new Set();
+    return (url, init) => {
+      const key = `${init.method} ${url}`;
+      if (fails(init.method, url) && !seen.has(key)) {
+        seen.add(key);
+        throw Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) });
+      }
+      return globalThis.fetch(url, init);
+    };
+  };
+
+  test('a read is made once more: the run goes on as if nothing had happened', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    const got = await runAudit(options(s.c, s.work, s.server, { fetch: resetting((method) => method === 'GET') }));
+    assert.equal(got.code, 1, got.stderr);
+    assert.equal(got.stdout.split('\n')[0], 'opened -:A-03 #1001');
+  });
+
+  test('a read that is reset twice ends the run', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    const always = () => { throw Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) }); };
+    assert.deepEqual(await runAudit(options(s.c, s.work, s.server, { fetch: always })), { code: 2, stdout: '', stderr: 'Records audit could not run: GET /repos/o/r failed: read ECONNRESET\n' });
+  });
+
+  test('a write is not repeated: it may have been received', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    let posts = 0;
+    const fetch = (url, init) => {
+      if (init.method === 'POST') {
+        posts += 1;
+        throw Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) });
+      }
+      return globalThis.fetch(url, init);
+    };
+    assert.deepEqual(await runAudit(options(s.c, s.work, s.server, { fetch })), { code: 2, stdout: '', stderr: 'Records audit could not run: POST /repos/o/r/issues failed: read ECONNRESET\n' });
+    assert.equal(posts, 1);
+  });
+
+  test('a fresh connection is made before the first write: the repository is read again after the log', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    await runAudit(options(s.c, s.work, s.server));
+    const paths = s.server.requests.map(({ method, path: route }) => `${method} ${route}`);
+    assert.equal(paths.filter((entry) => entry === `GET /repos/${REPO}`).length, 2);
+    assert.equal(paths.indexOf(`POST /repos/${REPO}/issues`), paths.lastIndexOf(`GET /repos/${REPO}`) + 1);
+    const dry = await scenario('b02-no-owner-approved');
+    await runAudit(options(dry.c, dry.work, dry.server, { dryRun: true }));
+    assert.equal(dry.server.requests.filter(({ path: route }) => route === `/repos/${REPO}`).length, 1, 'a dry run writes nothing and needs no fresh connection');
+  });
+});

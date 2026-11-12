@@ -23,6 +23,8 @@ const LOG_BRANCH = 'record-keeper/log';
 const LOG_REF = `refs/heads/${LOG_BRANCH}`;
 const LOG_LOCAL = 'refs/record-keeper/log';
 const PUSH_ATTEMPTS = 3;
+// A connection that the server closed while the program was computing, and that the program then used again.
+const RESET = new Set(['ECONNRESET', 'EPIPE', 'UND_ERR_SOCKET']);
 // What git says when another writer was first (the branch moved, or was made in between), and what it says when a rule or a hook refuses.
 const LOST_RACE = /non-fast-forward|fetch first|\[rejected\]|cannot lock ref|failed to update ref|reference already exists|incorrect old value/;
 const REFUSED = /GH0\d\d|rule violations|declined|permission denied|denied/i;
@@ -64,26 +66,32 @@ function apiBase(address) {
 
 const notWhatItNeeds = (context, url) => new CannotRun(`the answer to ${printable(url.slice(context.base.length))} is not what the audit needs`);
 
-/** One request. A redirect is never followed, so the token cannot be sent to another place. A body is sent as JSON. */
+/**
+ * One request. A redirect is never followed, so the token cannot be sent to another place. A body is sent as JSON. A GET whose connection was
+ * reset is made once more; a request that writes is never repeated.
+ */
 async function request(context, method, url, { body, ok = [200] } = {}) {
   const where = printable(url.slice(context.base.length));
   let response;
-  try {
-    response = await context.fetch(url, {
-      method,
-      headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${context.token}`,
-        'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'record-keeper',
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      redirect: 'error',
-      signal: AbortSignal.timeout(context.timeout),
-    });
-  } catch (error) {
-    throw new CannotRun(`${method} ${where} failed: ${printable(error.cause?.message || error.cause?.code || error.message).slice(0, 200)}`);
+  for (let attempt = 1; response === undefined; attempt++) {
+    try {
+      response = await context.fetch(url, {
+        method,
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${context.token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'record-keeper',
+          ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        redirect: 'error',
+        signal: AbortSignal.timeout(context.timeout),
+      });
+    } catch (error) {
+      if (method === 'GET' && attempt === 1 && RESET.has(error.cause?.code)) continue;
+      throw new CannotRun(`${method} ${where} failed: ${printable(error.cause?.message || error.cause?.code || error.message).slice(0, 200)}`);
+    }
   }
   if (!ok.includes(response.status)) throw new CannotRun(`${method} ${where} answered ${response.status}`);
   try {
@@ -287,6 +295,8 @@ export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API,
       return { code: plan.failed ? 1 : 0, stdout: said.stdout + lines.join(''), stderr: said.stderr };
     }
     writeLog(cwd, plan, plan.run.head, at);
+    // The audit and the log took their time and the connection of the reads may have been closed meanwhile: a read makes a fresh one before the first write.
+    await request(context, 'GET', `${context.base}/repos/${context.repo}`);
     const duplicate = (index) => plan.log[index].duplicate !== undefined;
     for (const [index, action] of plan.issues.entries()) {
       const issues = `${context.base}/repos/${context.repo}/issues`;
