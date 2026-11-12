@@ -1,5 +1,5 @@
 """Mutation test of the lines of record-keeper.mjs that differ from a base commit, against the tests that cover them.
-Usage: mutate_diff.py <repo_dir> <workers> <base_commit>"""
+Usage: mutate_diff.py <repo_dir> <workers> <base_commit>   (MUT_TESTS='test/a.test.mjs test/b.test.mjs' limits the tests that are run)"""
 import concurrent.futures, os, re, shutil, subprocess, sys, tempfile
 repo, workers, base = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 src = open(os.path.join(repo, 'record-keeper.mjs')).read()
@@ -12,7 +12,7 @@ for m in re.finditer(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@', diff, re.M):
 inrange = lambda i: i in changed
 SETTINGS_FIRST = next(i for i, l in enumerate(lines) if l.startswith('export const SETTINGS_PATH'))
 CHANGE_FIRST = next(i for i, l in enumerate(lines) if l.startswith('// ---- checking a change'))
-TESTS = sorted('test/' + f for f in os.listdir(os.path.join(repo, 'test')) if f.endswith('.test.mjs'))
+TESTS = os.environ['MUT_TESTS'].split() if os.environ.get('MUT_TESTS') else sorted('test/' + f for f in os.listdir(os.path.join(repo, 'test')) if f.endswith('.test.mjs'))   # MUT_TESTS: only these test files
 def tests_for(i):
     return TESTS
 

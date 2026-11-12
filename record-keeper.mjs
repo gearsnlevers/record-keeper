@@ -1209,7 +1209,7 @@ function judgeErratum(before, after, { since, now, needs, assume }) {
   if (seal(after.bytes) !== before.seal) {
     needs.clock = true;
     const elapsed = since === undefined ? null : Math.max(0, now - since);
-    if (assume) { /* the audit cannot read when the head was first seen */ } else if (elapsed === null) found.push({ rule: 'P-13', detail: 'no clock' });
+    if (assume === true) { /* the audit without evidence cannot read when the head was first seen */ } else if (elapsed === null) found.push({ rule: 'P-13', detail: 'no clock' });
     else if (elapsed < WAIT_MS) found.push({ rule: 'P-13', detail: `${Math.floor(elapsed / 3_600_000)}h of 48h` });
   }
   return found;
@@ -1310,12 +1310,15 @@ export function checkChange(repo, baseRev, headRev, options = {}) {
 /**
  * checkChange for two commits that are already open (`openCommit`, or `emptyCommit` for the base of a first commit). `cache` is the
  * map of the records read from blobs, which a caller that judges many commits shares; `assume` takes the issues and pull requests that
- * a note cites to exist and does not count the 48 hours of an erratum (the audit, docs/audit.md).
+ * a note cites to exist (`assume: 'cases'`), or that and the 48 hours of an erratum too (`assume: true`; the audit, docs/audit.md and
+ * docs/audit-effects.md). `reviewed` is the commit the reviews must name, when it is not `head`: the head of the pull request that was
+ * squashed or rebased onto the branch.
  */
-export function judgeChange(repo, base, head, { author, reviews, cases, since, now = Date.now(), assume = false, cache = new Map() } = {}) {
+export function judgeChange(repo, base, head, { author, reviews, reviewed, cases, since, now = Date.now(), assume = false, cache = new Map() } = {}) {
   const read = readSettings(base);
   const { folder, sharedFolder, extraKeys } = read.settings;
-  const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: head.commit, author, reviews });
+  const named = reviewed ?? head.commit;
+  const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: named, author, reviews });
   const needs = { cases: new Map(), clock: false };
   if (!base.empty && !isAncestor(repo, base.commit, head.commit)) return { folder, settings: [], problems: [{ file: null, rule: 'P-09' }], acts: [], approval, bars: [], needs: { cases: [], clock: false } };
   const leavesOfBase = base.leaves();
@@ -1442,7 +1445,7 @@ export function judgeChange(repo, base, head, { author, reviews, cases, since, n
     if (!free) needs.clock = true;
     const result = reviews === undefined
       ? { met: false, reason: 'no reviews were given' }
-      : amendmentBar({ owners: read.settings.owners, head: head.commit, author, reviews, since, now, waived: free });
+      : amendmentBar({ owners: read.settings.owners, head: named, author, reviews, since, now, waived: free });
     bars.push({ kind: act.kind, path: act.path, ...result });
   }
 
@@ -1461,6 +1464,7 @@ export function judgeChange(repo, base, head, { author, reviews, cases, since, n
 export const AUDIT_RULES = {
   'A-01': 'was started or last run from a commit that is not in the history of the head',
   'A-02': 'is a record file under a number that another file name had before',
+  'A-03': 'is an act that was not approved as the protocol asks',
   'P-19': 'is accepted and has an applies-to item that no file matches',
 };
 const FULL_COMMIT_ID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
@@ -1484,16 +1488,23 @@ function namesCommit(cited, id, message) {
   return new RegExp(`(?<![0-9A-Za-z_])#${number}(?![0-9])`).test(message);
 }
 
-/**
- * Audits the history of a repository up to `headRev` (docs/audit.md). `from` is the full id of the commit where the protocol began and
- * `since` that of the last commit audited; neither is judged. Returns { head, folder, judged, violations, excused, acts, cases }.
- * Throws Unreadable.
- */
-export function audit(repo, headRev, { from, since } = {}) {
-  const tip = openCommit(repo, headRev);
+const RECORD_ACTS = new Set(['accept', 'erratum', 'deviation', 'amendment']);
+
+function refuseShallow(repo) {
   if (runGit(['-C', repo, 'rev-parse', '--is-shallow-repository']).toString('utf8').trim() === 'true') {
     throw new Unreadable('the repository is a shallow clone: the audit needs the whole history');
   }
+}
+
+/**
+ * Audits the history of a repository up to `headRev` (docs/audit.md). `from` is the full id of the commit where the protocol began and
+ * `since` that of the last commit audited; neither is judged. With `evidence` (readEvidence, docs/audit-effects.md) the acts of each
+ * commit are judged against the reviews of the pull request that brought them in (rule A-03). Returns
+ * { head, from, folder, judged, violations, excused, acts, cases }. Throws Unreadable.
+ */
+export function audit(repo, headRev, { from, since, evidence } = {}) {
+  const tip = openCommit(repo, headRev);
+  refuseShallow(repo);
   const found = [];
   const bounds = [];
   for (const [which, id] of [['from', from], ['since', since]]) {
@@ -1512,7 +1523,28 @@ export function audit(repo, headRev, { from, since } = {}) {
     const [id, parent] = line.split(' ');
     const base = parent === undefined ? emptyCommit() : previous?.commit === parent ? previous : openCommit(repo, parent);
     const commit = id === tip.commit ? tip : openCommit(repo, id);
-    const result = judgeChange(repo, base, commit, { assume: true, cache });
+    let result = judgeChange(repo, base, commit, { assume: true, cache });
+    const refused = [];
+    if (evidence !== undefined && result.acts.length > 0) {
+      const given = evidence.get(id);
+      if (given === undefined) throw new Unreadable(`no evidence for the commit ${id}`);
+      if (given.pull === null) {
+        for (const act of result.acts) refused.push({ act, reason: 'no pull request' });
+      } else {
+        const { pull } = given;
+        const reviews = given.reviews.filter((review) => review.at === null || review.at <= pull.mergedText);
+        result = judgeChange(repo, base, commit, { assume: 'cases', author: pull.author, reviews, reviewed: pull.head, since: given.started ?? undefined, now: pull.merged, cache });
+        for (const act of result.acts) {
+          if (actApproved(act, result.approval, result.bars)) continue;
+          const bar = BAR_KINDS.has(act.kind) ? result.bars.find(({ kind, path: barPath }) => kind === act.kind && barPath === act.path) : null;
+          refused.push({ act, reason: bar ? bar.reason : `${result.approval.have} of ${result.approval.needed} approvals` });
+        }
+      }
+    }
+    for (const { act, reason } of refused) {
+      const named = RECORD_ACTS.has(act.kind) && act.path.startsWith(`${result.folder}/`) ? act.path.slice(result.folder.length + 1) : null;
+      found.push({ commit: id, kind: 'commit', file: named !== null && RECORD_FILE.test(named) ? named : null, rule: 'A-03', detail: `${act.kind} ${act.path}: ${reason}` });
+    }
     for (const problem of result.settings) found.push({ commit: id, kind: 'commit', file: null, rule: problem.rule, detail: problem.detail ?? '', line: problem.line });
     for (const problem of result.problems) found.push({ commit: id, kind: 'commit', file: problem.file, rule: problem.rule, detail: problem.detail ?? '' });
     for (const act of result.acts) acts.push({ commit: id, kind: act.kind, path: act.path });
@@ -1588,7 +1620,18 @@ export function audit(repo, headRev, { from, since } = {}) {
   violations.sort(sorter);
   excused.sort(sorter);
   for (const act of acts) act.pull = pullOf(subjectOf(message(act.commit)));
-  return { head: tip.commit, folder, judged: listing.length, violations, excused, acts, cases };
+  return { head: tip.commit, from: from ?? null, folder, judged: listing.length, violations, excused, acts, cases };
+}
+
+/** The oldest commit of the first-parent history of `headRev` whose tree holds the settings file as a regular file, or null (docs/audit-effects.md). */
+export function findAdoption(repo, headRev) {
+  const tip = openCommit(repo, headRev);
+  refuseShallow(repo);
+  for (const id of gitLines(repo, ['rev-list', '--first-parent', '--reverse', tip.commit])) {
+    const listed = gitLines(repo, ['ls-tree', id, '--', SETTINGS_PATH]);
+    if (listed.some((line) => /^100(?:644|755) blob [0-9a-f]+\t/.test(line) && line.endsWith(`\t${SETTINGS_PATH}`))) return id;
+  }
+  return null;
 }
 
 const REVIEW_TIME = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/;
@@ -1611,12 +1654,20 @@ function reviewProblem(entry) {
  * Returns [{ id, user, state, commit, at }] with `user` the ID of the account or null. Throws Unreadable with the reason.
  */
 export function readReviews(bytes) {
-  let document;
+  return reviewsOf(decodeJson(bytes));
+}
+
+/** The one JSON document in some bytes. Throws Unreadable. */
+function decodeJson(bytes) {
   try {
-    document = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes));
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes));
   } catch {
     throw new Unreadable('is not one JSON document');
   }
+}
+
+/** The reviews of a decoded document: a list of reviews, or a list of pages. Throws Unreadable. */
+function reviewsOf(document) {
   if (!Array.isArray(document)) throw new Unreadable('is not a list');
   const pages = document.map((item) => Array.isArray(item));
   if (pages.some(Boolean) && !pages.every(Boolean)) throw new Unreadable('mixes reviews and pages');
@@ -1710,6 +1761,159 @@ export const actApproved = (act, approval, bars = []) => (BAR_KINDS.has(act.kind
   ? bars.some((bar) => bar.kind === act.kind && bar.path === act.path && bar.met)
   : approval !== null && approval.met);
 
+// ---- the effects of the audit: docs/audit-effects.md ----------------------------------------------------------------------------
+
+/**
+ * The evidence for the acts of the history, from the bytes of the file `--evidence`: a Map from the full id of a commit to
+ * { pull: null | { number, author, head, merged, mergedText }, started: milliseconds | null, reviews }. Throws Unreadable with the reason.
+ */
+export function readEvidence(bytes) {
+  const document = decodeJson(bytes);
+  if (!isObject(document)) throw new Unreadable('is not an object');
+  const out = new Map();
+  for (const key of Object.keys(document).sort(byBytes)) {
+    if (!FULL_COMMIT_ID.test(key)) throw new Unreadable(`${printable(key)}: is not a full commit id`);
+    const value = document[key];
+    if (!isObject(value) || Object.keys(value).sort().join() !== 'pull,reviews,started') throw new Unreadable(`${key}: is not an object with the keys pull, reviews and started`);
+    const entry = { pull: null, started: null, reviews: [] };
+    const { pull } = value;
+    if (pull !== null) {
+      if (!isObject(pull)) throw new Unreadable(`${key}: pull: is not null or an object`);
+      if (!isPositiveInteger(pull.number)) throw new Unreadable(`${key}: pull: number is not a positive integer`);
+      if (pull.user !== null && pull.user !== undefined && !(isObject(pull.user) && isPositiveInteger(pull.user.id))) {
+        throw new Unreadable(`${key}: pull: user is neither null nor an object with a positive integer id`);
+      }
+      if (!(isObject(pull.head) && typeof pull.head.sha === 'string' && FULL_COMMIT_ID.test(pull.head.sha))) throw new Unreadable(`${key}: pull: head.sha is not a full commit id`);
+      const merged = typeof pull.merged_at === 'string' ? readTime(pull.merged_at) : null;
+      if (merged === null) throw new Unreadable(`${key}: pull: merged_at is not a time like 2026-11-07T12:00:00Z`);
+      entry.pull = { number: pull.number, author: pull.user ? pull.user.id : null, head: pull.head.sha, merged, mergedText: pull.merged_at };
+    }
+    if (value.started !== null) {
+      const started = typeof value.started === 'string' ? readTime(value.started) : null;
+      if (started === null) throw new Unreadable(`${key}: started: is neither null nor a time like 2026-11-07T12:00:00Z`);
+      entry.started = started;
+    }
+    try {
+      entry.reviews = reviewsOf(value.reviews);
+    } catch (error) {
+      if (error instanceof Unreadable) throw new Unreadable(`${key}: reviews: ${error.message}`);
+      throw error;
+    }
+    out.set(key, entry);
+  }
+  return out;
+}
+
+/**
+ * The issues of the repository from the bytes of the file `--issues`, as GitHub returns them (a list, or a list of pages); an entry
+ * with a pull_request key is a pull request and is left out. Returns [{ number, state, title, body, user }]. Throws Unreadable.
+ */
+export function readIssues(bytes) {
+  const document = decodeJson(bytes);
+  if (!Array.isArray(document)) throw new Unreadable('is not a list');
+  const pages = document.map((item) => Array.isArray(item));
+  if (pages.some(Boolean) && !pages.every(Boolean)) throw new Unreadable('mixes issues and pages');
+  const out = [];
+  document.flat().forEach((entry, index) => {
+    const at = `entry ${index + 1}: `;
+    if (!isObject(entry)) throw new Unreadable(`${at}is not an object`);
+    if (Object.hasOwn(entry, 'pull_request')) return;
+    if (!isPositiveInteger(entry.number)) throw new Unreadable(`${at}number is not a positive integer`);
+    if (entry.state !== 'open' && entry.state !== 'closed') throw new Unreadable(`${at}state is neither open nor closed`);
+    if (typeof entry.title !== 'string') throw new Unreadable(`${at}title is not text`);
+    if (entry.body !== null && entry.body !== undefined && typeof entry.body !== 'string') throw new Unreadable(`${at}body is neither null nor text`);
+    if (entry.user !== null && entry.user !== undefined && !(isObject(entry.user) && typeof entry.user.login === 'string' && typeof entry.user.type === 'string')) {
+      throw new Unreadable(`${at}user is neither null nor an object with the text login and type`);
+    }
+    out.push({ number: entry.number, state: entry.state, title: entry.title, body: entry.body ?? '', user: entry.user ? { login: entry.user.login, type: entry.user.type } : null });
+  });
+  return out;
+}
+
+const ruleText = (rule) => SETTINGS_RULES[rule] ?? FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule] ?? AUDIT_RULES[rule];
+const BOT_LOGIN = 'github-actions[bot]';
+const BOT_TYPE = 'Bot';
+const INCIDENT_KEY = '(?:[0-9]{4}|other|-):[A-Z]-[0-9]{2}';
+const INCIDENT_MARKER = new RegExp(`^<!-- record-keeper:incident (${INCIDENT_KEY}) -->$`);
+const INCIDENT_INTRO = 'The audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. '
+  + 'To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.';
+const INCIDENT_RESOLVED = 'No violation of this kind stands. Closed by the audit.';
+const marker = (key) => `<!-- record-keeper:incident ${key} -->`;
+
+/** The incident key of a violation: the number of its record (or `other`, or `-`), a colon and its rule. */
+function incidentKey({ file, rule }) {
+  return `${file === null ? '-' : RECORD_FILE.test(file) ? file.slice(0, 4) : 'other'}:${rule}`;
+}
+
+/** The key an issue belongs to, when the bot wrote it and its first line is the marker; null otherwise. */
+function issueKey({ user, body }) {
+  if (user === null || user.type !== BOT_TYPE || user.login !== BOT_LOGIN) return null;
+  const first = body.split('\n')[0];
+  const found = INCIDENT_MARKER.exec(first.endsWith('\r') ? first.slice(0, -1) : first);
+  return found ? found[1] : null;
+}
+
+/** The detail of a violation as the plan shows it: none for a rule of the format (V-), whose detail the pages do not specify. */
+const detailOf = ({ rule, detail }) => (rule.startsWith('V-') ? '' : detail);
+
+/** Where a violation is, as `audit` prints it. */
+const placeOf = ({ rule, file, line }, folder) => (rule.startsWith('S-') ? `${SETTINGS_PATH}${line ? `:${line}` : ''}` : file === null ? folder : `${folder}/${file}`);
+
+/**
+ * What to do with the incident issues, the log and the record of the run, from the result of `audit`, the issues of the repository
+ * (readIssues) and the time of the run as text (docs/audit-effects.md). Returns { run, failed, issues, log }.
+ */
+export function planAudit(result, issues, now) {
+  const incidents = new Map();
+  for (const violation of result.violations) {
+    const key = incidentKey(violation);
+    incidents.set(key, [...(incidents.get(key) ?? []), violation]);
+  }
+  const trusted = new Map();
+  for (const issue of issues) {
+    const key = issueKey(issue);
+    if (key !== null) trusted.set(key, [...(trusted.get(key) ?? []), issue]);
+  }
+  const keys = new Set(incidents.keys());
+  for (const [key, group] of trusted) if (group.some(({ state }) => state === 'open')) keys.add(key);
+  const line = (violation) => {
+    const place = violation.kind === 'history' ? 'the history' : violation.kind === 'state' ? `the tip ${result.head}` : violation.commit;
+    const detail = detailOf(violation);
+    return `- ${place}: ${printable(placeOf(violation, result.folder))}: [${violation.rule}] ${ruleText(violation.rule)}${detail ? ` (${printable(detail)})` : ''}\n`;
+  };
+  const shown = (violation) => ({ commit: violation.commit, kind: violation.kind, file: violation.file, rule: violation.rule, detail: detailOf(violation) });
+  const issuesOut = [];
+  const log = [];
+  const act = (action, key, number, title, text, extra, violations) => {
+    issuesOut.push({ action, key, ...(number === undefined ? {} : { number }), ...(title === undefined ? {} : { title }), body: text });
+    log.push({ at: now, event: { open: 'opened', reopen: 'reopened', update: 'changed', close: 'closed' }[action], key, ...extra, violations: violations.map(shown) });
+  };
+  for (const key of [...keys].sort(byBytes)) {
+    const found = (trusted.get(key) ?? []).sort((a, b) => a.number - b.number);
+    const open = found.filter(({ state }) => state === 'open');
+    const violations = incidents.get(key);
+    if (violations === undefined) {
+      for (const issue of open) act('close', key, issue.number, undefined, `${marker(key)}\n${INCIDENT_RESOLVED}\n`, {}, []);
+      continue;
+    }
+    const [subject, rule] = key.split(':');
+    const title = `Records: ${subject === '-' ? 'the repository' : subject === 'other' ? 'other files' : subject}: [${rule}] ${ruleText(rule)}`;
+    const text = `${marker(key)}\n${INCIDENT_INTRO}\n\n${violations.map(line).join('')}`;
+    if (found.length === 0) act('open', key, undefined, title, text, {}, violations);
+    else if (open.length === 0) act('reopen', key, found[0].number, title, text, {}, violations);
+    else {
+      if (open[0].title !== title || open[0].body !== text) act('update', key, open[0].number, title, text, {}, violations);
+      for (const duplicate of open.slice(1)) act('close', key, duplicate.number, undefined, `${marker(key)}\nDuplicate of #${open[0].number}.\n`, { duplicate: open[0].number }, []);
+    }
+  }
+  return {
+    run: { at: now, head: result.head, from: result.from, judged: result.judged, violations: result.violations.length, excused: result.excused.length },
+    failed: result.violations.length !== 0,
+    issues: issuesOut,
+    log,
+  };
+}
+
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
@@ -1730,9 +1934,14 @@ const USAGE = `Usage:
                                             say whether the owners have approved the acts; with the issues and pull requests
                                             that exist (a JSON file) and the time the head was first seen (UTC, like
                                             2026-11-07T15:50:34Z), also judge the deviation notes and the 48 hours of an erratum
-  record-keeper.mjs audit --head <revision> [--from <commit>] [--since <commit>] [--repo <path>]
+  record-keeper.mjs audit --head <revision> [--from <commit> | --adopted] [--since <commit>] [--repo <path>] [--evidence <file>] [--json]
                                             read the whole history up to the head and report what the rules say of it:
-                                            the commits after --from and --since are judged one by one, and the tip as it is
+                                            the commits after --from and --since are judged one by one, and the tip as it is;
+                                            --adopted starts at the commit that adopted the kit, --evidence (a JSON file) also
+                                            judges the acts against the reviews, --json prints the result as JSON
+  record-keeper.mjs audit-plan --head <revision> [--from <commit> | --adopted] [--since <commit>] [--repo <path>]
+                               [--evidence <file>] --issues <file> --now <time>
+                                            print as JSON what to do with the incident issues, the log and the record of the run
   record-keeper.mjs needs --base <revision> --head <revision> [--repo <path>]
                                             print what the caller has to look up for check-pr: the cited issues and pull
                                             requests ("case issue 12") and "clock"
@@ -1781,18 +1990,20 @@ function runSeal(args, readFile) {
 }
 
 /** The options that take a value, read from `args`: { values: Map option -> [values], rest: arguments that are not options }, or null for wrong usage. */
-function readOptions(args, names) {
+function readOptions(args, names, flags = []) {
   const values = new Map();
+  const given = new Set();
   const rest = [];
   for (let i = 0; i < args.length; i++) {
-    if (names.includes(args[i])) {
+    if (flags.includes(args[i])) given.add(args[i]);
+    else if (names.includes(args[i])) {
       const value = args[++i];
       if (value === undefined || value === '' || value.startsWith('-')) return null;
       values.set(args[i - 1], [...(values.get(args[i - 1]) ?? []), value]);
     } else if (args[i].startsWith('-')) return null;
     else rest.push(args[i]);
   }
-  return { values, rest };
+  return { values, rest, flags: given };
 }
 
 const problemWord = (count) => `${count} problem${count === 1 ? '' : 's'}`;
@@ -1941,24 +2152,85 @@ function runNeeds(args) {
   return { code: 0, stdout: lines.join(''), stderr: '' };
 }
 
-function runAudit(args) {
-  const options = readOptions(args, ['--head', '--from', '--since', '--repo']);
+/** The input of an audit from its options: the id the audit starts from and the evidence, or an error result. */
+function auditInput(options, readFile) {
+  const only = (name) => options.values.get(name)?.at(-1);
+  let evidence;
+  const evidenceFile = only('--evidence');
+  if (evidenceFile !== undefined) {
+    const read = readInput(evidenceFile, readFile, readEvidence);
+    if (read.error) return read;
+    evidence = read.value;
+  }
+  return { evidence };
+}
+
+/** Reads a file and decodes it with `decode`: { value } or { error } with the result of the command. */
+function readInput(file, readFile, decode) {
+  let bytes;
+  try {
+    bytes = readFile(file);
+  } catch (error) {
+    return { error: { code: 2, stdout: '', stderr: `record-keeper: cannot read ${printable(file)}: ${printable(error.message)}\n` } };
+  }
+  try {
+    return { value: decode(bytes) };
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { error: { code: 2, stdout: '', stderr: `record-keeper: ${printable(file)}: ${error.message}\n` } };
+  }
+}
+
+/** The id an audit starts from: the one of --from, or with --adopted the commit that adopted the kit. Throws Unreadable. */
+function startOf(options) {
+  const only = (name) => options.values.get(name)?.at(-1);
+  if (!options.flags.has('--adopted')) return only('--from');
+  const adopted = findAdoption(only('--repo') ?? '.', only('--head'));
+  if (adopted === null) throw new Unreadable(`no commit of the history holds ${SETTINGS_PATH}`);
+  return adopted;
+}
+
+function runAudit(args, readFile) {
+  const options = readOptions(args, ['--head', '--from', '--since', '--repo', '--evidence'], ['--adopted', '--json']);
   if (!options || options.rest.length > 0 || !options.values.has('--head')) return usageError;
   const only = (name) => options.values.get(name)?.at(-1);
   for (const name of ['--from', '--since']) if (only(name) !== undefined && !FULL_COMMIT_ID.test(only(name))) return usageError;
+  if (options.flags.has('--adopted') && only('--from') !== undefined) return usageError;
+  const input = auditInput(options, readFile);
+  if (input.error) return input.error;
   let result;
   try {
-    result = audit(only('--repo') ?? '.', only('--head'), { from: only('--from'), since: only('--since') });
+    result = audit(only('--repo') ?? '.', only('--head'), { from: startOf(options), since: only('--since'), evidence: input.evidence });
   } catch (error) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
+  if (options.flags.has('--json')) return { code: 0, stdout: `${JSON.stringify(result)}\n`, stderr: '' };
   const place = ({ kind, commit }) => (kind === 'history' ? 'history' : kind === 'state' ? 'tip' : commit.slice(0, 12));
-  const where = ({ rule, file, line }) => (rule.startsWith('S-') ? `${SETTINGS_PATH}${line ? `:${line}` : ''}` : file === null ? result.folder : path.join(result.folder, file));
-  const text = (rule) => SETTINGS_RULES[rule] ?? FORMAT_RULES[rule] ?? COMMIT_RULES[rule] ?? CHANGE_RULES[rule] ?? AUDIT_RULES[rule];
-  const lines = result.violations.map((violation) => `${place(violation)}: ${printable(where(violation))}: [${violation.rule}] ${text(violation.rule)}${violation.detail ? ` (${printable(violation.detail)})` : ''}\n`);
+  const lines = result.violations.map((violation) => `${place(violation)}: ${printable(placeOf(violation, result.folder))}: [${violation.rule}] ${ruleText(violation.rule)}${violation.detail ? ` (${printable(violation.detail)})` : ''}\n`);
   const count = `audit: ${result.violations.length} violation${result.violations.length === 1 ? '' : 's'}, ${result.excused.length} excused, ${result.judged} commit${result.judged === 1 ? '' : 's'} judged\n`;
   return result.violations.length === 0 ? { code: 0, stdout: count, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + count };
+}
+
+function runAuditPlan(args, readFile) {
+  const options = readOptions(args, ['--head', '--from', '--since', '--repo', '--evidence', '--issues', '--now'], ['--adopted']);
+  if (!options || options.rest.length > 0 || !['--head', '--issues', '--now'].every((name) => options.values.has(name))) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  for (const name of ['--from', '--since']) if (only(name) !== undefined && !FULL_COMMIT_ID.test(only(name))) return usageError;
+  if (options.flags.has('--adopted') && only('--from') !== undefined) return usageError;
+  if (readTime(only('--now')) === null) return usageError;
+  const input = auditInput(options, readFile);
+  if (input.error) return input.error;
+  const issues = readInput(only('--issues'), readFile, readIssues);
+  if (issues.error) return issues.error;
+  let result;
+  try {
+    result = audit(only('--repo') ?? '.', only('--head'), { from: startOf(options), since: only('--since'), evidence: input.evidence });
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  return { code: 0, stdout: `${JSON.stringify(planAudit(result, issues.value, only('--now')))}\n`, stderr: '' };
 }
 
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
@@ -1971,7 +2243,8 @@ export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   if (command === 'config') return runConfig(args);
   if (command === 'check-pr') return runCheckPr(args, readFile, now());
   if (command === 'needs') return runNeeds(args);
-  if (command === 'audit') return runAudit(args);
+  if (command === 'audit') return runAudit(args, readFile);
+  if (command === 'audit-plan') return runAuditPlan(args, readFile);
   return usageError;
 }
 

@@ -39,6 +39,7 @@ It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no
 - [docs/settings.md](docs/settings.md): the settings file `.github/record-keeper/settings.yml`, the subset of YAML it is read in and what is wrong with a file, with [fixtures](test/fixtures/config/README.md).
 - [docs/checking-a-change.md](docs/checking-a-change.md): how a change is judged, which changes a sealed record allows, what needs the owners' approval, with [fixtures](test/fixtures/change/README.md).
 - [docs/audit.md](docs/audit.md): the audit core: what it reads, what it judges, what a note excuses, what it returns, with [fixtures](test/fixtures/audit/README.md).
+- [docs/audit-effects.md](docs/audit-effects.md): what the audit does with what it finds: the acts checked against the reviews that merged them (A-03), and the plan of incident issues, log lines and the record of the run, with [fixtures](test/fixtures/audit-effects/README.md).
 - [docs/applies-to.md](docs/applies-to.md): the dialect of the items of `applies-to`, and the two rules that keep a record from binding nothing.
 - [docs/amendments.md](docs/amendments.md): the bar for an amendment of the protocol or of the owners (all owners, seven days), and the key `emergency:` that waives the wait.
 - [docs/protected-files.md](docs/protected-files.md): the files that make the check, why a change to one is an act, and the rule against another workflow that names the check.
