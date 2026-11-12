@@ -201,9 +201,13 @@ function writesOf(plan) {
 
 const built = new Map();
 const eligible = [];
+// AUDIT_RUN_STRIDE=8 runs only every eighth of the cases from the history to the log branch: mutation testing (reference/fuzz/mutate_pr.py) uses it.
+const STRIDE = Number(process.env.AUDIT_RUN_STRIDE ?? 1);
 before(() => {
+  let counted = 0;
   for (const c of cases) {
     if (c.expect.code !== 0 || c.evidenceRaw !== undefined || c.evidenceHex !== undefined || c.issuesRaw !== undefined || c.since !== undefined) continue;
+    if ((counted += 1) % STRIDE !== 0 && STRIDE > 1) continue;
     const { repo, ids } = build(c);
     const adopted = findAdoption(repo, ids[c.head ?? c.commits.at(-1).id]);
     const wanted = c.adopted ? adopted : c.from ? (/^@.+@$/.test(c.from) ? ids[c.from.slice(1, -1)] : (ids[c.from] ?? c.from)) : null;
@@ -218,6 +222,7 @@ before(() => {
 
 describe('the cases of the effects, from the history to the requests and the log branch', () => {
   test('a good part of the cases can be run this way', () => {
+    if (STRIDE > 1) return;
     assert.ok(eligible.length >= 60, `only ${eligible.length} cases`);
     assert.ok(eligible.some((c) => c.expect.plan.issues.some((i) => i.action === 'close')));
     assert.ok(eligible.some((c) => c.expect.plan.issues.some((i) => i.action === 'reopen')));

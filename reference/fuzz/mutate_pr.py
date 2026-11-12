@@ -121,7 +121,9 @@ done = 0
 with concurrent.futures.ThreadPoolExecutor(workers) as ex:
     for n, i, d, killed in ex.map(run, list(enumerate(uniq))):
         done += 1
-        if not killed: survivors.append((i, d, uniq[n][1]))
+        if not killed:
+            survivors.append((i, d, uniq[n][1]))
+            print(f'survived L{i + 1}: {d}', flush=True)
         if done % 100 == 0: print(done, 'done,', len(survivors), 'survivors', flush=True)
 print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors)} survived')
 for i, d, new in sorted(survivors):
