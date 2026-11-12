@@ -97,7 +97,7 @@
       "file": "seal/a14-known-deviations-in-the-middle.record",
       "result": "seal",
       "seal": "sha256-g1:8bd38ecc8a1fd6d34ec1c6f345937164bbebb2594f06c743df4a0a9aaf803b35",
-      "note": "A Known deviations section between Consequences and Alternatives, where the Frodo core records keep it."
+      "note": "A Known deviations section between Consequences and Alternatives, where some repositories keep it."
     },
     {
       "id": "a15-errata-in-the-middle",

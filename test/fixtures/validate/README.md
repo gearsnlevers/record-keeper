@@ -25,7 +25,7 @@ An entry has these fields:
 | ---- | ---------------- |
 | `ok…` | A valid folder that a rule could be mistaken to reject: another layout of the index, CRLF, an extra key, a folder that must not be looked at, a record of exactly 60 lines. |
 | `badNN…` | A folder that breaks rule `V-NN`, and only that one unless the note says otherwise; the letter after the number tells the cases of one rule apart. |
-| `multi…` | A folder with problems of several rules. `multi01-frodo-cli-style` is what frodo-cli's records give today. |
+| `multi…` | A folder with problems of several rules. `multi01-value-and-deprecated` has the two problems that records in the field have today. |
 
 Almost every folder is the same small base (an index, a template, and three records of which one is superseded, one has every optional section and one has an Errata section) with one change. The folders that test a value-level rule, such as the dates, the names of the files, the credentials, the e-mail addresses, the issues, the statuses and the seals, hold one record for each value instead, so that one folder can try a dozen.
 

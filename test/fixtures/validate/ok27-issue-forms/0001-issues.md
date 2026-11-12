@@ -7,7 +7,7 @@ issues:
   - Owner-Name/repo.name_1#123
   - a/b#1
   - A9/Z_9#007
-  - rockcarver/frodo-lib#35
+  - example-org/example-repo#35
   - my_org.name/repo#1
 ---
 

@@ -235,7 +235,7 @@ case('bad13a-unknown-key', edit(F2, 'decision-makers:', 'tags: x\ndecision-maker
 case('bad13b-capitalised-key', edit(F2, 'decision-makers:', 'Title: x\ndecision-makers:'), [(F2, 'V-13')], 'Keys are lower case.')
 case('bad13c-extra-key-not-listed', edit(F2, 'decision-makers:\n  - maintainers\n', 'decision-makers:\n  - maintainers\nrepos:\n  - owner/one\n'), [(F2, 'V-13')], 'repos is an extra key: not allowed unless the settings list it.')
 case('bad13d-two-unknown-keys', edit(F2, 'decision-makers:', 'tags: x\nlabels: y\ndecision-makers:'), [(F2, 'V-13'), (F2, 'V-13')], 'Each unknown key is reported.')
-case('bad14a-decision-makers-as-value', edit(F2, 'decision-makers:\n  - maintainers\n', 'decision-makers: maintainers\n'), [(F2, 'V-14')], 'decision-makers is a list, here a single value (the form frodo-cli uses today).')
+case('bad14a-decision-makers-as-value', edit(F2, 'decision-makers:\n  - maintainers\n', 'decision-makers: maintainers\n'), [(F2, 'V-14')], 'decision-makers is a list, here a single value (a form that records in the field have).')
 case('bad14b-date-as-list', edit(F2, 'date: 2026-11-01', 'date:\n  - 2026-11-01'), [(F2, 'V-09', 'G1-12')], 'date as a list: g1 already refuses an excluded key with continuation lines.')
 case('bad14c-applies-to-as-value', edit(F1, 'applies-to:\n  - src/**\n', 'applies-to: src/**\n'), [(F1, 'V-14')], 'applies-to is a list.')
 case('bad14d-issues-as-value', edit(F1, 'issues:\n  - owner/repo#12\n', 'issues: owner/repo#12\n'), [(F1, 'V-14')], 'issues is a list.')
@@ -298,7 +298,7 @@ case('bad33b-status-in-longer-text', edit('README.md', '| 0002 | [Second decisio
 case('bad33c-empty-status-cell', edit('README.md', '| 0002 | [Second decision](0002-second-decision.md) | proposed |', '| 0002 | [Second decision](0002-second-decision.md) | |'), [(F2, 'V-33')], 'An empty status cell.')
 case('bad34a-title-differs', edit('README.md', '[Second decision]', '[Second choice]'), [(F2, 'V-34')], 'The row shows another title.')
 case('bad34b-title-case', edit('README.md', '[Second decision]', '[second decision]'), [(F2, 'V-34')], 'The title is compared as written.')
-case('multi01-frodo-cli-style', {**base(), F2: edit(F2, 'decision-makers:\n  - maintainers\n', 'decision-makers: maintainers\n')[F2], F3: swap(R3, 'status: accepted', 'status: deprecated')}, [(F2, 'V-14'), (F3, 'V-19')], 'A record with decision-makers as a value (V-14), and one that is deprecated (V-19): frodo-cli and frodo-lib have both today.')
+case('multi01-value-and-deprecated', {**base(), F2: edit(F2, 'decision-makers:\n  - maintainers\n', 'decision-makers: maintainers\n')[F2], F3: swap(R3, 'status: accepted', 'status: deprecated')}, [(F2, 'V-14'), (F3, 'V-19')], 'A record with decision-makers as a value (V-14), and one that is deprecated (V-19): records in the field have both today.')
 
 
 # ---- value-level rules: many records in one folder -----------------------------------------------------------------
@@ -353,7 +353,7 @@ bulk('ok26-near-emails', [{'slug': slug, 'title': f'Near {slug}', 'text': rec(f'
      'A top level of one letter, a scoped package name, a host with no dot, and an at sign with spaces are not addresses.')
 
 issues = lambda items: 'issues:\n' + ''.join(f'  - {i}\n' for i in items)
-bulk('ok27-issue-forms', [{'slug': 'issues', 'title': 'Issues', 'text': rec('Issues', extra=issues(['Owner-Name/repo.name_1#123', 'a/b#1', 'A9/Z_9#007', 'rockcarver/frodo-lib#35', 'my_org.name/repo#1']))}], 'Issues with hyphens, dots, underscores, capitals, digits and leading zeros.')
+bulk('ok27-issue-forms', [{'slug': 'issues', 'title': 'Issues', 'text': rec('Issues', extra=issues(['Owner-Name/repo.name_1#123', 'a/b#1', 'A9/Z_9#007', 'example-org/example-repo#35', 'my_org.name/repo#1']))}], 'Issues with hyphens, dots, underscores, capitals, digits and leading zeros.')
 bad_issues = ['/repo#1', 'owner/#1', 'owner/repo#', 'owner/repo#12x', 'owner/repo #1', 'owner/repo/extra#1', 'owner#1', 'owner/re po#1', 'owner/repo#-1']
 bulk('bad23d-issue-forms', [{'slug': f'issue-{i}', 'title': f'Issue {i}', 'text': rec(f'Issue {i}', extra=issues([b])), 'rules': ['V-23']} for i, b in enumerate(bad_issues)], 'Items that are not owner/repo#N: a missing owner, repository or number, text after the number, a space, a second slash, a negative number.')
 

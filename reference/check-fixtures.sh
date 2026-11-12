@@ -1,6 +1,6 @@
 #!/bin/sh
 # Rebuilds every generated fixture into a scratch folder and compares it with the committed one, byte for byte.
-# The README.md files in the fixture folders are written by hand and are not compared.
+# The README.md at the top of a fixture folder is written by hand and is not compared; the README.md files inside the case folders are generated and are.
 # Usage: reference/check-fixtures.sh      (needs python3 and git; takes a few minutes, most of it for the change cases)
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
@@ -15,7 +15,7 @@ report() { # name, exit status of the comparison
 
 folder() { # name, builder, committed folder
   python3 "$here/$2" "$tmp/$1" >"$tmp/$1.log" 2>&1 || { echo "FAILED    $1 (see below)"; tail -5 "$tmp/$1.log"; failed=1; return; }
-  diff -r -x README.md "$tmp/$1" "$3" >/dev/null; report "$1" $?
+  [ -z "$(diff -r "$tmp/$1" "$3" 2>&1 | grep -v "^Only in $3: README.md\$")" ]; report "$1" $?
 }
 
 file() { # name, builder, committed file, extra arguments of the builder
