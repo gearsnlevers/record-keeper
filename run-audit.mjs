@@ -262,9 +262,9 @@ function refused(result) {
 
 /**
  * Runs the audit. Returns { code, stdout, stderr } like the command line of record-keeper.mjs.
- * `fetch` is the one of Node, `timeout` the milliseconds for one request and `now` the clock; the tests replace them.
+ * `fetch` is the one of Node, `timeout` the milliseconds for one request, `now` the clock and `maxCommits` the limit of commits with acts; the tests replace them.
  */
-export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS, now = Date.now }) {
+export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS, now = Date.now, maxCommits = MAX_COMMITS }) {
   try {
     if (typeof token !== 'string' || !/^\S+$/.test(token)) throw new CannotRun('no token');
     const parts = typeof repo === 'string' ? repo.split('/') : [];
@@ -277,7 +277,7 @@ export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API,
     const listed = run(['audit', ...history, '--json']);
     if (listed.code !== 0) throw refused(listed);
     const commits = [...new Set(JSON.parse(listed.stdout).acts.map(({ commit }) => commit))];
-    if (commits.length > MAX_COMMITS) throw new CannotRun(`more than ${MAX_COMMITS} commits with acts`);
+    if (commits.length > maxCommits) throw new CannotRun(`more than ${maxCommits} commits with acts`);
     const evidence = await collectEvidence(context, commits, defaultBranch);
     const issuePages = await readPages(context, `${context.base}/repos/${context.repo}/issues?state=all&creator=${encodeURIComponent(BOT_LOGIN)}&per_page=100`, 'issues', (body) => body);
     const files = new Map([[EVIDENCE_FILE, Buffer.from(JSON.stringify(evidence))], [ISSUES_FILE, Buffer.from(JSON.stringify(issuePages))]]);

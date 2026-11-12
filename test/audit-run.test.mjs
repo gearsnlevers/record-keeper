@@ -65,19 +65,34 @@ function stream(label, tree, message, parents) {
   return Buffer.concat(out);
 }
 
-/** Builds the bare repository of a history; its branch `main` is the last commit. Returns { repo, ids }. */
+/**
+ * Builds the bare repository of a history; its branch `main` is the last commit. Returns { repo, ids }. A history in which no commit names another
+ * by its id is built by one fast-import; the others one commit after the other, because the id of an earlier commit goes into a later one.
+ */
 function build(c, name = c.id) {
   const repo = path.join(scratch, `${name}.git`);
   git(scratch, ['init', '-q', '--bare', repo]);
   const trees = new Map();
   const ids = {};
   const fill = (text) => text.replace(/@([a-z0-9]+)@/g, (_, label) => ids[label]);
+  const named = c.commits.some((commit) => /@[a-z0-9]+@/.test(commit.message + JSON.stringify(commit.changes)));
+  const streams = [];
   for (const commit of c.commits) {
     const before = commit.parents.length > 0 ? trees.get(commit.parents[0]) : new Map();
     const changes = commit.changes.map((change) => (change.content === undefined ? change : { ...change, content: fill(change.content) }));
     trees.set(commit.id, applyChanges(before, changes));
-    git(repo, ['fast-import', '--quiet'], stream(commit.id, trees.get(commit.id), fill(commit.message), commit.parents));
-    ids[commit.id] = git(repo, ['rev-parse', commit.id]);
+    const one = stream(commit.id, trees.get(commit.id), fill(commit.message), commit.parents);
+    if (named) {
+      git(repo, ['fast-import', '--quiet'], one);
+      ids[commit.id] = git(repo, ['rev-parse', commit.id]);
+    } else streams.push(one);
+  }
+  if (!named) {
+    git(repo, ['fast-import', '--quiet'], Buffer.concat(streams));
+    for (const line of git(repo, ['for-each-ref', '--format=%(refname:short) %(objectname)', 'refs/heads']).split('\n')) {
+      const [label, id] = line.split(' ');
+      ids[label] = id;
+    }
   }
   git(repo, ['update-ref', 'refs/heads/main', ids[c.head ?? c.commits.at(-1).id]]);
   git(repo, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
@@ -669,30 +684,35 @@ describe('when it cannot run', () => {
   });
 
   describe('a history with many commits that carry an act', () => {
+    // The limit is 300 in the program; the tests set it low, because the audit takes some 50 milliseconds for each commit.
     let many;
     before(() => {
       const base = byId('b01-the-author-is-an-owner');
       const spec = { id: 'many', commits: [{ ...base.commits[0] }] };
-      for (let i = 1; i <= 301; i++) spec.commits.push({ id: `c${i}`, parents: [`c${i - 1}`], message: `commit ${i}`, changes: [{ write: '.github/record-keeper.yml', content: `version: ${i + 1}\n` }] });
+      for (let i = 1; i <= 6; i++) spec.commits.push({ id: `c${i}`, parents: [`c${i - 1}`], message: `commit ${i}`, changes: [{ write: '.github/record-keeper.yml', content: `version: ${i + 1}\n` }] });
       many = { spec, ...build(spec, 'many') };
     });
 
-    test('more than 300: the run stops before it asks about any of them', async () => {
+    test('more than the limit: the run stops before it asks about any of them', async () => {
       const work = workdir(many.repo);
       const server = await serve(github(many.spec, many.ids));
-      assert.deepEqual(await runAudit(options({ now: '2026-11-10T03:00:00Z' }, work, server)), failure('more than 300 commits with acts'));
+      assert.deepEqual(await runAudit(options({ now: '2026-11-10T03:00:00Z' }, work, server, { maxCommits: 5 })), failure('more than 5 commits with acts'));
       assert.equal(server.requests.length, 1);
     });
 
-    test('exactly 300 are asked about, one after the other, and the violations are one issue', async () => {
+    test('exactly the limit: all are asked about, one after the other, and the violations are one issue', async () => {
       const work = workdir(many.repo);
-      git(work, ['reset', '--hard', '-q', many.ids.c300]);
       const server = await serve(github(many.spec, many.ids));
-      const got = await runAudit(options({ now: '2026-11-10T03:00:00Z' }, work, server));
+      const got = await runAudit(options({ now: '2026-11-10T03:00:00Z' }, work, server, { maxCommits: 6 }));
       assert.equal(got.code, 1, got.stderr);
-      assert.equal(server.requests.filter(({ path: route }) => route.endsWith('/pulls')).length, 300);
+      assert.equal(server.requests.filter(({ path: route }) => route.endsWith('/pulls')).length, 6);
       const [write] = writesOn(server);
-      assert.equal(write.body.body.split('\n').filter((line) => line.startsWith('- ')).length, 300);
+      assert.equal(write.body.body.split('\n').filter((line) => line.startsWith('- ')).length, 6);
+    });
+
+    test('the limit of the program is the 300 of the page', () => {
+      assert.match(fs.readFileSync(script, 'utf8'), /^const MAX_COMMITS = 300;$/m);
+      assert.match(fs.readFileSync(path.join(root, 'docs/audit-run.md'), 'utf8'), /`more than 300 commits with acts`/);
     });
   });
 });
