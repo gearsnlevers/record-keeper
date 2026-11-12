@@ -247,6 +247,8 @@ describe('the cases of the effects, from the history to the requests and the log
       let created = 1000;
       const said = plan.issues.map((a) => `${{ open: 'opened', update: 'updated', reopen: 'reopened', close: 'closed' }[a.action]} ${a.key} #${a.action === 'open' ? (created += 1) : a.number}`);
       assert.deepEqual(got.stdout.split('\n').filter((line) => /^(opened|updated|reopened|closed) /.test(line)), said, c.note);
+      const last = got.stdout.trimEnd().split('\n').at(-1);
+      assert.equal(last, `log: ${plan.log.length === 0 ? 'the record of the run' : `${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'} and the record of the run`} pushed to record-keeper/log`, c.note);
       const log = logOf(repo);
       assert.ok(log, 'the log branch was made');
       assert.deepEqual(log.files, ['README.md', 'incidents.jsonl', 'last-run.json']);
