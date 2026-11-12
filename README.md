@@ -21,15 +21,20 @@ node record-keeper.mjs check-pr --base <revision> --head <revision> [--reviews <
                                                # also judge deviation notes and the 48 hours of an erratum
 node record-keeper.mjs needs --base <revision> --head <revision>
                                                # print what check-pr needs looked up: cited issues and pull requests, and the clock
-node record-keeper.mjs audit --head <revision> [--from <commit>] [--since <commit>]
+node record-keeper.mjs audit --head <revision> [--from <commit> | --adopted] [--since <commit>] [--evidence <file>] [--json]
                                                # read the whole history up to the head: judge every first-parent commit by the rules of check-pr,
-                                               # keep the register of record numbers, and read the integrity of the tip
+                                               # keep the register of record numbers, and read the integrity of the tip; with the evidence of
+                                               # the reviews, also judge whether the acts were approved
+node record-keeper.mjs audit-plan --head <revision> [--adopted] --issues <file> --now <time> [--evidence <file>]
+                                               # print as JSON what to do with the incident issues, the log and the record of the run
 node check-pull-request.mjs --repo <owner/name> --pr <number>
-                                               # what the workflow runs: read the pull request from GitHub, then check-pr
+                                               # what the pull request workflow runs: read the pull request from GitHub, then check-pr
+node run-audit.mjs --repo <owner/name> [--dry-run]
+                                               # what the audit workflow runs: evidence from GitHub, the plan, the log branch and the incident issues
 npm test                                       # the library, the command line, the test vectors and the fixtures
 ```
 
-It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no network code and never writes a file; `check-pull-request.mjs` only reads from GitHub and adds git objects and two refs to the clone it runs in.
+It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no network code and never writes a file; `check-pull-request.mjs` only reads from GitHub and adds git objects and two refs to the clone it runs in; `run-audit.mjs` is the only part that writes, to the incident issues of the repository and to the branch `record-keeper/log`.
 
 - [docs/design.md](docs/design.md): what it is, the layers, how a pull request is checked, the audit, delivery, adoption, and what is decided and what is open.
 - [docs/decisions/](docs/decisions/README.md): the decisions of the kit itself. Record 0001 is the protocol.
@@ -40,6 +45,7 @@ It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no
 - [docs/checking-a-change.md](docs/checking-a-change.md): how a change is judged, which changes a sealed record allows, what needs the owners' approval, with [fixtures](test/fixtures/change/README.md).
 - [docs/audit.md](docs/audit.md): the audit core: what it reads, what it judges, what a note excuses, what it returns, with [fixtures](test/fixtures/audit/README.md).
 - [docs/audit-effects.md](docs/audit-effects.md): what the audit does with what it finds: the acts checked against the reviews that merged them (A-03), and the plan of incident issues, log lines and the record of the run, with [fixtures](test/fixtures/audit-effects/README.md).
+- [docs/audit-run.md](docs/audit-run.md): the audit run every night: the workflow, the program that asks GitHub for the evidence and writes the incident issues and the log branch, what it does when it cannot run, and the ruleset a repository must set on the log branch.
 - [docs/applies-to.md](docs/applies-to.md): the dialect of the items of `applies-to`, and the two rules that keep a record from binding nothing.
 - [docs/amendments.md](docs/amendments.md): the bar for an amendment of the protocol or of the owners (all owners, seven days), and the key `emergency:` that waives the wait.
 - [docs/protected-files.md](docs/protected-files.md): the files that make the check, why a change to one is an act, and the rule against another workflow that names the check.

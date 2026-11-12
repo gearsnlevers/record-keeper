@@ -23,6 +23,9 @@ const LOG_BRANCH = 'record-keeper/log';
 const LOG_REF = `refs/heads/${LOG_BRANCH}`;
 const LOG_LOCAL = 'refs/record-keeper/log';
 const PUSH_ATTEMPTS = 3;
+// What git says when another writer was first (the branch moved, or was made in between), and what it says when a rule or a hook refuses.
+const LOST_RACE = /non-fast-forward|fetch first|\[rejected\]|cannot lock ref|failed to update ref|reference already exists|incorrect old value/;
+const REFUSED = /GH0\d\d|rule violations|declined|permission denied|denied/i;
 const BOT_IDENTITY = { GIT_AUTHOR_NAME: BOT_LOGIN, GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com' };
 const EVIDENCE_FILE = 'evidence.json';
 const ISSUES_FILE = 'issues.json';
@@ -238,7 +241,7 @@ function writeLog(cwd, plan, head, at) {
       git(cwd, ['push', '--quiet', 'origin', `${commit}:${LOG_REF}`]);
       return;
     } catch (error) {
-      if (!(error instanceof CannotRun) || !/non-fast-forward|fetch first|\[rejected\]/.test(error.message) || /remote rejected|GH0/.test(error.message)) throw error;
+      if (!(error instanceof CannotRun) || !LOST_RACE.test(error.message) || REFUSED.test(error.message)) throw error;
     }
   }
   throw new CannotRun(`could not push the log after ${PUSH_ATTEMPTS} attempts`);
