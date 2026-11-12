@@ -820,3 +820,243 @@ describe('a connection that was reset', () => {
     assert.equal(dry.server.requests.filter(({ path: route }) => route === `/repos/${REPO}`).length, 1, 'a dry run writes nothing and needs no fresh connection');
   });
 });
+
+// ---- the details that mutation testing asked for ------------------------------------------------------------------------------------------------
+describe('the shapes of what GitHub answers, to the character', () => {
+  const HEAD = 'e'.repeat(40);
+  const failsAs = (id, query = '?per_page=100') => ({ code: 2, stdout: '', stderr: `Records audit could not run: the answer to /repos/o/r/commits/${id}/pulls${query} is not what the audit needs\n` });
+  /** One scenario whose list of pull requests the test changes from call to call; every pull request in it is made against another branch, so none brings the act in. */
+  async function listing() {
+    const state = { list: [] };
+    const s = await scenario('b01-the-author-is-an-owner', {
+      over: (method, route) => (method === 'GET' && /\/commits\/[0-9a-f]+\/pulls$/.test(route) ? { body: state.list } : undefined),
+    });
+    // b01 has an act in its commit and no evidence in the case: the pull requests are the answer of the server, so list them for that commit
+    return { s, state, id: s.ids.c1 };
+  }
+  const pull = (over) => ({ number: 5, user: { id: 1001 }, head: { sha: HEAD }, merged_at: '2026-11-09T12:00:00Z', merge_commit_sha: null, base: { ref: 'dev' }, state: 'closed', ...over });
+
+  test('a time is YYYY-MM-DDTHH:MM:SSZ with a month, a day, an hour, a minute and a second that exist: every digit of every field', async () => {
+    const { s, state } = await listing();
+    const good = ['2026-01-01T00:00:00Z', '2026-09-10T09:19:20Z', '2026-10-20T10:20:29Z', '2026-11-30T19:59:59Z', '2026-12-09T23:01:30Z', '2026-02-19T12:34:56Z'];
+    state.list = good.map((merged_at, index) => pull({ number: index + 1, merged_at }));
+    const got = await runAudit(options(s.c, s.work, s.server, { dryRun: true }));
+    assert.doesNotMatch(got.stderr, /is not what the audit needs/, got.stderr);
+    for (const merged_at of ['2026-00-01T00:00:00Z', '2026-13-01T00:00:00Z', '2026-01-00T00:00:00Z', '2026-01-32T00:00:00Z', '2026-01-01T24:00:00Z', '2026-01-01T00:60:00Z', '2026-01-01T00:00:60Z',
+      '2026-01-01T00:00:00', '2026-01-01T00:00:00.000Z', ' 2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z ', 'x2026-01-01T00:00:00Z', '2026-01-01T00:00:00Zx', '2026-01-01 00:00:00Z', '2026-1-01T00:00:00Z', '26-01-01T00:00:00Z', '2026-01-01t00:00:00z']) {
+      state.list = [pull({ merged_at })];
+      assert.deepEqual(await runAudit(options(s.c, s.work, s.server, { dryRun: true })), failsAs(s.ids.c1), merged_at);
+    }
+  });
+
+  test('an identifier is a whole number from 1 to 999999999999999', async () => {
+    const { s, state } = await listing();
+    state.list = [pull({ number: 1, user: { id: 1 } }), pull({ number: 999_999_999_999_999, user: { id: 999_999_999_999_999 } }), pull({ number: 2, user: null })];
+    assert.doesNotMatch((await runAudit(options(s.c, s.work, s.server, { dryRun: true }))).stderr, /is not what the audit needs/);
+    for (const over of [{ number: 0 }, { number: -1 }, { number: 1.5 }, { number: 1e15 }, { number: '5' }, { number: null }, { user: { id: 0 } }, { user: { id: 1e15 } }, { user: { id: 1.5 } }, { user: { id: '1' } }, { user: 5 }]) {
+      state.list = [pull(over)];
+      assert.deepEqual(await runAudit(options(s.c, s.work, s.server, { dryRun: true })), failsAs(s.ids.c1), JSON.stringify(over));
+    }
+  });
+});
+
+describe('the address of the API', () => {
+  test('trailing slashes are dropped, and a path in front of the routes is kept (a server of GitHub Enterprise)', async () => {
+    const c = byId('b01-the-author-is-an-owner');
+    const { repo, ids } = build(c, `prefix-${(worlds += 1)}`);
+    const inner = github(c, ids);
+    const server = await serve((method, route, query, body, seen, origin) => (route.startsWith('/ghe/api/v3/') ? inner(method, route.slice('/ghe/api/v3'.length), query, body, seen, origin) : undefined));
+    for (const slashes of ['', '/', '//', '///']) {
+      const work = workdir(repo);
+      const got = await runAudit(options(c, work, server, { api: `${server.url}/ghe/api/v3${slashes}`, dryRun: true }));
+      assert.equal(got.code, 0, `${slashes}: ${got.stderr}`);
+    }
+    assert.ok(server.requests.every(({ path: route }) => route.startsWith('/ghe/api/v3/repos/o/r')));
+    const bare = await serve(github(c, ids));
+    assert.equal((await runAudit(options(c, workdir(repo), bare, { api: `${bare.url}/`, dryRun: true }))).code, 0);
+    assert.ok(bare.requests.every(({ path: route }) => route.startsWith('/repos/o/r')));
+  });
+
+  test('the names of a repository: letters, digits, dot, underscore and hyphen, one to a hundred characters each', async () => {
+    const c = byId('b01-the-author-is-an-owner');
+    const { repo } = build(c, `names-${(worlds += 1)}`);
+    const none = await serve(() => undefined);
+    const work = workdir(repo);
+    const message = (name) => `Records audit could not run: GET /repos/${name} answered 404\n`;
+    for (const name of ['a/b', 'A/Z', 'Own-er_1.x/Re-po_2.y', '0/9', 'z/_', '-/.x', `${'x'.repeat(100)}/${'y'.repeat(100)}`]) {
+      assert.equal((await runAudit(options(c, work, none, { repo: name }))).stderr, message(name), name);
+    }
+    for (const name of [`${'x'.repeat(101)}/y`, `x/${'y'.repeat(101)}`, 'a b/c', 'a/c!', 'a/é', 'a:b/c', 'a/b/c']) {
+      assert.equal((await runAudit(options(c, work, none, { repo: name }))).stderr, 'Records audit could not run: repository: must be owner/name\n', name);
+    }
+  });
+});
+
+describe('what the messages and the links look like', () => {
+  const throwing = (error) => () => { throw error; };
+
+  test('a message of an error is cut at 200 characters, and comes from the cause, its code, or the error itself, in that order', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    const run = async (error) => (await runAudit(options(s.c, s.work, s.server, { fetch: throwing(error) }))).stderr;
+    const long = 'x'.repeat(300);
+    assert.equal(await run(Object.assign(new TypeError('outer'), { cause: new Error(long) })), `Records audit could not run: GET /repos/o/r failed: ${'x'.repeat(200)}\n`);
+    assert.equal(await run(Object.assign(new TypeError('outer'), { cause: Object.assign(new Error(''), { code: 'ECODE' }) })), 'Records audit could not run: GET /repos/o/r failed: ECODE\n');
+    assert.equal(await run(Object.assign(new TypeError('outer'), { cause: new Error('inner') })), 'Records audit could not run: GET /repos/o/r failed: inner\n');
+    assert.equal(await run(new TypeError(`${long}`)), `Records audit could not run: GET /repos/o/r failed: ${'x'.repeat(200)}\n`);
+    assert.equal(await run(new TypeError('plain')), 'Records audit could not run: GET /repos/o/r failed: plain\n');
+  });
+
+  test('a message of git is cut at 400 characters', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    git(s.work, ['remote', 'set-url', 'origin', `/no/such/${'p'.repeat(600)}`]);
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 2);
+    const message = got.stderr.replace(/^Records audit could not run: /, '').replace(/\n$/, '');
+    assert.match(message, /^git ls-remote failed: /);
+    assert.equal(message.length, 400);
+  });
+
+  test('the link to the next page is the one marked next, among others, with or without a space, and not one that only contains the word', async () => {
+    const link = (header) => async () => {
+      const s = await scenario('b01-the-author-is-an-owner', {
+        over: (method, route, query, body, seen, origin) => (method === 'GET' && route === `/repos/${REPO}/issues`
+          ? (query.get('page') === '2' ? { body: [] } : { body: [], headers: { link: header(`${origin}${route}?page=2`) } }) : undefined),
+      });
+      await runAudit(options(s.c, s.work, s.server, { dryRun: true }));
+      return s.server.requests.filter(({ path: route }) => route === `/repos/${REPO}/issues`).length;
+    };
+    for (const header of [(u) => `<${u}>; rel="next"`, (u) => `<${u}>;rel="next"`, (u) => `<${u}>;   rel="next"`, (u) => `<${u}>; rel="prev next"`, (u) => `<${u}>; rel="next last"`, (u) => `<${u}>; rel="first next last"`,
+      (u) => `<http://127.0.0.1:1/p>; rel="prev", <${u}>; rel="next"`, (u) => `<${u}>; rel="next"; title="x"`]) {
+      assert.equal(await link(header)(), 2, header('U'));
+    }
+    for (const header of [(u) => `<${u}>; rel="nextish"`, (u) => `<${u}>; rel="xnext"`, (u) => `<${u}>; rel="prev"`, (u) => `<${u}>; rel=next`, (u) => `<${u}>`, () => 'nonsense']) {
+      assert.equal(await link(header)(), 1, header('U'));
+    }
+  });
+
+  test('every listing asks for a hundred in a page, and the check runs for the one check', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    await runAudit(options(s.c, s.work, s.server));
+    const lists = s.server.requests.filter(({ method, path: route }) => method === 'GET' && route !== `/repos/${REPO}`);
+    assert.ok(lists.length >= 4);
+    for (const { path: route, query } of lists) assert.equal(query.get('per_page'), '100', route);
+  });
+
+  test('the time of the run is written without the thousandths', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    await runAudit(options(s.c, s.work, s.server, { now: () => Date.parse('2026-11-10T03:00:00Z') + 789 }));
+    assert.equal(JSON.parse(logOf(s.repo).last).at, '2026-11-10T03:00:00Z');
+  });
+
+  test('with one run of the check by the app, that run is the start', async () => {
+    const c = byId('b20-erratum-too-soon');
+    const s = await scenario('b20-erratum-too-soon', {
+      over: (method, route) => (method === 'GET' && route.endsWith('/check-runs') ? { body: { check_runs: [{ name: 'Records integrity', app: { slug: 'github-actions' }, started_at: '2026-11-09T11:00:00Z' }] } } : undefined),
+    });
+    const got = await runAudit(options(c, s.work, s.server, { dryRun: true }));
+    assert.match(got.stderr, /\(1h of 48h\)/);
+  });
+});
+
+describe('the push, to the end', () => {
+  test('three attempts are made, no more and no fewer', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    const racer = path.join(scratch, `counted-${worlds}.git`);
+    git(scratch, ['init', '-q', '--bare', racer]);
+    const blob = git(s.work, ['hash-object', '-w', '--stdin'], 'x\n');
+    const tree = git(s.work, ['mktree'], `100644 blob ${blob}\tincidents.jsonl\n`);
+    git(s.work, ['push', '--quiet', racer, `${git(s.work, ['commit-tree', tree, '-m', 'first'])}:refs/heads/record-keeper/log`]);
+    const calls = path.join(scratch, `attempts-${worlds}`);
+    fs.mkdirSync(path.join(s.work, '.git', 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(s.work, '.git', 'hooks', 'pre-push'), `#!/bin/sh\necho x >> '${calls}'\nexit 0\n`, { mode: 0o755 });
+    git(s.work, ['config', 'remote.origin.pushurl', racer]);
+    assert.match((await runAudit(options(s.c, s.work, s.server))).stderr, /could not push the log after 3 attempts/);
+    assert.equal(fs.readFileSync(calls, 'utf8'), 'x\nx\nx\n');
+  });
+
+  test('a push that fails for another reason is not a lost race: it is not tried again, and its message is shown', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    git(s.work, ['config', 'remote.origin.pushurl', path.join(scratch, 'no-such-repository.git')]);
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 2);
+    assert.match(got.stderr, /^Records audit could not run: git push failed: .*no-such-repository/s);
+    assert.doesNotMatch(got.stderr, /attempts/);
+    assert.equal(writesOn(s.server).length, 0);
+  });
+});
+
+describe('more details', () => {
+  test('without GITHUB_API_URL the program talks to api.github.com (the test refuses to let it)', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    const got = await runCli(['--repo', REPO, '--dry-run'], { GITHUB_TOKEN: 'tok' }, { cwd: s.work });
+    assert.deepEqual(got, { code: 2, stdout: '', stderr: 'Records audit could not run: GET /repos/o/r failed: a test made a request to https://api.github.com/repos/o/r\n' });
+    const empty = await runCli(['--repo', REPO, '--dry-run'], { GITHUB_TOKEN: 'tok', GITHUB_API_URL: '' }, { cwd: s.work });
+    assert.equal(empty.stderr, got.stderr);
+  });
+
+  test('an address that is https is taken whatever the host; http only for this machine, by name or by number', async () => {
+    const s = await scenario('b01-the-author-is-an-owner');
+    assert.equal((await runAudit(options(s.c, s.work, s.server, { api: 'https://api.example.com/v3' }))).stderr, 'Records audit could not run: GET /repos/o/r failed: a test made a request to https://api.example.com/v3/repos/o/r\n');
+    const port = new URL(s.server.url).port;
+    for (const host of ['localhost', '127.0.0.1']) assert.equal((await runAudit(options(s.c, s.work, s.server, { api: `http://${host}:${port}`, dryRun: true }))).code, 0, host);
+    for (const api of ['http://localhosts', 'http://127.0.0.2', 'http://example.com', 'ws://localhost', 'file:///x']) {
+      assert.equal((await runAudit(options(s.c, s.work, s.server, { api }))).stderr, 'Records audit could not run: API address: must be an https address without credentials, query or fragment\n', api);
+    }
+    for (const api of ['https://u@example.com', 'https://:p@example.com', 'https://example.com?', 'https://example.com#']) {
+      assert.equal((await runAudit(options(s.c, s.work, s.server, { api }))).stderr, 'Records audit could not run: API address: must be an https address without credentials, query or fragment\n', api);
+    }
+  });
+
+  test('every request asks for the JSON of GitHub, with the token, in the version the program was written for', async () => {
+    const s = await scenario('b02-no-owner-approved');
+    await runAudit(options(s.c, s.work, s.server));
+    for (const { headers, method, path: route } of s.server.requests) {
+      assert.equal(headers.accept, 'application/vnd.github+json', route);
+      assert.equal(headers.authorization, 'Bearer tok', route);
+      assert.equal(headers['x-github-api-version'], '2022-11-28', route);
+      assert.equal(headers['content-type'], method === 'GET' ? undefined : 'application/json', route);
+    }
+  });
+
+  test('a connection that was reset is tried again whatever the code that says so, and a timeout is not', async () => {
+    const error = (code) => Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error(code), { code }) });
+    for (const code of ['ECONNRESET', 'EPIPE', 'UND_ERR_SOCKET']) {
+      const s = await scenario('b01-the-author-is-an-owner');
+      let first = true;
+      const fetch = (url, init) => { if (first && init.method === 'GET') { first = false; throw error(code); } return globalThis.fetch(url, init); };
+      assert.equal((await runAudit(options(s.c, s.work, s.server, { fetch, dryRun: true }))).code, 0, code);
+    }
+    const s = await scenario('b01-the-author-is-an-owner');
+    let calls = 0;
+    const fetch = () => { calls += 1; throw error('ETIMEDOUT'); };
+    assert.equal((await runAudit(options(s.c, s.work, s.server, { fetch }))).stderr, 'Records audit could not run: GET /repos/o/r failed: ETIMEDOUT\n');
+    assert.equal(calls, 1);
+  });
+
+  test('evidence that the audit cannot read is named: the file is evidence.json, and the plan does not run', async () => {
+    const s = await scenario('b02-no-owner-approved', {
+      over: (method, route) => (method === 'GET' && /\/commits\/[0-9a-f]+\/pulls$/.test(route) ? { body: [{ number: 5, user: { id: 1 }, head: { sha: 'abc' }, merged_at: '2026-11-09T12:00:00Z', merge_commit_sha: null, base: { ref: 'main' }, state: 'closed' }] } : undefined),
+    });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.deepEqual(got, { code: 2, stdout: '', stderr: `Records audit could not run: the audit could not read the history: evidence.json: ${s.ids.c1}: pull: head.sha is not a full commit id\n` });
+    assert.equal(writesOn(s.server).length, 0);
+    assert.equal(logOf(s.repo), null);
+  });
+
+  test('a listing that does not end is named by what it lists: pull requests, reviews, check runs', async () => {
+    const endless = (suffix) => async (id, scenarioName) => {
+      const s = await scenario(scenarioName, {
+        over: (method, route, query, body, seen, origin) => {
+          if (method !== 'GET' || !route.endsWith(suffix)) return undefined;
+          const next = `${origin}${route}?page=${Number(query.get('page') ?? 1) + 1}`;
+          const headers = { link: `<${next}>; rel="next"` };
+          return suffix === '/check-runs' ? { body: { check_runs: [] }, headers } : { body: [], headers };
+        },
+      });
+      return runAudit(options(s.c, s.work, s.server, { dryRun: true }));
+    };
+    assert.equal((await endless('/pulls')('x', 'b02-no-owner-approved')).stderr, 'Records audit could not run: more than 200 pages of pull requests\n');
+    assert.equal((await endless('/reviews')('x', 'b03-an-owner-approved-the-head')).stderr, 'Records audit could not run: more than 200 pages of reviews\n');
+    assert.equal((await endless('/check-runs')('x', 'b20-erratum-too-soon')).stderr, 'Records audit could not run: more than 200 pages of check runs\n');
+  });
+});
