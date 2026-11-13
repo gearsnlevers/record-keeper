@@ -211,10 +211,21 @@ describe('reading a commit', () => {
       }
       return hash.digest('hex');
     };
-    const leftovers = () => fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('record-keeper-attributes-')).sort();
-    const before = [snapshot(), leftovers()];
-    assert.ok(validateCommit(real, 'HEAD', folder).length > 0);
-    assert.deepEqual([snapshot(), leftovers()], before);
+    // The other test files run at the same time and make such a folder too, in the shared temporary folder: this test looks in a folder of its own.
+    const own = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-own-tmp-'));
+    const savedTmp = process.env.TMPDIR;
+    process.env.TMPDIR = own;
+    try {
+      const leftovers = () => fs.readdirSync(own).sort();
+      const before = [snapshot(), leftovers()];
+      assert.deepEqual(before[1], []);
+      assert.ok(validateCommit(real, 'HEAD', folder).length > 0);
+      assert.deepEqual([snapshot(), leftovers()], before);
+    } finally {
+      if (savedTmp === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = savedTmp;
+      fs.rmSync(own, { recursive: true, force: true });
+    }
   });
 
   test('accepts the revisions git accepts, and a folder written in other ways', () => {
