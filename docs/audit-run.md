@@ -1,6 +1,6 @@
 # The audit run
 
-Status: draft for review (M2.9b). This page says how the audit runs every night: the workflow, the program `run-audit.mjs` that asks GitHub for the evidence, plans with [the effects of the audit](audit-effects.md) and carries the plan out, the branch `record-keeper/log` that it writes, what it does when it cannot run, and what a repository must set. It is not part of the protocol. It is the second program of the kit that talks to the network, and the only one that writes. [The audit](audit.md) and [its effects](audit-effects.md) say what is found and what is planned; this page is the plumbing between them and GitHub.
+Status: draft for review (M2.9b, with the announcements of M2.9c). This page says how the audit runs every night: the workflow, the program `run-audit.mjs` that asks GitHub for the evidence, plans with [the effects of the audit](audit-effects.md) and carries the plan out, the branch `record-keeper/log` that it writes, what it does when it cannot run, and what a repository must set. It is not part of the protocol. It is the second program of the kit that talks to the network, and the only one that writes. [The audit](audit.md) and [its effects](audit-effects.md) say what is found and what is planned; this page is the plumbing between them and GitHub.
 
 Two files make the run. `.github/workflows/records-audit.yml` is the workflow. `run-audit.mjs` is the program it runs. Both are guarded as acts ([the files of the check](protected-files.md)). `check-pull-request.mjs`, which runs with a token that only reads for any pull request, has no code that writes; this one has, and nothing else runs with its token.
 
@@ -26,17 +26,18 @@ Two files make the run. `.github/workflows/records-audit.yml` is the workflow. `
    4. The entry is `{ "pull": { "number", "user": { "id" } or null, "head": { "sha" }, "merged_at" }, "started", "reviews" }`, or `{ "pull": null, "started": null, "reviews": [] }`. These are the fields [the evidence file](audit-effects.md#evidence---evidence-file) reads.
 4. **Read the issues** that the bot wrote: `GET /repos/{repo}/issues?state=all&creator=github-actions%5Bbot%5D&per_page=100`, every page, kept as pages. The filter only makes the list short; the plan trusts what is in the answer, not the filter.
 5. **Plan:** `audit-plan --head HEAD --adopted --evidence <evidence> --issues <issues> --now <the time of the run>`. The files are held in memory and never written. The time is the clock of the runner, written like `2026-11-12T03:17:05Z`.
-6. **Say what the audit says:** what `audit --adopted --evidence` prints for the same history, on the standard output and the standard error, so that the job log shows the violations that stand, also when no issue has changed.
-7. **A dry run stops here.** It prints what it would do (below) and writes nothing: no log, no issue.
-8. **Write the log** ([the log branch](#the-log-branch)): the entries of the plan and the record of the run.
-9. **Make a fresh connection,** with one more `GET /repos/{repo}`: the audit and the log took their time, and a connection that the server closed meanwhile would fail the first write. Then **carry out the issue actions** of the plan, in its order: `open` is `POST /repos/{repo}/issues` with `title` and `body`; `update` is `PATCH /repos/{repo}/issues/{number}` with `title` and `body`; `reopen` is the same with `state: "open"`; `close` is `PATCH` with `state: "closed"`, `state_reason` `completed` (`not_planned` for a duplicate) and `body`.
-10. **Print the summary and end.** The exit status is 1 when the plan says `failed`, otherwise 0.
+6. **Plan the announcements** ([announcements](announcements.md)): `announce-plan --head HEAD --adopted --evidence <evidence> --issues <issues> --logins <logins> --now <the time of the run>`, first with an empty `logins` object. When the plan has `lookups`, the run reads each account, once, in ascending order (`GET /user/{id}`: the `login` of a 200, `null` for a 404, anything else is a reason not to run), and plans again with the answers. The files are held in memory.
+7. **Say what the audit says:** what `audit --adopted --evidence` prints for the same history, on the standard output and the standard error, so that the job log shows the violations that stand, also when no issue has changed.
+8. **A dry run stops here.** It prints what it would do (below) and writes nothing: no log, no issue. It has read the accounts, as a read.
+9. **Write the log** ([the log branch](#the-log-branch)): the entries of the plan, the lines of the announcements and the record of the run.
+10. **Make a fresh connection,** with one more `GET /repos/{repo}`: the audit and the log took their time, and a connection that the server closed meanwhile would fail the first write. Then **carry out the issue actions** of the plan, in its order: `open` is `POST /repos/{repo}/issues` with `title` and `body`; `update` is `PATCH /repos/{repo}/issues/{number}` with `title` and `body`; `reopen` is the same with `state: "open"`; `close` is `PATCH` with `state: "closed"`, `state_reason` `completed` (`not_planned` for a duplicate) and `body`. Then **one `POST /repos/{repo}/issues` for each announcement**, in the order of the plan, with `title` and `body`, **a second apart** (the first at once): GitHub asks a client that makes several issues to wait between them. A request that GitHub refuses ends the run with 2; the announcements that were not made are made by the next run, which finds the issues that exist.
+11. **Print the summary and end.** The exit status is 1 when the plan says `failed`, otherwise 0. An announcement never changes it.
 
-The log is written before any issue is touched: if an issue request fails, the run ends with 2 and the next run plans the same effect again, so the log may then repeat an event but never lose one.
+The log is written before any issue is touched: if an issue request fails, the run ends with 2 and the next run plans the same effect again, so the log may then repeat an event but never lose one. That holds for the announcements too: the line of an announcement that was not made is written again by the run that makes it.
 
 ### What it prints
 
-After the lines of step 6, one line for each action of the plan: `opened <key> #<number>`, `updated <key> #<number>`, `reopened <key> #<number>`, `closed <key> #<number>` (`would open <key>`, `would update <key> #<number>` and so on in a dry run). Then, in a run that wrote, `log: <n> entries and the record of the run pushed to record-keeper/log`, or `log: the record of the run pushed to record-keeper/log` when there is no entry; in a dry run `dry run: nothing was written`.
+After the lines of step 7, one line for each action of the plan: `opened <key> #<number>`, `updated <key> #<number>`, `reopened <key> #<number>`, `closed <key> #<number>` (`would open <key>`, `would update <key> #<number>` and so on in a dry run), and one for each announcement, `announced <commit> #<number>` (`would announce <commit>`). Then, in a run that wrote, `log: <n> entries and the record of the run pushed to record-keeper/log`, or `log: the record of the run pushed to record-keeper/log` when there is no entry; in a dry run `dry run: nothing was written`.
 
 ## The log branch
 
@@ -45,10 +46,11 @@ The branch is `record-keeper/log`. It holds, at its root:
 | File | What |
 | ---- | ---- |
 | `incidents.jsonl` | The entries of the `log` of every plan, one JSON document on each line, appended. Never rewritten by the program. |
+| `announcements.jsonl` | The `log` of every plan of announcements, one JSON document on each line, appended. Made by the first announcement; a run that announces nothing leaves it as it is. |
 | `last-run.json` | The `run` of the last plan, one line, replaced at every run. It is what the setup check (M3) reads to see that the audit runs. |
-| `README.md` | Written when the branch is made: what the two files are. |
+| `README.md` | Written when the branch is made: what the files are. |
 
-- **One commit for each run,** also when the plan has no entry: the record of the run changes every time. The commit has the author and the committer `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`, the time of the run, and the message `Audit of <head> at <at>: <violations> violations, <entries> entries` (`1 violation` and `1 entry` in the singular).
+- **One commit for each run,** also when the plan has no entry: the record of the run changes every time. The commit has the author and the committer `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`, the time of the run, and the message `Audit of <head> at <at>: <violations> violations, <entries> entries` (`1 violation` and `1 entry` in the singular), with `, <n> announcements` (`1 announcement`) added when the run announced something.
 - **The commit is made without a work tree,** from the blobs and trees of git itself, on top of the tip of the branch as the remote has it. The first run makes the branch with no parent. The clone is left as it was, but for git objects and, once the branch exists, the ref `refs/record-keeper/log` that holds the tip that was fetched.
 - **A push is never forced.** If the remote refuses it because the branch moved, the program fetches the new tip, builds the commit again on top of it (the entries are appended to the file as it now is) and pushes again, three times at most. A refusal for any other reason, or a third refusal, ends the run with 2.
 - **A file that does not end in a line feed** gets one before the entries are appended, so a line that was cut short stays a line of its own.
@@ -72,6 +74,7 @@ The program ends with the status 2 and prints `Records audit could not run:` and
 | `several merged pull requests name the commit <id>: #<a>, #<b>` | step 3.2. |
 | `git <command> failed: <message>` | git could not do what the log needs, with its message printed without control characters. |
 | `could not push the log after 3 attempts` | the branch moved every time. |
+| `logins.json: <id>: is neither a login nor null` | GitHub gave a login that does not have the form of one (the account of an owner or a witness is an app, for example). Nothing is written. |
 
 A failure of the kit's own commands is the same as when a person runs them: `audit` and `audit-plan` end with 2 for input they cannot use ([the effects](audit-effects.md)).
 
@@ -100,7 +103,7 @@ On 2026-11-13, with the workflow on `main` (it ran on Node 24 with npm 11.19.1; 
 
 ## What this does not do
 
-- **It does not announce** an act that was approved (M2.9c), and it does not post the diff of an erratum.
+- **It does not announce** an act that was not approved, or an acceptance ([announcements](announcements.md#what-this-does-not-do)).
 - **It does not ping a monitor outside the repository** (a dead-man's switch is a later option), and it does not read `last-run.json` back; the setup check (M3) does.
 - **It does not keep the evidence of earlier runs.** Every run asks again for every commit with an act, which is why there is a limit.
 - **It does not restrict who writes the log branch.** The ruleset keeps its history; it cannot keep a person with write access from adding to it, because the token of a workflow cannot be put on the list of those who may.

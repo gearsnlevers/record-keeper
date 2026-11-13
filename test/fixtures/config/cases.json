@@ -9,7 +9,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -24,7 +25,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -39,7 +41,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -54,7 +57,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -69,7 +73,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -84,7 +89,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -99,7 +105,8 @@
      "sharedFolder": "core",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -116,7 +123,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -135,7 +143,8 @@
       "x_y"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -150,7 +159,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -165,7 +175,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -183,7 +194,8 @@
       "b"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -200,7 +212,8 @@
       "a"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -215,7 +228,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -232,7 +246,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -247,7 +262,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -266,7 +282,8 @@
       "On"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -285,7 +302,8 @@
       "c"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -300,7 +318,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -315,7 +334,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -333,7 +353,8 @@
       "a"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -350,7 +371,8 @@
       "status"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -365,7 +387,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -380,7 +403,8 @@
      "sharedFolder": "c#d",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -395,7 +419,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -412,7 +437,8 @@
       "a"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -427,7 +453,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -442,7 +469,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -463,7 +491,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -478,7 +507,8 @@
      "sharedFolder": ".gitx",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -505,7 +535,8 @@
       "nullx"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -520,7 +551,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -535,7 +567,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -550,7 +583,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -565,7 +599,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -580,7 +615,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -599,7 +635,8 @@
       "A1_b-C"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -614,7 +651,8 @@
      "sharedFolder": "x.git",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -629,7 +667,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -650,7 +689,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -671,7 +711,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -692,7 +733,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -713,7 +755,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -734,7 +777,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -755,7 +799,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -776,7 +821,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -797,7 +843,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -818,7 +865,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -839,7 +887,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -860,7 +909,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -881,7 +931,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -902,7 +953,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -923,7 +975,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -944,7 +997,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -965,7 +1019,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -986,7 +1041,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1007,7 +1063,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1028,7 +1085,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1049,7 +1107,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1070,7 +1129,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1091,7 +1151,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1112,7 +1173,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1133,7 +1195,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -1148,7 +1211,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1169,7 +1233,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -1184,7 +1249,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1205,7 +1271,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1231,7 +1298,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1257,7 +1325,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1278,7 +1347,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1299,7 +1369,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1320,7 +1391,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1341,7 +1413,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1362,7 +1435,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1383,7 +1457,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1404,7 +1479,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1425,7 +1501,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1446,7 +1523,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1467,7 +1545,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1488,7 +1567,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1509,7 +1589,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1530,7 +1611,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1551,7 +1633,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1572,7 +1655,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1593,7 +1677,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1614,7 +1699,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1635,7 +1721,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1656,7 +1743,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1682,7 +1770,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1703,7 +1792,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1724,7 +1814,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1750,7 +1841,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1771,7 +1863,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1792,7 +1885,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1813,7 +1907,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1834,7 +1929,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1855,7 +1951,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1876,7 +1973,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1972,7 +2070,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -1993,7 +2092,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2014,7 +2114,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2035,7 +2136,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2056,7 +2158,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2077,7 +2180,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2098,7 +2202,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2119,7 +2224,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2140,7 +2246,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -2155,7 +2262,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -2170,7 +2278,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2191,7 +2300,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2212,7 +2322,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2233,7 +2344,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2254,7 +2366,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2275,7 +2388,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2296,7 +2410,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2317,7 +2432,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2338,7 +2454,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -2353,7 +2470,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2374,7 +2492,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2395,7 +2514,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2416,7 +2536,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2447,7 +2568,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2468,7 +2590,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2489,7 +2612,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2510,7 +2634,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2531,7 +2656,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2552,7 +2678,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2573,7 +2700,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2594,7 +2722,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2615,7 +2744,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2636,7 +2766,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2657,7 +2788,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2678,7 +2810,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2699,7 +2832,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2720,7 +2854,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2741,7 +2876,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2762,7 +2898,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2783,7 +2920,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2804,7 +2942,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2825,7 +2964,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2846,7 +2986,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2867,7 +3008,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2888,7 +3030,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2909,7 +3052,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2930,7 +3074,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2951,7 +3096,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2972,7 +3118,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -2993,7 +3140,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3014,7 +3162,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3035,7 +3184,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3056,7 +3206,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3077,7 +3228,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3098,7 +3250,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3119,7 +3272,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3140,7 +3294,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3161,7 +3316,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3187,7 +3343,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3218,7 +3375,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3244,7 +3402,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3262,6 +3421,285 @@
    "note": "two broken lines: S-03 twice and no S-04"
   },
   {
+   "id": "w01-witness",
+   "text": "witnesses: [carol/1003]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": [
+      {
+       "login": "carol",
+       "id": 1003
+      }
+     ]
+    },
+    "problems": []
+   },
+   "note": "one witness, in the form of an owner"
+  },
+  {
+   "id": "w02-two-witnesses",
+   "text": "witnesses: [carol/1003, dave/1004]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": [
+      {
+       "login": "carol",
+       "id": 1003
+      },
+      {
+       "login": "dave",
+       "id": 1004
+      }
+     ]
+    },
+    "problems": []
+   },
+   "note": "two witnesses, in the order of the file"
+  },
+  {
+   "id": "w03-empty-witnesses",
+   "text": "witnesses: []\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": []
+   },
+   "note": "nobody"
+  },
+  {
+   "id": "w04-owner-and-witness",
+   "text": "owners: [alice/1001]\nwitnesses: [alice/1001]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 2,
+     "witnesses": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "problems": []
+   },
+   "note": "an owner may be listed as a witness too: the two lists are not compared"
+  },
+  {
+   "id": "w05-same-id-twice",
+   "text": "witnesses: [carol/1003, dave/1003]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "dave/1003"
+     }
+    ]
+   },
+   "note": "the ID must differ inside the list, as for owners"
+  },
+  {
+   "id": "w06-single-value",
+   "text": "witnesses: carol/1003\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "witnesses"
+     }
+    ]
+   },
+   "note": "a list is needed"
+  },
+  {
+   "id": "w07-bad-login",
+   "text": "witnesses: [a_b/1]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "a_b/1"
+     }
+    ]
+   },
+   "note": "the form of a login is that of an owner"
+  },
+  {
+   "id": "w08-twice",
+   "text": "witnesses: [a/1]\nwitnesses: [b/2]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-04",
+      "detail": "witnesses"
+     },
+     {
+      "line": 2,
+      "rule": "S-04",
+      "detail": "witnesses"
+     }
+    ]
+   },
+   "note": "a key that is set twice takes its default"
+  },
+  {
+   "id": "w09-all-six",
+   "text": "folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\nwitnesses: [carol/1003]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/adr",
+     "sharedFolder": "core",
+     "extraKeys": [
+      "repos"
+     ],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1,
+     "witnesses": [
+      {
+       "login": "carol",
+       "id": 1003
+      }
+     ]
+    },
+    "problems": []
+   },
+   "note": "every setting"
+  },
+  {
+   "id": "w10-bad-witnesses-leave-the-rest",
+   "text": "owners: [alice/1001]\nwitnesses: [x]\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 2,
+      "rule": "S-07",
+      "detail": "x"
+     }
+    ]
+   },
+   "note": "a problem in witnesses leaves the default and the other settings are read"
+  },
+  {
+   "id": "w11-no-value",
+   "text": "witnesses:\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": []
+    },
+    "problems": [
+     {
+      "line": 1,
+      "rule": "S-06",
+      "detail": "witnesses"
+     }
+    ]
+   },
+   "note": "no value is not a list"
+  },
+  {
+   "id": "w12-quoted-witness",
+   "text": "witnesses: ['carol/1003']\n",
+   "expect": {
+    "settings": {
+     "folder": "docs/decisions",
+     "sharedFolder": "shared",
+     "extraKeys": [],
+     "owners": [],
+     "approvals": 2,
+     "witnesses": [
+      {
+       "login": "carol",
+       "id": 1003
+      }
+     ]
+    },
+    "problems": []
+   },
+   "note": "quoted items are the same strings"
+  },
+  {
    "id": "s04e-extra-keys-twice",
    "text": "extra-keys: [a]\nextra-keys: [b]\n",
    "expect": {
@@ -3270,7 +3708,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3298,7 +3737,8 @@
       "k"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3317,25 +3757,26 @@
   },
   {
    "id": "s04g-unknown-twice",
-   "text": "witnesses: [a]\nwitnesses: [b]\n",
+   "text": "branches: [a]\nbranches: [b]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      },
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -3350,7 +3791,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3376,7 +3818,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3397,7 +3840,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3423,7 +3867,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3447,20 +3892,21 @@
   },
   {
    "id": "s05a-unknown",
-   "text": "witnesses: [alice]\n",
+   "text": "branches: [alice]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -3475,7 +3921,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3496,7 +3943,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3517,7 +3965,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3538,7 +3987,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3559,7 +4009,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3573,14 +4024,15 @@
   },
   {
    "id": "s05g-several",
-   "text": "owner: [a]\nwitnesses: []\nbranches: [main]\ncompactor: report\n",
+   "text": "owner: [a]\nchannel: []\nbranches: [main]\ncompactor: report\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3591,7 +4043,7 @@
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "channel"
      },
      {
       "line": 3,
@@ -3609,20 +4061,21 @@
   },
   {
    "id": "s05h-unknown-no-value",
-   "text": "witnesses:\n",
+   "text": "branches:\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -3637,7 +4090,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3651,20 +4105,21 @@
   },
   {
    "id": "s05j-unknown-in-the-middle",
-   "text": "folder: a\nwitnesses: [x]\nshared-folder: s\n",
+   "text": "folder: a\nbranches: [x]\nshared-folder: s\n",
    "expect": {
     "settings": {
      "folder": "a",
      "sharedFolder": "s",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -3679,7 +4134,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3720,7 +4176,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3741,7 +4198,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3762,7 +4220,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3783,7 +4242,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3804,7 +4264,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3825,7 +4286,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3846,7 +4308,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3867,7 +4330,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3888,7 +4352,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3909,7 +4374,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3930,7 +4396,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3951,7 +4418,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3972,7 +4440,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -3993,7 +4462,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4014,7 +4484,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4035,7 +4506,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4056,7 +4528,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4077,7 +4550,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4098,7 +4572,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4119,7 +4594,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4140,7 +4616,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4161,7 +4638,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4182,7 +4660,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4203,7 +4682,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4224,7 +4704,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4245,7 +4726,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4266,7 +4748,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4287,7 +4770,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4308,7 +4792,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4329,7 +4814,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4350,7 +4836,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4371,7 +4858,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4392,7 +4880,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4413,7 +4902,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4434,7 +4924,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4455,7 +4946,8 @@
      "sharedFolder": "s",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4476,7 +4968,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4490,14 +4983,15 @@
   },
   {
    "id": "m01-everything",
-   "text": "# settings\nfolder: docs/adr\nwitnesses: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n",
+   "text": "# settings\nfolder: docs/adr\nbranches: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4508,7 +5002,7 @@
      {
       "line": 3,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      },
      {
       "line": 5,
@@ -4536,7 +5030,7 @@
   },
   {
    "id": "m02-one-bad-line-does-not-silence-the-rest",
-   "text": "folder: docs/adr\nwitnesses: [a]\nextra-keys: [repos]\n",
+   "text": "folder: docs/adr\nbranches: [a]\nextra-keys: [repos]\n",
    "expect": {
     "settings": {
      "folder": "docs/adr",
@@ -4545,13 +5039,14 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -4559,20 +5054,21 @@
   },
   {
    "id": "m03-comments-keep-line-numbers",
-   "text": "# a\n\n# b\nwitnesses: [x]\n",
+   "text": "# a\n\n# b\nbranches: [x]\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 4,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -4580,20 +5076,21 @@
   },
   {
    "id": "m04-crlf-line-numbers",
-   "text": "\r\n\r\nwitnesses: [x]\r\n",
+   "text": "\r\n\r\nbranches: [x]\r\n",
    "expect": {
     "settings": {
      "folder": "docs/decisions",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 3,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -4601,20 +5098,21 @@
   },
   {
    "id": "m05-no-final-newline-problem",
-   "text": "folder: a\nwitnesses: [x]",
+   "text": "folder: a\nbranches: [x]",
    "expect": {
     "settings": {
      "folder": "a",
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -4629,7 +5127,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4655,7 +5154,8 @@
        "id": 1001
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4679,7 +5179,8 @@
        "id": 1002
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4699,7 +5200,8 @@
        "id": 1001
       }
      ],
-     "approvals": 1
+     "approvals": 1,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4743,7 +5245,8 @@
        "id": 7
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4763,7 +5266,8 @@
        "id": 1
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4783,7 +5287,8 @@
        "id": 999999999999999
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4807,7 +5312,8 @@
        "id": 1002
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4822,7 +5328,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4842,7 +5349,8 @@
        "id": 1001
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4866,7 +5374,8 @@
        "id": 1002
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4881,7 +5390,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 99
+     "approvals": 99,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4896,7 +5406,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 3
+     "approvals": 3,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4911,7 +5422,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 1
+     "approvals": 1,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4931,7 +5443,8 @@
        "id": 1
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -4953,11 +5466,12 @@
        "id": 1001
       }
      ],
-     "approvals": 1
+     "approvals": 1,
+     "witnesses": []
     },
     "problems": []
    },
-   "note": "every setting"
+   "note": "every setting but witnesses"
   },
   {
    "id": "o16-owners-no-login-class",
@@ -4968,7 +5482,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -4989,7 +5504,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5010,7 +5526,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5031,7 +5548,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5052,7 +5570,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5073,7 +5592,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5094,7 +5614,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5115,7 +5636,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5136,7 +5658,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5157,7 +5680,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5178,7 +5702,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5199,7 +5724,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5220,7 +5746,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5241,7 +5768,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5262,7 +5790,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5283,7 +5812,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5304,7 +5834,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5325,7 +5856,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5346,7 +5878,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5367,7 +5900,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5388,7 +5922,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5409,7 +5944,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5430,7 +5966,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5451,7 +5988,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5472,7 +6010,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5498,7 +6037,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5519,7 +6059,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5540,7 +6081,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5561,7 +6103,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5582,7 +6125,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5603,7 +6147,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5624,7 +6169,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5645,7 +6191,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5666,7 +6213,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5687,7 +6235,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5708,7 +6257,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5734,7 +6284,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5755,7 +6306,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5776,7 +6328,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5797,7 +6350,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5823,7 +6377,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5844,7 +6399,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5865,7 +6421,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5886,7 +6443,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5907,7 +6465,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5928,7 +6487,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5949,7 +6509,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5970,7 +6531,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -5991,7 +6553,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6012,7 +6575,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6033,7 +6597,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6054,7 +6619,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6075,7 +6641,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6096,7 +6663,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6117,7 +6685,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6138,7 +6707,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6159,7 +6729,8 @@
      "sharedFolder": "0",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6174,7 +6745,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6200,7 +6772,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6226,7 +6799,8 @@
        "id": 1001
       }
      ],
-     "approvals": 3
+     "approvals": 3,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6241,7 +6815,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 1
+     "approvals": 1,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6267,7 +6842,8 @@
        "id": 1001
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6288,7 +6864,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6321,7 +6898,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6343,7 +6921,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6366,7 +6945,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6386,7 +6966,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6412,7 +6993,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6438,7 +7020,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6468,7 +7051,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6494,7 +7078,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6528,7 +7113,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6554,7 +7140,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6580,7 +7167,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6610,7 +7198,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
@@ -6652,7 +7241,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6672,7 +7262,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6692,7 +7283,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6703,7 +7295,7 @@
    "files": [
     {
      "path": ".github/record-keeper/settings.yml",
-     "content": "witnesses: [a]\nfolder: docs/adr\n"
+     "content": "branches: [a]\nfolder: docs/adr\n"
     }
    ],
    "expect": {
@@ -6712,13 +7304,14 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ]
    },
@@ -6744,7 +7337,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6770,7 +7364,8 @@
       "repos"
      ],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6799,7 +7394,8 @@
        "id": 1002
       }
      ],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": []
    },
@@ -6819,7 +7415,8 @@
      "sharedFolder": "shared",
      "extraKeys": [],
      "owners": [],
-     "approvals": 2
+     "approvals": 2,
+     "witnesses": []
     },
     "problems": [
      {

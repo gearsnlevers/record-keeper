@@ -99,7 +99,7 @@ An erratum that changes the sealed text stays open at least 48 hours, so that th
 
 ## What this version does not do
 
-- **It does not post the diff of an erratum.** The design has the check comment on the pull request. The check has a token that only reads, and a write permission for the one job that decides is the thing [the workflow](workflow.md) refused. The announcement by a bot with its own identity belongs to M2.9; until then the diff is the diff of the pull request.
+- **It does not post the diff of an erratum.** The design has the check comment on the pull request. The check has a token that only reads, and a write permission for the one job that decides is the thing [the workflow](workflow.md) refused. The announcement by a bot with its own identity is [the audit's](announcements.md): it opens an issue for an approved erratum with the diff of the record in it; the check on the pull request shows the diff of the pull request.
 - **It does not ask whether a case is the cause of anything.** A case has to exist. Which violation it excuses, and that it excuses no later one, is for the audit to match against the history (M2.8). Citing the pull request that adds the note is not refused here.
 - **It does not read the history of a record.** That the first previous seal is the seal at acceptance and that no earlier entry was ever rewritten is for the audit; the check compares the two commits.
 - **It does not protect the workflow, the settings or the pin** beyond finding them as acts ([the files of the check](protected-files.md)).

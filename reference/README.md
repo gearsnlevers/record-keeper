@@ -19,6 +19,7 @@ This folder is how the kit is checked against something other than itself. It is
 | [approvals](../docs/approvals.md) | `approval_ref.py` | `build_approval_cases.py` | `test/fixtures/approval` | `fuzz/approval_fuzz.py`, `approval_compare.mjs` |
 | [checking-a-change](../docs/checking-a-change.md), [errata-and-deviations](../docs/errata-and-deviations.md) | `check_ref.py` | `build_change_cases.py` | `test/fixtures/change` | `fuzz/change_fuzz.py`, `change_ref_run.py`, `change_compare.mjs`, `change_batch.sh`; `fuzz/errata_fuzz.py`, `errata_ref_run.py`, `errata_compare.mjs`, `errata_batch.sh` |
 | [audit](../docs/audit.md) | `audit_ref.py` (with `audit_lib.py` for the histories) | `build_audit_cases.py` | `test/fixtures/audit` | `fuzz/audit_fuzz.py`, `audit_ref_run.py`, `audit_compare.mjs`, `audit_batch.sh` |
+| [announcements](../docs/announcements.md) | `announce_ref.py` (on `audit_ref.py`, `audit_effects_ref.py`) | `build_announce_cases.py` | `test/fixtures/announce` | `fuzz/announce_fuzz.py`, `announce_ref_run.py`, `announce_compare.mjs`, `announce_batch.sh` |
 | [audit-effects](../docs/audit-effects.md) | `audit_effects_ref.py` (on `audit_ref.py`) | `build_audit_effects_cases.py` | `test/fixtures/audit-effects` | `fuzz/effects_fuzz.py`, `effects_ref_run.py`, `effects_compare.mjs`, `effects_batch.sh` |
 
 ## The rules for changing any of it

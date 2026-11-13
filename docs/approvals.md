@@ -91,7 +91,7 @@ The count line gets ` approved` after the acts when every act is met (`docs/deci
 - **It cannot bootstrap.** A repository whose base has no owners cannot approve anything, the change that names the owners included. The first settings are installed by an administrator, before the check is required.
 - **It cannot repair a broken `owners` or `approvals` line by approval.** While the base has a problem in either, the owners are nobody or the count is 2, and the change that repairs the line (which the [repair rule](checking-a-change.md#problems-in-the-settings) lets through as far as the settings go) is still an act that nobody can approve. An administrator repairs it. The alternative, reading the items that are fine, is choice 9 of the settings page.
 - **It does not read teams.** Owners are named accounts.
-- **It does not announce anything.** The bot's issue for an act is the audit's (M2.9).
+- **It does not announce anything.** The bot's issue for an act is the audit's ([announcements](announcements.md)).
 
 ## Choices in this draft for you to decide
 

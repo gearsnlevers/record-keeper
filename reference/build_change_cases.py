@@ -71,7 +71,7 @@ TREES['legacy'] = tree_of(
     {1: rec(1, 'accepted', True), 2: rec(2, 'accepted'), 3: rec(3, makers='single'),
      4: rec(4, 'accepted', True, body_lines=60, mail=True)},
     [(1, 'accepted'), (2, 'accepted'), (3, 'proposed'), (4, 'accepted')], template=False)
-TREES['broken-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'witnesses: [a]\nfolder: docs/decisions\n'}
+TREES['broken-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'branches: [a]\nfolder: docs/decisions\n'}
 TREES['clean-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'extra-keys: [repos]\n'}
 TREES['linked-github'] = {**TREES['world'], '.github': ('120000', 'elsewhere')}
 TREES['attributes'] = {**TREES['world'], f'{D}/.gitattributes': '*.md -diff\n'}
@@ -303,11 +303,11 @@ case('j10-sealed-attribute-added', 'An attribute is added for a sealed record by
 
 # ---- settings -----------------------------------------------------------------------------------------------------------------------
 SET = '.github/record-keeper/settings.yml'
-case('k01-broken-settings-block-everything', 'The settings of the base have a problem: every change reports it.', base='broken-settings', changes=[rput(3, rec(3, consequences='- Q.'))], settings=[(1, 'S-05', 'witnesses')])
+case('k01-broken-settings-block-everything', 'The settings of the base have a problem: every change reports it.', base='broken-settings', changes=[rput(3, rec(3, consequences='- Q.'))], settings=[(1, 'S-05', 'branches')])
 case('k02-repair', 'A change that touches only the settings file and leaves it clean is let through.', base='broken-settings', changes=[put(SET, 'folder: docs/decisions\n')], acts=[a('settings', SET)])
-case('k03-repair-with-another-file', 'The same, with another change in the commit: not a repair.', base='broken-settings', changes=[put(SET, 'folder: docs/decisions\n'), put('src/a.js', 'x\n')], settings=[(1, 'S-05', 'witnesses')], acts=[a('settings', SET)])
-case('k04-repair-incomplete', 'A change to the settings that leaves a problem.', base='broken-settings', changes=[put(SET, 'witnesses: [a]\nowner: [b]\n')],
-     settings=[(1, 'S-05', 'witnesses'), (2, 'S-05', 'owner')], acts=[a('settings', SET)])
+case('k03-repair-with-another-file', 'The same, with another change in the commit: not a repair.', base='broken-settings', changes=[put(SET, 'folder: docs/decisions\n'), put('src/a.js', 'x\n')], settings=[(1, 'S-05', 'branches')], acts=[a('settings', SET)])
+case('k04-repair-incomplete', 'A change to the settings that leaves a problem.', base='broken-settings', changes=[put(SET, 'branches: [a]\nowner: [b]\n')],
+     settings=[(1, 'S-05', 'branches'), (2, 'S-05', 'owner')], acts=[a('settings', SET)])
 case('k05-repair-by-deleting', 'The broken file is deleted: the defaults apply.', base='broken-settings', changes=[drop(SET)], acts=[a('settings', SET)])
 case('k06-settings-broken-by-the-change', 'A change that breaks the settings reports the problem it leaves.', changes=[put(SET, 'folder: "docs/../x"\n')], settings=[(1, 'S-07', 'docs/../x')], acts=[a('settings', SET)])
 case('k07-settings-added-clean', 'A clean settings file is added: an act.', changes=[put(SET, 'extra-keys: [repos]\n')], acts=[a('settings', SET)])
@@ -333,9 +333,9 @@ case('n02-status-with-leading-text', 'A new record whose status has text before 
 case('o01-null-file-sorts-before-a-name', 'A problem without a file comes before one with a file, also when the file name starts with a late letter.',
      [put(f'{D}/shared/0003-x.md', 'x\n'), rput(9, rec(9)), index(ROWS + [(9, 'proposed')])], problems=[p(None, 'V-08'), p('shared/0003-x.md', 'P-08')])
 case('o02-settings-problems-on-one-line', 'The base and the head both have a problem on line 1 of the settings: ordered by rule, not by detail.', base='broken-settings', changes=[put(SET, 'zzz: [\n')],
-     settings=[(1, 'S-03', 'zzz: ['), (1, 'S-05', 'witnesses')], acts=[a('settings', SET)])
+     settings=[(1, 'S-03', 'zzz: ['), (1, 'S-05', 'branches')], acts=[a('settings', SET)])
 case('o03-settings-problem-without-a-line-first', 'A problem without a line comes before a problem with one.', base='broken-settings', changes=[drop(SET), put(SET + '/x', 'x\n')],
-     settings=[(None, 'S-01', SET), (1, 'S-05', 'witnesses')], acts=[a('settings', SET)])
+     settings=[(None, 'S-01', SET), (1, 'S-05', 'branches')], acts=[a('settings', SET)])
 case('p01-unreadable-record-edited', 'A record that g1 rejects is not sealed: an edit is judged by the format, not as a change of a sealed record.', base='unreadable',
      changes=[rput(7, rec(7).replace('## Decision', '<!-- x -->\n## Decision').replace('Why 7.', 'Why seven.'))], problems=[p(name(7), 'V-09')])
 case('p02-unreadable-record-fixed', 'The same record is fixed.', base='unreadable', changes=[rput(7, rec(7))])
@@ -360,13 +360,13 @@ case('t05-superseded-by-five-digits', 'A flip to a number of five digits is not 
 case('t06-superseded-with-a-prefix', 'A flip to text that only ends like the allowed status.', [rput(2, STAT(2, 'xsuperseded by 0007')), index(rows_with(r2='x'))], problems=[p(name(2), 'P-03', 'accepted -> xsuperseded by 0007')])
 case('u01-settings-folder-emptied', 'The base has a folder where the settings file should be; removing what is in it is a repair, and a change to the settings.', base='settings-folder',
      changes=[drop(SET + '/x')], acts=[a('settings', SET)])
-case('u02-broken-settings-no-change', 'The settings of the base are broken and nothing changes: the problem is reported, nothing is repaired.', base='broken-settings', parent='same', settings=[(1, 'S-05', 'witnesses')])
+case('u02-broken-settings-no-change', 'The settings of the base are broken and nothing changes: the problem is reported, nothing is repaired.', base='broken-settings', parent='same', settings=[(1, 'S-05', 'branches')])
 
-TREES['broken-settings-2'] = {**TREES['world'], SET: 'folder: docs/decisions\nwitnesses: [a]\n'}
+TREES['broken-settings-2'] = {**TREES['world'], SET: 'folder: docs/decisions\nbranches: [a]\n'}
 case('o04-problem-without-a-file-before-a-later-one-with', 'A gap (no file) and a record that claims acceptance without a seal: the gap first, though it is found before.',
      [rput(9, rec(9, 'accepted')), index(ROWS + [(9, 'accepted')])], problems=[p(None, 'V-08'), p(name(9), 'P-06', 'no seal')])
 case('o05-settings-problems-on-two-lines', 'A problem of the base on line 2 and one of the head on line 1: ordered by line.', base='broken-settings-2', changes=[put(SET, 'folder: [\n')],
-     settings=[(1, 'S-03', 'folder: ['), (2, 'S-05', 'witnesses')], acts=[a('settings', SET)])
+     settings=[(1, 'S-03', 'folder: ['), (2, 'S-05', 'branches')], acts=[a('settings', SET)])
 case('c13-claims-acceptance-with-a-format-problem', 'One file with a rule of each kind: P before V in the order.', [rput(3, rec(3, 'accepted', makers='single')), index(rows_with(r3='accepted'))],
      problems=[p(name(3), 'P-06', 'no seal'), p(name(3), 'V-14')])
 

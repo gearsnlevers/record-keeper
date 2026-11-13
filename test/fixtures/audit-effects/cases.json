@@ -11733,7 +11733,7 @@
      "changes": [
       {
        "write": ".github/record-keeper/settings.yml",
-       "content": "witnesses: [a]\n"
+       "content": "branches: [a]\n"
       }
      ]
     }
@@ -11758,7 +11758,7 @@
        "action": "open",
        "key": "-:S-05",
        "title": "Records: the repository: [S-05] has a key that is not a setting",
-       "body": "<!-- record-keeper:incident -:S-05 -->\nThe audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.\n\n- @c1@: .github/record-keeper/settings.yml:1: [S-05] has a key that is not a setting (witnesses)\n"
+       "body": "<!-- record-keeper:incident -:S-05 -->\nThe audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.\n\n- @c1@: .github/record-keeper/settings.yml:1: [S-05] has a key that is not a setting (branches)\n"
       }
      ],
      "log": [
@@ -11772,7 +11772,7 @@
          "kind": "commit",
          "file": null,
          "rule": "S-05",
-         "detail": "witnesses"
+         "detail": "branches"
         }
        ]
       }

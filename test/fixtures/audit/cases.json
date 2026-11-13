@@ -3034,7 +3034,7 @@
      "changes": [
       {
        "write": ".github/record-keeper/settings.yml",
-       "content": "witnesses: [a]\n"
+       "content": "branches: [a]\n"
       }
      ]
     }
@@ -3047,7 +3047,7 @@
       "kind": "commit",
       "file": null,
       "rule": "S-05",
-      "detail": "witnesses",
+      "detail": "branches",
       "line": 1
      }
     ],

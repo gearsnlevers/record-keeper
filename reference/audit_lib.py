@@ -67,7 +67,7 @@ TREES['legacy'] = tree_of(
     {1: rec(1, 'accepted', True), 2: rec(2, 'accepted'), 3: rec(3, makers='single'),
      4: rec(4, 'accepted', True, body_lines=60, mail=True)},
     [(1, 'accepted'), (2, 'accepted'), (3, 'proposed'), (4, 'accepted')], template=False)
-TREES['broken-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'witnesses: [a]\nfolder: docs/decisions\n'}
+TREES['broken-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'branches: [a]\nfolder: docs/decisions\n'}
 TREES['clean-settings'] = {**TREES['world'], '.github/record-keeper/settings.yml': 'extra-keys: [repos]\n'}
 TREES['linked-github'] = {**TREES['world'], '.github': ('120000', 'elsewhere')}
 TREES['attributes'] = {**TREES['world'], f'{D}/.gitattributes': '*.md -diff\n'}

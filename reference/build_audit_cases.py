@@ -186,8 +186,8 @@ history('h28-a-vouching-that-predates-the-start', 'Record 5 is superseded by 6, 
         [commit('c0', dump({**W, f'{D}/{name(6)}': rec(6, 'accepted', True)})), commit('c1', [EDIT3])], frm='c0', judged=1,
         violations=[v('c1', 'P-04', name(5), '0006: does not list this record', kind='state'), v('c1', 'P-05', name(6), '0005', kind='state')][:1])
 history('h29-a-problem-of-the-settings', 'A settings file with an unknown setting is committed.',
-        [ROOT(), commit('c1', [put('.github/record-keeper/settings.yml', 'witnesses: [a]\n')])], frm='c0', judged=1,
-        violations=[v('c1', 'S-05', None, 'witnesses', line=1)], acts=[ac('c1', 'settings', '.github/record-keeper/settings.yml')])
+        [ROOT(), commit('c1', [put('.github/record-keeper/settings.yml', 'branches: [a]\n')])], frm='c0', judged=1,
+        violations=[v('c1', 'S-05', None, 'branches', line=1)], acts=[ac('c1', 'settings', '.github/record-keeper/settings.yml')])
 history('h30-a-workflow-that-names-the-check', 'A workflow of someone else names the check.',
         [ROOT(), commit('c1', [put('.github/workflows/fake.yml', 'name: Records integrity\n')])], frm='c0', judged=1, violations=[v('c1', 'P-15', None, '.github/workflows/fake.yml')])
 history('h31-a-deviation-citing-a-commit-that-is-not-in-the-history', 'The note cites a commit of another branch.',

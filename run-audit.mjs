@@ -31,6 +31,8 @@ const REFUSED = /GH0\d\d|rule violations|declined|permission denied|denied/i;
 const BOT_IDENTITY = { GIT_AUTHOR_NAME: BOT_LOGIN, GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com' };
 const EVIDENCE_FILE = 'evidence.json';
 const ISSUES_FILE = 'issues.json';
+const LOGINS_FILE = 'logins.json';
+const ANNOUNCEMENT_PAUSE_MS = 1000;
 const UTC_TIME = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/;
 const USAGE = 'Usage:\n  run-audit.mjs --repo <owner/name> [--dry-run]\n';
 const LOG_README = `# Record Keeper log
@@ -38,6 +40,7 @@ const LOG_README = `# Record Keeper log
 Written by the audit of this repository (run-audit.mjs), never by hand.
 
 - \`incidents.jsonl\`: one JSON document on each line for every incident issue that the audit opened, changed, reopened or closed.
+- \`announcements.jsonl\`: one JSON document on each line for every announcement issue that the audit opened; the first announcement makes the file.
 - \`last-run.json\`: the record of the last run of the audit.
 
 The history of this branch is not to be rewritten. The audit does not read it back: it judges the history of the default branch again at every run.
@@ -95,7 +98,7 @@ async function request(context, method, url, { body, ok = [200] } = {}) {
   }
   if (!ok.includes(response.status)) throw new CannotRun(`${method} ${where} answered ${response.status}`);
   try {
-    return { body: await response.json(), link: response.headers.get('link') };
+    return { body: await response.json(), link: response.headers.get('link'), status: response.status };
   } catch {
     throw notWhatItNeeds(context, url);
   }
@@ -224,22 +227,36 @@ function listTree(cwd, commit) {
 
 const blobOf = (cwd, text) => git(cwd, ['hash-object', '-w', '--stdin'], { input: Buffer.from(text) }).toString('utf8').trim();
 
-/** Adds to the log branch: the lines to `incidents.jsonl`, and the record of the run as `last-run.json`. Returns nothing; throws CannotRun. */
-function writeLog(cwd, plan, head, at) {
+/** Appends `lines` to a file of the log: its old text, a line feed if that does not end with one, and the lines. */
+const appended = (before, lines) => (before === '' || before.endsWith('\n') ? before + lines : `${before}\n${lines}`);
+
+const count = (number, one, many) => `${number} ${number === 1 ? one : many}`;
+const joinAnd = (items) => (items.length === 1 ? items[0] : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`);
+
+/**
+ * Adds to the log branch: the lines of the incidents to `incidents.jsonl`, the lines of the announcements to `announcements.jsonl` (made by the
+ * first one) and the record of the run as `last-run.json`. Returns nothing; throws CannotRun.
+ */
+function writeLog(cwd, plan, announced, head, at) {
   const lines = plan.log.map((entry) => `${JSON.stringify(entry)}\n`).join('');
+  const announcedLines = announced.log.map((entry) => `${JSON.stringify(entry)}\n`).join('');
   const record = `${JSON.stringify(plan.run)}\n`;
-  const count = (number, one, many) => `${number} ${number === 1 ? one : many}`;
-  const message = `Audit of ${head} at ${at}: ${count(plan.run.violations, 'violation', 'violations')}, ${count(plan.log.length, 'entry', 'entries')}`;
+  const message = `Audit of ${head} at ${at}: ${count(plan.run.violations, 'violation', 'violations')}, ${count(plan.log.length, 'entry', 'entries')}${announced.log.length === 0 ? '' : `, ${count(announced.log.length, 'announcement', 'announcements')}`}`;
   for (let attempt = 1; attempt <= PUSH_ATTEMPTS; attempt++) {
     const parent = fetchLog(cwd);
     const kept = parent === null ? [{ mode: '100644', type: 'blob', id: blobOf(cwd, LOG_README), name: 'README.md' }] : listTree(cwd, parent);
-    const old = kept.find(({ name }) => name === 'incidents.jsonl');
-    const before = old === undefined ? '' : git(cwd, ['cat-file', 'blob', old.id]).toString('utf8');
-    const after = before === '' || before.endsWith('\n') ? before + lines : `${before}\n${lines}`;
+    const textOf = (file) => {
+      const old = kept.find(({ name }) => name === file);
+      return old === undefined ? null : git(cwd, ['cat-file', 'blob', old.id]).toString('utf8');
+    };
+    const written = [
+      { name: 'incidents.jsonl', text: appended(textOf('incidents.jsonl') ?? '', lines) },
+      ...(textOf('announcements.jsonl') === null && announcedLines === '' ? [] : [{ name: 'announcements.jsonl', text: appended(textOf('announcements.jsonl') ?? '', announcedLines) }]),
+      { name: 'last-run.json', text: record },
+    ];
     const entries = [
-      ...kept.filter(({ name }) => name !== 'incidents.jsonl' && name !== 'last-run.json'),
-      { mode: '100644', type: 'blob', id: blobOf(cwd, after), name: 'incidents.jsonl' },
-      { mode: '100644', type: 'blob', id: blobOf(cwd, record), name: 'last-run.json' },
+      ...kept.filter(({ name }) => !written.some((file) => file.name === name)),
+      ...written.map(({ name, text }) => ({ mode: '100644', type: 'blob', id: blobOf(cwd, text), name })),
     ].sort((a, b) => Buffer.compare(Buffer.from(a.name), Buffer.from(b.name)));
     const tree = git(cwd, ['mktree', '-z'], { input: Buffer.from(entries.map(({ mode, type, id, name }) => `${mode} ${type} ${id}\t${name}\0`).join('')) }).toString('utf8').trim();
     const dates = { GIT_AUTHOR_DATE: at, GIT_COMMITTER_DATE: at };
@@ -255,6 +272,15 @@ function writeLog(cwd, plan, head, at) {
   throw new CannotRun(`could not push the log after ${PUSH_ATTEMPTS} attempts`);
 }
 
+/** The current login of an account by its id: the text, or null for an account that GitHub does not know (404). */
+async function readLogin(context, id) {
+  const url = `${context.base}/user/${id}`;
+  const { body, status } = await request(context, 'GET', url, { ok: [200, 404] });
+  if (status === 404) return null;
+  if (!isObject(body) || typeof body.login !== 'string') throw notWhatItNeeds(context, url);
+  return body.login;
+}
+
 /** What the kit's own command said, as the reason for not running. */
 function refused(result) {
   return new CannotRun(`the audit could not read the history: ${printable(result.stderr.replace(/^record-keeper: /, '').trim()).slice(0, 400)}`);
@@ -262,9 +288,10 @@ function refused(result) {
 
 /**
  * Runs the audit. Returns { code, stdout, stderr } like the command line of record-keeper.mjs.
- * `fetch` is the one of Node, `timeout` the milliseconds for one request, `now` the clock and `maxCommits` the limit of commits with acts; the tests replace them.
+ * `fetch` is the one of Node, `timeout` the milliseconds for one request, `now` the clock, `maxCommits` the limit of commits with acts, `pause` the
+ * milliseconds between two announcements and `sleep` how to wait; the tests replace them.
  */
-export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS, now = Date.now, maxCommits = MAX_COMMITS }) {
+export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API, cwd = '.', fetch = globalThis.fetch, timeout = TIMEOUT_MS, now = Date.now, maxCommits = MAX_COMMITS, pause = ANNOUNCEMENT_PAUSE_MS, sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); }) }) {
   try {
     if (typeof token !== 'string' || !/^\S+$/.test(token)) throw new CannotRun('no token');
     const parts = typeof repo === 'string' ? repo.split('/') : [];
@@ -280,7 +307,7 @@ export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API,
     if (commits.length > maxCommits) throw new CannotRun(`more than ${maxCommits} commits with acts`);
     const evidence = await collectEvidence(context, commits, defaultBranch);
     const issuePages = await readPages(context, `${context.base}/repos/${context.repo}/issues?state=all&creator=${encodeURIComponent(BOT_LOGIN)}&per_page=100`, 'issues', (body) => body);
-    const files = new Map([[EVIDENCE_FILE, Buffer.from(JSON.stringify(evidence))], [ISSUES_FILE, Buffer.from(JSON.stringify(issuePages))]]);
+    const files = new Map([[EVIDENCE_FILE, Buffer.from(JSON.stringify(evidence))], [ISSUES_FILE, Buffer.from(JSON.stringify(issuePages))], [LOGINS_FILE, Buffer.from('{}')]]);
     const readFile = (file) => files.get(file) ?? fs.readFileSync(file);
     const at = new Date(now()).toISOString().replace(/\.\d+Z$/, 'Z');
     const planned = run(['audit-plan', ...history, '--evidence', EVIDENCE_FILE, '--issues', ISSUES_FILE, '--now', at], { readFile });
@@ -288,13 +315,26 @@ export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API,
     const plan = JSON.parse(planned.stdout);
     const said = run(['audit', ...history, '--evidence', EVIDENCE_FILE], { readFile });
     if (said.code === 2) throw refused(said);
+    const announce = async () => {
+      const made = run(['announce-plan', ...history, '--evidence', EVIDENCE_FILE, '--issues', ISSUES_FILE, '--logins', LOGINS_FILE, '--now', at], { readFile });
+      if (made.code !== 0) throw refused(made);
+      return JSON.parse(made.stdout);
+    };
+    let announced = await announce();
+    if (announced.lookups.length > 0) {
+      const logins = {};
+      for (const id of announced.lookups) logins[id] = await readLogin(context, id);
+      files.set(LOGINS_FILE, Buffer.from(JSON.stringify(logins)));
+      announced = await announce();
+    }
     const lines = [];
     if (dryRun) {
       for (const action of plan.issues) lines.push(`would ${action.action} ${action.key}${action.number === undefined ? '' : ` #${action.number}`}\n`);
+      for (const item of announced.announcements) lines.push(`would announce ${item.key}\n`);
       lines.push('dry run: nothing was written\n');
       return { code: plan.failed ? 1 : 0, stdout: said.stdout + lines.join(''), stderr: said.stderr };
     }
-    writeLog(cwd, plan, plan.run.head, at);
+    writeLog(cwd, plan, announced, plan.run.head, at);
     // The audit and the log took their time and the connection of the reads may have been closed meanwhile: a read makes a fresh one before the first write.
     await request(context, 'GET', `${context.base}/repos/${context.repo}`);
     const duplicate = (index) => plan.log[index].duplicate !== undefined;
@@ -312,7 +352,15 @@ export async function runAudit({ repo, dryRun = false, token, api = DEFAULT_API,
       }
       lines.push(`${{ open: 'opened', update: 'updated', reopen: 'reopened', close: 'closed' }[action.action]} ${action.key} #${number}\n`);
     }
-    lines.push(`log: ${plan.log.length === 0 ? 'the record of the run' : `${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'} and the record of the run`} pushed to ${LOG_BRANCH}\n`);
+    for (const [index, item] of announced.announcements.entries()) {
+      if (index > 0) await sleep(pause);
+      const issues = `${context.base}/repos/${context.repo}/issues`;
+      const { body } = await request(context, 'POST', issues, { body: { title: item.title, body: item.body }, ok: [201] });
+      if (!isObject(body) || !isId(body.number)) throw notWhatItNeeds(context, issues);
+      lines.push(`announced ${item.key} #${body.number}\n`);
+    }
+    const kinds = [...(plan.log.length === 0 ? [] : [count(plan.log.length, 'entry', 'entries')]), ...(announced.log.length === 0 ? [] : [count(announced.log.length, 'announcement', 'announcements')]), 'the record of the run'];
+    lines.push(`log: ${joinAnd(kinds)} pushed to ${LOG_BRANCH}\n`);
     return { code: plan.failed ? 1 : 0, stdout: said.stdout + lines.join(''), stderr: said.stderr };
   } catch (error) {
     if (!(error instanceof CannotRun)) throw error;
