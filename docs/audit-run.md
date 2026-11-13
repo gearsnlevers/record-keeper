@@ -90,7 +90,13 @@ On 2026-11-11, by asking GitHub for the pull requests of this repository, read o
 - **E12, the bot.** The issues that `github-actions[bot]` wrote in other repositories of the organisation have `user.login` `github-actions[bot]`, `user.type` `Bot` and `user.id` `41898282`. `GET /issues?creator=github-actions%5Bbot%5D` returned only those, where the list without the filter held 70 pull requests among 71 entries.
 - **The check runs** named `Records integrity` are on the head commit of the pull request and not on its merge commit (0 on the merge commit).
 
-**Still to run after the merge,** with the workflow on `main`: E13, a manual run with `dry-run` set; E14, a real manual run (the branch is made, `last-run.json` and the entries are pushed, the ruleset does not refuse); E15, the first scheduled run; E16, the run that a push starts, right after a merge (does GitHub name the pull request at once?). They are recorded here when they have been run.
+On 2026-11-13, with the workflow on `main` (it ran on Node 24 with npm 11.19.1; the audit itself took about 11 seconds):
+
+- **E13, a manual run with `dry-run` set** (run 43363416280): green. It printed `audit: 0 violations, 0 excused, 11 commits judged` and `dry run: nothing was written`, and the tip of `record-keeper/log` was the same before and after.
+- **E14, real runs.** The first real run was the one that the merge of #43 started (run 43363306423, see E16). It made `record-keeper/log`: one commit with no parent, written by `github-actions[bot]`, with `README.md`, an empty `incidents.jsonl` and `last-run.json`. A second run by hand (43363494921) added one commit on the first, replaced `last-run.json` and left `incidents.jsonl` as it was; no issue was opened, as there was no incident. The ruleset on the branch was made after these two runs. A third run by hand (43363991402) then added a commit under it, and the push was not refused. The ruleset has the rules `deletion` and `non_fast_forward` for `refs/heads/record-keeper/log` and no actor who may bypass it; `GET /rules/branches/record-keeper/log` lists exactly those two, and the branch is reported as protected.
+- **E16, the run that a push starts right after a merge.** The merge was at 04:06:21Z and the run was created at 04:06:23Z. The merge commit changes `records-audit.yml`, `record-keeper.mjs` and `run-audit.mjs`, so it is an act, and the run judged it with #43 as its pull request and reported no violation. Had GitHub not yet named the pull request, the commit would have failed with `no pull request`. GitHub named it at once, as E11 had shown.
+
+**Still to run:** E15, the first scheduled run (the first slot after the merge is 2026-11-14 03:17 UTC). It is recorded here when it has been run.
 
 ## What this does not do
 
