@@ -1948,6 +1948,40 @@
     "path": "docs/decisions/template.md",
     "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
    }
+  ],
+  "no-seals": [
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
   ]
  },
  "cases": [
@@ -13536,13 +13570,7 @@
    ],
    "expect": {
     "settings": [],
-    "problems": [
-     {
-      "file": "0002-second.md",
-      "rule": "P-06",
-      "detail": "seal does not match"
-     }
-    ],
+    "problems": [],
     "acts": [
      {
       "kind": "accept",
@@ -13550,7 +13578,7 @@
      }
     ]
    },
-   "note": "Not changed here: the status of a record that does not verify changes to `superseded by`, and the record still does not verify, so P-06 is reported."
+   "note": "The status of a record that does not verify changes to `superseded by` and nothing else changes: the successor vouches for it (P-04), so the old P-06 is not repeated."
   },
   {
    "id": "v10-second-note-on-a-broken-record",
@@ -13964,6 +13992,446 @@
     "acts": []
    },
    "note": "A record that does not verify is deleted: P-01 as for any record, and nothing is asked of a note."
+  },
+  {
+   "id": "v21-superseding-a-record-without-a-seal",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "An accepted record that never had a seal is superseded: the status line is the only change, so the old P-06 is not repeated."
+  },
+  {
+   "id": "v22-superseding-and-editing-the-text",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited again.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The status changes and the text is edited too: not a supersession, the record still does not verify, and P-06 is reported."
+  },
+  {
+   "id": "v23-superseding-and-another-seal",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:9999999999999999999999999999999999999999999999999999999999999999\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The status changes and the seal line changes too: two lines differ, so it is not a supersession."
+  },
+  {
+   "id": "v24-superseding-by-a-record-that-does-not-list-it",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:58b7459fa078c20af8bc1f853299ec0bdf285e9bf79a7f7f93ec4c2969259b6f\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-04",
+      "detail": "0007: does not list this record"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The status changes but the successor does not list the record in its supersedes: P-04 is reported, and the old P-06 is not."
+  },
+  {
+   "id": "v25-superseding-by-a-record-that-is-not-sealed",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-04",
+      "detail": "0007: not sealed"
+     },
+     {
+      "file": "0007-seventh.md",
+      "rule": "P-06",
+      "detail": "no seal"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The successor is accepted without a seal: P-04 for the old record (not sealed) and P-06 for the new one; there is no acceptance."
+  },
+  {
+   "id": "v26-superseding-a-record-of-an-unknown-generation",
+   "base": "other-generation",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g2:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "unknown generation g2"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A seal of generation g2: this version does not know where its sections are, so the change is judged as a change to an unsealed record and P-06 is reported."
+  },
+  {
+   "id": "v27-superseding-a-record-with-a-seal-that-is-not-a-seal",
+   "base": "malformed-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: nope\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "V-22"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A seal that is not written as a seal is V-22 and takes no supersession: the change is judged whole."
+  },
+  {
+   "id": "v28-superseded-record-superseded-again",
+   "base": "broken-superseded",
+   "changes": [
+    {
+     "write": "docs/decisions/0005-fifth.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:7bf42fbe3d6059e45792437ee11a0a56e27d32acdfffb1d82a9cf388e585dab3\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0007 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0005-fifth.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     },
+     {
+      "file": "0006-sixth.md",
+      "rule": "P-05",
+      "detail": "0005"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A record that is already `superseded by` another is not `accepted`: only that change is a supersession, so the old P-06 is reported, and P-05 for the record that listed it."
+  },
+  {
+   "id": "v29-two-unsealed-records-superseded-by-one",
+   "base": "no-seals",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\n  - 0002\nseal: sha256-g1:e5a7994d7dd048c64e2e1ba4e5221f9c4fe822cfc0cbc9c1456692565db81dc7\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "Two accepted records without a seal are superseded by one record that lists both."
+  },
+  {
+   "id": "v30-a-sealed-and-an-unsealed-record-superseded-by-one",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0001-first.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0001\n  - 0002\nseal: sha256-g1:e5a7994d7dd048c64e2e1ba4e5221f9c4fe822cfc0cbc9c1456692565db81dc7\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | superseded by 0007 |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "A sealed record (status line only) and a record without a seal are superseded by one record that lists both."
+  },
+  {
+   "id": "v31-superseded-by-a-lower-number",
+   "base": "no-seal",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0001\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0001 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "V-20"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The status names a lower number: V-20 reports it, P-04 does not, and the old P-06 is not repeated."
+  },
+  {
+   "id": "v32-superseding-and-a-note",
+   "base": "broken-text",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2, edited.\n\n## Known deviations\n\n### Deviation 1\n\n- date: 2026-11-08\n- case: pull 5\n- reason: A one-off.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "cases": {
+    "issue": [],
+    "pull": [
+     5
+    ]
+   },
+   "now": "2026-11-10T00:00:00Z",
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The status changes together with a deviation note: not a note and not a supersession, so P-06 is reported."
+  },
+  {
+   "id": "v33-superseding-a-record-with-an-old-format-problem",
+   "base": "broken-long",
+   "changes": [
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: superseded by 0007\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n- Filler 0.\n- Filler 1.\n- Filler 2.\n- Filler 3.\n- Filler 4.\n- Filler 5.\n- Filler 6.\n- Filler 7.\n- Filler 8.\n- Filler 9.\n- Filler 10.\n- Filler 11.\n- Filler 12.\n- Filler 13.\n- Filler 14.\n- Filler 15.\n- Filler 16.\n- Filler 17.\n- Filler 18.\n- Filler 19.\n- Filler 20.\n- Filler 21.\n- Filler 22.\n- Filler 23.\n- Filler 24.\n- Filler 25.\n- Filler 26.\n- Filler 27.\n- Filler 28.\n- Filler 29.\n- Filler 30.\n- Filler 31.\n- Filler 32.\n- Filler 33.\n- Filler 34.\n- Filler 35.\n- Filler 36.\n- Filler 37.\n- Filler 38.\n- Filler 39.\n- Filler 40.\n- Filler 41.\n- Filler 42.\n- Filler 43.\n- Filler 44.\n- Filler 45.\n- Filler 46.\n- Filler 47.\n- Filler 48.\n- Filler 49.\n- Filler 50.\n- Filler 51.\n- Filler 52.\n- Filler 53.\n- Filler 54.\n- Filler 55.\n- Filler 56.\n- Filler 57.\n- Filler 58.\n- Filler 59.\n\n## Alternatives considered\n\n- Not 2.\n"
+    },
+    {
+     "write": "docs/decisions/0007-seventh.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0002\nseal: sha256-g1:a0ea7e3bbd1cb671f9109586c9df9a57adf629aac79d827048ea31e7dbccc333\n---\n\n# The seventh decision\n\n## Context and problem statement\n\nWhy 7.\n\n## Decision\n\n- Rule 7.\n\n## Consequences\n\n- Effect 7.\n\n## Alternatives considered\n\n- Not 7.\n"
+    },
+    {
+     "write": "docs/decisions/README.md",
+     "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | superseded by 0007 |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n| 0007 | [The seventh decision](0007-seventh.md) | accepted |\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "accept",
+      "path": "docs/decisions/0007-seventh.md"
+     }
+    ]
+   },
+   "note": "The record is past sixty lines (V-10 at the base) and does not verify: the supersession does not bring the old V-10 or the old P-06 back."
   }
  ]
 }

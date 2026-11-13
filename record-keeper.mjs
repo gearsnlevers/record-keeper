@@ -1372,6 +1372,14 @@ export function judgeChange(repo, base, head, { author, reviews, reviewed, cases
     additions.set(name, 'deviation');
     for (const problem of judgeDeviation(record, after.get(name), { repo, base: base.empty ? null : base.commit, cases, needs, assume })) problems.push({ file: name, ...problem });
   }
+  // A record that says it is accepted and does not verify, whose only change is its status line, from `accepted` to `superseded by NNNN`:
+  // the successor vouches for it (P-04), as for a sealed record, so the old P-06 is not repeated (docs/checking-a-change.md).
+  const superseding = new Set();
+  for (const [name, record] of before) {
+    const next = after.get(name);
+    if (!lacksSeal(record) || record.status !== 'accepted' || !next?.readable || record.bytes.equals(next.bytes)) continue;
+    if (compareSealed(record, next.bytes) === null) superseding.add(name);
+  }
   const shared = `${folder}/${sharedFolder}`;
   for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
   const isWorkflow = (path) => path.startsWith(`${WORKFLOW_FOLDER}/`) && !path.slice(WORKFLOW_FOLDER.length + 1).includes('/') && /\.ya?ml$/i.test(path) && !WORKFLOW_FILES.includes(path);
@@ -1383,6 +1391,7 @@ export function judgeChange(repo, base, head, { author, reviews, reviewed, cases
 
   const known = new Set(validateOpened(base, folder, { extraKeys, sharedFolder }).map(identity));
   for (const problem of validateOpened(head, folder, { extraKeys, sharedFolder })) {
+    if (superseding.has(problem.file) && CONTENT_RULES.has(problem.rule)) continue;
     if ((sealedKept.has(problem.file) || noted.has(problem.file)) && CONTENT_RULES.has(problem.rule)) {
       const kind = additions.get(problem.file);
       const applies = kind === 'erratum' ? problem.rule !== 'V-10' : kind === 'deviation' && DEVIATION_RULES.has(problem.rule);
@@ -1393,7 +1402,7 @@ export function judgeChange(repo, base, head, { author, reviews, reviewed, cases
     problems.push(problem);
   }
   const knownState = new Set(stateProblems(before).map(identity));
-  for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !(sameEntry(problem.file) || additions.get(problem.file) === 'deviation')) problems.push(problem);
+  for (const problem of stateProblems(after)) if (!knownState.has(identity(problem)) || !(sameEntry(problem.file) || additions.get(problem.file) === 'deviation' || superseding.has(problem.file))) problems.push(problem);
 
   const protocolBefore = protocolRecords(base, folder);
   const protocolAfter = protocolRecords(head, folder);
