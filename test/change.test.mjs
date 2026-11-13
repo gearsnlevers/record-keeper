@@ -453,7 +453,7 @@ describe('the files of the check', () => {
     for (const file of [...WORKFLOW_FILES, ...CODE_FILES]) assert.ok(filesPage.includes(`\`${file}\``), file);
     for (const file of ['.github/record-keeper/settings.yml', '.github/record-keeper.yml']) assert.ok(filesPage.includes(`\`${file}\``), file);
     for (const file of [...CODE_FILES, WORKFLOW_FILES[0]]) assert.ok(fs.existsSync(path.join(root, file)), file);
-    assert.equal(new Set([...WORKFLOW_FILES, ...CODE_FILES]).size, 4);
+    assert.equal(new Set([...WORKFLOW_FILES, ...CODE_FILES]).size, 5);
   });
 
   test('the workflows of this repository that are not the kit\'s do not name the check', () => {

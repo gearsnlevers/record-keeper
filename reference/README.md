@@ -49,7 +49,7 @@ reference/fuzz/change_batch.sh /tmp/change-fuzz 4000 7 4 && cat /tmp/change-fuzz
 python3 reference/fuzz/mutate_diff.py . 4 <base commit>
 ```
 
-`fuzz/mutate_change.py` mutates every line of the part of the library that checks a change, `fuzz/mutate_pr.py` every line of `check-pull-request.mjs` and `mutate_pr2.py` only the lines that differ from a commit, and `fuzz/mutate_note_case.py` is an example of a hand-written list of mutants for one change. The batch scripts and the other fuzz scripts say how they are called in their first lines.
+`fuzz/mutate_change.py` mutates every line of the part of the library that checks a change, `fuzz/mutate_pr.py` every line of `check-pull-request.mjs` (or of another program: `MUT_FILE`, `MUT_TESTS` and `MUT_LINES` name it, its tests and the lines to mutate; `AUDIT_RUN_STRIDE=8` makes the tests of `run-audit.mjs` run a sample of their cases, for a quick first pass) and `mutate_pr2.py` only the lines that differ from a commit, and `fuzz/mutate_note_case.py` is an example of a hand-written list of mutants for one change. The batch scripts and the other fuzz scripts say how they are called in their first lines.
 
 CI runs `check-fixtures.sh` in the workflow `Reference` (`.github/workflows/reference.yml`), on a pull request or a push to `main` that changes `reference/`, `test/fixtures/` or `test/vectors/`. It is not a required check: it has a path filter, which is only safe for a check that nothing waits for.
 

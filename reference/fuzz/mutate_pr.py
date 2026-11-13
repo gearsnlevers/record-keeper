@@ -1,13 +1,15 @@
-"""Mutation test of every line of check-pull-request.mjs against test/github.test.mjs.
+"""Mutation test of every line of check-pull-request.mjs against test/github.test.mjs; MUT_FILE and MUT_TESTS name another program and its tests
+(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers.
 Usage: mutate_pr.py <repo_dir> <workers>"""
-import concurrent.futures, os, re, shutil, subprocess, sys, tempfile
+import concurrent.futures, os, re, shutil, subprocess, sys, tempfile, threading
 repo, workers = sys.argv[1], int(sys.argv[2])
-FILE = 'check-pull-request.mjs'
+FILE = os.environ.get('MUT_FILE', 'check-pull-request.mjs')
 src = open(os.path.join(repo, FILE)).read()
 lines = src.split('\n')
-inrange = lambda i: True
+RANGES = [tuple(int(n) for n in part.split('-')) for part in os.environ['MUT_LINES'].split(',')] if os.environ.get('MUT_LINES') else None   # e.g. 12-40,88-97 (line numbers)
+inrange = lambda i: RANGES is None or any(a <= i + 1 <= b for a, b in RANGES)
 def tests_for(i):
-    return ['test/github.test.mjs']
+    return os.environ.get('MUT_TESTS', 'test/github.test.mjs').split()
 
 def skip(i, l):
     s = l.strip()
@@ -94,17 +96,22 @@ def run(idx_mut):
     with locks[n % workers]:
         mutated = '\n'.join(lines[:i] + [new] + lines[i + 1:])
         open(os.path.join(w, FILE), 'w').write(mutated)
-        # a new session, so that a timeout stops the test runner and everything it started (a mutant can loop for ever)
-        proc = subprocess.Popen(['node', '--test', *tests_for(i)], cwd=w, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-        try:
-            killed = proc.wait(timeout=240) != 0
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, 9)
-            proc.wait()
-            killed = True
+        # a new session, so that a timeout stops the test runner and everything it started (a mutant can loop for ever); a mutant is killed
+        # at the first test that fails, which is when the runner has printed `not ok`
+        proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
+        timer = threading.Timer(240, lambda: os.killpg(proc.pid, 9))
+        timer.start()
+        failed = False
+        for line in proc.stdout:
+            if re.match(r'\s*not ok ', line):
+                failed = True
+                os.killpg(proc.pid, 9)
+                break
+        proc.wait()
+        timer.cancel()
+        killed = failed or proc.returncode != 0
         return n, i, d, killed
 
-import threading
 locks = [threading.Lock() for _ in range(workers)]
 tmp = tempfile.mkdtemp(prefix='mut-')
 for k in range(workers):
@@ -114,7 +121,9 @@ done = 0
 with concurrent.futures.ThreadPoolExecutor(workers) as ex:
     for n, i, d, killed in ex.map(run, list(enumerate(uniq))):
         done += 1
-        if not killed: survivors.append((i, d, uniq[n][1]))
+        if not killed:
+            survivors.append((i, d, uniq[n][1]))
+            print(f'survived L{i + 1}: {d}', flush=True)
         if done % 100 == 0: print(done, 'done,', len(survivors), 'survivors', flush=True)
 print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors)} survived')
 for i, d, new in sorted(survivors):

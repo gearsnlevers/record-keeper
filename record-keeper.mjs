@@ -917,7 +917,7 @@ export const PIN_PATH = '.github/record-keeper.yml';
 
 /** The files that make the check (docs/protected-files.md): a change to one is an act, and no other workflow may name the check. */
 export const WORKFLOW_FILES = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml'];
-export const CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs'];
+export const CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs'];
 const WORKFLOW_FOLDER = '.github/workflows';
 const NAMES_THE_CHECK = /records[ _-]?integrity/i;
 
