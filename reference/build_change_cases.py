@@ -894,9 +894,9 @@ case('v07-note-on-an-unknown-generation', 'A seal of generation g2: this version
      base='other-generation', changes=[NOTED('sha256-g2:' + HEX, deviations=NOTE1)], problems=[P06(2, 'unknown generation g2')], cases=CASES5)
 case('v08-note-on-a-seal-that-is-not-a-seal', 'A seal that is not written as a seal is V-22, not P-06, and takes no note: the change is judged whole.',
      base='malformed-seal', changes=[NOTED('nope', deviations=NOTE1)], problems=[p(name(2), 'V-22')], cases=CASES5)
-case('v09-superseding-a-record-that-does-not-match', 'Not changed here: the status of a record that does not verify changes to `superseded by`, and the record still does not verify, so P-06 is reported.',
+case('v09-superseding-a-record-that-does-not-match', 'The status of a record that does not verify changes to `superseded by` and nothing else changes: the successor vouches for it (P-04), so the old P-06 is not repeated.',
      base='broken-text', changes=[rput(2, rec(2, 'superseded by 0007', S0, **BROKEN)), rput(7, rec(7, 'accepted', True, supersedes=[2])), index(rows_with(r2='superseded by 0007') + [(7, 'accepted')])],
-     problems=[P06()], acts=[acc(7)])
+     acts=[acc(7)])
 case('v10-second-note-on-a-broken-record', 'A second note after the first, on a record that does not verify.',
      base='broken-with-note', changes=[NOTED(deviations=txt([dev(1, 'pull 5'), dev(2, 'pull 5')]), **BROKEN)], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('v11-earlier-note-changed-on-a-broken-record', 'The first note is rewritten when the second is added.',
@@ -920,6 +920,38 @@ case('v19-erratum-on-a-sealed-record-with-a-broken-chain', 'An erratum on the re
      base='errata-broken-chain', changes=[rput(2, fix(errata='Free text.\n\n' + txt([E1])))], problems=[p(name(2), 'P-10', 'text outside an entry')], acts=[ER()], **OK1)
 case('v20-delete-a-record-that-does-not-verify', 'A record that does not verify is deleted: P-01 as for any record, and nothing is asked of a note.',
      base='broken-text', changes=[drop(f'{D}/{name(2)}'), index([r for r in ROWS if r[0] != 2])], problems=[p(name(2), 'P-01'), p(None, 'V-08')])
+
+# ---- superseding a record that does not verify (docs/checking-a-change.md) ---------------------------------------------------
+TREES['no-seals'] = {**TREES['world'], f'{D}/{name(1)}': rec(1, 'accepted'), f'{D}/{name(2)}': rec(2, 'accepted')}
+SUP7 = lambda n, status='superseded by 0007', **kw: rput(n, rec(n, status, **kw))
+IDX7 = lambda **r: index(rows_with(**r) + [(7, 'accepted')])
+SUCC7 = lambda *l: rput(7, rec(7, 'accepted', True, supersedes=list(l)))
+case('v21-superseding-a-record-without-a-seal', 'An accepted record that never had a seal is superseded: the status line is the only change, so the old P-06 is not repeated.',
+     base='no-seal', changes=[SUP7(2), SUCC7(2), IDX7(r2='superseded by 0007')], acts=[acc(7)])
+case('v22-superseding-and-editing-the-text', 'The status changes and the text is edited too: not a supersession, the record still does not verify, and P-06 is reported.',
+     base='broken-text', changes=[SUP7(2, seal=S0, consequences='- Effect 2, edited again.'), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[P06()], acts=[acc(7)])
+case('v23-superseding-and-another-seal', 'The status changes and the seal line changes too: two lines differ, so it is not a supersession.',
+     base='broken-text', changes=[SUP7(2, seal=X9, **BROKEN), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[P06()], acts=[acc(7)])
+case('v24-superseding-by-a-record-that-does-not-list-it', 'The status changes but the successor does not list the record in its supersedes: P-04 is reported, and the old P-06 is not.',
+     base='no-seal', changes=[SUP7(2), rput(7, rec(7, 'accepted', True)), IDX7(r2='superseded by 0007')], problems=[p(name(2), 'P-04', '0007: does not list this record')], acts=[acc(7)])
+case('v25-superseding-by-a-record-that-is-not-sealed', 'The successor is accepted without a seal: P-04 for the old record (not sealed) and P-06 for the new one; there is no acceptance.',
+     base='no-seal', changes=[SUP7(2), rput(7, rec(7, 'accepted', supersedes=[2])), IDX7(r2='superseded by 0007')], problems=[p(name(2), 'P-04', '0007: not sealed'), p(name(7), 'P-06', 'no seal')])
+case('v26-superseding-a-record-of-an-unknown-generation', 'A seal of generation g2: this version does not know where its sections are, so the change is judged as a change to an unsealed record and P-06 is reported.',
+     base='other-generation', changes=[SUP7(2, seal='sha256-g2:' + HEX), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[P06(2, 'unknown generation g2')], acts=[acc(7)])
+case('v27-superseding-a-record-with-a-seal-that-is-not-a-seal', 'A seal that is not written as a seal is V-22 and takes no supersession: the change is judged whole.',
+     base='malformed-seal', changes=[SUP7(2, seal='nope'), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[p(name(2), 'V-22')], acts=[acc(7)])
+case('v28-superseded-record-superseded-again', 'A record that is already `superseded by` another is not `accepted`: only that change is a supersession, so the old P-06 is reported, and P-05 for the record that listed it.',
+     base='broken-superseded', changes=[rput(5, rec(5, 'superseded by 0007', 'bad')), SUCC7(5), IDX7(r5='superseded by 0007')], problems=[p(name(5), 'P-06', 'seal does not match'), p(name(6), 'P-05', '0005')], acts=[acc(7)])
+case('v29-two-unsealed-records-superseded-by-one', 'Two accepted records without a seal are superseded by one record that lists both.',
+     base='no-seals', changes=[SUP7(1), SUP7(2), SUCC7(1, 2), IDX7(r1='superseded by 0007', r2='superseded by 0007')], acts=[acc(7)])
+case('v30-a-sealed-and-an-unsealed-record-superseded-by-one', 'A sealed record (status line only) and a record without a seal are superseded by one record that lists both.',
+     base='no-seal', changes=[rput(1, with_status(1, 'superseded by 0007')), SUP7(2), SUCC7(1, 2), IDX7(r1='superseded by 0007', r2='superseded by 0007')], acts=[acc(7)])
+case('v31-superseded-by-a-lower-number', 'The status names a lower number: V-20 reports it, P-04 does not, and the old P-06 is not repeated.',
+     base='no-seal', changes=[SUP7(2, 'superseded by 0001'), index(rows_with(r2='superseded by 0001'))], problems=[p(name(2), 'V-20')])
+case('v32-superseding-and-a-note', 'The status changes together with a deviation note: not a note and not a supersession, so P-06 is reported.',
+     base='broken-text', changes=[SUP7(2, seal=S0, deviations=NOTE1, **BROKEN), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[P06()], acts=[acc(7)], cases=CASES5)
+case('v33-superseding-a-record-with-an-old-format-problem', 'The record is past sixty lines (V-10 at the base) and does not verify: the supersession does not bring the old V-10 or the old P-06 back.',
+     base='broken-long', changes=[SUP7(2, seal=S0, body_lines=60), SUCC7(2), IDX7(r2='superseded by 0007')], acts=[acc(7)])
 
 def main():
     work = tempfile.mkdtemp(prefix='change-cases-')

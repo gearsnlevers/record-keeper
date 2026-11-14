@@ -399,6 +399,9 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
     for n in sorted(noted):
         additions[n] = 'deviation'
         problems += [(n, r, d) for r, d in judge_deviation(repo, None if root else base, brec[n], hrec[n], cases, needs, assume)]
+    # a record that says it is accepted and does not verify, whose only change is its status line to `superseded by NNNN`
+    superseding = {n for n in brec if n in hrec and brec[n].readable and brec[n].claims and not brec[n].sealed and unsealed_g1(brec[n]) and brec[n].status == 'accepted'
+                   and hrec[n].readable and brec[n].data != hrec[n].data and compare(brec[n], hrec[n].data) is None}
     same = lambda name: be.get(prefix + name) == he.get(prefix + name)
     sh = prefix + shared
     for p in changed:
@@ -425,6 +428,7 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
     plain = lambda t: (t[0], t[1], t[2] if t[1] in ('T-02', 'T-03') else '')
     vb = {plain(t) for t in commit_ref.commit_validate(repo, base, folder, extra, shared)}
     for f, r, d in map(plain, commit_ref.commit_validate(repo, head, folder, extra, shared)):
+        if f in superseding and r in CONTENT_RULES: continue
         if (f in sealed_kept or f in noted) and r in CONTENT_RULES:
             kind = additions.get(f)
             applies = (r != 'V-10') if kind == 'erratum' else (r in DEVIATION_RULES) if kind == 'deviation' else False
@@ -434,7 +438,7 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
         problems.append((f, r, d))
     sb = set(state_problems(brec))
     for f, r, d in state_problems(hrec):
-        if (f, r, d) in sb and (same(f) or additions.get(f) == 'deviation'): continue
+        if (f, r, d) in sb and (same(f) or additions.get(f) == 'deviation' or f in superseding): continue
         problems.append((f, r, d))
     acts = set()
     proto_before, proto_after = protocol_records(repo, be, folder), protocol_records(repo, he, folder)
