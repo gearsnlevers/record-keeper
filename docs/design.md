@@ -399,7 +399,6 @@ Proposed after the threat review (2026-10-29), to be confirmed or changed in rev
 Open:
 
 - What the experiments have not tested (see "Prerequisites and what was verified"): a `workflow_run` or `issue_comment` workflow of the default branch (E7). The run for a pull request against another branch (E6) and an `APPROVE` review (E8) were tested on 2026-11-07, see [workflow](workflow.md#what-was-verified-on-github).
-- Whether the kit's own records are sealed from the first one accepted. Record 0001 proposes it.
 - How often the scan runs, and how strict the signals are. A first guess is monthly, with the thresholds in the settings.
 - Whether the compactor handles the shared records of frodo-cli and frodo-lib, which are the same files in both repositories, or leaves them until the kit carries shared records.
 
