@@ -137,7 +137,7 @@ describe('the command audit', () => {
     const folder = run(history('h30-a-workflow-that-names-the-check').args);
     assert.match(folder.stderr, /^[0-9a-f]{12}: docs\/decisions: \[P-15\] .*\(\.github\/workflows\/fake\.yml\)\n/);
     const settings = run(history('h29-a-problem-of-the-settings').args);
-    assert.match(settings.stderr, /^[0-9a-f]{12}: \.github\/record-keeper\/settings\.yml:1: \[S-05\] .*\(witnesses\)\n/);
+    assert.match(settings.stderr, /^[0-9a-f]{12}: \.github\/record-keeper\/settings\.yml:1: \[S-05\] .*\(branches\)\n/);
     const tip = run(history('h25-since-skips-the-commits-up-to-it').args);
     assert.match(tip.stderr, /^tip: docs\/decisions\/0002-second\.md: \[P-19\] is accepted and has an applies-to item that no file matches \(README\.md\)\n/);
     const rewritten = run(history('h10-the-start-is-unknown').args);

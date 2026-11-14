@@ -1,13 +1,13 @@
 """Reference implementation of the settings file (docs/settings.md), in Python, written from the page.
-parse_settings(data: bytes) -> (settings, problems); settings = {'folder', 'sharedFolder', 'extraKeys', 'owners', 'approvals'};
+parse_settings(data: bytes) -> (settings, problems); settings = {'folder', 'sharedFolder', 'extraKeys', 'owners', 'approvals', 'witnesses'};
 problems = list of (line or None, rule, detail or None), in the order of the page.
 read_settings(repo, rev) -> (settings, problems) with problems = (file, line, rule, detail)."""
 import os, re, subprocess
 
 SETTINGS_PATH = '.github/record-keeper/settings.yml'
-DEFAULTS = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2}
+DEFAULTS = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
 KNOWN = {'folder': ('single', 'folder', 'folder'), 'shared-folder': ('single', 'part', 'sharedFolder'), 'extra-keys': ('list', 'key', 'extraKeys'),
-         'owners': ('list', 'owner', 'owners'), 'approvals': ('single', 'count', 'approvals')}
+         'owners': ('list', 'owner', 'owners'), 'approvals': ('single', 'count', 'approvals'), 'witnesses': ('list', 'owner', 'witnesses')}
 KEY = r'[A-Za-z][A-Za-z0-9_-]*'
 PLAIN = re.compile(r'(?:[A-Za-z_]|\.[A-Za-z])[A-Za-z0-9_./-]*', re.ASCII)
 RESERVED = re.compile(r'null|true|false|yes|no|on|off|y|n|\.inf|\.nan', re.ASCII | re.IGNORECASE)
@@ -22,7 +22,7 @@ def cut(text):
 
 
 def fresh():
-    return {'folder': DEFAULTS['folder'], 'sharedFolder': DEFAULTS['sharedFolder'], 'extraKeys': [], 'owners': [], 'approvals': 2}
+    return {'folder': DEFAULTS['folder'], 'sharedFolder': DEFAULTS['sharedFolder'], 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
 
 
 def bad_text(data):

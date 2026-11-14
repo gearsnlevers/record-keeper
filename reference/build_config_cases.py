@@ -5,13 +5,14 @@ sys.path.insert(0, os.path.dirname(__file__))
 import config_ref as ref
 from commit_lib import build_repo
 
-D = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2}
+D = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
 SP = '.github/record-keeper/settings.yml'
 
 
-def S(folder=None, shared=None, keys=None, owners=None, approvals=2):
+def S(folder=None, shared=None, keys=None, owners=None, approvals=2, witnesses=None):
     return {'folder': folder or D['folder'], 'sharedFolder': shared or D['sharedFolder'], 'extraKeys': list(keys or []),
-            'owners': [{'login': l, 'id': i} for l, i in (owners or [])], 'approvals': approvals}
+            'owners': [{'login': l, 'id': i} for l, i in (owners or [])], 'approvals': approvals,
+            'witnesses': [{'login': l, 'id': i} for l, i in (witnesses or [])]}
 
 
 texts = []
@@ -163,25 +164,38 @@ T('s04a-folder-twice', 'folder: a\nfolder: b\n', S(), [P(1, 'S-04', 'folder'), P
 T('s04b-three-times', 'shared-folder: a\nshared-folder: b\nshared-folder: c\n', S(), [P(1, 'S-04', 'shared-folder'), P(2, 'S-04', 'shared-folder'), P(3, 'S-04', 'shared-folder')], 'every line of the key')
 T('s04c-with-broken', "folder: a\nfolder: 'b\n", S(), [P(1, 'S-04', 'folder'), P(2, 'S-03', "folder: 'b")], 'a broken line counts as a line of its key, and keeps its S-03')
 T('s04d-both-broken', "folder: 'a\nfolder: 'b\n", S(), [P(1, 'S-03', "folder: 'a"), P(2, 'S-03', "folder: 'b")], 'two broken lines: S-03 twice and no S-04')
+# ---------------------------------------------------------------- witnesses (M2.9c)
+T('w01-witness', 'witnesses: [carol/1003]\n', S(witnesses=[('carol', 1003)]), [], 'one witness, in the form of an owner')
+T('w02-two-witnesses', 'witnesses: [carol/1003, dave/1004]\n', S(witnesses=[('carol', 1003), ('dave', 1004)]), [], 'two witnesses, in the order of the file')
+T('w03-empty-witnesses', 'witnesses: []\n', S(), [], 'nobody')
+T('w04-owner-and-witness', 'owners: [alice/1001]\nwitnesses: [alice/1001]\n', S(owners=[('alice', 1001)], witnesses=[('alice', 1001)]), [], 'an owner may be listed as a witness too: the two lists are not compared')
+T('w05-same-id-twice', 'witnesses: [carol/1003, dave/1003]\n', S(), [P(1, 'S-07', 'dave/1003')], 'the ID must differ inside the list, as for owners')
+T('w06-single-value', 'witnesses: carol/1003\n', S(), [P(1, 'S-06', 'witnesses')], 'a list is needed')
+T('w07-bad-login', 'witnesses: [a_b/1]\n', S(), [P(1, 'S-07', 'a_b/1')], 'the form of a login is that of an owner')
+T('w08-twice', 'witnesses: [a/1]\nwitnesses: [b/2]\n', S(), [P(1, 'S-04', 'witnesses'), P(2, 'S-04', 'witnesses')], 'a key that is set twice takes its default')
+T('w09-all-six', 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\nwitnesses: [carol/1003]\n', S('docs/adr', 'core', ['repos'], [('alice', 1001)], 1, [('carol', 1003)]), [], 'every setting')
+T('w10-bad-witnesses-leave-the-rest', 'owners: [alice/1001]\nwitnesses: [x]\n', S(owners=[('alice', 1001)]), [P(2, 'S-07', 'x')], 'a problem in witnesses leaves the default and the other settings are read')
+T('w11-no-value', 'witnesses:\n', S(), [P(1, 'S-06', 'witnesses')], 'no value is not a list')
+T('w12-quoted-witness', "witnesses: ['carol/1003']\n", S(witnesses=[('carol', 1003)]), [], 'quoted items are the same strings')
 T('s04e-extra-keys-twice', 'extra-keys: [a]\nextra-keys: [b]\n', S(), [P(1, 'S-04', 'extra-keys'), P(2, 'S-04', 'extra-keys')], 'a list set twice')
 T('s04f-others-unaffected', 'folder: a\nshared-folder: s\nfolder: b\nextra-keys: [k]\n', S(None, 's', ['k']), [P(1, 'S-04', 'folder'), P(3, 'S-04', 'folder')], 'the other keys are read')
-T('s04g-unknown-twice', 'witnesses: [a]\nwitnesses: [b]\n', S(), [P(1, 'S-05', 'witnesses'), P(2, 'S-05', 'witnesses')], 'an unknown key is S-05 on each line and never S-04')
+T('s04g-unknown-twice', 'branches: [a]\nbranches: [b]\n', S(), [P(1, 'S-05', 'branches'), P(2, 'S-05', 'branches')], 'an unknown key is S-05 on each line and never S-04')
 T('s04h-bad-kind-twice', 'folder: [a]\nfolder: [b]\n', S(), [P(1, 'S-04', 'folder'), P(2, 'S-04', 'folder')], 'S-04 comes before the kind is looked at')
 T('s04i-case-differs', 'folder: a\nFolder: b\n', S('a'), [P(2, 'S-05', 'Folder')], 'keys are compared exactly')
 T('s04j-bad-value-twice', "folder: ''\nfolder: ''\n", S(), [P(1, 'S-04', 'folder'), P(2, 'S-04', 'folder')], 'S-04 comes before the value is looked at')
 T('s04k-broken-then-good-then-broken', "folder: 'a\nfolder: b\nfolder: 'c\n", S(), [P(1, 'S-03', "folder: 'a"), P(2, 'S-04', 'folder'), P(3, 'S-03', "folder: 'c")], 'one good line between two broken ones')
 
 # ---------------------------------------------------------------- S-05
-T('s05a-unknown', 'witnesses: [alice]\n', S(), [P(1, 'S-05', 'witnesses')], 'a key for a later kit')
+T('s05a-unknown', 'branches: [alice]\n', S(), [P(1, 'S-05', 'branches')], 'a key for a later kit')
 T('s05b-capital', 'Folder: x\n', S(), [P(1, 'S-05', 'Folder')], 'case matters')
 T('s05c-underscore', 'shared_folder: x\n', S(), [P(1, 'S-05', 'shared_folder')], 'an underscore is not a hyphen')
 T('s05d-integer', 'branches: 2\n', S(), [P(1, 'S-05', 'branches')], 'an integer is in the subset, so an unknown key with one is S-05 and not S-03')
 T('s05e-word-value', 'compactor: report\n', S(), [P(1, 'S-05', 'compactor')], 'an unknown key with a readable value')
 T('s05f-long-key', 'k' * 50 + ': x\n', S(), [P(1, 'S-05', 'k' * 40)], 'the detail is cut')
-T('s05g-several', 'owner: [a]\nwitnesses: []\nbranches: [main]\ncompactor: report\n', S(), [P(1, 'S-05', 'owner'), P(2, 'S-05', 'witnesses'), P(3, 'S-05', 'branches'), P(4, 'S-05', 'compactor')], 'each line')
-T('s05h-unknown-no-value', 'witnesses:\n', S(), [P(1, 'S-05', 'witnesses')], 'the kind of an unknown key is not looked at')
+T('s05g-several', 'owner: [a]\nchannel: []\nbranches: [main]\ncompactor: report\n', S(), [P(1, 'S-05', 'owner'), P(2, 'S-05', 'channel'), P(3, 'S-05', 'branches'), P(4, 'S-05', 'compactor')], 'each line')
+T('s05h-unknown-no-value', 'branches:\n', S(), [P(1, 'S-05', 'branches')], 'the kind of an unknown key is not looked at')
 T('s05i-unknown-list-of-strings', "extra-key: ['x']\n", S(), [P(1, 'S-05', 'extra-key')], 'a near miss')
-T('s05j-unknown-in-the-middle', 'folder: a\nwitnesses: [x]\nshared-folder: s\n', S('a', 's'), [P(2, 'S-05', 'witnesses')], 'the lines around it are read')
+T('s05j-unknown-in-the-middle', 'folder: a\nbranches: [x]\nshared-folder: s\n', S('a', 's'), [P(2, 'S-05', 'branches')], 'the lines around it are read')
 
 T('s05k-prototype-names', 'constructor: x\ntoString: [a]\nhasOwnProperty: z\nvalueOf:\nconstructor: y2\n', S(), [P(1, 'S-05', 'constructor'), P(2, 'S-05', 'toString'), P(3, 'S-05', 'hasOwnProperty'), P(4, 'S-05', 'valueOf'), P(5, 'S-05', 'constructor')], 'names of the language are not settings, and a repeated unknown key is S-05 each time')
 T('s05l-proto-key', '__proto__: x\n', S(), [P(1, 'S-03', '__proto__: x')], 'a key starts with a letter')
@@ -228,11 +242,11 @@ T('s07y-good-folder-bad-keys', "folder: a\nextra-keys: ['!']\nshared-folder: s\n
 T('s07z-underscore-key', 'extra-keys: [_x]\n', S(), [P(1, 'S-07', '_x')], 'a key does not start with an underscore')
 
 # ---------------------------------------------------------------- several problems
-T('m01-everything', "# settings\nfolder: docs/adr\nwitnesses: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n", S(), [P(2, 'S-04', 'folder'), P(3, 'S-05', 'witnesses'), P(5, 'S-06', 'shared-folder'), P(6, 'S-07', 'bad key'), P(7, 'S-03', '  stray'), P(8, 'S-04', 'folder')], 'one problem on each line, in the order of the lines')
-T('m02-one-bad-line-does-not-silence-the-rest', 'folder: docs/adr\nwitnesses: [a]\nextra-keys: [repos]\n', S('docs/adr', None, ['repos']), [P(2, 'S-05', 'witnesses')], 'the settings around a problem are read')
-T('m03-comments-keep-line-numbers', '# a\n\n# b\nwitnesses: [x]\n', S(), [P(4, 'S-05', 'witnesses')], 'blank lines and comments count')
-T('m04-crlf-line-numbers', '\r\n\r\nwitnesses: [x]\r\n', S(), [P(3, 'S-05', 'witnesses')], 'a carriage return and a line feed make one line end')
-T('m05-no-final-newline-problem', 'folder: a\nwitnesses: [x]', S('a'), [P(2, 'S-05', 'witnesses')], 'a problem on the last line without an ending')
+T('m01-everything', "# settings\nfolder: docs/adr\nbranches: [a]\n\nshared-folder: [x]\nextra-keys: ['bad key']\n  stray\nfolder: again\n", S(), [P(2, 'S-04', 'folder'), P(3, 'S-05', 'branches'), P(5, 'S-06', 'shared-folder'), P(6, 'S-07', 'bad key'), P(7, 'S-03', '  stray'), P(8, 'S-04', 'folder')], 'one problem on each line, in the order of the lines')
+T('m02-one-bad-line-does-not-silence-the-rest', 'folder: docs/adr\nbranches: [a]\nextra-keys: [repos]\n', S('docs/adr', None, ['repos']), [P(2, 'S-05', 'branches')], 'the settings around a problem are read')
+T('m03-comments-keep-line-numbers', '# a\n\n# b\nbranches: [x]\n', S(), [P(4, 'S-05', 'branches')], 'blank lines and comments count')
+T('m04-crlf-line-numbers', '\r\n\r\nbranches: [x]\r\n', S(), [P(3, 'S-05', 'branches')], 'a carriage return and a line feed make one line end')
+T('m05-no-final-newline-problem', 'folder: a\nbranches: [x]', S('a'), [P(2, 'S-05', 'branches')], 'a problem on the last line without an ending')
 T('m06-crlf-and-detail', 'folder: \'x\r\n', S(), [P(1, 'S-03', "folder: 'x")], 'the carriage return is not part of the detail')
 
 # ---------------------------------------------------------------- owners and approvals (M2.4)
@@ -250,7 +264,7 @@ T('o11-approvals-range', 'approvals: 99\n', S(approvals=99), [], 'the largest co
 T('o12-approvals-comment', 'approvals: 3 # three\n', S(approvals=3), [], 'a comment after an integer')
 T('o13-approvals-spaces', 'approvals:    1   \n', S(approvals=1), [], 'spaces around an integer')
 T('o14-approvals-crlf', 'approvals: 2\r\nowners: [a/1]\r\n', S(owners=[('a', 1)]), [], 'line ends')
-T('o15-all-five', 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\n', S('docs/adr', 'core', ['repos'], [('alice', 1001)], 1), [], 'every setting')
+T('o15-all-five', 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\n', S('docs/adr', 'core', ['repos'], [('alice', 1001)], 1), [], 'every setting but witnesses')
 T('o16-owners-no-login-class', 'owners: [a_b/1]\n', S(), [P(1, 'S-07', 'a_b/1')], 'an underscore is not in a login')
 T('o17-owner-without-id', 'owners: [alice]\n', S(), [P(1, 'S-07', 'alice')], 'a login alone')
 T('o18-owner-id-only', 'owners: ["1001"]\n', S(), [P(1, 'S-07', '1001')], 'an ID alone')
@@ -340,7 +354,7 @@ TR('t12-folder-submodule', [{'path': '.github/record-keeper', 'submodule': True}
 TR('t13-elsewhere', [{'path': 'settings.yml', 'content': GOOD}, {'path': '.github/settings.yml', 'content': GOOD}, {'path': '.github/record-keeper/Settings.yml', 'content': GOOD}, {'path': '.github/record-keeper/settings.yaml', 'content': GOOD}, {'path': 'docs/settings.yml', 'content': GOOD}], S(), [], 'only the path of the page is read')
 TR('t14-pin-is-not-read', [{'path': '.github/record-keeper.yml', 'content': 'this: is: not: yaml\n'}], S(), [], 'the pin is another file and is not read')
 TR('t15-github-without-folder', [{'path': '.github/workflows/x.yml', 'content': 'x\n'}], S(), [], '.github without record-keeper: the defaults')
-TR('t16-problems-carry-the-file', [{'path': SP, 'content': 'witnesses: [a]\nfolder: docs/adr\n'}], S('docs/adr'), [P(1, 'S-05', 'witnesses')], 'a problem of the file in a tree')
+TR('t16-problems-carry-the-file', [{'path': SP, 'content': 'branches: [a]\nfolder: docs/adr\n'}], S('docs/adr'), [P(1, 'S-05', 'branches')], 'a problem of the file in a tree')
 TR('t17-github-dir-with-links-around', [{'path': '.github/record-keeper/settings.yml', 'content': GOOD}, {'path': '.github/link', 'link': 'record-keeper'}], GOOD_S, [], 'a link beside the folder changes nothing')
 TR('t18-file-and-sibling-folder', [{'path': '.github/record-keeper/settings.yml', 'content': GOOD}, {'path': '.github/record-keeper/other', 'content': 'x\n'}], GOOD_S, [], 'other files in the folder change nothing')
 TR('t20-owners-in-a-tree', [{'path': SP, 'content': 'owners: [alice/1001, bob/1002]\napprovals: 2\n'}], S(owners=[('alice', 1001), ('bob', 1002)]), [], 'owners and approvals are read from a commit')

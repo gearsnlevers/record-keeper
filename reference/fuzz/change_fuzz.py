@@ -78,7 +78,7 @@ def world(rng):
     settings = []
     if folder != 'docs/decisions': settings.append(f'folder: {folder}')
     if rng.random() < 0.15: settings.append('extra-keys: [repos]')
-    if rng.random() < 0.05: settings.append(rng.choice(['witnesses: [a]', 'folder: 2024', 'shared-folder: x/y', 'extra-keys: nope', 'owners: [bad]', 'approvals: 0']))
+    if rng.random() < 0.05: settings.append(rng.choice(['branches: [a]', 'folder: 2024', 'shared-folder: x/y', 'extra-keys: nope', 'owners: [bad]', 'approvals: 0']))
     if rng.random() < 0.3: settings.append(rng.choice(OWNER_LINES))
     if rng.random() < 0.15: settings.append(rng.choice(APPROVAL_LINES))
     if settings: files['.github/record-keeper/settings.yml'] = '\n'.join(settings) + '\n'
@@ -213,7 +213,7 @@ def mutate(rng, folder, files):
             if rng.random() < 0.7: f[q] = record(rng, 1, 'accepted', True)
             else: f.pop(q, None)
         elif what == 'settings':
-            choice = rng.choice(['folder: records\n', 'extra-keys: [repos]\n', 'witnesses: [a]\n', 'folder: docs/decisions\n', None, '', 'shared-folder: common\n', 'folder: [a]\n', 'owners: [alice/1001]\n', 'owners: [alice/1001, bob/1002]\napprovals: 1\n', 'owners: [bob/1002, alice/1001]\n', 'owners: [alicia/1001, bob/1002]\n', 'approvals: 3\n', 'approvals: 1\n', 'owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n', 'owners: [bad]\n', '\ufeffowners: [alice/1001]\n'])
+            choice = rng.choice(['folder: records\n', 'extra-keys: [repos]\n', 'branches: [a]\n', 'folder: docs/decisions\n', None, '', 'shared-folder: common\n', 'folder: [a]\n', 'owners: [alice/1001]\n', 'owners: [alice/1001, bob/1002]\napprovals: 1\n', 'owners: [bob/1002, alice/1001]\n', 'owners: [alicia/1001, bob/1002]\n', 'approvals: 3\n', 'approvals: 1\n', 'owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n', 'owners: [bad]\n', '\ufeffowners: [alice/1001]\n'])
             if choice is None: f.pop('.github/record-keeper/settings.yml', None)
             else: f['.github/record-keeper/settings.yml'] = choice
         elif what == 'pin': f['.github/record-keeper.yml'] = rng.choice(['source: a/b\n', 'x: y\n'])

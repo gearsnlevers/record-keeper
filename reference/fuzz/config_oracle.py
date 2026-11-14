@@ -3,8 +3,8 @@ Usage: config_oracle.py <in.jsonl> [more.jsonl ...]   (PyYAML in process, Psych 
 import json, os, subprocess, sys, yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-NAMES = {'folder': 'folder', 'shared-folder': 'sharedFolder', 'extra-keys': 'extraKeys', 'owners': 'owners', 'approvals': 'approvals'}
-DEFAULT = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2}
+NAMES = {'folder': 'folder', 'shared-folder': 'sharedFolder', 'extra-keys': 'extraKeys', 'owners': 'owners', 'approvals': 'approvals', 'witnesses': 'witnesses'}
+DEFAULT = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
 
 
 def accepted(paths):
@@ -21,7 +21,7 @@ def check(loaded, h):
     for key, value in loaded.items():
         if key not in NAMES: return 'extra key %r' % (key,)
         want = h['settings'][NAMES[key]]
-        if key == 'owners': want = ['%s/%d' % (o['login'], o['id']) for o in want]
+        if key in ('owners', 'witnesses'): want = ['%s/%d' % (o['login'], o['id']) for o in want]
         if value != want or type(value) is not type(want): return '%s: yaml %r, kit %r' % (key, value, want)
         if isinstance(want, list) and not all(type(v) is str for v in value): return '%s: non-string item in %r' % (key, value)
     for key, field in NAMES.items():

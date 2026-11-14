@@ -392,8 +392,8 @@ case('e26-the-history-was-rewritten', 'The start is a commit that is not in the 
 case('e27-a-violation-of-the-tip', 'The loss of a file happened before --since: the tip reports it, with the id of the head in the line.',
      [ROOT({**W, 'README.md': 'r\n', 'lib/c.js': 'c\n', f'{D}/{name(2)}': rec(2, 'accepted', True, keys='applies-to:\n  - README.md\n  - lib/*.js')}), commit('c1', [drop('README.md')]), commit('c2', [EDIT4])],
      frm='c0', since='@c1@', issues=[], plan=PLAN('@c2@', '@c0@', 1, 1, [OPEN([lv('@c2@', 'state', name(2), 'P-19', 'README.md')], head='@c2@')]))
-case('e28-a-problem-of-the-settings', 'A settings file with an unknown key: the place is the file and the line.', [ROOT(), commit('c1', [put(SET, 'witnesses: [a]\n')])], frm='c0', issues=[],
-     plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', None, 'S-05', 'witnesses')], lines=[vline('@c1@', SET + ':1', 'S-05', 'witnesses')])]))
+case('e28-a-problem-of-the-settings', 'A settings file with an unknown key: the place is the file and the line.', [ROOT(), commit('c1', [put(SET, 'branches: [a]\n')])], frm='c0', issues=[],
+     plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', None, 'S-05', 'branches')], lines=[vline('@c1@', SET + ':1', 'S-05', 'branches')])]))
 case('e29-a-file-that-is-not-a-record', 'A row of the index for a record that does not exist: the file is README.md, so the key says other.',
      [ROOT(), commit('c1', [index(ROWS + [(9, 'proposed')])])], frm='c0', issues=[], plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', 'README.md', 'V-32')])]))
 case('e30-a-character-that-hides-text', 'A workflow with a right-to-left override in its name: the line shows it as \\u{202e}.',

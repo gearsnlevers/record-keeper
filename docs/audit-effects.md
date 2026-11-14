@@ -146,7 +146,7 @@ For each action in the plan the `log` has one entry, in the same order: `{"at": 
 
 - **It does not read GitHub.** Which pull request contains a commit, its reviews and the start of the check are the program's to ask; this page says what it must hand over.
 - **It does not write an issue, a branch or a status.** The plan is data.
-- **It does not announce.** An act that was approved is not mentioned; the announcement issues are M2.9c.
+- **It does not announce.** An act that was approved is not mentioned by `audit-plan`; [the announcements](announcements.md) have their own plan, `announce-plan`.
 - **It does not read a pull request that is not merged.** Evidence is only for what reached the branch.
 - **It does not know whether the bot is the author of an issue.** It believes the fields of the issues file. That the file is GitHub's answer is the program's to see to.
 - **It does not remember anything.** Every run plans from the whole history and the issues as they are; the log and the last-run record are written, never read.

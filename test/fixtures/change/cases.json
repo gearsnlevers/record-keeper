@@ -59,7 +59,7 @@
   "broken-settings": [
    {
     "path": ".github/record-keeper/settings.yml",
-    "content": "witnesses: [a]\nfolder: docs/decisions\n"
+    "content": "branches: [a]\nfolder: docs/decisions\n"
    },
    {
     "path": "docs/decisions/0001-first.md",
@@ -428,7 +428,7 @@
   "broken-settings-2": [
    {
     "path": ".github/record-keeper/settings.yml",
-    "content": "folder: docs/decisions\nwitnesses: [a]\n"
+    "content": "folder: docs/decisions\nbranches: [a]\n"
    },
    {
     "path": "docs/decisions/0001-first.md",
@@ -4924,7 +4924,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],
@@ -4971,7 +4971,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],
@@ -4990,7 +4990,7 @@
    "changes": [
     {
      "write": ".github/record-keeper/settings.yml",
-     "content": "witnesses: [a]\nowner: [b]\n"
+     "content": "branches: [a]\nowner: [b]\n"
     }
    ],
    "expect": {
@@ -4998,7 +4998,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      },
      {
       "line": 2,
@@ -5381,7 +5381,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],
@@ -5416,7 +5416,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],
@@ -5827,7 +5827,7 @@
      {
       "line": 1,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],
@@ -5884,7 +5884,7 @@
      {
       "line": 2,
       "rule": "S-05",
-      "detail": "witnesses"
+      "detail": "branches"
      }
     ],
     "problems": [],

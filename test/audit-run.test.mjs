@@ -10,11 +10,12 @@ import path from 'node:path';
 import test, { after, before, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CannotRun, runAudit, runCli } from '../run-audit.mjs';
-import { audit, findAdoption } from '../record-keeper.mjs';
+import { audit, findAdoption, run } from '../record-keeper.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const script = path.join(root, 'run-audit.mjs');
 const { cases } = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/audit-effects/cases.json'), 'utf8'));
+const announceCases = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/announce/cases.json'), 'utf8')).cases;
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-audit-run-'));
 const servers = [];
 const realFetch = globalThis.fetch;
@@ -114,6 +115,7 @@ const logOf = (repo) => {
   const files = git(repo, ['ls-tree', '--name-only', 'refs/heads/record-keeper/log']).split('\n');
   return {
     files,
+    announcements: files.includes('announcements.jsonl') ? spawnSync('git', ['-C', repo, 'show', 'refs/heads/record-keeper/log:announcements.jsonl'], { env: CLEAN }).stdout.toString('utf8') : null,
     incidents: files.includes('incidents.jsonl') ? spawnSync('git', ['-C', repo, 'show', 'refs/heads/record-keeper/log:incidents.jsonl'], { env: CLEAN }).stdout.toString('utf8') : null,
     last: files.includes('last-run.json') ? spawnSync('git', ['-C', repo, 'show', 'refs/heads/record-keeper/log:last-run.json'], { env: CLEAN }).stdout.toString('utf8') : null,
     readme: files.includes('README.md') ? show('README.md') : null,
@@ -177,6 +179,8 @@ function github(c, ids, { issues = [], created = 1000, over } = {}) {
     if (method === 'GET' && found) return { body: reviews.get(Number(found[1])) ?? [] };
     found = /^\/repos\/o\/r\/commits\/([0-9a-f]+)\/check-runs$/.exec(route);
     if (method === 'GET' && found) return { body: { total_count: 1, check_runs: starts.has(found[1]) ? [{ name: 'Records integrity', app: { slug: 'github-actions' }, started_at: starts.get(found[1]) }] : [] } };
+    found = /^\/user\/(\d+)$/.exec(route);
+    if (method === 'GET' && found) return { body: { login: `u${found[1]}` } };
     if (method === 'GET' && route === `/repos/${REPO}/issues`) return { body: issues };
     if (method === 'POST' && route === `/repos/${REPO}/issues`) return { status: 201, body: { number: (next += 1) } };
     found = /^\/repos\/o\/r\/issues\/(\d+)$/.exec(route);
@@ -186,7 +190,7 @@ function github(c, ids, { issues = [], created = 1000, over } = {}) {
 }
 
 const NOW = (c) => () => Date.parse(c.now);
-const options = (c, work, server, extra = {}) => ({ repo: REPO, token: 'tok', api: server.url, cwd: work, now: NOW(c), timeout: 5000, ...extra });
+const options = (c, work, server, extra = {}) => ({ repo: REPO, token: 'tok', api: server.url, cwd: work, now: NOW(c), timeout: 5000, pause: 0, ...extra });
 
 /** What the program must ask of the API for a plan: one request per action, in the order of the plan. */
 function writesOf(plan) {
@@ -197,6 +201,25 @@ function writesOf(plan) {
       : { ...(action.action === 'reopen' ? { state: 'open' } : {}), title: action.title, body: action.body };
     return { method: 'PATCH', path: `/repos/${REPO}/issues/${action.number}`, body: change };
   });
+}
+
+/** What announce-plan says for a case: { announcements, log }, with the logins of the fake GitHub (u<id>). */
+function announcementsOf(c, ids, work, issues) {
+  const fill = fillWith(ids);
+  const folder = fs.mkdtempSync(path.join(scratch, 'announce-'));
+  const file = (name, content) => {
+    fs.writeFileSync(path.join(folder, name), content);
+    return path.join(folder, name);
+  };
+  const evidence = file('evidence.json', fill(JSON.stringify(c.evidence ?? {})));
+  const listed = file('issues.json', JSON.stringify(issues));
+  const asked = (logins) => run(['announce-plan', '--repo', work, '--head', 'HEAD', '--adopted', '--evidence', evidence, '--issues', listed, '--logins', file('logins.json', JSON.stringify(logins)), '--now', c.now]);
+  const first = asked({});
+  assert.equal(first.code, 0, first.stderr);
+  const need = JSON.parse(first.stdout).lookups;
+  const second = asked(Object.fromEntries(need.map((id) => [id, `u${id}`])));
+  assert.equal(second.code, 0, second.stderr);
+  return JSON.parse(second.stdout);
 }
 
 const built = new Map();
@@ -242,20 +265,24 @@ describe('the cases of the effects, from the history to the requests and the log
       const got = await runAudit(options(c, work, server));
       assert.equal(got.code, plan.failed ? 1 : 0, c.note);
       const writes = server.requests.filter(({ method }) => method !== 'GET').map(({ method, path: route, body }) => ({ method, path: route, body }));
-      const wanted = writesOf(plan);
+      const announced = announcementsOf(c, ids, work, JSON.parse(fill(JSON.stringify(c.issues ?? []))));
+      const wanted = [...writesOf(plan), ...announced.announcements.map(({ title, body }) => ({ method: 'POST', path: `/repos/${REPO}/issues`, body: { title, body } }))];
       assert.deepEqual(writes, wanted, c.note);
       let created = 1000;
       const said = plan.issues.map((a) => `${{ open: 'opened', update: 'updated', reopen: 'reopened', close: 'closed' }[a.action]} ${a.key} #${a.action === 'open' ? (created += 1) : a.number}`);
       assert.deepEqual(got.stdout.split('\n').filter((line) => /^(opened|updated|reopened|closed) /.test(line)), said, c.note);
+      assert.deepEqual(got.stdout.split('\n').filter((line) => /^announced /.test(line)), announced.announcements.map(({ key }) => `announced ${key} #${(created += 1)}`), c.note);
       const last = got.stdout.trimEnd().split('\n').at(-1);
-      assert.equal(last, `log: ${plan.log.length === 0 ? 'the record of the run' : `${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'} and the record of the run`} pushed to record-keeper/log`, c.note);
+      const kinds = [...(plan.log.length === 0 ? [] : [`${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'}`]), ...(announced.log.length === 0 ? [] : [`${announced.log.length} ${announced.log.length === 1 ? 'announcement' : 'announcements'}`]), 'the record of the run'];
+      assert.equal(last, `log: ${kinds.length === 1 ? kinds[0] : `${kinds.slice(0, -1).join(', ')} and ${kinds.at(-1)}`} pushed to record-keeper/log`, c.note);
       const log = logOf(repo);
       assert.ok(log, 'the log branch was made');
-      assert.deepEqual(log.files, ['README.md', 'incidents.jsonl', 'last-run.json']);
+      assert.deepEqual(log.files, announced.log.length === 0 ? ['README.md', 'incidents.jsonl', 'last-run.json'] : ['README.md', 'announcements.jsonl', 'incidents.jsonl', 'last-run.json']);
       assert.equal(log.incidents, plan.log.map((entry) => `${JSON.stringify(entry)}\n`).join(''));
+      assert.equal(log.announcements, announced.log.length === 0 ? null : announced.log.map((entry) => `${JSON.stringify(entry)}\n`).join(''));
       assert.equal(log.last, `${JSON.stringify(plan.run)}\n`);
       assert.equal(log.commits.length, 1);
-      assert.equal(log.message(log.commits[0]).trim(), `Audit of ${plan.run.head} at ${plan.run.at}: ${plan.run.violations} violation${plan.run.violations === 1 ? '' : 's'}, ${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'}`);
+      assert.equal(log.message(log.commits[0]).trim(), `Audit of ${plan.run.head} at ${plan.run.at}: ${plan.run.violations} violation${plan.run.violations === 1 ? '' : 's'}, ${plan.log.length} ${plan.log.length === 1 ? 'entry' : 'entries'}${announced.log.length === 0 ? '' : `, ${announced.log.length} ${announced.log.length === 1 ? 'announcement' : 'announcements'}`}`);
       assert.equal(log.author(log.commits[0]), 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>|github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>|2026-11-10T03:00:00Z');
       const asked = new Set(server.requests.filter(({ path: route }) => /\/commits\/[0-9a-f]+\/pulls$/.test(route)).map(({ path: route }) => route.split('/')[5]));
       const acts = new Set(audit(work, 'HEAD', { from: findAdoption(work, 'HEAD') }).acts.map((act) => act.commit));
@@ -292,7 +319,7 @@ describe('what the job shows and what it writes', () => {
   });
 
   test('a clean history: the record of the run is written, nothing else, and the status is good', async () => {
-    const s = await scenario('b01-the-author-is-an-owner');
+    const s = await scenario('b32-no-act-no-evidence');
     const got = await runAudit(options(s.c, s.work, s.server));
     assert.deepEqual(got, { code: 0, stdout: 'audit: 0 violations, 0 excused, 1 commit judged\nlog: the record of the run pushed to record-keeper/log\n', stderr: '' });
     assert.equal(writesOn(s.server).length, 0);
@@ -346,19 +373,197 @@ describe('what the job shows and what it writes', () => {
   });
 
   test('a branch that already exists keeps its other files, and a last line that was cut short stays a line of its own', async () => {
-    const s = await scenario('b01-the-author-is-an-owner');
+    const s = await scenario('b32-no-act-no-evidence');
     const blob = (text) => git(s.work, ['hash-object', '-w', '--stdin'], text);
-    const tree = git(s.work, ['mktree'], `100644 blob ${blob('{"cut":\n')}\tincidents.jsonl\n100644 blob ${blob('mine\n')}\tnotes.txt\n`);
+    const tree = git(s.work, ['mktree'], `100644 blob ${blob('{"cut":')}\tannouncements.jsonl\n100644 blob ${blob('{"cut":\n')}\tincidents.jsonl\n100644 blob ${blob('mine\n')}\tnotes.txt\n`);
     const parent = git(s.work, ['commit-tree', tree, '-m', 'someone else']);
     git(s.work, ['push', '--quiet', 'origin', `${parent}:refs/heads/record-keeper/log`]);
     const server = await serve(github(s.c, s.ids));
     const got = await runAudit(options(s.c, s.work, server));
     assert.equal(got.code, 0);
     const log = logOf(s.repo);
-    assert.deepEqual(log.files, ['incidents.jsonl', 'last-run.json', 'notes.txt']);
+    assert.deepEqual(log.files, ['announcements.jsonl', 'incidents.jsonl', 'last-run.json', 'notes.txt']);
     assert.equal(log.incidents, '{"cut":\n');
+    assert.equal(log.announcements, '{"cut":\n', 'the file of the announcements is a log like the other, also when this run announces nothing');
     assert.equal(git(s.repo, ['show', 'refs/heads/record-keeper/log:notes.txt']), 'mine');
     assert.equal(git(s.repo, ['rev-parse', `${log.commits[1]}^`]), parent);
+  });
+});
+
+describe('the announcements', () => {
+  const spec = (id) => announceCases.find((c) => c.id === id);
+  const posts = (server) => writesOn(server).filter(({ method }) => method === 'POST');
+  const lookups = (server) => server.requests.filter(({ path: route }) => route.startsWith('/user/')).map(({ path: route }) => route);
+  const botIssue = (number, key) => ({ number, state: 'open', title: 'Act: pin (#7)', body: `<!-- record-keeper:announcement ${key} -->\nText.\n`, user: { login: 'github-actions[bot]', type: 'Bot' } });
+
+  test('an act that the owners approved is announced: the accounts are looked up, the issue is made, the log has its line, the job says so', async () => {
+    const s = await scenario('a01-pin', { spec: spec('a01-pin') });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.deepEqual(got, { code: 0, stdout: `audit: 0 violations, 0 excused, 1 commit judged\nannounced ${s.ids.c1} #1001\nlog: 1 announcement and the record of the run pushed to record-keeper/log\n`, stderr: '' });
+    assert.deepEqual(lookups(s.server), ['/user/1001', '/user/1002']);
+    const [made] = posts(s.server);
+    assert.equal(posts(s.server).length, 1);
+    assert.equal(made.path, '/repos/o/r/issues');
+    assert.deepEqual(Object.keys(made.body), ['title', 'body']);
+    assert.equal(made.body.title, 'Act: pin (#7)');
+    assert.ok(made.body.body.startsWith(`<!-- record-keeper:announcement ${s.ids.c1} -->\n`));
+    assert.ok(made.body.body.includes('- Told: @u1001 and @u1002 (owners)\n'));
+    const log = logOf(s.repo);
+    assert.deepEqual(log.files, ['README.md', 'announcements.jsonl', 'incidents.jsonl', 'last-run.json']);
+    assert.equal(log.announcements, `${JSON.stringify({ at: '2026-11-10T03:00:00Z', event: 'announced', key: s.ids.c1, acts: [{ kind: 'pin', path: '.github/record-keeper.yml' }], told: [1001, 1002] })}\n`);
+    assert.equal(log.incidents, '');
+    assert.match(log.readme, /announcements\.jsonl/);
+    assert.equal(log.message(log.commits[0]).trim(), `Audit of ${s.ids.c1} at 2026-11-10T03:00:00Z: 0 violations, 0 entries, 1 announcement`);
+  });
+
+  test('the lookups are reads of the account by its id, with the token, and the log is written before the first issue is made', async () => {
+    let repo;
+    const seen = [];
+    const s = await scenario('a01-pin', { spec: spec('a01-pin'), over: (method, route) => {
+      if (method === 'POST' && route === '/repos/o/r/issues') seen.push(logOf(repo) !== null);
+      return undefined;
+    } });
+    repo = s.repo;
+    await runAudit(options(s.c, s.work, s.server));
+    assert.deepEqual(seen, [true]);
+    const first = s.server.requests.findIndex(({ method }) => method === 'POST');
+    const at = (route) => s.server.requests.findIndex(({ path: found }) => found === route);
+    assert.ok(at('/user/1001') < first && at('/user/1002') < first);
+    const lookup = s.server.requests.find(({ path: route }) => route === '/user/1001');
+    assert.equal(lookup.method, 'GET');
+    assert.equal(lookup.headers.authorization, 'Bearer tok');
+  });
+
+  test('a dry run says what it would announce, reads the accounts and writes nothing', async () => {
+    const s = await scenario('a01-pin', { spec: spec('a01-pin') });
+    const got = await runAudit(options(s.c, s.work, s.server, { dryRun: true }));
+    assert.deepEqual(got, { code: 0, stdout: `audit: 0 violations, 0 excused, 1 commit judged\nwould announce ${s.ids.c1}\ndry run: nothing was written\n`, stderr: '' });
+    assert.equal(writesOn(s.server).length, 0);
+    assert.equal(logOf(s.repo), null);
+  });
+
+  test('an act that has its issue is not announced again, and nobody is looked up', async () => {
+    const s = await scenario('a01-pin', { spec: spec('a01-pin'), issues: [] });
+    const server = await serve(github(s.c, s.ids, { issues: [botIssue(5, s.ids.c1)] }));
+    const got = await runAudit(options(s.c, s.work, server));
+    assert.deepEqual(got, { code: 0, stdout: 'audit: 0 violations, 0 excused, 1 commit judged\nlog: the record of the run pushed to record-keeper/log\n', stderr: '' });
+    assert.equal(posts(server).length, 0);
+    assert.deepEqual(lookups(server), []);
+    assert.deepEqual(logOf(s.repo).files, ['README.md', 'incidents.jsonl', 'last-run.json']);
+  });
+
+  test('the log of the announcements is appended to, and kept when a run announces nothing', async () => {
+    const s = await scenario('a01-pin', { spec: spec('a01-pin') });
+    await runAudit(options(s.c, s.work, s.server));
+    const before = logOf(s.repo).announcements;
+    const server = await serve(github(s.c, s.ids, { issues: [botIssue(5, s.ids.c1)] }));
+    await runAudit(options(s.c, s.work, server));
+    const after = logOf(s.repo);
+    assert.equal(after.announcements, before);
+    assert.equal(after.commits.length, 2);
+    assert.equal(after.message(after.commits[1]).trim(), `Audit of ${s.ids.c1} at 2026-11-10T03:00:00Z: 0 violations, 0 entries`);
+  });
+
+  test('two announcements are made in the order of the commits, a pause apart and not before the first', async () => {
+    const s = await scenario('d01', { spec: spec('d01-two-commits-in-order') });
+    const slept = [];
+    const got = await runAudit(options(s.c, s.work, s.server, { pause: 250, sleep: async (ms) => { slept.push(ms); } }));
+    assert.equal(got.code, 0, got.stderr);
+    assert.deepEqual(slept, [250]);
+    assert.deepEqual(posts(s.server).map(({ body }) => body.title), ['Act: pin (#7)', 'Act: pin (#8)']);
+    assert.deepEqual(got.stdout.split('\n').filter((line) => line.startsWith('announced ')), [`announced ${s.ids.c1} #1001`, `announced ${s.ids.c2} #1002`]);
+    assert.equal(lookups(s.server).length, 2, 'each account once, not once for each announcement');
+    assert.match(got.stdout, /log: 2 announcements and the record of the run pushed to record-keeper\/log\n$/);
+  });
+
+  test('the pause is a second when nothing says otherwise', async () => {
+    const s = await scenario('d01', { spec: spec('d01-two-commits-in-order') });
+    const slept = [];
+    const original = globalThis.setTimeout;
+    globalThis.setTimeout = (callback, ms, ...rest) => {
+      if (ms === 1000) {
+        slept.push(ms);
+        return original(callback, 0, ...rest);
+      }
+      return original(callback, ms, ...rest);
+    };
+    try {
+      await runAudit(options(s.c, s.work, s.server, { pause: undefined }));
+    } finally {
+      globalThis.setTimeout = original;
+    }
+    assert.deepEqual(slept, [1000]);
+  });
+
+  test('an incident and an announcement are both made and both counted', async () => {
+    const s = await scenario('b03', { spec: spec('b03-the-bar-is-not-met') });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 1);
+    assert.match(got.stdout, /opened -:A-03 #1001\nannounced [0-9a-f]{40} #1002\nlog: 1 entry, 1 announcement and the record of the run pushed to record-keeper\/log\n$/);
+    assert.deepEqual(posts(s.server).map(({ body }) => body.title.slice(0, 8)), ['Records:', 'Act: set']);
+    const log = logOf(s.repo);
+    assert.equal(log.message(log.commits[0]).trim(), `Audit of ${s.ids.c1} at 2026-11-10T03:00:00Z: 1 violation, 1 entry, 1 announcement`);
+  });
+
+  test('a refused announcement stops the run with the reason, after the log was written, and the others are left for the next run', async () => {
+    const s = await scenario('d01', { spec: spec('d01-two-commits-in-order'), over: (method, route) => (method === 'POST' && route === '/repos/o/r/issues' ? { status: 422, body: { message: 'no' } } : undefined) });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.deepEqual(got, { code: 2, stdout: '', stderr: 'Records audit could not run: POST /repos/o/r/issues answered 422\n' });
+    assert.equal(posts(s.server).length, 1);
+    assert.equal(logOf(s.repo).announcements.split('\n').filter(Boolean).length, 2);
+  });
+
+  test('one account to look up is looked up, and its login is in the issue', async () => {
+    const single = JSON.parse(JSON.stringify(spec('a01-pin')).replaceAll('owners: [alice/1001, bob/1002]', 'owners: [alice/1001]'));
+    const s = await scenario('a01-pin', { spec: single });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 0, got.stderr);
+    assert.deepEqual(lookups(s.server), ['/user/1001']);
+    assert.ok(posts(s.server)[0].body.body.includes('- Told: @u1001 (owners)\n'));
+  });
+
+  test('an answer to the making of an issue that has no number is no answer', async () => {
+    for (const answer of [{ status: 201, body: {} }, { status: 201, body: { number: 'x' } }, { status: 201, body: { number: 0 } }, { status: 201, body: [] }]) {
+      const s = await scenario('a01-pin', { spec: spec('a01-pin'), over: (method, route) => (method === 'POST' && route === '/repos/o/r/issues' ? answer : undefined) });
+      const got = await runAudit(options(s.c, s.work, s.server));
+      assert.equal(got.code, 2, JSON.stringify(answer));
+      assert.ok(got.stderr.includes('the answer to /repos/o/r/issues is not what the audit needs'), `${JSON.stringify(answer)}: ${got.stderr}`);
+    }
+  });
+
+  test('the last line of the job counts the entries and the announcements, with the plural of each', async () => {
+    const s = await scenario('e03-two-violations-two-issues');
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 1);
+    assert.match(got.stdout, /\nlog: 2 entries and the record of the run pushed to record-keeper\/log\n$/);
+    const log = logOf(s.repo);
+    assert.match(log.message(log.commits[0]), /: 2 violations, 2 entries\n?$/);
+  });
+
+  test('an account that GitHub does not know is not mentioned', async () => {
+    const s = await scenario('a01-pin', { spec: spec('a01-pin'), over: (method, route) => (method === 'GET' && route === '/user/1002' ? { status: 404, body: { message: 'Not Found' } } : undefined) });
+    const got = await runAudit(options(s.c, s.work, s.server));
+    assert.equal(got.code, 0, got.stderr);
+    assert.ok(posts(s.server)[0].body.body.includes('- Told: @u1001 and bob/1002 (no longer an account) (owners)\n'));
+    assert.match(logOf(s.repo).announcements, /"told":\[1001\]/);
+  });
+
+  test('an answer that is not what the audit needs, or a login that does not fit, is no answer', async () => {
+    const answers = [
+      [{ status: 500, body: {} }, 'GET /user/1001 answered 500'],
+      [{ body: { id: 1 } }, 'the answer to /user/1001 is not what the audit needs'],
+      [{ body: [] }, 'the answer to /user/1001 is not what the audit needs'],
+      [{ body: 'not json' }, 'the answer to /user/1001 is not what the audit needs'],
+      [{ body: { login: 'a b' } }, 'logins.json: 1001: is neither a login nor null'],
+    ];
+    for (const [answer, reason] of answers) {
+      const s = await scenario('a01-pin', { spec: spec('a01-pin'), over: (method, route) => (method === 'GET' && route === '/user/1001' ? answer : undefined) });
+      const got = await runAudit(options(s.c, s.work, s.server));
+      assert.equal(got.code, 2, reason);
+      assert.ok(got.stderr.includes(reason), `${reason}: ${got.stderr}`);
+      assert.equal(writesOn(s.server).length, 0, 'nothing is written when the logins are not known');
+      assert.equal(logOf(s.repo), null);
+    }
   });
 });
 
@@ -864,7 +1069,7 @@ describe('the shapes of what GitHub answers, to the character', () => {
 
 describe('the address of the API', () => {
   test('trailing slashes are dropped, and a path in front of the routes is kept (a server of GitHub Enterprise)', async () => {
-    const c = byId('b01-the-author-is-an-owner');
+    const c = byId('b32-no-act-no-evidence');
     const { repo, ids } = build(c, `prefix-${(worlds += 1)}`);
     const inner = github(c, ids);
     const server = await serve((method, route, query, body, seen, origin) => (route.startsWith('/ghe/api/v3/') ? inner(method, route.slice('/ghe/api/v3'.length), query, body, seen, origin) : undefined));

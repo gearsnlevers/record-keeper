@@ -1,6 +1,6 @@
 # The audit
 
-Status: draft for review (M2.8). This page says what `record-keeper audit` finds when it reads the whole history of a repository. It is the core of the nightly audit that [the design](design.md#the-nightly-audit-and-the-log) describes: plain code that reads git and answers. What runs it every night, the issues it opens, the log it keeps and the announcements are M2.9; this page is only what the code finds. It is not part of the protocol. It is read with [checking a change](checking-a-change.md), whose rules it replays.
+Status: draft for review (M2.8). This page says what `record-keeper audit` finds when it reads the whole history of a repository. It is the core of the nightly audit that [the design](design.md#the-nightly-audit-and-the-log) describes: plain code that reads git and answers. What runs it every night, the issues it opens, the log it keeps and the announcements are [the effects](audit-effects.md), [the run](audit-run.md) and [the announcements](announcements.md); this page is only what the code finds. It is not part of the protocol. It is read with [checking a change](checking-a-change.md), whose rules it replays.
 
 The pull request check judges a change before it is merged. It does not see a push that went round it (an administrator's bypass, a ruleset that was off for an hour), a rewritten history, or a change that was merged after a check that could not run. The audit looks again, from the commits themselves, at what the default branch really holds.
 

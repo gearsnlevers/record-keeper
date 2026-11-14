@@ -711,9 +711,10 @@ const SETTINGS = new Map([
   ['extra-keys', { kind: 'list', form: 'key', field: 'extraKeys' }],
   ['owners', { kind: 'list', form: 'owner', field: 'owners' }],
   ['approvals', { kind: 'single', form: 'count', field: 'approvals' }],
+  ['witnesses', { kind: 'list', form: 'owner', field: 'witnesses' }],
 ]);
 
-const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2 });
+const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [] });
 
 const SETTING_KEY = /^([A-Za-z][A-Za-z0-9_-]*):/;
 const SETTING_ENTRY = /^[A-Za-z][A-Za-z0-9_-]*:(?: +([^]*))?$/;
@@ -833,7 +834,7 @@ const FORMS = {
 
 /**
  * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys, owners,
- * approvals } (an owner is { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
+ * approvals, witnesses } (an owner and a witness are { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
  * order of the lines (line is null when a problem has none).
  */
 export function parseSettings(bytes) {
@@ -1923,6 +1924,150 @@ export function planAudit(result, issues, now) {
   };
 }
 
+// ---- announcements: docs/announcements.md -----------------------------------------------------------------------------------------------
+
+/** The acts that are announced, in the order of the title of an announcement. `accept` is not one of them. */
+const ANNOUNCED_KINDS = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code'];
+const ANNOUNCEMENT_LIMIT = 20;
+const ANNOUNCEMENT_ROOM = 40000;
+const ANNOUNCEMENT_INTRO = 'The owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. Close it when you have seen it.';
+const ANNOUNCEMENT_MARKER = /^<!-- record-keeper:announcement ([0-9a-f]{40}|[0-9a-f]{64}) -->$/;
+const LOGIN_FORM = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/;
+const ACCOUNT_ID = /^[1-9][0-9]{0,14}$/;
+
+/**
+ * The file `--logins`: the current login of an account (text) or null for an account that GitHub does not know, by the id of the account.
+ * Returns a Map from the id (a number) to the login or null. Throws Unreadable.
+ */
+export function readLogins(bytes) {
+  const document = decodeJson(bytes);
+  if (!isObject(document)) throw new Unreadable('is not an object');
+  const out = new Map();
+  for (const key of Object.keys(document).sort(byBytes)) {
+    if (!ACCOUNT_ID.test(key)) throw new Unreadable(`${printable(key)}: is not an id`);
+    const value = document[key];
+    if (value !== null && !(typeof value === 'string' && LOGIN_FORM.test(value))) throw new Unreadable(`${key}: is neither a login nor null`);
+    out.set(Number(key), value);
+  }
+  return out;
+}
+
+/** The commit an issue announces, when the bot wrote it and its first line is the marker; null otherwise. */
+function announcementKey({ user, body }) {
+  if (user === null || user.type !== BOT_TYPE || user.login !== BOT_LOGIN) return null;
+  const first = body.split('\n')[0];
+  const found = ANNOUNCEMENT_MARKER.exec(first.endsWith('\r') ? first.slice(0, -1) : first);
+  return found ? found[1] : null;
+}
+
+/** A diff as the issue shows it: control and format characters other than a line feed and a tab are written \u{...}. */
+const shownDiff = (text) => text.replace(/[^\n\t -~]/gu, (character) => printable(character));
+
+const joinAnd = (items) => (items.length === 1 ? items[0] : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`);
+
+/**
+ * What to announce, from the result of `audit` with evidence, the evidence (readEvidence), the issues (readIssues), the logins
+ * (readLogins) and the time of the run as text. `facts` says what only git knows: parent(commit), accounts(revision) -> { owners,
+ * witnesses } and diff(parent, commit, path) -> text. Returns { announcements, log, lookups }.
+ */
+export function planAnnouncements(result, evidence, issues, logins, now, facts) {
+  const unapproved = [...result.violations, ...result.excused].filter(({ rule }) => rule === 'A-03');
+  const approved = (act) => {
+    const prefix = `${act.kind} ${act.path}: `;
+    return !unapproved.some(({ commit, detail }) => commit === act.commit && (detail ?? '').startsWith(prefix));
+  };
+  const commits = [];
+  const actsOf = new Map();
+  for (const act of result.acts) {
+    if (!ANNOUNCED_KINDS.includes(act.kind) || !approved(act)) continue;
+    if (!actsOf.has(act.commit)) {
+      commits.push(act.commit);
+      actsOf.set(act.commit, []);
+    }
+    actsOf.get(act.commit).push(act);
+  }
+  const done = new Set(issues.map(announcementKey).filter((key) => key !== null));
+  const announcements = [];
+  const log = [];
+  const lookups = new Set();
+  for (const commit of commits.filter((key) => !done.has(key)).slice(0, ANNOUNCEMENT_LIMIT)) {
+    const acts = actsOf.get(commit);
+    const parent = facts.parent(commit);
+    const before = facts.accounts(parent);
+    const after = facts.accounts(commit);
+    const loginOf = new Map();
+    for (const group of [after.owners, after.witnesses, before.owners, before.witnesses]) for (const { login, id } of group) if (!loginOf.has(id)) loginOf.set(id, login);
+    const ownerIds = [...new Set([...before.owners, ...after.owners].map(({ id }) => id))].sort((a, b) => a - b);
+    const witnessIds = [...new Set([...before.witnesses, ...after.witnesses].map(({ id }) => id))].filter((id) => !ownerIds.includes(id)).sort((a, b) => a - b);
+    for (const id of [...ownerIds, ...witnessIds]) if (!logins.has(id)) lookups.add(id);
+    const told = [];
+    const groups = [];
+    for (const [ids, label] of [[ownerIds, 'owners'], [witnessIds, 'witnesses']]) {
+      if (ids.length === 0) continue;
+      const parts = ids.map((id) => {
+        if (!logins.has(id)) return `${loginOf.get(id)}/${id} (not looked up)`;
+        if (logins.get(id) === null) return `${loginOf.get(id)}/${id} (no longer an account)`;
+        told.push(id);
+        return `@${logins.get(id)}`;
+      });
+      groups.push(`${joinAnd(parts)} (${label})`);
+    }
+    const number = evidence.get(commit).pull.number;
+    const kinds = ANNOUNCED_KINDS.filter((kind) => acts.some((act) => act.kind === kind));
+    const lines = [`<!-- record-keeper:announcement ${commit} -->`, ANNOUNCEMENT_INTRO, '', `- Commit: ${commit}`, `- Pull request: #${number}`,
+      `- Acts: ${acts.map((act) => `${act.kind} ${printable(act.path)}`).join(', ')}`, `- Told: ${groups.join(', ')}`];
+    let room = ANNOUNCEMENT_ROOM;
+    for (const act of acts) {
+      lines.push('', `### ${act.kind} ${printable(act.path)}`, '');
+      const rows = shownDiff(facts.diff(parent, commit, act.path)).split('\n');
+      if (rows.at(-1) === '') rows.pop();
+      if (rows.length === 0) {
+        lines.push('No text changed; see the commit.');
+        continue;
+      }
+      let used = 0;
+      let taken = 0;
+      for (const row of rows) {
+        const size = Array.from(row).length + 1;
+        if (used + size > room) break;
+        used += size;
+        taken += 1;
+      }
+      if (taken === 0) {
+        lines.push('The room of this issue is used; see the commit.');
+        room = 0;
+        continue;
+      }
+      const longest = Math.max(0, ...(rows.slice(0, taken).join('\n').match(/`+/g) ?? []).map((run) => run.length));
+      const fence = '`'.repeat(Math.max(3, longest + 1));
+      lines.push(`${fence}diff`, ...rows.slice(0, taken), fence);
+      if (taken < rows.length) {
+        lines.push('', `... ${rows.length - taken} more lines; see the commit.`);
+        room = 0;
+      } else {
+        room -= used;
+      }
+    }
+    announcements.push({ key: commit, title: `Act: ${kinds.join(', ')} (#${number})`, body: `${lines.join('\n')}\n` });
+    log.push({ at: now, event: 'announced', key: commit, acts: acts.map(({ kind, path }) => ({ kind, path })), told });
+  }
+  return { announcements, log, lookups: [...lookups].sort((a, b) => a - b) };
+}
+
+/** What `planAnnouncements` asks of git, for the repository at `repo`. */
+function gitFacts(repo) {
+  const text = (args) => runGit(['-C', repo, ...args]).toString('utf8');
+  return {
+    parent: (commit) => text(['rev-parse', `${commit}^1`]).trim(),
+    accounts: (revision) => {
+      const { owners, witnesses } = readSettings(openCommit(repo, revision)).settings;
+      return { owners, witnesses };
+    },
+    diff: (parent, commit, filePath) => text(['diff', '--no-color', '--no-ext-diff', '--no-textconv', '--no-renames', '--text', '--full-index', '--diff-algorithm=myers',
+      '--src-prefix=a/', '--dst-prefix=b/', '--unified=3', parent, commit, '--', `:(literal)${filePath}`]),
+  };
+}
+
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
@@ -1951,6 +2096,9 @@ const USAGE = `Usage:
   record-keeper.mjs audit-plan --head <revision> [--from <commit> | --adopted] [--since <commit>] [--repo <path>]
                                [--evidence <file>] --issues <file> --now <time>
                                             print as JSON what to do with the incident issues, the log and the record of the run
+  record-keeper.mjs announce-plan --head <revision> --adopted [--repo <path>] --evidence <file> --issues <file> --logins <file> --now <time>
+                                            print as JSON the issues to open for the acts that the owners approved, the lines for
+                                            the log, and the ids of the accounts whose login has still to be looked up
   record-keeper.mjs needs --base <revision> --head <revision> [--repo <path>]
                                             print what the caller has to look up for check-pr: the cited issues and pull
                                             requests ("case issue 12") and "clock"
@@ -2071,8 +2219,8 @@ function runConfig(args) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, sharedFolder, extraKeys, owners, approvals } = read.settings;
-  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\n`;
+  const { folder, sharedFolder, extraKeys, owners, approvals, witnesses } = read.settings;
+  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\nwitnesses: [${witnesses.map(({ login, id }) => `${login}/${id}`).join(', ')}]\n`;
   const count = `${SETTINGS_PATH}: ${problemWord(read.problems.length)}\n`;
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }
@@ -2242,6 +2390,28 @@ function runAuditPlan(args, readFile) {
   return { code: 0, stdout: `${JSON.stringify(planAudit(result, issues.value, only('--now')))}\n`, stderr: '' };
 }
 
+function runAnnouncePlan(args, readFile) {
+  const options = readOptions(args, ['--head', '--repo', '--evidence', '--issues', '--logins', '--now'], ['--adopted']);
+  if (!options || options.rest.length > 0 || !options.flags.has('--adopted') || !['--head', '--evidence', '--issues', '--logins', '--now'].every((name) => options.values.has(name))) return usageError;
+  const only = (name) => options.values.get(name)?.at(-1);
+  if (readTime(only('--now')) === null) return usageError;
+  const input = auditInput(options, readFile);
+  if (input.error) return input.error;
+  const issues = readInput(only('--issues'), readFile, readIssues);
+  if (issues.error) return issues.error;
+  const logins = readInput(only('--logins'), readFile, readLogins);
+  if (logins.error) return logins.error;
+  const repo = only('--repo') ?? '.';
+  let result;
+  try {
+    result = audit(repo, only('--head'), { from: startOf(options), evidence: input.evidence });
+  } catch (error) {
+    if (!(error instanceof Unreadable)) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+  }
+  return { code: 0, stdout: `${JSON.stringify(planAnnouncements(result, input.evidence, issues.value, logins.value, only('--now'), gitFacts(repo)))}\n`, stderr: '' };
+}
+
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
 export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   const args = [...argv];
@@ -2254,6 +2424,7 @@ export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
   if (command === 'needs') return runNeeds(args);
   if (command === 'audit') return runAudit(args, readFile);
   if (command === 'audit-plan') return runAuditPlan(args, readFile);
+  if (command === 'announce-plan') return runAnnouncePlan(args, readFile);
   return usageError;
 }
 
