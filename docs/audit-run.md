@@ -110,7 +110,11 @@ On 2026-11-14:
   - **`announcements.jsonl`** on the log branch has nine lines, each with `event` `announced`, the full id of the commit, the acts (a commit with two files of code has two entries) and `told` with the two ids of the owners.
 - **E18, a second run changes nothing.** A run by hand with `dry-run` set (run 43622711851, 17:44Z, two minutes after E17) judged the 14 commits again and printed no `would announce` and no `would open`: the nine markers were read back from the issues of GitHub, in any state, and the plan had nothing to open. This is the only memory that the announcements have.
 
-**Still to run:** that the owners were notified (a mention by the bot reaches the owner's notifications and, if the owner has chosen it, mail; only the owner can say), and that a witness who is not an owner is told; the repository has none yet.
+On 2026-11-15, asked of the two owners (only an owner can see their own notifications):
+
+- **E19, were the owners told?** Yes: all nine reached the second owner and eight of the nine reached the first. **The second owner** (`volker-bornagainpatriots`) has all nine in the inbox, #47 to #55, each with the reason `mention` (the filter "Mentioned" says 9), as the owner's screenshot shows. **The first owner** (`vscheuber`) has eight: #47, #48, #49, #51, #52, #53, #54 and #55, each with the reason `mention` and an `updated_at` of 17:42:48Z to 17:43:11Z, 20 to 35 seconds after the issues were opened. This was read from the inbox and again from `GET /notifications?all=true`, which agree. **#50 (`Act: code (#37)`) is not among them**, and its body names both owners exactly like the others. Whether it was cleared by the owner or never sent is not known. So a mention reached the owners within a minute, and **one was missing for one owner**: a notification can fail to arrive, and the issue, which stays open until an owner closes it, is the record that an act was announced.
+
+**Still to run:** that a witness who is not an owner is told; the repository has none yet.
 
 ## What this does not do
 
