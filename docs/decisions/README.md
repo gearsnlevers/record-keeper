@@ -8,10 +8,10 @@ The protocol has a generation, and a seal names the generation it was made under
 
 | Generation | Record | Status |
 | - | - | - |
-| g1 | [0001](0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) | proposed |
+| g1 | [0001](0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) | accepted |
 
 ## Index
 
 | # | Title | Status |
 | - | - | - |
-| 0001 | [Accepted records are sealed and change only by supersession or an approved erratum](0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) | proposed |
+| 0001 | [Accepted records are sealed and change only by supersession or an approved erratum](0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) | accepted |

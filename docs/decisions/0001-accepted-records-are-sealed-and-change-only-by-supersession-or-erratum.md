@@ -1,8 +1,9 @@
 ---
-status: proposed
-date: 2026-10-28
+status: accepted
+date: 2026-11-14
 decision-makers:
   - maintainers
+seal: sha256-g1:26c4df0a1a2b0506dbb8451c35fa16a72f67f2e2bb92babec957843b8ee59371
 ---
 
 # Accepted records are sealed and change only by supersession or an approved erratum
