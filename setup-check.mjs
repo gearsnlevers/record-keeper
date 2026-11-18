@@ -494,6 +494,8 @@ function readInstalled(root, relative) {
 // The runner: GitHub
 
 const BRANCH = /^[A-Za-z0-9._/-]{1,200}$/;
+/** Whether a name is a default branch that the check will put into a request: no empty part and no part that walks out of the path. */
+const isBranch = (name) => typeof name === 'string' && BRANCH.test(name) && name.split('/').every((part) => part !== '' && !part.includes('..') && part !== '.');
 const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}(?:\[bot\])?$/;
 const encoded = (name) => name.split('/').map(encodeURIComponent).join('/');
 const isCount = (value) => Number.isSafeInteger(value) && value > 0;
@@ -525,7 +527,7 @@ const notWhat = (what) => new Failed(`the answer about ${what} is not what the c
 
 async function readRepo(context, repo) {
   const { body } = await getJson(context, `/repos/${repo}`);
-  if (!isObject(body) || typeof body.default_branch !== 'string' || !BRANCH.test(body.default_branch)) throw notWhat('the repository');
+  if (!isObject(body) || !isBranch(body.default_branch)) throw notWhat('the repository');
   return { branch: body.default_branch };
 }
 
@@ -590,7 +592,7 @@ async function readLastRun(context, repo) {
   if (answer.over) return bad('larger than 64 KiB');
   let record;
   try {
-    record = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(answer.bytes));
+    record = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(answer.bytes));
   } catch {
     return bad('not JSON in UTF-8');
   }
@@ -700,7 +702,9 @@ export async function runCli(argv, env, options = {}) {
   if (opts === null) return { code: 2, stdout: '', stderr: USAGE };
   const secrets = [env.GITHUB_TOKEN, env.RECORD_KEEPER_TOKEN];
   try {
-    const result = await execute(opts, env, options);
+    const done = await execute(opts, env, options);
+    // The token is taken out of what a remote place said before the text is made, so that no text of any kind (a line, a JSON document, a Markdown table) holds it.
+    const result = { ...done, findings: done.findings.map((finding) => ({ ...finding, detail: redact(finding.detail, secrets) })) };
     const findings = result.findings.map((finding) => ({ ...finding, text: describe(finding) }));
     let stdout;
     if (opts.json) stdout = `${JSON.stringify({ repository: result.repo, at: result.at, findings, passed: result.passed })}\n`;

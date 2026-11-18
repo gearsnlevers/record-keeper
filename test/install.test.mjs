@@ -10,11 +10,14 @@ import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CODE_FILES, SETTINGS_PATH, WORKFLOW_FILES, checkChange } from '../record-keeper.mjs';
+import { renderPin } from '../updater.mjs';
+import { COMMIT, cleanUp as cleanUpWorld, healthy, releaseOf, serve as serveGithub } from './setup-check-world.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const install = JSON.parse(fs.readFileSync(path.join(root, 'install.json'), 'utf8'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-install-'));
 const servers = [];
+after(cleanUpWorld);
 after(() => {
   for (const server of servers) {
     server.closeAllConnections();
@@ -341,7 +344,7 @@ describe('a repository with the layout of a consumer', () => {
 
   test('the programs are where install.json puts them, and are the files of the kit byte for byte', () => {
     const dir = adopted();
-    for (const name of ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']) assert.ok(fs.readFileSync(path.join(dir, '.github/record-keeper', name)).equals(fs.readFileSync(path.join(root, name))), name);
+    for (const name of ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs']) assert.ok(fs.readFileSync(path.join(dir, '.github/record-keeper', name)).equals(fs.readFileSync(path.join(root, name))), name);
     assert.ok(!fs.existsSync(path.join(dir, 'record-keeper.mjs')), 'nothing is installed at the root');
   });
 
@@ -387,6 +390,8 @@ describe('a repository with the layout of a consumer', () => {
       ['the program that runs the audit', '.github/record-keeper/run-audit.mjs', 'code'],
       ['the workflow of the check', '.github/workflows/records-integrity.yml', 'workflow'],
       ['the workflow of the audit', '.github/workflows/records-audit.yml', 'workflow'],
+      ['the program of the setup check', '.github/record-keeper/setup-check.mjs', 'code'],
+      ['the workflow of the setup check', '.github/workflows/records-setup-check.yml', 'workflow'],
     ]) {
       test(`a change to ${name} needs the owners' approval, and an owner's review of the head meets it`, async () => {
         const dev = adopted();
@@ -419,6 +424,52 @@ describe('a repository with the layout of a consumer', () => {
       assert.equal(got.code, 1);
       assert.ok(got.stderr.startsWith(`${SETTINGS_PATH}: needs the owners' approval (settings)\n`), got.stderr);
       assert.doesNotMatch(got.stderr, /\(code\)/);
+    });
+  });
+
+  describe('the setup check', () => {
+    const program = '.github/record-keeper/setup-check.mjs';
+
+    test('--local runs from the folder of the kit, with the repository as the working directory, and reads its files', async () => {
+      const dir = adopted();
+      const got = await exec([program, '--local'], { cwd: dir });
+      assert.equal(got.code, 0, got.stderr);
+      assert.equal(got.stderr, '');
+      assert.match(got.stdout, /^warning: \[codeowners-missing\] /m);
+      assert.match(got.stdout, /^warning: \[pin-missing\] /m);
+      assert.match(got.stdout, /^notice: \[single-owner\] /m);
+      assert.match(got.stdout, /^notice: \[not-checked\] not checked: what GitHub holds/m);
+      assert.match(got.stdout, /setup check: 0 errors, 2 warnings, 2 notices\n$/);
+    });
+
+    test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing but the single-owner mode', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files)];
+      await serveGithub(state);
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      assert.equal(got.code, 0, got.stderr + got.stdout);
+      assert.equal(got.stderr, '');
+      assert.match(got.stdout, /^::notice title=single-owner::the single-owner mode is on /);
+      assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
+      assert.equal(got.stdout.split('\n').length, 3);
+    });
+
+    test('a file of the folder that is not the release\'s is found', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      fs.appendFileSync(path.join(dir, program), '// edited\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files)];
+      await serveGithub(state);
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      assert.equal(got.code, 0, got.stderr);
+      assert.match(got.stdout, /^warning: \[managed-differs\] files that the kit installed differ from the pinned release: \.github\/record-keeper\/setup-check\.mjs \(differs\)\./m);
     });
   });
 
