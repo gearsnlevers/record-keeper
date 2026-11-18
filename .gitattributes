@@ -3,3 +3,8 @@
 
 # The fixtures of validate hold CRLF line endings and trailing white space on purpose; the answer depends on them.
 test/fixtures/validate/** -text
+
+# The files that a release installs are hashed byte for byte (install.json, docs/releases.md): git must not change their line endings.
+/*.mjs text eol=lf
+/install.json text eol=lf
+/templates/** text eol=lf

@@ -1,6 +1,6 @@
 # The files of the check
 
-Status: draft for review (M2.7a). This page says which files make the check, why a change to them is an act, and a rule that keeps another workflow from standing in for the check. It is not part of the protocol. It is read with [checking a change](checking-a-change.md), whose acts and rules it extends, and with [the workflow](workflow.md), which says how the files run.
+Status: draft for review (M2.7a, with the files of a repository that installs the kit added in M3a). This page says which files make the check, where they stand, why a change to them is an act, and a rule that keeps another workflow from standing in for the check. It is not part of the protocol. It is read with [checking a change](checking-a-change.md), whose acts and rules it extends, and with [the workflow](workflow.md), which says how the files run.
 
 A pull request cannot change the check it is judged by: `pull_request_target` runs the workflow of the default branch ([the workflow](workflow.md)). But a pull request that is merged changes the check of the next one. So the files that make the check are guarded like the settings and the pin: a change to one is an **act**, and the owners must approve it. Until now only the settings and the pin were.
 
@@ -8,12 +8,16 @@ A pull request cannot change the check it is judged by: `pull_request_target` ru
 
 | Kind | Files | Act |
 | ---- | ----- | --- |
-| workflow | `.github/workflows/records-integrity.yml`, `.github/workflows/records-audit.yml` | `workflow` |
-| code | `record-keeper.mjs`, `check-pull-request.mjs`, `run-audit.mjs` | `code` |
+| workflow | `.github/workflows/records-integrity.yml`, `.github/workflows/records-audit.yml`, `.github/workflows/records-setup-check.yml`, `.github/workflows/records-updater.yml` | `workflow` |
+| code | `record-keeper.mjs`, `check-pull-request.mjs`, `run-audit.mjs`, `setup-check.mjs`, `updater.mjs` | `code` |
+| code | `.github/record-keeper/record-keeper.mjs`, `.github/record-keeper/check-pull-request.mjs`, `.github/record-keeper/run-audit.mjs`, `.github/record-keeper/setup-check.mjs`, `.github/record-keeper/updater.mjs` | `code` |
 
-- The workflow files are the two workflows of the kit: the pull request check ([the workflow](workflow.md)) and the audit ([the audit run](audit-run.md)).
-- The code files are the ones the workflows run, at the root of the repository, where the workflows call them: the rules, the program that reads a pull request (it only reads) and the program that runs the audit (it also writes the incident issues and the log branch, which is why it is a file of its own). The updater of M3 decides where a deployment keeps them; it changes this list together with the workflow that calls them, which is itself an act.
-- The settings (`.github/record-keeper/settings.yml`) and the pin (`.github/record-keeper.yml`) stay acts of their own kind, as in [checking a change](checking-a-change.md#acts).
+- The workflow files are the workflows of the kit: the pull request check ([the workflow](workflow.md)), the audit ([the audit run](audit-run.md)), and the two that M3 adds, the setup check and the updater. They stand at the same paths in the kit and in a repository that installs it.
+- The code files are the ones the workflows run: the rules, the program that reads a pull request (it only reads), the program that runs the audit (it also writes the incident issues and the log branch, which is why it is a file of its own), and the two that M3 adds, the setup check and the updater. **They are guarded in both places they can stand.** The kit's own repository keeps them at the root, where its workflows call them. A repository that installs the kit keeps them in `.github/record-keeper/`, next to its settings file ([install](install.md)), and its workflows call them there. The same code judges both repositories, so the list holds both places, and a later milestone that adds a workflow or a program does not change the guard.
+- **A file that does not exist yet is guarded all the same.** The setup check and the updater are not in the kit yet; a change that adds one of them is an act today, so that nothing of the check can arrive unseen.
+- **The names are exact.** A file that only looks like one (`record-keeper.mjs.bak`, `.github/record_keeper.mjs` or a program of the same name in another folder) is not guarded.
+- The settings (`.github/record-keeper/settings.yml`) and the pin (`.github/record-keeper.yml`) stay acts of their own kind, as in [checking a change](checking-a-change.md#acts). The settings file lies in the same folder as the installed programs and is not mistaken for one: a change to it alone is the act `settings` and no act `code`, and a change to a program alone is no act `settings`. A change that replaces the folder `.github/record-keeper`, or `.github`, by a file is all of them at once, because every guarded path below it changed.
+- **An update keeps the ordinary approval.** The updater (M3b) changes the pin, the workflow files and the programs in one pull request. That is a set of acts `pin`, `workflow` and `code`, and the owners' ordinary approval meets them, not the bar for an amendment: the decision of 2026-11-07 ([amendments](amendments.md)). Nothing here changes it.
 - A repository's own workflows (a `test.yml`, say) are not the kit's and are not guarded here.
 
 ## The acts
@@ -33,7 +37,7 @@ A pull request cannot change the check it is judged by: `pull_request_target` ru
 | ---- | -------------------------- | ---- | ------ |
 | P-15 | a workflow file other than the kit's is added or changed and names the check | change | the path |
 
-- **A workflow file** is a regular file (also with the executable mode) directly in `.github/workflows`, whose name ends in `.yml` or `.yaml` (the capitals of the extension do not matter). GitHub reads no other file. The kit's two workflow files are not looked at by this rule.
+- **A workflow file** is a regular file (also with the executable mode) directly in `.github/workflows`, whose name ends in `.yml` or `.yaml` (the capitals of the extension do not matter). GitHub reads no other file. The kit's four workflow files are not looked at by this rule: they are acts of their own, and the setup check will name the check in its text. A copy of one of them with the extension `.yaml` is not the kit's, and this rule looks at it.
 - **Names the check** is a match of the pattern `records` and `integrity`, with nothing or one space, hyphen or underscore between them, in capitals or not (the regular expression `/records[ _-]?integrity/i`), in the **name of the file** or anywhere in its **content**, read as bytes. A word in a comment counts. A name written so that no such text stands in the file (an escape, an expression of the workflow) is not found; see "What this does not do".
 - **Only what the pull request adds or changes** is judged: a file that is removed is not, and a file that already named the check in the base and is not touched is not.
 - **The problem is the pull request's, not a record's.** It has no file; the detail is the path of the workflow file, as for T-03: `docs/decisions: [P-15] ... (.github/workflows/other.yml)`.
@@ -49,12 +53,14 @@ A pull request cannot change the check it is judged by: `pull_request_target` ru
 ## Choices in this draft for you to decide
 
 1. **The workflow and code files are acts met by the ordinary approval,** not by the amendment bar. The design lists the workflow files among the four acts the approval meets, and you decided the same for the pin. The bar is for the owners and for the protocol.
-2. **The code files are guarded by their names.** The kit's own repository has them at the root, where its workflow runs them. A repository that moves them (M3) moves this list with them.
-3. **The audit workflow is on the list before it exists.** A change that adds it is then already an act.
+2. **The code files are guarded by their names, in both places.** The kit's own repository has them at the root, where its workflow runs them. A repository that installs the kit has them in `.github/record-keeper/` (decided by the maintainer before this draft, with the folder of the settings). Both lists are in the code, so the check is the same in every repository and a later milestone does not change it. The cost: a repository that has a file of its own at its root with one of those five names (`updater.mjs` is a likely one) is asked for the owners' approval when it changes it. The alternative, a list that depends on the settings, would make the guard a thing that the guarded can edit.
+3. **The workflows and programs of later milestones are on the list before they exist.** A change that adds the audit workflow was already an act before M2.9; the setup check and the updater are now, in M3a, so that the pull requests that add them need no change to the guard.
 4. **One act for each file,** so the approval line and the list of acts say which file changed.
 5. **A text match, not a reading of the YAML.** The kit has no YAML reader for workflows, and a reader that misses a spelling is worse than a pattern that matches too much: the rule fails closed on any mention, a comment included.
 6. **The name of the file counts too,** so `records-integrity.yaml` is refused even if it is empty.
 7. **Only the files the pull request adds or changes** are judged; the base is not audited by this rule (the audit of M2.8 reads the whole tree).
+8. **P-15 leaves the four workflow files alone,** as it left the two. A guarded workflow can name the check (the setup check will ask whether `Records integrity` is required), and its change is an act that the owners must approve. A workflow of the same name with the extension `.yaml` is not guarded and is judged by P-15 if it names the check.
+9. **The settings file is not a code file** although it stands in the folder of the programs. The two acts are different and are met by the same approval; keeping them apart keeps the announcement and the line of the check saying which of them changed.
 
 ## The fixtures
 

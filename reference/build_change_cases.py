@@ -108,6 +108,10 @@ def case(cid, note, changes=(), *, base='world', parent='child', problems=(), ac
 def p(file, rule, detail=''): return (file, rule, detail)
 def a(kind, path): return (kind, path)
 def acc(n): return a('accept', f'{D}/{name(n)}')
+# The files of the check (docs/protected-files.md), as acts, in the order of their paths: the four workflows, and the five programs where a repository
+# that installs the kit keeps them. The programs are written out here and not built from a list.
+ALL_WORKFLOWS = [a('workflow', f'.github/workflows/records-{n}.yml') for n in ('audit', 'integrity', 'setup-check', 'updater')]
+INSTALLED_CODE = [a('code', f'.github/record-keeper/{n}') for n in ('check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs')]
 ER2 = a('erratum', f'{D}/{name(2)}')
 DV2 = a('deviation', f'{D}/{name(2)}')
 
@@ -311,10 +315,10 @@ case('k04-repair-incomplete', 'A change to the settings that leaves a problem.',
 case('k05-repair-by-deleting', 'The broken file is deleted: the defaults apply.', base='broken-settings', changes=[drop(SET)], acts=[a('settings', SET)])
 case('k06-settings-broken-by-the-change', 'A change that breaks the settings reports the problem it leaves.', changes=[put(SET, 'folder: "docs/../x"\n')], settings=[(1, 'S-07', 'docs/../x')], acts=[a('settings', SET)])
 case('k07-settings-added-clean', 'A clean settings file is added: an act.', changes=[put(SET, 'extra-keys: [repos]\n')], acts=[a('settings', SET)])
-case('k08-link-repaired', 'The base has a link in front of the settings; replacing it with a real folder is a repair. The folder in front of the pin changed too, so the pin is an act as well, and so are the two workflow files of the kit.', base='linked-github', changes=[drop('.github'), put(SET, 'folder: docs/decisions\n')],
-     acts=[a('settings', SET), a('pin', '.github/record-keeper.yml'), a('workflow', '.github/workflows/records-integrity.yml'), a('workflow', '.github/workflows/records-audit.yml')])
+case('k08-link-repaired', 'The base has a link in front of the settings; replacing it with a real folder is a repair. The folder in front of the pin changed too, so the pin is an act as well, and so are the four workflow files and the five programs under `.github/record-keeper`.', base='linked-github', changes=[drop('.github'), put(SET, 'folder: docs/decisions\n')],
+     acts=[a('settings', SET), a('pin', '.github/record-keeper.yml'), *ALL_WORKFLOWS, *INSTALLED_CODE])
 case('k09-link-introduced', 'A change that puts a link in front of the settings file: the settings of the head cannot be read.', changes=[{'symlink': '.github/record-keeper', 'target': 'elsewhere'}],
-     settings=[(None, 'S-01', '.github/record-keeper')], acts=[a('settings', SET)])
+     settings=[(None, 'S-01', '.github/record-keeper')], acts=[a('settings', SET), *INSTALLED_CODE])
 case('k10-pin-changes', 'The pin changes: an act.', changes=[put('.github/record-keeper.yml', 'source: x/y\nversion: v1.0.0\n')], acts=[a('pin', '.github/record-keeper.yml')])
 case('k11-other-workflow-file', 'A file in .github that is neither the settings nor the pin.', changes=[put('.github/workflows/x.yml', 'name: x\n')])
 case('k12-folder-in-the-settings-of-the-base', 'The records are in the folder the settings of the base name.', base='other-folder', changes=[put('records/0007-seventh.md', rec(7)), put('records/README.md', readme(ROWS + [(7, 'proposed')]))])
@@ -430,7 +434,7 @@ case('w12-other-setting-changes', 'Another setting changes, the owners stay.', b
 case('w13-owners-named-first-time', 'A repository without settings names its owners.', changes=[put(SET, 'owners: [alice/1001]\n')], acts=SO)
 case('w14-id-changed', 'The login stays and the ID changes: another account.', base='owned', changes=[put(SET, 'owners: [alice/1005, bob/1002]\napprovals: 2\n')], acts=SO)
 case('w15-link-in-front', 'A link in front of the file: the settings of the head cannot be read, so there are no owners.', base='owned', changes=[drop(SET), {'symlink': '.github/record-keeper', 'target': 'elsewhere'}],
-     settings=[(None, 'S-01', '.github/record-keeper')], acts=SO)
+     settings=[(None, 'S-01', '.github/record-keeper')], acts=SO + INSTALLED_CODE)
 case('w16-repair-of-owners', 'The base has a broken owners line (so no owners) and the change names owners: a repair, and the act.', base='broken-owners', changes=[put(SET, 'owners: [alice/1001]\n')], acts=SO)
 case('w17-head-has-a-bom', 'The head file starts with a byte order mark, so it is not read: the default, so no owners.', base='owned', changes=[put(SET, '\ufeffowners: [alice/1001, bob/1002]\n')], settings=[(1, 'S-02', 'byte order mark')], acts=SO)
 case('w18-both-lists-empty', 'Owners are empty before and after: nothing for the bar.', base='broken-owners', changes=[put(SET, 'extra-keys: [repos]\n')], acts=[a('settings', SET)])
@@ -723,7 +727,7 @@ case('y07-both-code-files', 'Both code files change: two acts, by path.', base='
 case('y08-mode-changes', 'The rules file gets the executable mode and nothing else.', base='kit', changes=[put(RK, '// the rules\n', '100755')], acts=[RKA])
 case('y09-file-becomes-a-folder', 'A folder stands where the rules file was.', base='kit', changes=[drop(RK), put(RK + '/x', 'x\n')], acts=[RKA])
 case('y10-file-becomes-a-link', 'The program becomes a symbolic link.', base='kit', changes=[{'symlink': CP, 'target': RK}], acts=[CPA])
-case('y11-folder-in-front', 'The workflows folder is replaced by a file.', base='kit', changes=[drop(WF), drop(TY), put('.github/workflows', 'x\n')], acts=[WFA, WFB])
+case('y11-folder-in-front', 'The workflows folder is replaced by a file.', base='kit', changes=[drop(WF), drop(TY), put('.github/workflows', 'x\n')], acts=ALL_WORKFLOWS)
 case('y12-other-workflow-edited', 'A workflow that is not the kit\'s is edited.', base='kit', changes=[put(TY, 'name: Test\non: x\n')])
 case('y13-unrelated-file', 'A file that only looks like a code file.', base='kit', changes=[put('record-keeper.mjs.bak', 'x\n'), put('src/record-keeper.mjs', 'x\n')])
 case('y14-all-acts', 'Every kind of act together: the acts come in their order.', base='kit',
@@ -756,6 +760,45 @@ case('y30-collision-and-act', 'A change of the check that also adds a colliding 
 
 case('y32-extension-must-end-the-name', 'A name that only contains .yml is not a workflow file.', base='kit',
      changes=[put('.github/workflows/a.yml.bak', 'Records integrity\n'), put('.github/workflows/b.ymlx', 'Records integrity\n'), put('.github/workflows/c.yaml.orig', 'Records integrity\n')])
+
+# ---- the files of the check where a repository that installs the kit keeps them (M3a): docs/protected-files.md, docs/install.md ------------
+IK = '.github/record-keeper/'
+RKI, CPI, RAI, SCI, UPI = (IK + n for n in ('record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs'))
+SC, UP = '.github/workflows/records-setup-check.yml', '.github/workflows/records-updater.yml'
+TREES['kit-installed'] = {**TREES['world'], WF: 'name: Records integrity\n', AU: 'name: Records audit\n', RKI: '// the rules\n', CPI: '// the program\n', RAI: '// the audit run\n', SET: 'owners: [alice/1001]\n'}
+CI = lambda path: a('code', path)
+case('y33-installed-rules-edited', 'The rules file is edited where a repository that installs the kit keeps it.', base='kit-installed', changes=[put(RKI, '// the rules, changed\n')], acts=[CI(RKI)])
+case('y34-installed-three-programs', 'Three installed programs change together: three acts, by path.', base='kit-installed', changes=[put(RKI, '// 1\n'), put(CPI, '// 2\n'), put(RAI, '// 3\n')], acts=[CI(CPI), CI(RKI), CI(RAI)])
+case('y35-installed-programs-of-later-milestones', 'The setup check and the updater are added in the folder, before any of them exists in the kit: acts all the same.', base='kit-installed',
+     changes=[put(SCI, '// the setup check\n'), put(UPI, '// the updater\n')], acts=[CI(SCI), CI(UPI)])
+case('y36-workflows-of-later-milestones', 'The workflows of the setup check and of the updater are added: acts, one each.', base='kit-installed',
+     changes=[put(SC, 'name: Records setup check\n'), put(UP, 'name: Records updater\n')], acts=[a('workflow', SC), a('workflow', UP)])
+case('y37-guarded-workflow-may-name-the-check', 'A guarded workflow names the check and is an act, not P-15; a copy with another extension is not guarded and is P-15.', base='kit-installed',
+     changes=[put(SC, 'name: Records setup check\n# it asks whether Records integrity is required\n'), put('.github/workflows/records-updater.yaml', 'x: Records integrity\n')],
+     problems=[P15('.github/workflows/records-updater.yaml')], acts=[a('workflow', SC)])
+case('y38-settings-next-to-a-program', 'The settings and an installed program change together: one act of each kind, and the program is not mistaken for the settings.', base='kit-installed',
+     changes=[put(SET, 'owners: [alice/1001]\nextra-keys: [repos]\n'), put(RKI, '// changed\n')], acts=[a('settings', SET), CI(RKI)])
+case('y39-settings-alone-in-the-folder', 'Only the settings file of the folder changes: no act on the programs.', base='kit-installed', changes=[put(SET, 'owners: [alice/1001]\nextra-keys: [repos]\n')], acts=[a('settings', SET)])
+case('y40-installed-file-becomes-a-folder', 'A folder stands where an installed program was.', base='kit-installed', changes=[drop(RAI), put(RAI + '/x', 'x\n')], acts=[CI(RAI)])
+case('y41-installed-file-becomes-a-link', 'An installed program becomes a symbolic link.', base='kit-installed', changes=[{'symlink': CPI, 'target': RKI}], acts=[CI(CPI)])
+case('y42-installed-mode-changes', 'An installed program gets the executable mode and nothing else.', base='kit-installed', changes=[put(RKI, '// the rules\n', '100755')], acts=[CI(RKI)])
+case('y43-installed-program-deleted', 'An installed program is deleted.', base='kit-installed', changes=[drop(RKI)], acts=[CI(RKI)])
+case('y44-lookalikes-in-the-folder', 'Files that only look like programs of the kit, in the folder and beside it: no act.', base='kit-installed',
+     changes=[put(IK + 'record-keeper.mjs.bak', 'x\n'), put(IK + 'sub/record-keeper.mjs', 'x\n'), put(IK + 'record_keeper.mjs', 'x\n'), put('.github/updater.mjs', 'x\n'),
+              put('scripts/updater.mjs', 'x\n'), put(IK + 'notes.md', 'x\n'), put('.github/record-keeper.mjs', 'x\n')])
+case('y45-root-names-of-the-later-programs', 'The setup check and the updater are added at the root, where the kit keeps its programs.', base='kit', changes=[put('setup-check.mjs', '// 1\n'), put('updater.mjs', '// 2\n')],
+     acts=[a('code', 'setup-check.mjs'), a('code', 'updater.mjs')])
+case('y46-both-places-at-once', 'A program is changed at the root and in the folder: two acts, the folder first (its path sorts first).', base='kit-installed', changes=[put(RK, '// root\n'), put(RKI, '// folder\n')],
+     acts=[CI(RKI), a('code', RK)])
+case('y47-pin-and-a-program', 'The pin and an installed program change together: the pin is not mistaken for the folder.', base='kit-installed', changes=[put('.github/record-keeper.yml', 'x\n'), put(RKI, '// changed\n')],
+     acts=[a('pin', '.github/record-keeper.yml'), CI(RKI)])
+case('y48-github-becomes-a-file', 'The folder .github is replaced by a file: every guarded path below it is an act, and the settings cannot be read.', base='kit-installed',
+     changes=[drop(WF), drop(AU), drop(RKI), drop(CPI), drop(RAI), drop(SET), put('.github', 'x\n')],
+     settings=[(None, 'S-01', '.github')], acts=[a('settings', SET), a('owners', SET), a('pin', '.github/record-keeper.yml'), *ALL_WORKFLOWS, *INSTALLED_CODE])
+case('y49-folder-of-the-kit-removed', 'Everything in the folder is deleted: the programs that were there and the settings are acts.', base='kit-installed',
+     changes=[drop(RKI), drop(CPI), drop(RAI), drop(SET)], acts=[a('settings', SET), a('owners', SET), CI(CPI), CI(RKI), CI(RAI)])
+case('y50-a-guarded-name-in-another-folder', 'A guarded name below another folder of .github is not guarded.', base='kit-installed',
+     changes=[put('.github/other/record-keeper.mjs', 'x\n'), put('.github/workflows/sub/records-updater.yml', 'x\n'), put('docs/updater.mjs', 'x\n')])
 
 # ---- the bar for an amendment (M2.7b): docs/amendments.md -----------------------------------------------------------------------------
 def readme_gens(rows, gens, prose='Some words about the records.', eol='\n', extra=()):

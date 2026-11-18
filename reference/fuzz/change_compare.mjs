@@ -12,6 +12,8 @@ let errors = 0;
 const rules = {};
 const acts = {};
 const kinds = {};
+// How many scenarios had a workflow or a code act at each path, by the reference: the proof that the guard of docs/protected-files.md is exercised everywhere.
+const guarded = {};
 for (const s of scenarios) {
   const want = expected[s.id];
   if (!want) continue;
@@ -25,6 +27,7 @@ for (const s of scenarios) {
   for (const p of got.problems) rules[p.rule] = (rules[p.rule] ?? 0) + 1;
   for (const p of got.settings) rules[p.rule] = (rules[p.rule] ?? 0) + 1;
   for (const a of got.acts) acts[a.kind] = (acts[a.kind] ?? 0) + 1;
+  for (const key of new Set(want.acts.filter(([kind]) => kind === 'workflow' || kind === 'code').map(([kind, where]) => `${kind} ${where}`))) guarded[key] = (guarded[key] ?? 0) + 1;
   kinds[s.kind] = (kinds[s.kind] ?? 0) + 1;
   if (JSON.stringify(shown) !== JSON.stringify(want)) {
     different++;
@@ -32,5 +35,6 @@ for (const s of scenarios) {
   }
 }
 console.log(`${Object.keys(expected).length} scenarios, ${different} differences, ${errors} reference errors`);
+console.log('guarded', JSON.stringify(Object.fromEntries(Object.entries(guarded).sort())));
 console.log('rules', JSON.stringify(Object.fromEntries(Object.entries(rules).sort())), '\nacts', JSON.stringify(acts), '\nkinds', JSON.stringify(kinds));
 process.exitCode = different || errors ? 1 : 0;

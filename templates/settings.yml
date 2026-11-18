@@ -1,0 +1,10 @@
+# The settings of Record Keeper for this repository, edited by the maintainers. The check reads this file from the base branch, never from a pull
+# request, and a change to it needs the approval of the owners. Every key is commented out at its default, so a repository that keeps its records in
+# docs/decisions needs nothing here but its owners. Uncomment a line to change it.
+
+# folder: docs/decisions        # where the records live
+# shared-folder: shared         # the subfolder of the records folder for records that bind several repositories
+# extra-keys: []                # front matter keys beyond the standard ones, for example [repos]
+# owners: []                    # the accounts that approve acts, as login/id, for example [alice/1001, bob/1002]
+# approvals: 2                  # how many owners must approve an act; 1 is the single-owner mode
+# witnesses: []                 # accounts that are told of every announced act but cannot approve, as login/id

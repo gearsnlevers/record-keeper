@@ -88,7 +88,7 @@ An **act** is a change the owners must approve. This page finds the acts; [the p
 | `amendment` | a record becomes sealed and replaces a protocol record, or the protocol records named in the README change; met by [the bar](amendments.md); it replaces the act `accept` for that record | the record, or the README |
 | `pin` | a changed path is the pin, a folder in front of it, or something below it | `.github/record-keeper.yml` |
 | `workflow` | a changed path is one of the kit's workflow files, a folder in front of it, or something below it ([the files of the check](protected-files.md)) | that file |
-| `code` | the same for the files the workflow runs | that file |
+| `code` | the same for the programs that the workflows run, at the root and in `.github/record-keeper/` ([the files of the check](protected-files.md)) | that file |
 
 A record that is not sealed is never an acceptance. The acts `owners` and `amendment` are met by the bar for an amendment (all owners, seven days), not by the count of approvals: [that page](amendments.md) says how. The rules on `applies-to` (P-17, P-18) are on [their own page](applies-to.md).
 

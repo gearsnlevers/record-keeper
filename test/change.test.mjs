@@ -449,11 +449,22 @@ describe('errata and deviation notes: the options and the command needs', () => 
 });
 
 describe('the files of the check', () => {
-  test('the files of the page are the files of the code, and the code files exist', () => {
+  test('the files of the page are the files of the code, and the files that exist today are there', () => {
     for (const file of [...WORKFLOW_FILES, ...CODE_FILES]) assert.ok(filesPage.includes(`\`${file}\``), file);
     for (const file of ['.github/record-keeper/settings.yml', '.github/record-keeper.yml']) assert.ok(filesPage.includes(`\`${file}\``), file);
-    for (const file of [...CODE_FILES, WORKFLOW_FILES[0]]) assert.ok(fs.existsSync(path.join(root, file)), file);
-    assert.equal(new Set([...WORKFLOW_FILES, ...CODE_FILES]).size, 5);
+    // The kit keeps its programs at the root and two workflows of its own; the others are guarded before they exist (docs/protected-files.md).
+    for (const file of ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', '.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml']) {
+      assert.ok(fs.existsSync(path.join(root, file)), file);
+      assert.ok([...WORKFLOW_FILES, ...CODE_FILES].includes(file), file);
+    }
+    assert.equal(new Set([...WORKFLOW_FILES, ...CODE_FILES]).size, 14);
+  });
+
+  test('the four workflows and the five programs, at the root and in .github/record-keeper, are the files of the check', () => {
+    assert.deepEqual([...WORKFLOW_FILES].sort(), ['.github/workflows/records-audit.yml', '.github/workflows/records-integrity.yml', '.github/workflows/records-setup-check.yml', '.github/workflows/records-updater.yml']);
+    const programs = ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs'];
+    assert.deepEqual([...CODE_FILES].sort(), [...programs.map((name) => `.github/record-keeper/${name}`), ...programs].sort());
+    for (const file of [...WORKFLOW_FILES, ...CODE_FILES]) assert.equal(SETTINGS_PATH === file || PIN_PATH === file, false, `${file} is the settings or the pin`);
   });
 
   test('the workflows of this repository that are not the kit\'s do not name the check', () => {
@@ -476,5 +487,18 @@ describe('the files of the check', () => {
     const i = cases.findIndex((c) => c.id === 'y07-both-code-files');
     const got = run(['check-pr', '--repo', big, '--base', `b${i}`, '--head', `h${i}`]);
     assert.equal(got.stderr, "check-pull-request.mjs: needs the owners' approval (code)\nrecord-keeper.mjs: needs the owners' approval (code)\ndocs/decisions: 0 problems, 2 acts\n");
+  });
+
+  test('an act on a program in .github/record-keeper is named by its path, and the settings next to it is an act of its own kind', () => {
+    const i = cases.findIndex((c) => c.id === 'y38-settings-next-to-a-program');
+    const got = run(['check-pr', '--repo', big, '--base', `b${i}`, '--head', `h${i}`]);
+    assert.equal(got.stderr, "settings.yml: needs the owners' approval (settings)\n.github/record-keeper/record-keeper.mjs: needs the owners' approval (code)\ndocs/decisions: 0 problems, 2 acts\n".replace('settings.yml:', '.github/record-keeper/settings.yml:'));
+  });
+
+  test('the settings file of the folder is never taken for a program, and a program never for the settings', () => {
+    const kinds = (id) => cases.find((c) => c.id === id).expect.acts.map((act) => `${act.kind} ${act.path}`);
+    assert.deepEqual(kinds('y39-settings-alone-in-the-folder'), ['settings .github/record-keeper/settings.yml']);
+    assert.deepEqual(kinds('y33-installed-rules-edited'), ['code .github/record-keeper/record-keeper.mjs']);
+    assert.deepEqual(kinds('y47-pin-and-a-program'), ['pin .github/record-keeper.yml', 'code .github/record-keeper/record-keeper.mjs']);
   });
 });

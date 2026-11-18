@@ -1,0 +1,145 @@
+# Releases
+
+Status: draft for review (M3a). This page says how the kit is versioned, what a release holds, what the release manifest says and how it is built and verified, how the `Release` workflow cuts a release, why immutable releases are switched on only after the first real release, and what a repository that installs the kit can check for itself. It is not part of the protocol. The release workflow is run for real for the first time in M3e; until then it has only been tested as a file ([test/release-workflow.test.mjs](../test/release-workflow.test.mjs)) and its two programs have been run against folders of their own. The files that a release installs are on [the page of the install set](install.md).
+
+A repository pins a released version and never a branch. `main` is work in progress; a release is the point where the maintainers say that it is safe to take. The repository takes a release through a pull request that the updater (M3b) opens and a maintainer merges.
+
+## Versioning
+
+The versions are semantic, `MAJOR.MINOR.PATCH`, and the tag of a release is the version with a `v` in front (`v1.2.3`).
+
+| Bump | When |
+| ---- | ---- |
+| patch | A fix, or wording, that needs nothing from a repository. |
+| minor | A new optional feature: an optional workflow or setting, a check that is new and does not fail a repository that was fine. A repository that does nothing keeps working. |
+| major | Something that **a person has to do**: a new required secret or setting, a file removed or renamed in the install set, a new protocol generation. |
+
+- **A prerelease** (`premajor` or `prerelease`) is marked as a prerelease on GitHub, and a repository on the default channel does not take it.
+- **The version comes from the tags.** With no tag yet, the action that computes it starts from the version in `package.json` when that is a semantic version, and from `0.0.0` when it is not, and `premajor` gives the prerelease of the next major (its page says `4.18.0` to `5.0.0-1`). `package.json` of the kit says `0.0.0`, so the first `major` should be `v1.0.0` and the first `premajor` `v1.0.0-1` ([version-bump-action](https://github.com/gearsnlevers/version-bump-action)); that is read from the action's page and has not been run for this repository, which is why the first release starts with a dry run. `package.json` stays `private: true`: the kit is not published to npm.
+- **A change to a rule is a new record in the kit and a new release,** never a patch in a repository ([the design](design.md#delivery-and-versions)).
+
+## The manifest
+
+A release has one asset, `release-manifest.json`. It is made by [tools/build-release-manifest.mjs](../tools/build-release-manifest.mjs) from `install.json` and `package.json` and from the files of the commit that is released. It holds no time, and the same files give the same bytes.
+
+An example (the digests and sizes are those of the files of the release that it describes):
+
+```json
+{
+  "commit": "5bec31d90a04d7045bb2849799f4934fe52d6351",
+  "files": [
+    { "kind": "managed", "path": ".github/record-keeper/record-keeper.mjs", "sha256": "…", "size": 133921, "source": "record-keeper.mjs" }
+  ],
+  "generations": ["g1"],
+  "node": ">=22",
+  "requires": { "rulesets": [{ "branch": "default", "checks": ["Records integrity"], "up-to-date": true }], "secrets": [], "settings": ["owners"] },
+  "schema": 1,
+  "tag": "v1.2.3",
+  "version": "1.2.3"
+}
+```
+
+| Field | What it says |
+| ----- | ------------ |
+| `schema` | The form of the manifest: `1`. |
+| `version`, `tag` | The semantic version, and its tag, which is `v` and the version. |
+| `commit` | The full id of the commit that the release is made from: 40 or 64 lower case hexadecimal digits. |
+| `node` | The versions of Node.js that the programs run on: `engines.node` of `package.json`. |
+| `generations` | The generations of the protocol that this release reads and writes (`install.json`). |
+| `files` | Every file of the install set, **sorted by destination** (by the bytes of the path): `path` is where it goes in a repository, `source` is where it is in the kit, `kind` is `managed` or `template` ([install](install.md#managed-and-template)), `sha256` is the digest of its bytes and `size` their number. |
+| `requires` | What a repository must provide: `secrets` (names), `settings` (keys of the settings file that must be set) and `rulesets` (what a ruleset on a branch requires). Copied from `install.json`. |
+
+- **`secrets` is `[]` today.** The updater (M3b) will need a secret of its own, `RECORD_KEEPER_TOKEN`, to open pull requests; it is added to the list when the updater is added to the kit, and a new required secret makes a release a major one. The check that a ruleset requires `Records setup check` is added with the setup check (M3c).
+- **The bytes are fixed:** keys in the order of their bytes at every depth, two spaces of indentation, line feeds, one line feed at the end, no time and no machine name. A manifest that says the right things in another form does not verify.
+- **A file is hashed as it is.** A carriage return, a byte order mark, an empty file and a name with a space are what they are. `.gitattributes` keeps git from changing the line endings of the files of the install set.
+- **Nothing is read that is not in the release.** A source that is missing, a source that is a symbolic link (or has one on its path), a destination twice (also in other capitals), a destination outside `.github/` and `docs/decisions/`, an absolute path or one with `..`, and a `kind` that is not one of the two are refused with a message that names the entry ([install](install.md#installjson)).
+
+**Building and verifying.**
+
+```sh
+node tools/build-release-manifest.mjs --version 1.2.3 --tag v1.2.3 --commit <id> --out release-manifest.json
+node tools/build-release-manifest.mjs --verify release-manifest.json
+python3 reference/verify_manifest.py --verify release-manifest.json
+```
+
+`--verify` recomputes every digest and size from the files of the working tree and compares them with the manifest, and finds a file that was changed, resized, replaced by a link or deleted, a file that the manifest lacks or that `install.json` does not list, another `node`, `generations` or `requires`, and a text that is not in the canonical form. `--root <folder>` names the folder of the files, which is the working directory by default. The exit status is 0 when it verifies, 1 when something is refused or does not verify, 2 for wrong usage.
+
+**A second implementation.** `reference/verify_manifest.py` is written in Python from this page and shares no code with the Node program. It verifies a manifest, and with `--build` it writes the manifest it would build; a test runs the two against each other on odd files (a file with carriage returns, an empty one, one with a byte order mark, binary bytes, a name with a space) and on this repository, and compares the bytes. The release workflow runs both verifiers.
+
+## The release workflow
+
+`Release` (`.github/workflows/release.yml`) is started by hand (`workflow_dispatch`) and nothing else starts it. It takes two inputs: `release-type`, one of `prerelease`, `premajor`, `patch`, `minor` and `major`, and `dry-run`, a boolean that is off by default. Its token has `contents: write` and nothing else, one run at a time holds the concurrency group `release`, and a run that has started is never cancelled, because it may be half way through its writes. Its release actions are `gearsnlevers/version-bump-action`, `gearsnlevers/release-preflight-action`, `gearsnlevers/manifest-version-update-action` and, when a key is set, `gearsnlevers/ai-changelog-action`; they and the actions of GitHub are each pinned to a commit with the version in a comment.
+
+1. **Require the default branch** for a real release. A dry run may run from any branch.
+2. **`npm test`** and **`record-keeper.mjs validate docs/decisions`**, as the pipeline of every pull request does.
+3. **The next version** (`version-bump-action`), from the tags and the type of the release, and a **preflight** (`release-preflight-action`): the tag does not exist yet, and the version has not drifted.
+4. **`package.json`** gets the version (`manifest-version-update-action`).
+5. **The notes and the changelog.** With the repository secret `LLM_API_KEY` the AI changelog (`ai-changelog-action`) writes them; without it GitHub generates the notes and `tools/update-changelog.mjs` puts them into `CHANGELOG.md` under a heading `## [v1.2.3] - 2026-11-17`, newest first, with the headings of the notes moved one level down.
+6. **Check the install set:** build the manifest for the commit that the run started from and verify it, so that a refusal (a missing source, a link, a path that is not allowed) stops the run before anything is written. Then **commit** `CHANGELOG.md` and `package.json` to the default branch as `chore: release v1.2.3` (a real release only).
+7. **Build the manifest for that commit and verify it,** with both programs.
+8. **Tag** the commit with an annotated tag and push it (a real release only). It is idempotent for the same commit: a tag that is there already on the commit that is released is left alone. A tag that is there on another commit stops the run with an error.
+9. **Create a draft release** with the notes (a prerelease when the version is one), **upload the manifest** to the draft and check that the draft holds a file of that name and size, and then **publish** the release (a real release only). A draft that a failed run left behind is deleted and made again. A release that is published is never touched: creating it again fails.
+10. **A summary** of the run is always written, with the type, the base version, the new version, the tag, whether it is a prerelease, where the notes come from and whether it was a dry run.
+
+**The dry run** does steps 2 to 5, the check of step 6 and step 7: it commits nothing, tags nothing and publishes nothing, and uploads `release-manifest.json`, `RELEASE_NOTES.md` and `CHANGELOG.md` as the artifact `release-dry-run`. The manifest it makes names the commit that the run started from, which is not a released commit. The tests of the workflow state, line by line, that every step that writes is guarded by the dry run and that the release is published only after the manifest is uploaded.
+
+**The first release.**
+
+1. Run it with `major` and the dry run on. Read the summary: it must say `v1.0.0`. Read the notes and the manifest.
+2. Optional rehearsal: run `premajor` for real (`v1.0.0-1`, a prerelease). It can still be deleted at this stage.
+3. Run `major` with the dry run off.
+4. Switch on immutable releases ([below](#immutable-releases)).
+
+**Before the first real release.** These are not done by anything in this repository, and none has been verified here.
+
+- The default branch accepts the commit of step 6. The commit is pushed with the token of the workflow; a ruleset that requires pull requests or checks on the default branch refuses it unless the `github-actions` app may bypass it. If it may not, the run stops at step 6 with nothing published, and the maintainer decides between a bypass and a token of its own.
+- The setting of the organisation for the permissions of the workflow token allows `contents: write`; the workflow asks for it.
+- The audit does not take the commit of step 6 for a breach. It changes `CHANGELOG.md` and `package.json` only, which the check does not guard, so it is no act, and a test builds such a history and audits it ([test/install.test.mjs](../test/install.test.mjs)).
+
+**If it fails midway.** A run that stopped before the commit changed nothing. A run that stopped after the commit and before the tag is run again with the same type: once there is a tag, the version is computed again from the tags, and a commit that has nothing new to commit is not made twice. **The first release has one more hazard:** while there is no tag, the version is read from `package.json`, which the commit has changed, so a run again after a stop between the commit and the tag would compute from the new version. A dry run shows the version before it is cut; if it is not the one that stopped, put `package.json` back to `0.0.0` in a commit, or create the tag by hand on the commit of the stopped run. A tag on the wrong commit is deleted by a person before the run is repeated. A draft that is left is replaced by the next run.
+
+**Secrets.** None is required. `LLM_API_KEY` switches the notes to the AI changelog. The workflow uses the token that GitHub gives each run.
+
+## Immutable releases
+
+GitHub can make the releases of a repository immutable: "where the assets and associated Git tag cannot be changed after publication". "Git tags cannot be moved", and "release assets cannot be modified or deleted"; the title, the notes and the status as a prerelease can still be edited. GitHub recommends creating the release as a draft, attaching all assets, and then publishing it, "to ensure that all assets are in place before the release becomes immutable" ([immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases)). That is the order of step 9.
+
+**The maintainer switches them on after the first real release has succeeded** (in the settings of the repository), not before:
+
+- A published immutable release keeps its assets and its tag as they are: the tag cannot be moved, and, as the page describes it, once the release is deleted the name of the tag cannot be used again. A botched first release would then cost a version number, and a pipeline that has never run is the likeliest thing to botch one.
+- While the setting is off, a release can be deleted and made again, which is what the rehearsal of the first release needs.
+- The workflow does not depend on the setting: it makes a draft, uploads and publishes whether the repository is immutable or not.
+
+**What GitHub says a consumer can check.** An immutable release has a release attestation, "a cryptographically verifiable record of a release containing the release tag, commit SHA, and release assets" ([immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases)). GitHub's page on the integrity of a release gives two commands of the GitHub CLI: `gh release verify <tag>`, which checks that the release exists and is immutable, and `gh release verify-asset <tag> <file>`, which checks that a local file is an exact match of a release asset ([verifying the integrity of a release](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/verifying-the-integrity-of-a-release)).
+
+**Unverified.** Everything in this paragraph is what the two pages above say, as read on the day of this draft. It has not been tried on a release of this repository, because there is none and the setting is off. I do not know whether the attestation of a release of this repository will verify, which version of the GitHub CLI the two commands need (the page does not say), or whether the setting is available in the plan of this organisation. The design says that releases are attested ([the design](design.md#delivery-and-versions)); this is the claim that M3e has to check on the first release.
+
+## What a repository can verify
+
+| Check | How | What it shows | Status |
+| ----- | --- | ------------- | ------ |
+| The files are the release's | `--verify` of the manifest, against the files that were downloaded for the tag | each file is what the release holds, byte for byte | Tried on folders of their own and on this repository. |
+| The release is of that commit | `git rev-parse <tag>^{commit}` equals `commit` of the manifest | the manifest is of the commit that the tag names | Not tried: there is no tag yet. |
+| The release was not changed after it was published | `gh release verify <tag>` and `gh release verify-asset <tag> release-manifest.json` | the release is immutable, and the manifest is the asset that was published | **Unverified**, see above. |
+| The installed files are the release's | the setup check (M3c) compares the installed managed files with the manifest | a managed file was not edited in the repository | Not built yet. |
+
+What the manifest does not show: that the code is right, or that nobody with the rights to the repository of the kit made a release that does something else. The digests are of the files of the release, and the manifest is an asset of the same release, so the manifest alone protects against a download that went wrong and not against a release that was made to be wrong. The immutability and the attestation are what make a swap after publication visible, and the owners' approval of the update pull request, which shows the diff of every managed file, is what makes a bad release visible before it is used.
+
+## What this page does not do
+
+- **It does not publish anything.** The first release is M3e, by the maintainer.
+- **It does not say how the updater reads a release.** The updater is M3b; it reads `install.json` and the manifest of the release it installs.
+- **It does not publish the kit to npm.** The package is private.
+
+## Choices in this draft for you to decide
+
+1. **The workflow commits `CHANGELOG.md` and `package.json` to the default branch,** as the workflow of the action repositories does, and the tag is on that commit. The cost is the one in "Before the first real release": a ruleset that does not let the workflow token push. The alternative is a release without a commit, with the changelog only in the release notes, which the brief for this milestone did not want.
+2. **`package.json` follows the release,** and stays `private: true`. With tags the version comes from the tags; the `0.0.0` it has now is only the base of the first release.
+3. **`tools/update-changelog.mjs` refuses empty notes, and the workflow gives a one line note instead.** An empty section in a changelog says nothing and a refusal at that step would stop a release for a quirk of the notes that GitHub generates.
+4. **The manifest verifier is run by Python as well as by Node in the release itself,** so that a disagreement of the two stops a release before the tag. It makes the release job need `python3`, which the runner has.
+5. **The upload is checked by the size of the asset on the draft,** read from the list of releases of the API (a draft cannot be read by its tag). It checks that the file is there and whole, not that it is the same file.
+6. **The manifest names `node` as the range of `engines`,** not a version, because that is what the programs need. The updater can compare it with the Node of the workflow.
+7. **`commit` must be a full id,** and `tag` must be `v` and the version: a manifest with a short id or another tag is refused when built and does not verify.
+8. **A dry run of a branch other than the default** is allowed, and its manifest names that branch's commit. The summary says it was a dry run.
+9. **The AI changelog is optional,** as the workflow of the action repositories makes it. The kit's own release notes are then the ones that GitHub generates from the titles of the pull requests.
+10. **The tests of the workflow are a lint of its text,** not a run of it. The first run for real shows what the lint could not.

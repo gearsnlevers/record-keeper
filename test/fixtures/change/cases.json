@@ -1345,6 +1345,64 @@
     "content": "// the rules\n"
    }
   ],
+  "kit-installed": [
+   {
+    "path": ".github/record-keeper/check-pull-request.mjs",
+    "content": "// the program\n"
+   },
+   {
+    "path": ".github/record-keeper/record-keeper.mjs",
+    "content": "// the rules\n"
+   },
+   {
+    "path": ".github/record-keeper/run-audit.mjs",
+    "content": "// the audit run\n"
+   },
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "owners: [alice/1001]\n"
+   },
+   {
+    "path": ".github/workflows/records-audit.yml",
+    "content": "name: Records audit\n"
+   },
+   {
+    "path": ".github/workflows/records-integrity.yml",
+    "content": "name: Records integrity\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
   "proto": [
    {
     "path": "docs/decisions/0001-first.md",
@@ -5115,10 +5173,38 @@
      {
       "kind": "workflow",
       "path": ".github/workflows/records-integrity.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-setup-check.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-updater.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/updater.mjs"
      }
     ]
    },
-   "note": "The base has a link in front of the settings; replacing it with a real folder is a repair. The folder in front of the pin changed too, so the pin is an act as well, and so are the two workflow files of the kit."
+   "note": "The base has a link in front of the settings; replacing it with a real folder is a repair. The folder in front of the pin changed too, so the pin is an act as well, and so are the four workflow files and the five programs under `.github/record-keeper`."
   },
   {
    "id": "k09-link-introduced",
@@ -5142,6 +5228,26 @@
      {
       "kind": "settings",
       "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/updater.mjs"
      }
     ]
    },
@@ -6323,6 +6429,26 @@
      {
       "kind": "owners",
       "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/updater.mjs"
      }
     ]
    },
@@ -11158,6 +11284,14 @@
      {
       "kind": "workflow",
       "path": ".github/workflows/records-integrity.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-setup-check.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-updater.yml"
      }
     ]
    },
@@ -11675,6 +11809,583 @@
     "acts": []
    },
    "note": "A name that only contains .yml is not a workflow file."
+  },
+  {
+   "id": "y33-installed-rules-edited",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// the rules, changed\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "The rules file is edited where a repository that installs the kit keeps it."
+  },
+  {
+   "id": "y34-installed-three-programs",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// 1\n"
+    },
+    {
+     "write": ".github/record-keeper/check-pull-request.mjs",
+     "content": "// 2\n"
+    },
+    {
+     "write": ".github/record-keeper/run-audit.mjs",
+     "content": "// 3\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     }
+    ]
+   },
+   "note": "Three installed programs change together: three acts, by path."
+  },
+  {
+   "id": "y35-installed-programs-of-later-milestones",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/setup-check.mjs",
+     "content": "// the setup check\n"
+    },
+    {
+     "write": ".github/record-keeper/updater.mjs",
+     "content": "// the updater\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/updater.mjs"
+     }
+    ]
+   },
+   "note": "The setup check and the updater are added in the folder, before any of them exists in the kit: acts all the same."
+  },
+  {
+   "id": "y36-workflows-of-later-milestones",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/workflows/records-setup-check.yml",
+     "content": "name: Records setup check\n"
+    },
+    {
+     "write": ".github/workflows/records-updater.yml",
+     "content": "name: Records updater\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-setup-check.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-updater.yml"
+     }
+    ]
+   },
+   "note": "The workflows of the setup check and of the updater are added: acts, one each."
+  },
+  {
+   "id": "y37-guarded-workflow-may-name-the-check",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/workflows/records-setup-check.yml",
+     "content": "name: Records setup check\n# it asks whether Records integrity is required\n"
+    },
+    {
+     "write": ".github/workflows/records-updater.yaml",
+     "content": "x: Records integrity\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": null,
+      "rule": "P-15",
+      "detail": ".github/workflows/records-updater.yaml"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-setup-check.yml"
+     }
+    ]
+   },
+   "note": "A guarded workflow names the check and is an act, not P-15; a copy with another extension is not guarded and is P-15."
+  },
+  {
+   "id": "y38-settings-next-to-a-program",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\nextra-keys: [repos]\n"
+    },
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// changed\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "The settings and an installed program change together: one act of each kind, and the program is not mistaken for the settings."
+  },
+  {
+   "id": "y39-settings-alone-in-the-folder",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "owners: [alice/1001]\nextra-keys: [repos]\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "Only the settings file of the folder changes: no act on the programs."
+  },
+  {
+   "id": "y40-installed-file-becomes-a-folder",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "remove": ".github/record-keeper/run-audit.mjs"
+    },
+    {
+     "write": ".github/record-keeper/run-audit.mjs/x",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     }
+    ]
+   },
+   "note": "A folder stands where an installed program was."
+  },
+  {
+   "id": "y41-installed-file-becomes-a-link",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "symlink": ".github/record-keeper/check-pull-request.mjs",
+     "target": ".github/record-keeper/record-keeper.mjs"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     }
+    ]
+   },
+   "note": "An installed program becomes a symbolic link."
+  },
+  {
+   "id": "y42-installed-mode-changes",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// the rules\n",
+     "mode": "100755"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "An installed program gets the executable mode and nothing else."
+  },
+  {
+   "id": "y43-installed-program-deleted",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "remove": ".github/record-keeper/record-keeper.mjs"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "An installed program is deleted."
+  },
+  {
+   "id": "y44-lookalikes-in-the-folder",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/record-keeper.mjs.bak",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper/sub/record-keeper.mjs",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper/record_keeper.mjs",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/updater.mjs",
+     "content": "x\n"
+    },
+    {
+     "write": "scripts/updater.mjs",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper/notes.md",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper.mjs",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "Files that only look like programs of the kit, in the folder and beside it: no act."
+  },
+  {
+   "id": "y45-root-names-of-the-later-programs",
+   "base": "kit",
+   "changes": [
+    {
+     "write": "setup-check.mjs",
+     "content": "// 1\n"
+    },
+    {
+     "write": "updater.mjs",
+     "content": "// 2\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": "setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": "updater.mjs"
+     }
+    ]
+   },
+   "note": "The setup check and the updater are added at the root, where the kit keeps its programs."
+  },
+  {
+   "id": "y46-both-places-at-once",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": "record-keeper.mjs",
+     "content": "// root\n"
+    },
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// folder\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": "record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "A program is changed at the root and in the folder: two acts, the folder first (its path sorts first)."
+  },
+  {
+   "id": "y47-pin-and-a-program",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/record-keeper.yml",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/record-keeper/record-keeper.mjs",
+     "content": "// changed\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "pin",
+      "path": ".github/record-keeper.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     }
+    ]
+   },
+   "note": "The pin and an installed program change together: the pin is not mistaken for the folder."
+  },
+  {
+   "id": "y48-github-becomes-a-file",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "remove": ".github/workflows/records-integrity.yml"
+    },
+    {
+     "remove": ".github/workflows/records-audit.yml"
+    },
+    {
+     "remove": ".github/record-keeper/record-keeper.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/check-pull-request.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/run-audit.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/settings.yml"
+    },
+    {
+     "write": ".github",
+     "content": "x\n"
+    }
+   ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [
+     {
+      "line": null,
+      "rule": "S-01",
+      "detail": ".github"
+     }
+    ],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "pin",
+      "path": ".github/record-keeper.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-audit.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-integrity.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-setup-check.yml"
+     },
+     {
+      "kind": "workflow",
+      "path": ".github/workflows/records-updater.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/setup-check.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/updater.mjs"
+     }
+    ]
+   },
+   "note": "The folder .github is replaced by a file: every guarded path below it is an act, and the settings cannot be read."
+  },
+  {
+   "id": "y49-folder-of-the-kit-removed",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "remove": ".github/record-keeper/record-keeper.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/check-pull-request.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/run-audit.mjs"
+    },
+    {
+     "remove": ".github/record-keeper/settings.yml"
+    }
+   ],
+   "needs": {
+    "cases": [],
+    "clock": true
+   },
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "owners",
+      "path": ".github/record-keeper/settings.yml"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/check-pull-request.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/record-keeper.mjs"
+     },
+     {
+      "kind": "code",
+      "path": ".github/record-keeper/run-audit.mjs"
+     }
+    ]
+   },
+   "note": "Everything in the folder is deleted: the programs that were there and the settings are acts."
+  },
+  {
+   "id": "y50-a-guarded-name-in-another-folder",
+   "base": "kit-installed",
+   "changes": [
+    {
+     "write": ".github/other/record-keeper.mjs",
+     "content": "x\n"
+    },
+    {
+     "write": ".github/workflows/sub/records-updater.yml",
+     "content": "x\n"
+    },
+    {
+     "write": "docs/updater.mjs",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "A guarded name below another folder of .github is not guarded."
   },
   {
    "id": "z01-amendment",

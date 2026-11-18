@@ -15,8 +15,16 @@ CONTENT_RULES = {f'V-{n:02d}' for n in list(range(9, 20)) + list(range(21, 29)) 
 ITEM = re.compile(r'^ +- +(\S.*)$')
 STATUS_SUPERSEDED = re.compile(r'superseded by ([0-9]{4})')
 ACT_ORDER = {'accept': 0, 'erratum': 1, 'deviation': 2, 'settings': 3, 'owners': 4, 'amendment': 5, 'pin': 6, 'workflow': 7, 'code': 8}
-WORKFLOW_FILES = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml']
-CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']
+# Written out, not built from one list: the reference does not share the way the library makes these lists (docs/protected-files.md).
+WORKFLOW_FILES = [
+    '.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml',
+    '.github/workflows/records-setup-check.yml', '.github/workflows/records-updater.yml',
+]
+CODE_FILES = [
+    'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs',
+    '.github/record-keeper/record-keeper.mjs', '.github/record-keeper/check-pull-request.mjs', '.github/record-keeper/run-audit.mjs',
+    '.github/record-keeper/setup-check.mjs', '.github/record-keeper/updater.mjs',
+]
 DEVIATION_RULES = {'V-11', 'V-12', 'V-27', 'V-28'}
 FIXED_KEYS = ('applies-to', 'repos', 'window', 'supersedes')
 
