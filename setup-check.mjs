@@ -80,7 +80,7 @@ export const TOPICS = {
   accounts: { what: `the accounts of the owners`, fix: `Read https://api.github.com/user/<id> for each owner and compare the login, or run the check again later.` },
   codeowners: { what: `who CODEOWNERS gives the files of the kit to`, fix: `Write CODEOWNERS with the patterns that docs/setup-check.md says are read, or read the file by hand.` },
   release: { what: `the manifest of the pinned release`, fix: `Run the check again later. The release is read from the repository named in the pin.` },
-  secret: { what: `whether ${SECRET} is set`, fix: `Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN), which a run for a pull request cannot.` },
+  secret: { what: `whether ${SECRET} is set`, fix: `Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN).` },
   audit: { what: `the last run of the audit`, fix: `Run the check again later, and look at the branch record-keeper/log by hand.` },
   age: { what: `how long the audit workflow has been in the repository`, fix: `Run the check again later, and look at the history of ${AUDIT_WORKFLOW} by hand.` },
 };
@@ -92,6 +92,7 @@ export const TOPICS = {
 export const NOT_LOOKED_AT = {
   bypass: { what: `who may bypass the ruleset`, note: `The token of a workflow is not shown the bypass list of a ruleset, whoever the repository is. The audit finds the effect (a change to a guarded file that came in without a pull request is a violation, A-03), and run by hand with the token of a person who may administer the repository the program says bypass-always.` },
   own: { what: `the pin, the pinned release and the installed files`, note: `The kit does not install itself.` },
+  secret: { what: `whether ${SECRET} is set`, note: `The run of a pull request from a fork is given no secret, so what it would say is not what the repository has. The scheduled run and a manual run of the workflow say it when the secret is not set.` },
 };
 
 const TEXT = {
@@ -364,7 +365,7 @@ export function decide(input) {
         if (differing.length === 0) passed.push('managed-files');
         else add('managed-differs', `${differing.slice(0, BOUNDS.list).join(', ')}${differing.length > BOUNDS.list ? `, and ${differing.length - BOUNDS.list} more` : ''}`);
         if (release.secrets.includes(SECRET)) {
-          if (input.event === 'pull_request') unchecked('secret', 'a run for a pull request is not given the secrets');
+          if (input.event === 'pull_request') notLookedAt.push({ topic: 'secret', why: 'a run for a pull request is not given the secrets' });
           else if (input.secretSet === null) unchecked('secret', 'the workflow did not say whether it is set');
           else if (input.secretSet) passed.push('secret');
           else add('secret-not-set');

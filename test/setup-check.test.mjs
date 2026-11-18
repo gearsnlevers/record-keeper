@@ -46,7 +46,7 @@ const GOLDEN = [
   ["not-checked", "accounts: <WHY>", "not checked: the accounts of the owners (<WHY>). Read https://api.github.com/user/<id> for each owner and compare the login, or run the check again later."],
   ["not-checked", "codeowners: <WHY>", "not checked: who CODEOWNERS gives the files of the kit to (<WHY>). Write CODEOWNERS with the patterns that docs/setup-check.md says are read, or read the file by hand."],
   ["not-checked", "release: <WHY>", "not checked: the manifest of the pinned release (<WHY>). Run the check again later. The release is read from the repository named in the pin."],
-  ["not-checked", "secret: <WHY>", "not checked: whether RECORD_KEEPER_TOKEN is set (<WHY>). Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN), which a run for a pull request cannot."],
+  ["not-checked", "secret: <WHY>", "not checked: whether RECORD_KEEPER_TOKEN is set (<WHY>). Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN)."],
   ["not-checked", "audit: <WHY>", "not checked: the last run of the audit (<WHY>). Run the check again later, and look at the branch record-keeper/log by hand."],
   ["not-checked", "age: <WHY>", "not checked: how long the audit workflow has been in the repository (<WHY>). Run the check again later, and look at the history of .github/workflows/records-audit.yml by hand."],
 ];
@@ -54,6 +54,7 @@ const GOLDEN = [
 const GOLDEN_LOOKED = [
   ["bypass", "<WHY>", "not looked at: who may bypass the ruleset (<WHY>). The token of a workflow is not shown the bypass list of a ruleset, whoever the repository is. The audit finds the effect (a change to a guarded file that came in without a pull request is a violation, A-03), and run by hand with the token of a person who may administer the repository the program says bypass-always."],
   ["own", "<WHY>", "not looked at: the pin, the pinned release and the installed files (<WHY>). The kit does not install itself."],
+  ["secret", "<WHY>", "not looked at: whether RECORD_KEEPER_TOKEN is set (<WHY>). The run of a pull request from a fork is given no secret, so what it would say is not what the repository has. The scheduled run and a manual run of the workflow say it when the secret is not set."],
 ];
 
 describe('the fixtures of the decision', () => {
@@ -225,7 +226,9 @@ describe('the text of a finding', () => {
     const shown = new Set(decisions.flatMap((c) => c.expect.notLookedAt.map((item) => item.topic)));
     assert.deepEqual(Object.keys(NOT_LOOKED_AT).filter((topic) => !shown.has(topic)), []);
     for (const topic of shown) assert.ok(Object.hasOwn(NOT_LOOKED_AT, topic), topic);
-    assert.ok(!Object.hasOwn(TOPICS, 'own'), 'a topic is either not checked or not looked at');
+    assert.ok(!Object.hasOwn(TOPICS, 'own'), 'the kit that does not install itself is not a check that was not made');
+    assert.ok(Object.hasOwn(TOPICS, 'secret') && Object.hasOwn(NOT_LOOKED_AT, 'secret'), 'the secret is not checked when the workflow does not say, and not looked at in a run for a pull request');
+    assert.doesNotMatch(TOPICS.secret.fix, /pull request/);
     for (const topic of Object.keys(NOT_LOOKED_AT)) assert.ok(page.includes(`\`${topic}\``), topic);
     assert.match(describeLooked({ topic: 'bypass', why: 'a\nb::c' }), /\(a\\u\{a\}b::c\)/);
   });

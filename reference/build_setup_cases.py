@@ -120,7 +120,7 @@ def set_last(**fields):
 
 
 def pull_request(base):
-    """A run for a pull request whose base has these settings. The release asks for no secret, so that the notice about it (a pull request is given none) is not in the way."""
+    """A run for a pull request whose base has these settings. The release asks for no secret: the secret is not what these cases are about."""
     def edit(state):
         state['event'] = 'pull_request'
         state['baseSettings'] = base
@@ -224,8 +224,8 @@ case('so-14', 'a schedule never says it', lambda s: (single(('alice', 1001))(s),
 case('so-15', 'a run for a pull request with --local says nothing: the base is not asked for', lambda s: (single(('alice', 1001))(s), local(s), s.update({'event': 'pull_request'})),
      [('not-checked', 'github: the command line says --local')],
      without('owner-accounts', 'check-required', 'check-strict', 'bypass', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit'))
-case('so-16', 'on a pull request the secret is not judged, and the notice about the mode is made all the same', lambda s: (single(('alice', 1001))(s), s.update({'event': 'pull_request', 'baseSettings': {'state': 'absent'}})),
-     [('single-owner', ''), ('not-checked', 'secret: a run for a pull request is not given the secrets')], without('secret'))
+case('so-16', 'on a pull request the secret is not looked at, and the notice about the mode is made all the same', lambda s: (single(('alice', 1001))(s), s.update({'event': 'pull_request', 'baseSettings': {'state': 'absent'}})),
+     [('single-owner', '')], without('secret'), [('secret', 'a run for a pull request is not given the secrets')])
 
 # ---- CODEOWNERS --------------------------------------------------------------------------------------------------------------------------------------
 case('c-0', 'no CODEOWNERS file', lambda s: s['codeowners'].update({'state': 'absent', 'path': ''}), [('codeowners-missing', '')], without('codeowners'))
@@ -341,11 +341,22 @@ case('p-11', 'exactly eight files that differ', lambda s: (s['release'].update({
      [('managed-differs', ', '.join('.github/record-keeper/p%02d.mjs (missing)' % n for n in range(8)))], without('managed-files'))
 case('p-12', 'the release does not name the secret: it is not asked for', lambda s: (s['release'].update({'secrets': []}), s.update({'secretSet': False})), [], without('secret'))
 case('p-13', 'the secret is not set', lambda s: s.update({'secretSet': False}), [('secret-not-set', '')], without('secret'))
-case('p-14', 'a run for a pull request is not given the secrets', lambda s: s.update({'event': 'pull_request', 'secretSet': False}),
-     [('not-checked', 'secret: a run for a pull request is not given the secrets')], without('secret'))
+SECRET_PR = ('secret', 'a run for a pull request is not given the secrets')
+case('p-14', 'a run for a pull request is not given the secrets: not looked at, whatever the workflow says it has', lambda s: s.update({'event': 'pull_request', 'secretSet': False}), [], without('secret'), [SECRET_PR])
+case('p-14a', 'a run for a pull request, and the workflow says the secret is set: the same, not looked at', lambda s: s.update({'event': 'pull_request', 'secretSet': True}), [], without('secret'), [SECRET_PR])
+case('p-14b', 'a run for a pull request, and the workflow did not say: the same, not looked at', lambda s: s.update({'event': 'pull_request', 'secretSet': None}), [], without('secret'), [SECRET_PR])
+case('p-14c', 'a run for a pull request, and the release does not name the secret: there is nothing that it did not look at', lambda s: s.update({'event': 'pull_request', 'secretSet': False, 'release': dict(s['release'], secrets=[])}), [], without('secret'))
+case('p-14d', 'a run for a pull request, and the release cannot be read: the release is said, and the secret is not in it', lambda s: s.update({'event': 'pull_request', 'secretSet': False, 'release': {'state': 'not-checked', 'why': 'GET /repos/example/kit/releases answered 502'}}),
+     [('not-checked', 'release: GET /repos/example/kit/releases answered 502')], without('manifest', 'managed-files', 'secret'))
+case('p-14e', 'a run for a pull request, and a file differs: the file is a finding, and the secret is not looked at all the same', lambda s: (s.update({'event': 'pull_request'}), s['tree'].pop(INTEGRITY)),
+     [('managed-differs', INTEGRITY + ' (missing)')], without('managed-files', 'secret'), [SECRET_PR])
 case('p-15', 'the workflow did not say whether the secret is set', lambda s: s.update({'secretSet': None}), [('not-checked', 'secret: the workflow did not say whether it is set')], without('secret'))
+case('p-15a', 'a manual run, and the workflow did not say: the same', lambda s: s.update({'event': 'workflow_dispatch', 'secretSet': None}), [('not-checked', 'secret: the workflow did not say whether it is set')], without('secret'))
+case('p-15b', 'no event is known, and the workflow did not say: the same', lambda s: s.update({'event': None, 'secretSet': None}), [('not-checked', 'secret: the workflow did not say whether it is set')], without('secret'))
 case('p-16', 'a run by hand with the secret set', lambda s: s.update({'event': 'workflow_dispatch'}))
+case('p-16a', 'a manual run, and the secret is not set', lambda s: s.update({'event': 'workflow_dispatch', 'secretSet': False}), [('secret-not-set', '')], without('secret'))
 case('p-17', 'no event is known: the secret is judged all the same', lambda s: s.update({'event': None, 'secretSet': False}), [('secret-not-set', '')], without('secret'))
+case('p-17a', 'no event is known, and the secret is set', lambda s: s.update({'event': None, 'secretSet': True}))
 case('p-18', 'with --local and a pin that is read: the release is not read, and nothing is said of it', lambda s: (local(s), s['codeowners'].update({'state': 'absent', 'path': ''})),
      [('codeowners-missing', ''), ('not-checked', 'github: the command line says --local')], ['settings', 'owners', 'pin'])
 

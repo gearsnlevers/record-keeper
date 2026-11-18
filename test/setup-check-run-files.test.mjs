@@ -354,6 +354,11 @@ describe('the environment that the workflow gives', () => {
     void got;
     return (await check(state, dir, { env })).found;
   };
+  /** What was not looked at, as the topics that the report names. */
+  const looked = async (env) => {
+    const { state, dir } = await repository();
+    return (await check(state, dir, { env })).report.notLookedAt.filter((item) => item.topic === 'secret');
+  };
 
   test('the secret of the updater is judged when the release names it, from what the workflow says', async () => {
     assert.deepEqual(await secret({ HAS_RECORD_KEEPER_TOKEN: 'true' }), []);
@@ -366,8 +371,12 @@ describe('the environment that the workflow gives', () => {
     }
   });
 
-  test('a run for a pull request is not judged, whatever the workflow says', async () => {
-    for (const value of ['true', 'false']) assert.deepEqual(await secret({ GITHUB_EVENT_NAME: 'pull_request', HAS_RECORD_KEEPER_TOKEN: value }), ['not-checked secret: a run for a pull request is not given the secrets']);
+  test('a run for a pull request is not judged, whatever the workflow says: it is not looked at, and that is not a finding', async () => {
+    for (const value of ['true', 'false', undefined, '', 'yes']) {
+      assert.deepEqual(await secret({ GITHUB_EVENT_NAME: 'pull_request', HAS_RECORD_KEEPER_TOKEN: value }), [], String(value));
+      assert.deepEqual(await looked({ GITHUB_EVENT_NAME: 'pull_request', HAS_RECORD_KEEPER_TOKEN: value }), [{ topic: 'secret', why: 'a run for a pull request is not given the secrets', text: 'not looked at: whether RECORD_KEEPER_TOKEN is set (a run for a pull request is not given the secrets). The run of a pull request from a fork is given no secret, so what it would say is not what the repository has. The scheduled run and a manual run of the workflow say it when the secret is not set.' }], String(value));
+    }
+    for (const event of ['schedule', 'workflow_dispatch', undefined]) assert.deepEqual(await looked({ GITHUB_EVENT_NAME: event, HAS_RECORD_KEEPER_TOKEN: 'false' }), [], String(event));
     assert.deepEqual(await secret({ GITHUB_EVENT_NAME: 'workflow_dispatch', HAS_RECORD_KEEPER_TOKEN: 'false' }), ['secret-not-set']);
     assert.deepEqual(await secret({ GITHUB_EVENT_NAME: undefined, HAS_RECORD_KEEPER_TOKEN: 'false' }), ['secret-not-set']);
   });

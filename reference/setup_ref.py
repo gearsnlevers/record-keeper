@@ -355,7 +355,7 @@ def decide(input):
                     add('managed-differs', detail)
                 if SECRET in release['secrets']:
                     if input['event'] == 'pull_request':
-                        unchecked('secret', 'a run for a pull request is not given the secrets')
+                        not_looked_at.append({'topic': 'secret', 'why': 'a run for a pull request is not given the secrets'})
                     elif input['secretSet'] is None:
                         unchecked('secret', 'the workflow did not say whether it is set')
                     elif input['secretSet']:

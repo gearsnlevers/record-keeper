@@ -120,12 +120,48 @@ describe('the repository of the kit itself', () => {
 });
 
 describe('a pull request on a healthy installation', () => {
-  test('it is told that a pull request is not given the secrets, which is all it can be told', async () => {
+  const SAME = 'owners: [alice/1001, bob/1002]\napprovals: 1\n';
+  for (const [name, text] of [['approvals 2', null], ['approvals 1, and the base has the same owners and the same approvals', SAME]]) {
+    for (const value of ['true', 'false', undefined]) {
+      test(`${name}, and the workflow says the secret is ${value === undefined ? 'not said' : value === 'true' ? 'set' : 'not set'}: no annotation, nothing on the error output, the status 0`, async () => {
+        const state = await world();
+        if (text !== null) state.settingsAt.set('main', text);
+        const dir = tree(text === null ? installed() : { ...installed(), [SETTINGS]: text });
+        const got = await run(state, dir, { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main', HAS_RECORD_KEEPER_TOKEN: value });
+        assert.equal(got.stdout, SILENT);
+        assert.equal(got.stderr, '');
+        assert.equal(got.code, 0);
+        assert.deepEqual(annotations(got.stdout), []);
+        assert.match(got.summary, /\n- `secret`: not looked at\\: whether RECORD\\_KEEPER\\_TOKEN is set \\\(a run for a pull request is not given the secrets\\\)/);
+        assert.match(got.summary, /\*\*0 errors, 0 warnings, 0 notices\*\*/);
+        assert.ok(!/Checked, and fine:[^\n]*`secret`/.test(got.summary), 'what was not looked at is not found fine');
+      });
+    }
+  }
+
+  test('the same run by hand, outside Actions, says it in one plain line, and the count is still nothing', async () => {
     const state = await world();
-    const got = await run(state, tree(), { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main', HAS_RECORD_KEEPER_TOKEN: 'false' });
-    assert.deepEqual(annotations(got.stdout).map((line) => /^::(\w+) title=([a-z-]+)::/.exec(line).slice(1).join(' ')), ['notice not-checked']);
-    assert.match(got.stdout, /not checked: whether RECORD_KEEPER_TOKEN is set \(a run for a pull request is not given the secrets\)/);
+    const got = await runCli(['--repo', state.repo, '--root', tree()], actions(state, { GITHUB_ACTIONS: undefined, GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' }), { fetch: guardedFetch([]), now: () => NOW });
+    const lines = got.stdout.split('\n');
+    assert.equal(lines.length, 3);
+    assert.match(lines[0], /^not looked at: whether RECORD_KEEPER_TOKEN is set \(a run for a pull request is not given the secrets\)\. /);
+    assert.equal(lines[1], 'setup check: 0 errors, 0 warnings, 0 notices');
     assert.equal(got.code, 0);
+  });
+
+  test('with --json it is in notLookedAt, with the bypass list that the token is not shown, and has no finding', async () => {
+    const state = await world((s) => { s.rulesets.set(4101, ruleset(4101, { actors: undefined })); });
+    const got = await check(state, tree(), { env: { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' } });
+    assert.deepEqual(got.report.findings, []);
+    assert.deepEqual(got.report.notLookedAt.map((item) => item.topic), ['bypass', 'secret']);
+  });
+
+  test('the secret that is not set is still a warning on a schedule, on a manual run and by hand, and is not one on a pull request', async () => {
+    for (const [event, said] of [['schedule', true], ['workflow_dispatch', true], [undefined, true], ['pull_request', false]]) {
+      const state = await world();
+      const got = await run(state, tree(), { GITHUB_EVENT_NAME: event, GITHUB_BASE_REF: 'main', HAS_RECORD_KEEPER_TOKEN: 'false' });
+      assert.deepEqual(annotations(got.stdout).map((line) => /^::(\w+) title=([a-z-]+)::/.exec(line).slice(1).join(' ')), said ? ['warning secret-not-set'] : [], String(event));
+    }
   });
 });
 
@@ -223,7 +259,8 @@ describe('the single-owner mode is said once, by the pull request that puts it o
     const state = await world();
     const dir = tree({ ...installed(), [SETTINGS]: SINGLE });
     const got = await run(state, dir, { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main', HAS_RECORD_KEEPER_TOKEN: 'true' });
-    assert.deepEqual(annotations(got.stdout).map((line) => /^::(\w+) title=([a-z-]+)::/.exec(line).slice(1).join(' ')), ['notice single-owner', 'notice not-checked']);
+    assert.deepEqual(annotations(got.stdout).map((line) => /^::(\w+) title=([a-z-]+)::/.exec(line).slice(1).join(' ')), ['notice single-owner']);
+    assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
     assert.equal(got.code, 0);
   });
 });

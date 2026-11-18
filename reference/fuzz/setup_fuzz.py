@@ -455,6 +455,10 @@ def classify(item, expect):
         rel = inp['release']
         hits.add('release upToDate %s' % rel['upToDate'])
         hits.add('release secrets %s' % ('names the secret' if 'RECORD_KEEPER_TOKEN' in rel['secrets'] else 'does not'))
+        if 'RECORD_KEEPER_TOKEN' in rel['secrets']:
+            said = ('not looked at' if any(l['topic'] == 'secret' for l in answer['notLookedAt']) else 'not-set' if any(f['code'] == 'secret-not-set' for f in answer['findings'])
+                    else 'not checked' if any(f['code'] == 'not-checked' and f['detail'].startswith('secret:') for f in answer['findings']) else 'found fine')
+            hits.add('secret, event %s, secretSet %s: %s' % (inp['event'], inp['secretSet'], said))
         differing = 0
         for f in rel['files']:
             t = inp['tree'].get(f['path'])
