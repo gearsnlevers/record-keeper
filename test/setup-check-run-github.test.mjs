@@ -65,11 +65,15 @@ describe('what is asked of GitHub, and how', () => {
     assert.ok(!got.stdout.includes(SECRET) && !got.stderr.includes(SECRET));
   });
 
-  test('a run without a token asks all the same, with no authorization', async () => {
-    const { state, dir } = await world();
-    const got = await check(state, dir, { env: { GITHUB_TOKEN: '' } });
-    assert.deepEqual(got.found, []);
-    for (const request of state.requests) assert.equal(request.authorization, undefined);
+  test('a run without a token asks all the same, with no authorization: the variable is empty, or is not there', async () => {
+    for (const GITHUB_TOKEN of ['', undefined]) {
+      const { state, dir } = await world();
+      const got = await check(state, dir, { env: { GITHUB_TOKEN } });
+      assert.equal(got.code, 0, got.stderr);
+      assert.deepEqual(got.found, []);
+      assert.equal(state.requests.length, 9);
+      for (const request of state.requests) assert.equal(request.authorization, undefined);
+    }
   });
 
   test('a default branch with a slash in its name is asked for by its parts', async () => {
@@ -78,6 +82,19 @@ describe('what is asked of GitHub, and how', () => {
     assert.deepEqual(got.found, []);
     assert.ok(reads(state).includes('GET /repos/example/repo/rules/branches/release/next?per_page=100'));
     assert.ok(reads(state).includes('GET /repos/example/repo/branches/release/next'));
+  });
+
+  test('the names of a default branch that are asked for: every letter, digit and the dot, the underscore, the hyphen and the slash, up to 200 characters', async () => {
+    for (const branch of ['A', 'z', '0', 'a.b', 'a_b', 'a-b', 'a/b', 'Release-1.0_x/Y9', 'x', 'x'.repeat(200), '.hidden', 'v1.0']) {
+      const { state, dir } = await world((s) => { s.branch = branch; s.branchBody = branchByRuleset(branch); });
+      const got = await check(state, dir);
+      assert.deepEqual(got.found, [], branch.slice(0, 20));
+      assert.ok(state.requests.some((request) => request.path === `/repos/example/repo/rules/branches/${branch}`), branch.slice(0, 20));
+    }
+    for (const branch of ['a:b', 'a b', 'a\\b', 'a\u00e9', 'a%2Fb', 'a+b', 'a@b', 'a~b']) {
+      const { state, dir } = await world((s) => { s.branch = branch; });
+      assert.deepEqual((await check(state, dir)).found.filter((line) => line.startsWith('not-checked repository')), ['not-checked repository: the answer about the repository is not what the check needs'], branch);
+    }
   });
 
   test('a default branch that is not a name that the check will put into a request is a repository that was not read', async () => {
@@ -443,6 +460,38 @@ describe('the accounts of the owners', () => {
     }
   });
 
+  test('a login of one character, of thirty-nine, one that starts with a digit and one with capitals and a hyphen is a login; of forty, with an underscore or a bracket that is not [bot] is not', async () => {
+    const accepted = ['a', 'a'.repeat(39), '1abc', 'A1-b', '9'];
+    for (const login of accepted) {
+      const { state, dir } = await world((s) => { s.users = new Map([[1001, login]]); });
+      write(dir, '.github/record-keeper/settings.yml', `owners: ["${login}/1001"]\napprovals: 1\n`);
+      assert.deepEqual((await check(state, dir)).found, ['single-owner'], login.slice(0, 12));
+    }
+    for (const login of ['a'.repeat(40), '-a', '_a', 'a_b', 'a b', 'a[bot', 'a[bot]x', '[bot]', '', 'a.b', 'a\nb']) {
+      const { state, dir } = await world((s) => { s.users = new Map([[1001, login]]); });
+      write(dir, '.github/record-keeper/settings.yml', 'owners: [alice/1001]\napprovals: 1\n');
+      assert.deepEqual((await check(state, dir)).found, ['single-owner', 'not-checked accounts: alice/1001: the answer about the account 1001 is not what the check needs'], login.slice(0, 12));
+    }
+  });
+
+  test('an account that is not there is not there even when the answer says nothing that is JSON', async () => {
+    for (const body of ['', 'Not Found', '<html>no</html>']) {
+      const { state, dir } = await world();
+      state.fault = (entry) => (entry.path === '/user/1002' ? { status: 404, body } : undefined);
+      assert.deepEqual((await check(state, dir)).found, ['owner-mismatch bob/1002: no account has this ID'], JSON.stringify(body));
+    }
+  });
+
+  test('the route that an error names is cut to a hundred and twenty characters', async () => {
+    const repo = `${'a'.repeat(60)}/${'b'.repeat(60)}`;
+    const { state, dir } = await world((s) => { s.repo = repo; });
+    state.fault = (entry) => (entry.path.includes('/rules/') ? { status: 200, body: 'not json' } : undefined);
+    const got = await check(state, dir, { argv: ['--repo', repo] });
+    const said = got.report.findings.find((finding) => finding.detail.startsWith('rules: ')).detail;
+    assert.equal(said, `rules: the answer to /repos/${repo}/rules/branches/main?per_page=100 is not JSON`.replace(/^(rules: the answer to )(.*)( is not JSON)$/, (_, a, route, c) => `${a}${route.slice(0, 120)}${c}`));
+    assert.equal(said.length, 'rules: the answer to '.length + 120 + ' is not JSON'.length);
+  });
+
   test('more owners than thirty: thirty are asked about, and the others are said not to have been', async () => {
     const { state, dir } = await world((s) => { for (let id = 3000; id < 3033; id++) s.users.set(id, `o${id}`); });
     const owners = Array.from({ length: 33 }, (_, i) => `o${3000 + i}/${3000 + i}`);
@@ -578,6 +627,12 @@ describe('the record of the last run of the audit', () => {
     assert.deepEqual((await check(exact.state, exact.dir)).found, []);
     const over = await world(text(padded(64 * 1024 + 1)));
     assert.deepEqual((await check(over.state, over.dir)).found, ['audit-record-unreadable larger than 64 KiB']);
+  });
+
+  test('bytes that are not UTF-8 inside a string of the record are not a record, though they would be read as a character that stands for them', async () => {
+    const { state, dir } = await world();
+    state.lastRun = Buffer.concat([Buffer.from(`{"at":"${hoursAgo(1)}","head":"`), Buffer.from([0xff, 0xfe]), Buffer.from('"}\n')]);
+    assert.deepEqual((await check(state, dir)).found, ['audit-record-unreadable not JSON in UTF-8']);
   });
 
   test('what else the record says is not read: more keys, fewer keys, a line that does not end', async () => {

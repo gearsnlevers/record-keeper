@@ -208,6 +208,12 @@ describe('CODEOWNERS', () => {
     }
   });
 
+  test('every control character, the separators and the byte order mark make a file that is not read, and the characters next to them do not', async () => {
+    const refused = [...Array(0x20).keys()].filter((code) => ![0x09, 0x0a, 0x0d].includes(code)).concat([0x7f, 0x2028, 0x2029, 0xfeff]);
+    for (const code of refused) assert.deepEqual(await located({ '.github/CODEOWNERS': `${COVERS}# a${String.fromCharCode(code)}b\n` }), ['not-checked codeowners: .github/CODEOWNERS is not a small file of text'], `U+${code.toString(16)}`);
+    for (const code of [0x09, 0x0a, 0x0d, 0x20, 0x7e, 0x80, 0x9f, 0xa0, 0xe9, 0x2027, 0x202a, 0xfffd]) assert.deepEqual(await located({ '.github/CODEOWNERS': `${COVERS}# a${String.fromCharCode(code)}b\n` }), [], `U+${code.toString(16)}`);
+  });
+
   test('a file of exactly 1 MiB is read, and one byte more is not', async () => {
     const fill = (size) => `${COVERS}${'#'.repeat(size - COVERS.length - 1)}\n`;
     assert.deepEqual(await located({ '.github/CODEOWNERS': fill(1024 * 1024) }), []);
@@ -310,6 +316,14 @@ describe('the audit workflow, and the repository of the kit', () => {
     assert.deepEqual(got.found, ['not-checked own: this is the repository of the kit: install.json is at its root']);
     assert.equal(state.requests.some((request) => request.path.includes('/example/kit/')), false);
     assert.deepEqual(got.report.passed.filter((topic) => ['pin', 'manifest', 'managed-files', 'secret'].includes(topic)), []);
+  });
+
+  test('the kit\'s own repository is not asked for the release of a pin that it has all the same', async () => {
+    const { state, dir } = await repository();
+    write(dir, 'install.json', '{}\n');
+    const got = await check(state, dir);
+    assert.deepEqual(got.found, ['not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.equal(state.requests.some((request) => request.path.includes('/example/kit/')), false);
   });
 
   test('install.json that is a folder does not make it so', async () => {

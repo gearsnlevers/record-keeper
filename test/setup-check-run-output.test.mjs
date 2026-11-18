@@ -71,6 +71,31 @@ describe('the options and the failures of the run', () => {
     assert.deepEqual(empty, { code: 2, stdout: '', stderr: 'setup-check: failed: unexpected error: undefined\n' });
   });
 
+  test('an error that has the code of an operating system is said by it, with the call and the path when it has them; any other is a mistake of the program', async () => {
+    const dir = tree();
+    const failure = (error) => runCli(['--local', '--root', dir], {}, { now: () => { throw error; } });
+    assert.equal((await failure(Object.assign(new Error('x'), { code: 'E2BIG', syscall: 'open', path: '/x/y' }))).stderr, 'setup-check: failed: open /x/y failed: E2BIG\n');
+    assert.equal((await failure(Object.assign(new Error('x'), { code: 'ENOENT' }))).stderr, 'setup-check: failed: a file operation failed: ENOENT\n');
+    assert.equal((await failure(Object.assign(new Error('x'), { code: 'EACCES', syscall: 'read' }))).stderr, 'setup-check: failed: read failed: EACCES\n');
+    assert.equal((await failure(Object.assign(new Error('x'), { code: 'EMFILE', path: 'a\nb' }))).stderr, 'setup-check: failed: a file operation a\\u{a}b failed: EMFILE\n');
+    for (const code of ['XEACCES', 'EACCES!', 'E', 'eacces', 7, 'E-1', 'ENO ENT']) {
+      assert.equal((await failure(Object.assign(new Error('x'), { code }))).stderr, 'setup-check: failed: unexpected Error: x\n', String(code));
+    }
+    assert.equal((await failure(new Error('m'.repeat(300)))).stderr, `setup-check: failed: unexpected Error: ${'m'.repeat(200)}\n`);
+  });
+
+  test('importing the program runs nothing: it is the program only when it is the file that was started', async () => {
+    const run = await new Promise((resolve) => {
+      const child = spawn(process.execPath, ['--input-type=module', '-e', `await import(${JSON.stringify(program)}); console.log('imported');`], { env: { PATH: process.env.PATH } });
+      let out = '';
+      let err = '';
+      child.stdout.on('data', (chunk) => { out += chunk; });
+      child.stderr.on('data', (chunk) => { err += chunk; });
+      child.on('close', (code) => resolve({ code, out, err }));
+    });
+    assert.deepEqual(run, { code: 0, out: 'imported\n', err: '' });
+  });
+
   test('a token with white space in it is not a token, and is not printed', async () => {
     const dir = tree();
     const got = await runCli(['--repo', 'a/b', '--root', dir], { GITHUB_TOKEN: 'a b' }, { now: () => NOW });

@@ -101,7 +101,8 @@ def run(idx_mut):
         # a new session, so that a timeout stops the test runner and everything it started (a mutant can loop for ever); a mutant is killed
         # at the first test that fails, which is when the runner has printed `not ok`
         proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
-        timer = threading.Timer(240, lambda: os.killpg(proc.pid, 9))
+        timed = []   # a mutant that the timer stopped is not a kill: it may only be slow, or loop for ever, and it is counted and listed apart
+        timer = threading.Timer(240, lambda: (timed.append(1), os.killpg(proc.pid, 9)))
         timer.start()
         failed = False
         for line in proc.stdout:
@@ -111,23 +112,25 @@ def run(idx_mut):
                 break
         proc.wait()
         timer.cancel()
-        killed = failed or proc.returncode != 0
-        return n, i, d, killed
+        killed = failed or (proc.returncode != 0 and not timed)
+        return n, i, d, 'killed' if killed else 'timer' if timed else 'survived'
 
 locks = [threading.Lock() for _ in range(workers)]
 tmp = tempfile.mkdtemp(prefix='mut-')
 for k in range(workers):
     shutil.copytree(repo, os.path.join(tmp, f'w{k}'), ignore=shutil.ignore_patterns('.git'))
 survivors = []
+timer_stops = 0
 done = 0
 with concurrent.futures.ThreadPoolExecutor(workers) as ex:
-    for n, i, d, killed in ex.map(run, list(enumerate(uniq))):
+    for n, i, d, outcome in ex.map(run, list(enumerate(uniq))):
         done += 1
-        if not killed:
+        if outcome != 'killed':
             survivors.append((i, d, uniq[n][1]))
-            print(f'survived L{i + 1}: {d}', flush=True)
+            timer_stops += outcome == 'timer'
+            print(f'{"ended by the timer" if outcome == "timer" else "survived"} L{i + 1}: {d}', flush=True)
         if done % 100 == 0: print(done, 'done,', len(survivors), 'survivors', flush=True)
-print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors)} survived')
+print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors) - timer_stops} survived, {timer_stops} ended by the 240 s timer (not counted as killed)')
 for i, d, new in sorted(survivors):
     print(f'L{i + 1}: {d}\n     was: {lines[i].strip()[:150]}\n     now: {new.strip()[:150]}')
 shutil.rmtree(tmp)
