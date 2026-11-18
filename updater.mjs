@@ -236,16 +236,13 @@ export function parseManifest(bytes) {
   }
 }
 
-/** Why a path is not a path of the kit (printable ASCII, relative, no `..` and no `.git`), or null. */
-export function pathProblem(value) {
-  if (typeof value !== 'string' || value === '' || !/^[\x20-\x7e]+$/.test(value)) return 'not printable ASCII';
-  if (value.startsWith('/') || /[\\:]/.test(value)) return 'absolute or with a backslash or a colon';
-  for (const part of value.split('/')) {
-    if (part === '' || part === '.' || part === '..') return 'an empty part, . or ..';
-    if (part.startsWith(' ') || part.endsWith(' ') || part.endsWith('.')) return 'a part that starts or ends with a space or ends with a dot';
-    if (part.toLowerCase() === '.git') return 'a part that is .git';
-  }
-  return null;
+/**
+ * Whether a text is a path of the kit: printable ASCII, relative, written with `/`, with no backslash or colon and no part that is empty, starts or ends with a
+ * space, ends with a dot (which is also what `.` and `..` do) or is `.git` in any case.
+ */
+export function isKitPath(value) {
+  if (typeof value !== 'string' || !/^[\x20-\x7e]+$/.test(value) || value.startsWith('/') || /[\\:]/.test(value)) return false;
+  return value.split('/').every((part) => part !== '' && !part.startsWith(' ') && !part.endsWith(' ') && !part.endsWith('.') && part.toLowerCase() !== '.git');
 }
 
 /** Whether the updater installs this path for a file of this kind: the only places it writes (docs/updater.md). */
@@ -306,7 +303,7 @@ export function checkManifest(manifest, { tag, commit }) {
     if (!isObject(entry) || Object.keys(entry).sort().join() !== ENTRY_KEYS.join()) throw new Refused('manifest-entry', at);
     if (entry.kind !== 'managed' && entry.kind !== 'template') throw new Refused('manifest-kind', at);
     if (!mayInstall(entry.kind, entry.path)) throw new Refused('manifest-path', entry.path);
-    if (pathProblem(entry.source) !== null) throw new Refused('manifest-source', entry.source);
+    if (!isKitPath(entry.source)) throw new Refused('manifest-source', entry.source);
     if (typeof entry.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(entry.sha256)) throw new Refused('manifest-digest', at);
     if (!isIntegral(entry.size) || entry.size < 0 || entry.size > LIMITS.file) throw new Refused('manifest-size', at);
   }
@@ -469,7 +466,11 @@ export function renderBody(update, notes) {
   const { secrets, settings, rulesets } = update.requires;
   lines.push('## What this release requires', '', 'The updater cannot see secrets, settings or rulesets. Check that these are in place:', '');
   lines.push(...secrets.map((name) => `- the repository secret \`${name}\``), ...settings.map((key) => `- the setting \`${key}\` in the settings file`));
-  lines.push(...rulesets.map((rule) => `- a ruleset on \`${rule.branch}\` that requires ${rule.checks.map((check) => `\`${check}\``).join(', ')}${rule['up-to-date'] ? ' and requires branches to be up to date' : ''}`));
+  const names = (list) => (list.length === 1 ? `\`${list[0]}\`` : `${list.slice(0, -1).map((name) => `\`${name}\``).join(', ')} and \`${list.at(-1)}\``);
+  for (const rule of rulesets) {
+    const wants = [...(rule.checks.length > 0 ? [`the ${rule.checks.length === 1 ? 'check' : 'checks'} ${names(rule.checks)}`] : []), ...(rule['up-to-date'] ? ['branches to be up to date'] : [])];
+    lines.push(`- a ruleset on \`${rule.branch}\`${wants.length > 0 ? ` that requires ${wants.join(' and ')}` : ''}`);
+  }
   if (secrets.length + settings.length + rulesets.length === 0) lines.push('- nothing');
   lines.push('');
   if (update.warnings.length > 0) {
@@ -502,7 +503,7 @@ export function parseArgs(argv) {
     if (given.has(name)) return null;
     given.add(name);
     if (Object.hasOwn(flags, name)) options[flags[name]] = true;
-    else if (Object.hasOwn(values, name) && at + 1 < argv.length && values[name][1](argv[at + 1])) options[values[name][0]] = argv[++at];
+    else if (Object.hasOwn(values, name) && values[name][1](argv[at + 1])) options[values[name][0]] = argv[++at];
     else return null;
   }
   return options;
@@ -600,7 +601,9 @@ async function request(context, method, target, { accept = 'application/vnd.gith
     }
     if (redirects && [301, 302, 303, 307, 308].includes(response.status)) {
       await response.body?.cancel();
-      return { status: response.status, location: response.headers.get('location'), bytes: Buffer.alloc(0), over: false };
+      const location = response.headers.get('location');
+      if (location === null) throw new Failed(`${method} ${where} answered ${response.status} and did not say where the download is`);
+      return { location };
     }
     if (!ok.includes(response.status)) {
       const said = printable((await readBounded(response, 2000)).bytes.toString('utf8').replace(/\s+/g, ' ')).slice(0, 200);
@@ -708,8 +711,8 @@ export function inspect(root, relative) {
     try {
       stat = fs.lstatSync(at);
     } catch (error) {
+      // Every folder on the way was looked at and is a folder, so what is not there is not there: ENOTDIR cannot happen.
       if (error.code === 'ENOENT') return { kind: 'absent' };
-      if (error.code === 'ENOTDIR') return { kind: 'blocked' };
       throw new Failed(`cannot read ${printable(relative)}: ${error.code ?? error.message}`);
     }
     if (index < parts.length - 1) {
@@ -719,6 +722,7 @@ export function inspect(root, relative) {
     else if (!stat.isFile()) return { kind: 'other' };
     else return { kind: 'file', sha256: stat.size > 64 * 1024 * 1024 ? null : sha256(fs.readFileSync(at)) };
   }
+  // Not reached: a path has at least one part, and the last part returns.
   return { kind: 'absent' };
 }
 

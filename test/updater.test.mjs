@@ -1,13 +1,14 @@
 // The core of the updater (docs/updater.md): the fixtures of test/fixtures/update, the parts of the plan one by one, and the text that goes into a pull request.
 // Nothing here reads or writes outside the folders the tests make, and nothing reaches the network. What a run does with the answers is in updater-run.test.mjs.
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
-  BRANCH, CODES, LIMITS, PIN_PATH, Failed, Refused, checkManifest, checkNode, compareTags, fenceNotes, inspect, mayFollow, mayInstall, parseArgs, parseManifest, parsePin, parseRange, parseTag, pathProblem,
+  BRANCH, CODES, LIMITS, PIN_PATH, Failed, Refused, checkManifest, checkNode, compareTags, fenceNotes, inspect, isKitPath, mayFollow, mayInstall, parseArgs, parseManifest, parsePin, parseRange, parseTag,
   plan, planUpdate, printable, pushBranch, redact, renderBody, renderMessage, renderPin, renderTitle, satisfies, selectRelease, usableReleases,
 } from '../updater.mjs';
 
@@ -146,6 +147,8 @@ describe('the choice of a release', () => {
     assert.equal(selectRelease({ pin: null, channel: 'stable', target: null, releases: list }).release, list[1]);
     assert.equal(selectRelease({ pin, channel: 'stable', target: 'v1.2.0-1', releases: list }).release, list[2]);
     assert.equal(selectRelease({ pin, channel: 'stable', target: undefined, releases: list }).release, list[1]);
+    assert.equal(selectRelease({ pin, channel: 'stable', target: null, releases: list }).status, 'chosen');
+    assert.equal(selectRelease({ pin, channel: 'stable', target: 'v1.1.0', releases: list }).status, 'chosen');
   });
 });
 
@@ -173,12 +176,12 @@ describe('the manifest as untrusted data', () => {
   test('a path is installed only where the page says, and every path that is installed is a path of the kit', () => {
     for (const ok of ['.github/record-keeper/record-keeper.mjs', '.github/record-keeper/x.mjs', '.github/record-keeper/a-b-c1.mjs', '.github/workflows/records-integrity.yml', '.github/workflows/records-a1-b.yml']) {
       assert.equal(mayInstall('managed', ok), true, ok);
-      assert.equal(pathProblem(ok), null, ok);
+      assert.equal(isKitPath(ok), true, ok);
     }
     for (const template of ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md']) {
       assert.equal(mayInstall('template', template), true, template);
       assert.equal(mayInstall('managed', template), false, template);
-      assert.equal(pathProblem(template), null, template);
+      assert.equal(isKitPath(template), true, template);
     }
     for (const bad of ['', '/etc/passwd', '../x', '.github/record-keeper/../x.mjs', '.github/record-keeper/sub/x.mjs', '.github/record-keeper/X.mjs', '.github/record-keeper/-x.mjs', '.github/record-keeper/x-.mjs', '.github/record-keeper/x--y.mjs',
       '.github/record-keeper/1x.mjs', '.github/record-keeper/x.mjs ', '.github/record-keeper/x.js', '.github/record-keeper/.mjs', '.github/record-keeper.mjs', '.github/workflows/test.yml', '.github/workflows/records-.yml', '.github/workflows/records-a.yaml',
@@ -191,9 +194,9 @@ describe('the manifest as untrusted data', () => {
   });
 
   test('a path of the kit: printable ASCII, relative, with no part that is empty, . or .., that starts or ends with a space, ends with a dot or is .git', () => {
-    for (const ok of ['a', 'a/b', 'a b/c d', 'templates/workflows/records-audit.yml', '.github/x', 'a.b/c', 'a/.gitignore', 'a/.github/x', '~', 'a/b%c']) assert.equal(pathProblem(ok), null, ok);
+    for (const ok of ['a', 'a/b', 'a b/c d', 'templates/workflows/records-audit.yml', '.github/x', 'a.b/c', 'a/.gitignore', 'a/.github/x', '~', 'a/b%c', '..a', 'a..b', '.a']) assert.equal(isKitPath(ok), true, ok);
     for (const bad of ['', '/a', 'a//b', 'a/', './a', 'a/./b', '../a', 'a/..', 'a/../b', 'a\\b', 'a:b', ' a', 'a ', 'a/ b', 'a /b', 'a.', 'a./b', 'a/b.', '.git', 'a/.git/b', '.GIT', '.Git/x', 'café', 'a\tb', 'a\nb', 'a\u0000b', 'a\u007fb', '\u202e', 7, null, undefined, {}]) {
-      assert.notEqual(pathProblem(bad), null, JSON.stringify(bad));
+      assert.equal(isKitPath(bad), false, JSON.stringify(bad));
     }
   });
 
@@ -297,11 +300,53 @@ describe('what goes into a pull request', () => {
     assert.ok(body.includes('Fixed a thing.'));
     assert.ok(body.includes('- the repository secret `RECORD_KEEPER_TOKEN`'));
     assert.ok(body.includes('- the setting `owners` in the settings file'));
-    assert.ok(body.includes('- a ruleset on `default` that requires `Records integrity` and requires branches to be up to date'));
+    assert.ok(body.includes('- a ruleset on `default` that requires the check `Records integrity` and branches to be up to date'));
     assert.match(body, /needs the approval of the owners/);
     assert.ok(body.endsWith(`\`${BRANCH}\`; merge it or close it.`));
     assert.doesNotMatch(body, /Local changes this update overwrites|## Warnings/, 'sections that have nothing in them are left out');
     for (const item of [...answer.added, ...answer.changed, ...answer.remove, ...answer.templates]) assert.equal(body.split(`\`${item}\``).length, 2, item);
+  });
+
+  test('the body of a pull request, whole: with every part, and with the fewest', () => {
+    const full = [
+      'Updates Record Keeper from **v1.0.0** to **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`).', '',
+      '## Release notes', '', '```', 'Fixed a thing.', '```', '',
+      '## Changes in this repository', '',
+      '**Added** (1)', '', '- `.github/workflows/records-updater.yml`', '',
+      '**Changed** (2)', '', '- `.github/record-keeper/record-keeper.mjs`', '- `.github/record-keeper/updater.mjs`', '',
+      '**Removed** (1)', '', '- `.github/record-keeper/check-pull-request.mjs`', '',
+      '**Templates installed** (1)', '', '- `docs/decisions/template.md`', '',
+      `The pin \`.github/record-keeper.yml\` is rewritten: version \`v1.1.0\`, commit \`${'b2'.repeat(20)}\`.`, '',
+      '## What this release requires', '', 'The updater cannot see secrets, settings or rulesets. Check that these are in place:', '',
+      '- the repository secret `RECORD_KEEPER_TOKEN`', '- the setting `owners` in the settings file', '- a ruleset on `default` that requires the check `Records integrity` and branches to be up to date', '',
+      '## Approval', '',
+      'This pull request changes the pin, the workflows and the programs that judge every later pull request, so merging it needs the approval of the owners, like any change of those files. Read the diff of every file in it.', '',
+      '---', 'This pull request is rebuilt from scratch on every run of the updater. Do not push to `record-keeper/update`; merge it or close it.',
+    ];
+    assert.equal(renderBody(answer, 'Fixed a thing.'), full.join('\n'));
+    const most = renderBody({ ...answer, from: 'v1.1.0', pinChanged: false, added: [], changed: [], remove: [], templates: [], overwritten: ['.github/record-keeper/run-audit.mjs', '.github/workflows/records-audit.yml'],
+      warnings: [{ code: 'previous-missing', detail: 'v1.0.0' }, { code: 'previous-unusable', detail: 'manifest-json' }],
+      requires: { rulesets: [{ branch: 'default', checks: ['Records integrity', 'Records setup check', 'Test (Node 22)'], 'up-to-date': true }, { branch: 'release', checks: ['A'], 'up-to-date': false }, { branch: 'main', checks: [], 'up-to-date': true }, { branch: 'dev', checks: [], 'up-to-date': false }],
+        secrets: ['RECORD_KEEPER_TOKEN', 'OTHER'], settings: ['owners', 'approvals'] } }, '');
+    const expected = [
+      'Updates Record Keeper again to **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`).', '',
+      '## Release notes', '', '```', '', '```', '',
+      '## Changes in this repository', '', 'Only the pin changes.', '',
+      '## Local changes this update overwrites', '',
+      'These managed files differ from what the pinned release installed, or were not installed by it. Merging replaces or removes them. A change that should stay belongs in the settings file, which an update never touches, or in a release of the kit:', '',
+      '- `.github/record-keeper/run-audit.mjs`', '- `.github/workflows/records-audit.yml`', '',
+      '## What this release requires', '', 'The updater cannot see secrets, settings or rulesets. Check that these are in place:', '',
+      '- the repository secret `RECORD_KEEPER_TOKEN`', '- the repository secret `OTHER`', '- the setting `owners` in the settings file', '- the setting `approvals` in the settings file',
+      '- a ruleset on `default` that requires the checks `Records integrity`, `Records setup check` and `Test (Node 22)` and branches to be up to date', '- a ruleset on `release` that requires the check `A`',
+      '- a ruleset on `main` that requires branches to be up to date', '- a ruleset on `dev`', '',
+      '## Warnings', '',
+      '- The pinned release v1.0.0 has no manifest that the updater could read, so the local changes this update overwrites, and the files it removes, are not listed.',
+      '- The manifest of the pinned release is not one the updater reads (manifest-json), so the local changes this update overwrites, and the files it removes, are not listed.', '',
+      '## Approval', '',
+      'This pull request changes the pin, the workflows and the programs that judge every later pull request, so merging it needs the approval of the owners, like any change of those files. Read the diff of every file in it.', '',
+      '---', 'This pull request is rebuilt from scratch on every run of the updater. Do not push to `record-keeper/update`; merge it or close it.',
+    ];
+    assert.equal(most, expected.join('\n'));
   });
 
   test('the body says what it overwrites, and what it could not compare', () => {
@@ -384,6 +429,66 @@ describe('the text that is printed', () => {
     assert.equal(new Refused('pin-line', 3).message, 'the pin has a line that is no comment, no blank line and no "key: value" (line 3)');
   });
 
+  test('the characters that hide are these ranges, at both ends of each and not beside them, for what is printed and for the notes', () => {
+    const hidden = [[0x00, 0x1f], [0x7f, 0x9f], [0xad, 0xad], [0x61c, 0x61c], [0x180e, 0x180e], [0x200b, 0x200f], [0x2028, 0x202e], [0x2060, 0x206f], [0xfeff, 0xfeff], [0xfff9, 0xfffb], [0xfffe, 0xffff]];
+    const isHidden = (code) => hidden.some(([from, to]) => code >= from && code <= to);
+    const edges = new Set(hidden.flatMap(([from, to]) => [from - 1, from, to, to + 1]).filter((code) => code >= 0 && code <= 0x10000 && !(code >= 0xd800 && code <= 0xdfff)));
+    for (const code of edges) {
+      const character = String.fromCodePoint(code);
+      assert.equal(printable(character), isHidden(code) ? `\\u{${code.toString(16)}}` : character, `printable ${code.toString(16)}`);
+      const notes = fenceNotes(`a${character}b`).split('\n')[1];
+      assert.equal(notes, isHidden(code) ? 'a?b' : `a${character}b`, `notes ${code.toString(16)}`);
+    }
+  });
+
+  test('every refusal says its reason in these words, with the detail where the page says it is', () => {
+    const words = [
+    ['pin-text', "the pin is not a regular file of text in UTF-8"],
+    ['pin-line', "the pin has a line that is no comment, no blank line and no \"key: value\" (line D)"],
+    ['pin-key', "the pin has a key that is not one of source, version, commit and channel: D"],
+    ['pin-duplicate', "the pin names D twice"],
+    ['pin-missing', "the pin has no D"],
+    ['pin-value', "the pin has a D that is not what it may be"],
+    ['source-missing', "there is no pin and no --source: the first adoption names the source repository"],
+    ['source-mismatch', "the pin names another source repository than --source (D)"],
+    ['release-none', "there is no usable release of D"],
+    ['release-duplicate', "two releases name the tag D"],
+    ['release-missing', "there is no release D"],
+    ['older-than-pin', "D is older than the pinned release: an update never goes back (revert the update pull request instead)"],
+    ['release-moved', "the release D was made from another commit than the pin recorded"],
+    ['tag-target', "the tag D does not point at a commit"],
+    ['manifest-missing', "the release D has no release-manifest.json"],
+    ['manifest-json', "the manifest is not one JSON document in UTF-8 without a byte order mark"],
+    ['manifest-large', "the manifest is larger than the updater takes"],
+    ['manifest-shape', "the manifest is not an object"],
+    ['manifest-schema', "the manifest is not of schema 1"],
+    ['manifest-keys', "the manifest has a key that it may not have, or lacks one: D"],
+    ['manifest-tag', "the manifest is not the manifest of this release: its tag differs"],
+    ['manifest-version', "the version of the manifest is not the version of its tag"],
+    ['manifest-commit', "the commit of the manifest is not a full commit id"],
+    ['manifest-commit-moved', "the commit of the manifest is not the commit that the tag points at"],
+    ['manifest-generations', "the generations of the manifest are not a list of generations"],
+    ['manifest-node', "the range of Node.js versions of the manifest is one that the updater cannot read: D"],
+    ['manifest-requires', "the requirements of the manifest are not what the updater reads"],
+    ['manifest-files', "the list of files of the manifest is empty, too long or not a list"],
+    ['manifest-entry', "entry D of the manifest is not an object with the five keys of a file"],
+    ['manifest-kind', "entry D of the manifest has a kind that is not managed or template"],
+    ['manifest-path', "the manifest installs a path that the updater does not install: D"],
+    ['manifest-source', "the manifest names a source that is not a path: D"],
+    ['manifest-digest', "entry D of the manifest has a digest that is not 64 hexadecimal digits"],
+    ['manifest-size', "entry D of the manifest has a size that is not a number of bytes within the limit"],
+    ['manifest-duplicate', "the manifest installs one path twice: D"],
+    ['manifest-too-large', "the files of the manifest are together larger than the updater takes"],
+    ['node-version', "this Node.js does not satisfy the range that the release names: D"],
+    ['download-missing', "the file D of the release was not downloaded"],
+    ['size-mismatch', "size mismatch: D"],
+    ['digest-mismatch', "digest mismatch: D"],
+    ['path-blocked', "something other than a file is in the way of D"],
+    ];
+    assert.deepEqual(words.map(([code]) => code), CODES, 'the same codes, in the same order');
+    for (const [code, message] of words) assert.equal(new Refused(code, 'D').message, message, code);
+  });
+
   test('redact takes every secret out, every time, and nothing else', () => {
     assert.equal(redact('a TOKEN b TOKEN', ['TOKEN']), 'a *** b ***');
     assert.equal(redact('a TOKEN b', [undefined, '', 'TOKEN']), 'a *** b');
@@ -422,7 +527,7 @@ describe('the places a download may be sent on to', () => {
     for (const ok of [`${GITHUB}/other`, 'https://objects.githubusercontent.com/x?y=1', 'https://release-assets.githubusercontent.com/github-production-release-asset/1', 'https://githubusercontent.com/x', '/repos/o/k/releases/assets/6']) {
       assert.equal(mayFollow(GITHUB, ok, from), true, ok);
     }
-    for (const bad of ['http://objects.githubusercontent.com/x', 'https://evil.example/x', 'https://githubusercontent.com.evil.example/x', 'https://evilgithubusercontent.com/x', 'https://objects.githubusercontent.com.evil.example/x',
+    for (const bad of ['https://user@objects.githubusercontent.com/x', 'https://:pw@objects.githubusercontent.com/x', 'https://user@api.github.com/x', 'https://:pw@api.github.com/x', 'http://objects.githubusercontent.com/x', 'https://evil.example/x', 'https://githubusercontent.com.evil.example/x', 'https://evilgithubusercontent.com/x', 'https://objects.githubusercontent.com.evil.example/x',
       'https://user:pw@objects.githubusercontent.com/x', 'https://github.com/x', 'http://api.github.com/x', 'https://api.github.com:8443/x', '//evil.example/x', 'ftp://objects.githubusercontent.com/x', 'https://objects.githubusercontent.com@evil.example/x']) {
       assert.equal(mayFollow(GITHUB, bad, from), false, bad);
     }
@@ -459,9 +564,21 @@ describe('the working tree', () => {
     assert.deepEqual(inspect(base, 'linked'), { kind: 'link' });
     assert.deepEqual(inspect(base, 'linked/file.txt'), { kind: 'blocked' }, 'a link on the way is never followed');
     assert.deepEqual(inspect(base, 'a/file.txt/under'), { kind: 'blocked' }, 'a file on the way');
+    const fifo = spawnSync('mkfifo', [path.join(base, 'pipe')]);
+    if (fifo.status === 0) assert.deepEqual(inspect(base, 'pipe'), { kind: 'other' }, 'something that is no file, no folder and no link');
     fs.symlinkSync('nowhere', path.join(base, 'dangling'));
     assert.deepEqual(inspect(base, 'dangling'), { kind: 'link' });
     assert.deepEqual(inspect(base, 'dangling/x'), { kind: 'blocked' });
+  });
+
+  test('a file larger than 64 MiB is a file that cannot be said to be anything: it has no digest', () => {
+    const base = dir();
+    const limit = 64 * 1024 * 1024;
+    for (const [name, size, digest] of [['big', limit + 1, null], ['exact', limit, '3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351']]) {
+      fs.writeFileSync(path.join(base, name), '');
+      fs.truncateSync(path.join(base, name), size);
+      assert.deepEqual(inspect(base, name), { kind: 'file', sha256: digest }, name);
+    }
   });
 
   test('a file is read as it is: bytes that are not text, an empty file, carriage returns', () => {

@@ -42,6 +42,13 @@ const git = (cwd, ...args) => {
   assert.equal(result.status, 0, `git ${args.join(' ')}: ${result.stderr}`);
   return result.stdout.trim();
 };
+/** git with more in the environment: the dates of a commit, for instance. */
+const gitWith = (cwd, environment, ...args) => {
+  const result = spawnSync('git', args, { cwd, env: { ...GIT_ENV, ...IDENTITY, ...environment }, encoding: 'utf8' });
+  assert.equal(result.status, 0, `git ${args.join(' ')}: ${result.stderr}`);
+  return result.stdout.trim();
+};
+const BASE_DATE = '2020-01-02T03:04:05+0000';
 let made = 0;
 const folder = (name = 'case') => {
   const dir = path.join(scratch, `${name}-${(made += 1)}`);
@@ -62,24 +69,41 @@ const TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.
 const REQUIRES = { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: ['RECORD_KEEPER_TOKEN'], settings: ['owners'] };
 
 /** The state of the server: releases with the files at their commits, the pull requests of the consumer, and a log of every request. */
-async function github({ pageSize = 100, redirect = false, consumer = 'o/r', source = 'gearsnlevers/record-keeper' } = {}) {
-  const state = { source, consumer, defaultBranch: 'main', releases: [], contents: new Map(), refs: new Map(), annotated: new Map(), pulls: [], comments: [], requests: [], fault: null, redirect, nextAsset: 100, nextPull: 1, listBody: null };
+async function github({ pageSize = 100, redirect = false, consumer = 'o/r', source = 'gearsnlevers/record-keeper', prefix = '' } = {}) {
+  const state = { chunked: false, source, consumer, defaultBranch: 'main', releases: [], contents: new Map(), refs: new Map(), annotated: new Map(), pulls: [], comments: [], requests: [], fault: null, redirect, nextAsset: 100, nextPull: 1, listBody: null };
   const server = http.createServer((request, response) => {
     const chunks = [];
     request.on('data', (chunk) => chunks.push(chunk));
     request.on('end', () => {
       const url = new URL(request.url, `http://${request.headers.host}`);
       const text = Buffer.concat(chunks).toString('utf8');
-      const entry = { method: request.method, path: url.pathname, search: url.search, query: url.searchParams, body: text === '' ? undefined : JSON.parse(text), authorization: request.headers.authorization, accept: request.headers.accept };
+      // A server that stands behind a path, as a server of an enterprise does: what is outside the path is not found, and what is inside is as on the other server.
+      const inside = prefix === '' || url.pathname.startsWith(`${prefix}/`);
+      const entry = { method: request.method, path: inside ? url.pathname.slice(prefix.length) : url.pathname, original: url.pathname, search: url.search, query: url.searchParams, body: text === '' ? undefined : JSON.parse(text), authorization: request.headers.authorization, accept: request.headers.accept, contentType: request.headers['content-type'], apiVersion: request.headers['x-github-api-version'], userAgent: request.headers['user-agent'] };
       state.requests.push(entry);
+      // An answer says how long it is, as GitHub's do, or comes in pieces with no length (state.chunked), as an answer that is made while it is sent does.
       const send = (status, body, headers = {}) => {
         const raw = Buffer.isBuffer(body) ? body : Buffer.from(typeof body === 'string' ? body : JSON.stringify(body));
-        response.writeHead(status, { 'content-type': Buffer.isBuffer(body) ? 'application/octet-stream' : 'application/json', ...headers });
-        response.end(raw);
+        const type = { 'content-type': Buffer.isBuffer(body) ? 'application/octet-stream' : 'application/json' };
+        if (state.chunked) {
+          response.writeHead(status, { ...type, ...headers });
+          const half = Math.floor(raw.length / 2);
+          response.write(raw.subarray(0, half));
+          response.end(raw.subarray(half));
+        } else if (state.split !== undefined) {
+          // the length is said, and the answer comes in two pieces some time apart
+          response.writeHead(status, { ...type, 'content-length': String(raw.length), ...headers });
+          const half = Math.floor(raw.length / 2);
+          response.write(raw.subarray(0, half));
+          setTimeout(() => response.end(raw.subarray(half)), state.split);
+        } else {
+          response.writeHead(status, { ...type, 'content-length': String(raw.length), ...headers });
+          response.end(raw);
+        }
       };
       const fault = state.fault?.(entry);
       if (fault) return send(fault.status, fault.body ?? { message: 'fault' }, fault.headers);
-      const answer = route(state, entry, pageSize, `http://${request.headers.host}`);
+      const answer = inside ? route(state, entry, pageSize, `http://${request.headers.host}${prefix}`) : undefined;
       return answer === undefined ? send(404, { message: 'Not Found' }) : send(answer.status ?? 200, answer.body, answer.headers);
     });
   });
@@ -123,6 +147,7 @@ function route(state, entry, pageSize, origin) {
     return bytes === undefined ? undefined : { body: Buffer.from(bytes) };
   }
   if (method === 'GET' && route_ === `${con}/pulls`) {
+    if (state.pullsBody) return { body: state.pullsBody };
     const wanted = entry.query.get('head');
     return { body: state.pulls.filter((p) => p.state === 'open' && `${state.consumer.split('/')[0]}:${p.head.ref}` === wanted && p.base.ref === entry.query.get('base')) };
   }
@@ -192,7 +217,7 @@ function adopted({ installed = V1, pin = pinOf('v1.0.0'), extra = {} } = {}) {
   for (const [relative, content] of Object.entries({ ...installed, ...extra })) write(dev, relative, content);
   if (pin !== null) write(dev, PIN_PATH, pin);
   git(dev, 'add', '-A');
-  git(dev, 'commit', '-q', '-m', 'Adopt Record Keeper (#1)');
+  gitWith(dev, { GIT_AUTHOR_DATE: BASE_DATE, GIT_COMMITTER_DATE: BASE_DATE }, 'commit', '-q', '-m', 'Adopt Record Keeper (#1)');
   const bare = `${folder('origin')}.git`;
   git(scratch, 'clone', '-q', '--bare', dev, bare);
   const work = folder('work');
@@ -239,8 +264,10 @@ describe('an update in Actions', () => {
     assert.equal(show(bare, `refs/heads/${BRANCH}`, 'docs/decisions/README.md'), '# Decision records', 'a template that is there is never overwritten');
     assert.equal(show(bare, `refs/heads/${BRANCH}`, '.github/record-keeper/settings.yml'), 'owners: [alice/1001]', 'the settings of the repository are not touched');
     assert.ok(!treeOf(bare, `refs/heads/${BRANCH}`).includes('.github/record-keeper/check-pull-request.mjs'), 'a file that the release no longer has is removed');
-    assert.equal(git(bare, 'log', '-1', '--format=%an|%ae|%cn|%s', `refs/heads/${BRANCH}`), 'github-actions[bot]|41898282+github-actions[bot]@users.noreply.github.com|github-actions[bot]|chore: update Record Keeper v1.0.0 to v1.1.0');
-    assert.equal(git(bare, 'log', '-1', '--format=%cI', `refs/heads/${BRANCH}`), git(bare, 'log', '-1', '--format=%cI', 'refs/heads/main'), 'the commit has the date of its base');
+    const bot = '41898282+github-actions[bot]@users.noreply.github.com';
+    assert.equal(git(bare, 'log', '-1', '--format=%an|%ae|%cn|%ce|%s', `refs/heads/${BRANCH}`), `github-actions[bot]|${bot}|github-actions[bot]|${bot}|chore: update Record Keeper v1.0.0 to v1.1.0`);
+    assert.equal(git(bare, 'log', '-1', '--format=%aI|%cI', `refs/heads/${BRANCH}`), '2020-01-02T03:04:05Z|2020-01-02T03:04:05Z', 'the commit has the date of its base, which is not the date of the run');
+    assert.equal(git(bare, 'log', '-1', '--format=%B', `refs/heads/${BRANCH}`), `chore: update Record Keeper v1.0.0 to v1.1.0\n\nsource: gearsnlevers/record-keeper\nversion: v1.1.0\ncommit: ${commitOf('v1.1.0')}`);
     assert.equal(git(bare, 'diff', '--name-status', 'main', BRANCH).split('\n').sort().join('|'), ['A\t.github/workflows/records-updater.yml', 'A\tdocs/decisions/template.md', 'D\t.github/record-keeper/check-pull-request.mjs', 'M\t.github/record-keeper.yml', 'M\t.github/record-keeper/record-keeper.mjs', 'M\t.github/record-keeper/updater.mjs'].sort().join('|'));
     assert.equal(refsOf(bare).split('\n').filter((line) => !line.includes(BRANCH)).join('\n'), before, 'no other ref changed');
     // the pull request
@@ -275,6 +302,8 @@ describe('an update in Actions', () => {
     assert.equal(lookups.length, 2);
     assert.equal(lookups[0].query.get('head'), `o:${BRANCH}`);
     assert.equal(lookups[0].query.get('base'), 'main');
+    assert.equal(lookups[0].query.get('state'), 'open');
+    assert.equal(lookups[0].query.get('per_page'), '100');
   });
 
   test('a newer release replaces the branch and the title of the same pull request', async () => {
@@ -309,6 +338,24 @@ describe('an update in Actions', () => {
     assert.match(got.stdout, /^update v1\.1\.0 to v1\.3\.0 \(stable\)\n  change \.github\/record-keeper\/record-keeper\.mjs\n  change \.github\/record-keeper\/updater\.mjs\n  write \.github\/record-keeper\.yml\n/);
     assert.doesNotMatch(got.stdout, /install template|remove /, 'the templates are not installed again, and nothing of v1.1.0 is removed');
     assert.equal(git(bare, 'rev-list', '--count', `main..${BRANCH}`), '1');
+  });
+
+  test('of the pull requests that the list of GitHub holds, the oldest that is a pull request from the update branch to the default branch is the one that is updated', async () => {
+    const { state, work } = await world();
+    const pull = (number) => ({ number, state: 'open', title: 'old', body: 'old', head: { ref: BRANCH }, base: { ref: 'main' } });
+    state.pulls.push(pull(12), pull(13));
+    state.nextPull = 20;
+    state.pullsBody = [null, 5, 'x', [], { number: '7', head: { ref: BRANCH }, base: { ref: 'main' } }, { number: 8, head: { ref: 'other' }, base: { ref: 'main' } }, { number: 9, head: { ref: BRANCH }, base: { ref: 'develop' } },
+      { number: 10, head: null, base: { ref: 'main' } }, { number: 11, head: { ref: BRANCH }, base: null }, { number: 1.5, head: { ref: BRANCH }, base: { ref: 'main' } }, { head: { ref: BRANCH }, base: { ref: 'main' } },
+      { number: 13, head: { ref: BRANCH }, base: { ref: 'main' } }, { number: 12, head: { ref: BRANCH }, base: { ref: 'main' } }];
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /updated pull request #12\n$/);
+    assert.deepEqual(state.requests.filter((r) => r.method === 'PATCH').map((r) => r.path), ['/repos/o/r/pulls/12']);
+    assert.equal(state.requests.filter((r) => r.method === 'POST').length, 0);
+    state.pullsBody = { message: 'not a list' };
+    const odd = await call([], state, work);
+    assert.deepEqual([odd.code, odd.stderr], [1, 'updater: failed: the list of pull requests is not a list\n']);
   });
 
   test('nothing newer: no change, and an open update pull request that has nothing to update to is closed with a comment', async () => {
@@ -593,6 +640,54 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
       assert.equal(refsOf(bare), refs);
     });
 
+    test('annotated tags are followed five times and no more, and the commit at the end is the one of the manifest', async () => {
+      for (const [chain, ok] of [[1, true], [5, true], [6, false]]) {
+        const { state, bare, work } = await world();
+        const refs = refsOf(bare);
+        const commit = state.releases[1].commit;
+        const ids = Array.from({ length: chain }, (_, i) => commitOf(`chain ${chain} ${i}`));
+        state.refs.set('v1.1.0', { type: 'tag', sha: ids[0] });
+        for (const [i, id] of ids.entries()) state.annotated.set(id, i === chain - 1 ? { type: 'commit', sha: commit } : { type: 'tag', sha: ids[i + 1] });
+        const got = await call(['--dry-run'], state, work);
+        if (ok) assert.equal(got.code, 0, `${chain}: ${got.stderr}`);
+        else assert.deepEqual([got.code, got.stderr], [1, 'updater: refused: the tag v1.1.0 does not point at a commit\n']);
+        assert.equal(refsOf(bare), refs);
+      }
+    });
+
+    test('the assets of a release: entries that are not assets are passed over, and an asset whose id is not an id is no manifest', async () => {
+      const listing = (state, assets) => state.releases.map((r) => ({ tag_name: r.tag, draft: false, prerelease: r.prerelease, body: r.body, assets: r.tag === 'v1.1.0' ? assets(r) : [{ id: r.assetId, name: 'release-manifest.json', size: 1 }] }));
+      {
+        const { state, work } = await world();
+        state.listBody = listing(state, (r) => [null, 5, 'x', [], { id: 7 }, { name: 'other.json', id: 8 }, { id: r.assetId, name: 'release-manifest.json', size: 1 }]);
+        const got = await call(['--dry-run'], state, work);
+        assert.equal(got.code, 0, got.stderr);
+      }
+      for (const id of [0, -1, 1.5, '102', null, undefined, 2 ** 60]) {
+        const { state, work } = await world();
+        state.listBody = listing(state, () => [{ id, name: 'release-manifest.json', size: 1 }]);
+        const got = await call(['--dry-run'], state, work);
+        assert.deepEqual([got.code, got.stderr], [1, 'updater: refused: the release v1.1.0 has no release-manifest.json\n'], String(id));
+      }
+      for (const assets of [undefined, null, 'x', {}]) {
+        const { state, work } = await world();
+        state.listBody = listing(state, () => assets);
+        const got = await call(['--dry-run'], state, work);
+        assert.deepEqual([got.code, got.stderr], [1, 'updater: refused: the release v1.1.0 has no release-manifest.json\n'], String(assets));
+      }
+    });
+
+    test('a link to the next page that has an empty address is the address of the API itself, which has no releases to give', async () => {
+      const state = await github({ pageSize: 1 });
+      release(state, 'v1.0.0', V1);
+      release(state, 'v1.1.0', V2);
+      state.nextLink = '<>; rel="next"';
+      const { work } = adopted();
+      const got = await call(['--dry-run'], state, work);
+      assert.equal(got.code, 1);
+      assert.match(got.stderr, /^updater: failed: GET \/ answered 404/);
+    });
+
     test('a list of something else than a list', async () => {
       const { state, work } = await world();
       state.listBody = { message: 'hello' };
@@ -603,7 +698,7 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
 
     test('a link to the next page that leaves the API, or goes round', async () => {
       for (const [link, said] of [['<https://evil.example/releases?page=2>; rel="next"', 'is not the API'], ['<http://127.0.0.2:1/repos/gearsnlevers/record-keeper/releases?page=2>; rel="next"', 'is not the API'],
-      ['</repos/gearsnlevers/record-keeper/releases?per_page=100&page=1>; rel="next"', 'goes back to a page that was read']]) {
+      ['</repos/gearsnlevers/record-keeper/releases?per_page=100&page=1>; rel="next"', 'goes back to a page that was read'], ['<http://[::1>; rel="next"', 'is not the API']]) {
         const state = await github({ pageSize: 1 });
         release(state, 'v1.0.0', V1);
         release(state, 'v1.1.0', V2);
@@ -629,12 +724,97 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
 
 // ---- where a download is sent -------------------------------------------------------------------------------------------------------------------
 
+describe('what is read of an answer', () => {
+  const MANIFEST_LIMIT = 1024 * 1024;
+  const PAGE_LIMIT = 8 * 1024 * 1024;
+
+  for (const chunked of [false, true]) {
+    const how = chunked ? 'an answer in pieces, with no length' : 'an answer that says its length';
+
+    test(`a manifest of exactly the limit is read, and one byte more is not (${how})`, async () => {
+      const { state, work } = await world();
+      state.chunked = chunked;
+      const text = state.releases[1].manifest;
+      state.releases[1].manifest = text + ' '.repeat(MANIFEST_LIMIT - Buffer.byteLength(text));
+      const exact = await call(['--dry-run'], state, work);
+      assert.equal(exact.code, 0, exact.stderr);
+      state.releases[1].manifest += ' ';
+      const over = await call(['--dry-run'], state, work);
+      assert.deepEqual([over.code, over.stderr], [1, 'updater: refused: the manifest is larger than the updater takes\n']);
+    });
+
+    test(`a page of releases of exactly the limit is read, and one byte more is not (${how})`, async () => {
+      const { state, work } = await world();
+      state.chunked = chunked;
+      const page = JSON.stringify(state.releases.map((r) => ({ tag_name: r.tag, draft: false, prerelease: r.prerelease, body: r.body, assets: [{ id: r.assetId, name: 'release-manifest.json', size: Buffer.byteLength(r.manifest) }] })));
+      state.listBody = `${page}${' '.repeat(PAGE_LIMIT - Buffer.byteLength(page))}`;
+      const exact = await call(['--dry-run'], state, work);
+      assert.equal(exact.code, 0, exact.stderr);
+      state.listBody += ' ';
+      const over = await call(['--dry-run'], state, work);
+      assert.deepEqual([over.code, over.stderr], [1, 'updater: failed: the answer to /repos/gearsnlevers/record-keeper/releases?per_page=30 is larger than the updater takes\n']);
+    });
+
+    test(`a file of exactly the size of the manifest is read, and one byte more is not (${how})`, async () => {
+      const { state, work } = await world();
+      state.chunked = chunked;
+      const served = state.releases[1].served;
+      served.set('kit/.github/record-keeper/updater.mjs', Buffer.from('// updater 2\n'));
+      assert.equal((await call(['--dry-run'], state, work)).code, 0);
+      served.set('kit/.github/record-keeper/updater.mjs', Buffer.from('// updater 2\n '));
+      const over = await call(['--dry-run'], state, work);
+      assert.deepEqual([over.code, over.stderr], [1, 'updater: refused: size mismatch: .github/record-keeper/updater.mjs\n']);
+    });
+  }
+
+  test('the beginning of what an error says is part of the message, as much as 200 characters, and an error that has no body says nothing more', async () => {
+    const { state, work } = await world();
+    state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: `${'x'.repeat(150)}${'y'.repeat(150)}` } : null);
+    const got = await call(['--dry-run'], state, work);
+    assert.equal(got.stderr, `updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404: ${'x'.repeat(150)}${'y'.repeat(50)}\n`);
+    state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: 'z'.repeat(5000) } : null);
+    const long = await call(['--dry-run'], state, work);
+    assert.equal(long.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404\n', 'an error that says more than 2000 bytes is not read');
+    for (const [size, shown] of [[2000, true], [2001, false]]) {
+      state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: 'k'.repeat(size) } : null);
+      const edge = await call(['--dry-run'], state, work);
+      assert.equal(edge.stderr, `updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404${shown ? `: ${'k'.repeat(200)}` : ''}\n`, `${size} bytes`);
+    }
+    state.split = 30;
+    state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: 'y'.repeat(3000) } : null);
+    const told = await call(['--dry-run'], state, work);
+    assert.equal(told.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404\n', 'an error that says that it is longer than 2000 bytes is not read at all, even when it comes in pieces');
+    state.split = undefined;
+    state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 304, body: '' } : null);
+    const none = await call(['--dry-run'], state, work);
+    assert.equal(none.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 304\n');
+    state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: 'a\nb\u202ec\u0000d' } : null);
+    const hiding = await call(['--dry-run'], state, work);
+    assert.equal(hiding.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404: a b\\u{202e}c\\u{0}d\n', 'what hides is written out, and a line feed is a space');
+  });
+
+  test('a request that writes says that its body is JSON, and a request that reads says nothing of a body', async () => {
+    const { state, work } = await world();
+    assert.equal((await call([], state, work)).code, 0);
+    assert.equal((await call([], state, work)).code, 0);
+    for (const r of state.requests) assert.deepEqual([r.apiVersion, r.userAgent], ['2022-11-28', 'record-keeper-updater'], r.path);
+    const kinds = state.requests.map((r) => [r.method, r.contentType]);
+    assert.ok(kinds.some(([method]) => method === 'POST') && kinds.some(([method]) => method === 'PATCH'));
+    for (const [method, type] of kinds) assert.equal(type, method === 'GET' ? undefined : 'application/json', method);
+    for (const r of state.requests) {
+      assert.equal(r.accept, r.path.includes('/contents/') ? 'application/vnd.github.raw+json' : r.path.includes('/releases/assets/') || r.path.startsWith('/blob/') ? 'application/octet-stream' : 'application/vnd.github+json', r.path);
+    }
+  });
+});
+
 describe('the redirect of the manifest', () => {
   test('is followed once to the API itself, and the token is not sent on', async () => {
     const { state, work } = await world({ redirect: true });
     const got = await call(['--dry-run'], state, work);
     assert.equal(got.code, 0, got.stderr);
-    assert.ok(state.requests.some((r) => r.path.startsWith('/blob/')));
+    const blobs = state.requests.filter((r) => r.path.startsWith('/blob/'));
+    assert.ok(blobs.length >= 2);
+    for (const r of blobs) assert.deepEqual([r.accept, r.apiVersion, r.userAgent], ['application/octet-stream', '2022-11-28', 'record-keeper-updater']);
   });
 
   test('is refused when it leads anywhere else, and nothing is asked of that place', async () => {
@@ -764,6 +944,40 @@ describe('the branch', () => {
     assert.equal(writes(state).length, 0);
   });
 
+  test('the name of the default branch is a name of a branch: letters, digits and . _ / -, 1 to 200 characters, and anything else is not read', async () => {
+    const state = await github();
+    release(state, 'v1.0.0', V1);
+    const { work } = adopted();
+    for (const name of ['main', 'release-2.0', 'a/b', 'v1_x.2', 'A-Z0-9', 'x'.repeat(200), 'a']) {
+      state.defaultBranch = name;
+      const got = await call([], state, work);
+      assert.deepEqual([got.code, got.stderr], [0, ''], name);
+    }
+    for (const name of ['', 'x'.repeat(201), 'with space', 'a@b', '@main', 'main@', 'a`b', 'a\nb', 'a:b', 'a*b', 'a~b', 123, null, ['main']]) {
+      state.defaultBranch = name;
+      const got = await call([], state, work);
+      assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: the default branch of the repository is not what the updater reads\n'], String(name));
+    }
+  });
+
+  test('an error that is no refusal and no failure and no error of the system is not hidden: it ends the run, with its stack', async () => {
+    const { state, work } = await world();
+    let failed = false;
+    state.fault = (entry) => (entry.path.endsWith('/releases') && !failed && (failed = true) ? { status: 503 } : null);
+    const sleep = async () => { throw Object.assign(new Error('a mistake of the test'), { code: 'ERR_A_MISTAKE' }); };
+    await assert.rejects(call(['--dry-run'], state, work, { sleep }), /a mistake of the test/);
+  });
+
+  test('a pull request that GitHub answers with something that is none is a failure, and so is one that it does not make', async () => {
+    for (const body of [{ id: 5 }, 'not json', '[]', 'null', { number: 'seven' }, { number: 1.5 }]) {
+      const { state, bare, work } = await world();
+      state.fault = (entry) => (entry.method === 'POST' && entry.path === '/repos/o/r/pulls' ? { status: 201, body } : null);
+      const got = await call([], state, work);
+      assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: the answer to the new pull request is not a pull request\n'], JSON.stringify(body));
+      assert.ok(treeOf(bare, BRANCH).length > 0, 'the branch was pushed before the pull request was asked for');
+    }
+  });
+
   test('is built only from the head of the default branch: a working tree that is behind, or on another branch, is refused', async () => {
     const { state, dev, bare, work } = await world();
     write(dev, 'NEWS.md', 'news\n');
@@ -810,7 +1024,9 @@ describe('the branch', () => {
     const { state, bare, work } = await world();
     const elsewhere = folder('elsewhere');
     git(elsewhere, 'init', '-q');
-    const got = await call([], state, work, { gitEnv: { ...GIT_ENV, GIT_DIR: path.join(elsewhere, '.git'), GIT_WORK_TREE: elsewhere, GIT_INDEX_FILE: path.join(elsewhere, 'index') } });
+    const nowhere = path.join(elsewhere, 'nowhere');
+    const got = await call([], state, work, { gitEnv: { ...GIT_ENV, GIT_DIR: path.join(elsewhere, '.git'), GIT_WORK_TREE: elsewhere, GIT_INDEX_FILE: path.join(elsewhere, 'index'), GIT_OBJECT_DIRECTORY: path.join(nowhere, 'objects'),
+      GIT_ALTERNATE_OBJECT_DIRECTORIES: nowhere, GIT_COMMON_DIR: nowhere, GIT_NAMESPACE: 'elsewhere', GIT_PREFIX: 'sub/' } });
     assert.equal(got.code, 0, got.stderr);
     assert.ok(treeOf(bare, BRANCH).includes('.github/workflows/records-updater.yml'));
     assert.deepEqual(fs.readdirSync(elsewhere), ['.git']);
@@ -887,6 +1103,24 @@ describe('what is in the way', () => {
       assert.equal(got.code, 1);
       assert.equal(got.stderr, 'updater: refused: the pin is not a regular file of text in UTF-8\n');
     }
+  });
+
+  test('a pin of exactly 64 KiB is read, and one byte more is not', async () => {
+    const state = await github();
+    release(state, 'v1.0.0', V1);
+    const pin = pinOf('v1.0.0');
+    const filler = (size) => `${pin}#${'x'.repeat(size - Buffer.byteLength(pin) - 2)}\n`;
+    const exact = filler(64 * 1024);
+    assert.equal(Buffer.byteLength(exact), 64 * 1024);
+    const work = folder('pin');
+    write(work, PIN_PATH, exact);
+    const got = await call(['--dry-run'], state, work, { token: null });
+    assert.deepEqual([got.code, got.stderr], [0, '']);
+    assert.match(got.stdout, /^current: v1\.0\.0 /);
+    const more = folder('pin');
+    write(more, PIN_PATH, filler(64 * 1024 + 1));
+    const over = await call(['--dry-run'], state, more, { token: null });
+    assert.deepEqual([over.code, over.stderr], [1, 'updater: refused: the pin is not a regular file of text in UTF-8\n']);
   });
 
   test('a pin that is not in the form of the page is refused with the line, and nothing is asked of GitHub', async () => {
@@ -966,6 +1200,52 @@ describe('a request that fails', () => {
     assert.equal(got.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 403: the rate limit is used up and resets at 2027-01-15T08:00:00.000Z; run again later, with a token\n');
   });
 
+  test('the limits of GitHub are read as they come: which answers wait, which are given up, and what is said of the reset', async () => {
+    const answers = [
+      // [status, headers, how many requests are made, what is waited, the end of the message]
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1800000000' }, 1, [], 'answered 403: the rate limit is used up and resets at 2027-01-15T08:00:00.000Z; run again later, with a token'],
+      [429, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1800000000' }, 1, [], 'answered 429: the rate limit is used up and resets at 2027-01-15T08:00:00.000Z; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': 'soon' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '0' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '100000000000' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '99999999999' }, 1, [], 'answered 403: the rate limit is used up and resets at 5138-11-16T09:46:39.000Z; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '1', 'retry-after': '3' }, 3, [3000, 3000], 'answered 403: {"message":"fault"}'],
+      [404, { 'x-ratelimit-remaining': '0' }, 1, [], 'answered 404: {"message":"fault"}'],
+      [500, { 'x-ratelimit-remaining': '0' }, 3, [1000, 2000], 'answered 500: {"message":"fault"}'],
+      [499, {}, 1, [], 'answered 499: {"message":"fault"}'],
+      [500, {}, 3, [1000, 2000], 'answered 500: {"message":"fault"}'],
+      [403, {}, 1, [], 'answered 403: {"message":"fault"}'],
+      [429, { 'retry-after': '5' }, 3, [5000, 5000], 'answered 429: {"message":"fault"}'],
+      [403, { 'retry-after': '1' }, 3, [1000, 1000], 'answered 403: {"message":"fault"}'],
+      [403, { 'retry-after': '60' }, 3, [60000, 60000], 'answered 403: {"message":"fault"}'],
+      [403, { 'retry-after': '61' }, 1, [], 'answered 403: {"message":"fault"}'],
+      [403, { 'retry-after': '0' }, 1, [], 'answered 403: {"message":"fault"}'],
+      [403, { 'retry-after': '-5' }, 1, [], 'answered 403: {"message":"fault"}'],
+      [403, { 'retry-after': 'soon' }, 1, [], 'answered 403: {"message":"fault"}'],
+      [404, { 'retry-after': '3' }, 1, [], 'answered 404: {"message":"fault"}'],
+      [500, { 'retry-after': '3' }, 3, [1000, 2000], 'answered 500: {"message":"fault"}'],
+    ];
+    for (const [status, headers, requests, waits, said] of answers) {
+      const { state, work } = await world();
+      state.fault = (entry) => (entry.path.endsWith('/releases') ? { status, headers } : null);
+      const slept = [];
+      const got = await call(['--dry-run'], state, work, { sleep: async (ms) => { slept.push(ms); } });
+      const what = `${status} ${JSON.stringify(headers)}`;
+      assert.equal(got.code, 1, what);
+      assert.equal(got.stderr, `updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 ${said}\n`, what);
+      assert.equal(state.requests.filter((r) => r.path.endsWith('/releases')).length, requests, what);
+      assert.deepEqual(slept, waits, what);
+    }
+  });
+
+  test('a redirect of the download that does not say where to go is a failure that says so', async () => {
+    const { state, work } = await world();
+    state.fault = (entry) => (entry.path.startsWith('/repos/gearsnlevers/record-keeper/releases/assets/') ? { status: 302, headers: {}, body: '' } : null);
+    const got = await call(['--dry-run'], state, work);
+    assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases/assets/102 answered 302 and did not say where the download is\n']);
+  });
+
   test('a 4xx that is no limit is not repeated', async () => {
     const { state, work } = await world();
     state.fault = (entry) => (entry.path.endsWith('/releases') ? { status: 404, body: { message: 'Not Found' } } : null);
@@ -1010,14 +1290,30 @@ describe('a request that fails', () => {
     assert.deepEqual([large.code, large.stderr], [1, 'updater: failed: the answer to /repos/gearsnlevers/record-keeper/releases?per_page=30 is larger than the updater takes\n']);
   });
 
+  test('the address of the API may have a path and a slash at the end, and every request is made below that path', async () => {
+    const { state, work } = await world({ prefix: '/api/v3', pageSize: 1 });
+    for (const suffix of ['/api/v3', '/api/v3/', '/api/v3//']) {
+      const before = state.requests.length;
+      const got = await call(['--dry-run'], state, work, { token: null, extra: { GITHUB_API_URL: `${state.url}${suffix}` } });
+      assert.equal(got.code, 0, `${suffix}: ${got.stderr}`);
+      const made = state.requests.slice(before);
+      assert.ok(made.length >= 5, 'the pages and the files were asked for');
+      assert.ok(made.every((r) => r.original.startsWith('/api/v3/repos/') || r.original.startsWith('/api/v3/blob/')), made.map((r) => r.original).join(' '));
+      assert.ok(made.every((r) => !r.original.includes('//')), 'no double slash');
+    }
+  });
+
   test('the address of the API must be https, or plain http for this machine, with no credentials', async () => {
     const { state, work } = await world();
-    for (const address of ['http://example.com', 'ftp://127.0.0.1', 'https://user:pw@example.com', 'https://example.com?x=1', 'https://example.com#x', 'not an address']) {
+    for (const address of ['http://example.com', 'http://localhost.example.com', 'http://127.0.0.2', 'ftp://127.0.0.1', 'https://user:pw@example.com', 'https://user@example.com', 'https://:pw@example.com', 'http://user@127.0.0.1', 'https://example.com?x=1',
+      'https://example.com#x', 'https://example.com/api?x', 'https://example.com/api#', 'not an address']) {
       const got = await runCli(['--dry-run'], { GITHUB_API_URL: address }, { cwd: work, fetch: guardedFetch, gitEnv: GIT_ENV });
       assert.equal(got.code, 1, address);
-      assert.match(got.stderr, /^updater: failed: GITHUB_API_URL (is not an address|must be an https address)/);
+      assert.match(got.stderr, /^updater: failed: GITHUB_API_URL (is not an address|must be an https address)/, address);
     }
     assert.equal(state.requests.length, 0);
+    const localhost = await runCli(['--dry-run'], { GITHUB_API_URL: 'http://localhost:9' }, { cwd: work, fetch: guardedFetch, sleep: async () => {}, gitEnv: GIT_ENV });
+    assert.match(localhost.stderr, /^updater: failed: GET \/repos\/gearsnlevers\/record-keeper\/releases\?per_page=30 failed: /, 'localhost is a place for plain http, and the request was tried');
   });
 
   test('the repository of a run in Actions must be owner/name', async () => {
@@ -1043,7 +1339,7 @@ function releaseOfTheKit(state, tag) {
   return record;
 }
 const exec = (args, { cwd, env: environment }) => new Promise((resolve) => {
-  const child = spawn(process.execPath, args, { cwd, env: { ...CLEAN, ...environment } });
+  const child = spawn(process.execPath, args, { cwd, env: { ...CLEAN, HOME: scratch, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', ...environment } });
   const out = [];
   const err = [];
   child.stdout.on('data', (chunk) => out.push(chunk));

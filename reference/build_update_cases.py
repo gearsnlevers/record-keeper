@@ -351,6 +351,58 @@ P('m107-extra-requires-secret', 'secrets in the requirements are passed through'
   lambda s: edit_manifest(s, 'manifest', lambda m: m.update(requires={'rulesets': [], 'secrets': ['A', 'B_2'], 'settings': ['owners', 'approvals']})))
 P('m108-templates-only-three', 'the three templates of the kit are the only templates', U(**FIRST, requires=REQUIRES), *adopt)
 
+# ---------------------------------------------------------------- the edges of what a manifest may say
+GOOD_REQUIRES = {'rulesets': [{'branch': 'release/v1.x_2', 'checks': ['Test (Node 22)', 'a#b:c+d-e', 'a.b/c_d', 'Z', 'x' * 100], 'up-to-date': False}, {'branch': 'A', 'checks': [], 'up-to-date': True},
+                              {'branch': 'Odd (x) #1:v+2-3 .', 'checks': [], 'up-to-date': True}, {'branch': 'b' * 100, 'checks': [], 'up-to-date': False}],
+                 'secrets': ['A', 'A_1', 'Z' + '9' * 99], 'settings': ['a', 'a-b', 'a' * 50]}
+P('e001-the-edges-that-are-allowed', 'names of every kind at their longest and their shortest', U(**STANDARD, requires=GOOD_REQUIRES), lambda s: edit_manifest(s, 'manifest', lambda m: m.update(requires=GOOD_REQUIRES)))
+for n, (what, edit) in enumerate([
+    ('a branch that is empty', lambda r: r['rulesets'][0].update(branch='')), ('a branch of 101 characters', lambda r: r['rulesets'][0].update(branch='b' * 101)),
+    ('a branch with an at sign at the end', lambda r: r['rulesets'][0].update(branch='ok@')), ('a branch with an at sign at the start', lambda r: r['rulesets'][0].update(branch='@ok')),
+    ('a branch with a backtick', lambda r: r['rulesets'][0].update(branch='a`b')), ('a branch with a bar', lambda r: r['rulesets'][0].update(branch='a|b')), ('a branch with a backslash', lambda r: r['rulesets'][0].update(branch='a\\b')),
+    ('a branch with an angle', lambda r: r['rulesets'][0].update(branch='a<b')), ('a branch with a line feed at the end', lambda r: r['rulesets'][0].update(branch='ok\n')),
+    ('a check that is empty', lambda r: r['rulesets'][0].update(checks=[''])), ('a check of 101 characters', lambda r: r['rulesets'][0].update(checks=['x' * 101])),
+    ('a check with a character after a good one', lambda r: r['rulesets'][0].update(checks=['ok@'])), ('a check with a character before a good one', lambda r: r['rulesets'][0].update(checks=['@ok'])),
+    ('a check twice', lambda r: r['rulesets'][0].update(checks=['a', 'a'])), ('a check that is not text', lambda r: r['rulesets'][0].update(checks=[5])), ('checks that are no list', lambda r: r['rulesets'][0].update(checks='a')),
+    ('a ruleset with a key more', lambda r: r['rulesets'][0].update(more=1)), ('a ruleset that is a list', lambda r: r['rulesets'].append(['x'])), ('a branch that is a number', lambda r: r['rulesets'][0].update(branch=5)),
+    ('an up-to-date that is a number', lambda r: r['rulesets'][0].update(**{'up-to-date': 1})), ('rulesets that are no list', lambda r: r.update(rulesets={})),
+    ('a secret of 101 characters', lambda r: r.update(secrets=['A' * 101])), ('a secret in lower case', lambda r: r.update(secrets=['a'])), ('a secret with a hyphen', lambda r: r.update(secrets=['A-B'])),
+    ('a secret that starts with a digit', lambda r: r.update(secrets=['1A'])), ('a secret that starts with an underscore', lambda r: r.update(secrets=['_A'])), ('a secret with a line feed at the end', lambda r: r.update(secrets=['A\n'])),
+    ('a secret that is empty', lambda r: r.update(secrets=[''])), ('secrets that are no list', lambda r: r.update(secrets='A')), ('a secret that is not text', lambda r: r.update(secrets=[1])),
+    ('a setting of 51 characters', lambda r: r.update(settings=['a' * 51])), ('a setting with a digit', lambda r: r.update(settings=['a1'])), ('a setting that starts with a hyphen', lambda r: r.update(settings=['-a'])),
+    ('a setting in capitals', lambda r: r.update(settings=['A'])), ('a setting with a line feed at the end', lambda r: r.update(settings=['a\n'])), ('a setting that is empty', lambda r: r.update(settings=[''])),
+    ('a setting with an underscore', lambda r: r.update(settings=['a_b'])), ('settings that are no list', lambda r: r.update(settings='a')),
+], 1):
+    def damaged(s, edit=edit):
+        def change(m):
+            r = copy.deepcopy(GOOD_REQUIRES)
+            edit(r)
+            m['requires'] = r
+        edit_manifest(s, 'manifest', change)
+    P('e%03d-requires-%s' % (n + 1, what.replace(' ', '-')), what, X('manifest-requires'), damaged)
+for n, (what, value, good) in enumerate([
+    ('generations with a letter before', ['xg1'], False), ('generations with a letter after', ['g1x'], False), ('generations of nine digits', ['g123456789'], True), ('generations of ten digits', ['g1234567890'], False),
+    ('generations that are two', ['g1', 'g2'], True), ('generations with a line feed', ['g1\n'], False), ('generations that are not text', [1], False), ('generations that are empty text', [''], False),
+], 1):
+    P('e1%02d-%s' % (n, what.replace(' ', '-')), what, U(**STANDARD) if good else X('manifest-generations'), lambda s, value=value: edit_manifest(s, 'manifest', lambda m: m.update(generations=value)))
+P('e120-version-that-is-a-list', 'a version that is a list that reads as the version', X('manifest-version'), lambda s: edit_manifest(s, 'manifest', lambda m: m.update(version=['1.1.0'])))
+P('e121-commit-that-is-a-list', 'a commit that is a list', X('manifest-commit'), lambda s: edit_manifest(s, 'manifest', lambda m: m.update(commit=[C2])))
+P('e122-invalid-utf8-inside-a-string', 'a byte that is not UTF-8 inside a string of a manifest that is JSON otherwise', X('manifest-json'),
+  lambda s: s.update(manifest={'hex': s['manifest'].encode().replace(b'"g1"', b'"g\xff"').hex()}))
+for n, (what, value) in enumerate([('a digest with a character after', digest('rk 2') + 'x'), ('a digest with a character before', 'x' + digest('rk 2')), ('a digest of 63 digits', digest('rk 2')[:63])], 1):
+    P('e13%d-%s' % (n, what.replace(' ', '-')), what, X('manifest-digest', 1), lambda s, value=value: edit_manifest(s, 'manifest', lambda m: m['files'][0].update(sha256=value)))
+P('e140-empty-file', 'a file of no bytes is a file, with its digest and size 0', U(**STANDARD),
+  lambda s: edit_manifest(s, 'manifest', lambda m: next(f for f in m['files'] if f['path'] == RK).update(sha256=digest(''), size=0)), lambda s: s['downloaded'].__setitem__('record-keeper.mjs', {'sha256': digest(''), 'size': 0}))
+P('e141-a-hundred-files', 'a hundred files is the most', U(frm=None, added=['.github/record-keeper/f%d.mjs' % i for i in range(100)]), *adopt,
+  lambda s: s.update(manifest=text(manifest('v1.1.0', C2, [{'kind': 'managed', 'path': '.github/record-keeper/f%d.mjs' % i, 'sha256': digest('f%d' % i), 'size': 2, 'source': 'f%d' % i} for i in range(100)])),
+                     downloaded={'f%d' % i: {'sha256': digest('f%d' % i), 'size': 2} for i in range(100)}))
+P('e142-exactly-sixteen-mebibytes', 'four files of four mebibytes are the most that the files may be together', U(frm=None, added=['.github/record-keeper/b%d.mjs' % i for i in range(4)]), *adopt,
+  lambda s: s.update(manifest=text(manifest('v1.1.0', C2, [{'kind': 'managed', 'path': '.github/record-keeper/b%d.mjs' % i, 'sha256': digest('b%d' % i), 'size': 4 * 1024 * 1024, 'source': 'b%d' % i} for i in range(4)])),
+                     downloaded={'b%d' % i: {'sha256': digest('b%d' % i), 'size': 4 * 1024 * 1024} for i in range(4)}))
+P('e143-one-byte-over-sixteen-mebibytes', 'one byte more is too much', X('manifest-too-large'), *adopt,
+  lambda s: s.update(manifest=text(manifest('v1.1.0', C2, [{'kind': 'managed', 'path': '.github/record-keeper/b%d.mjs' % i, 'sha256': digest('b%d' % i), 'size': size, 'source': 'b%d' % i}
+                                                           for i, size in enumerate([4 * 1024 * 1024] * 4 + [1])]))))
+
 # ---------------------------------------------------------------- the files
 P('f001-download-missing', 'no digest for a source', X('download-missing', 'record-keeper.mjs'), lambda s: s['downloaded'].pop('record-keeper.mjs'))
 P('f002-download-is-not-an-object', 'a digest that is no object', X('download-missing', 'record-keeper.mjs'), lambda s: s['downloaded'].__setitem__('record-keeper.mjs', 'x'))
@@ -404,6 +456,7 @@ for n, (note, text_, code, detail) in enumerate([
     ('a value that is not ASCII', pin_text().replace('stable', 'stablé'), 'pin-line', 5),
     ('a blank line with a space', pin_text() + ' \n', 'pin-line', 6),
     ('a byte order mark', '\ufeff' + pin_text(), 'pin-line', 1),
+    ('a key that is empty', pin_text() + ': x\n', 'pin-line', 6),
     ('an empty value', pin_text().replace('stable', ''), 'pin-line', 5),
     ('a comment after a value', pin_text().replace('stable', 'stable # c'), 'pin-line', 5),
     ('a key that is not one', pin_text() + 'extra: 1\n', 'pin-key', 'extra'),
@@ -446,7 +499,7 @@ for i, a in enumerate(ORDER):
         if i == j or abs(i - j) == 1 or (i, j) in ((0, len(ORDER) - 1),) or (i + j) % 5 == 0:
             tags.append({'id': 'c%03d' % (len(tags) + 1), 'a': a, 'b': b, 'expect': (i > j) - (i < j)})
 tags.extend({'id': 'c%03d' % (len(tags) + 1), 'a': a, 'b': b, 'expect': e} for a, b, e in [('v1.0.0-alpha.1', 'v1.0.0-alpha.1', 0), ('v99999999999999999999.0.0', 'v99999999999999999998.0.0', 1), ('v1.0.0-9', 'v1.0.0-a', -1),
-                                                                                       ('v1.0.0-a', 'v1.0.0-B', 1), ('v1.0.0-a.1', 'v1.0.0-a', 1), ('v1.0.0-1a', 'v1.0.0-2', 1), ('v1.0.0-99999999999999999999', 'v1.0.0-100000000000000000000', -1)])
+                                                                                       ('v1.0.0-a', 'v1.0.0-B', 1), ('v1.0.0-a.1', 'v1.0.0-a', 1), ('v1.0.0-1a', 'v1.0.0-2', 1), ('v1.0.0-20', 'v1.0.0-1a', -1), ('v1.0.0-b1', 'v1.0.0-a', 1), ('v1.0.0-a', 'v1.0.0-b1', -1), ('v1.0.0-99999', 'v1.0.0-a', -1), ('v1.0.0-a', 'v1.0.0-99999', 1), ('v1.0.0-99999999999999999999', 'v1.0.0-100000000000000000000', -1)])
 
 for n, (rng, node, satisfied) in enumerate([
         ('>=22', '22.0.0', True), ('>=22', '21.9.9', False), ('>=22', '100.0.0', True), ('>=22 <25', '24.99.99', True), ('>=22 <25', '25.0.0', False), ('>=22.6', '22.5.9', False), ('>=22.6', '22.6.0', True),
