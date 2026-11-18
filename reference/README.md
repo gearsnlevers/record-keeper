@@ -1,6 +1,6 @@
 # Reference implementations and test generators
 
-This folder is how the kit is checked against something other than itself. It is not part of the protocol, it is not delivered to a repository that uses the kit, and `npm test` does not run it. The library (`record-keeper.mjs`) needs none of it; whoever changes a rule or a fixture does.
+This folder is how the kit is checked against something other than itself. It is not part of the protocol, it is not delivered to a repository that uses the kit (it is not in `install.json`), and `npm test` does not run it, except that `test/manifest.test.mjs` runs `verify_manifest.py` when `python3` is there. The library (`record-keeper.mjs`) needs none of it; whoever changes a rule or a fixture does.
 
 ## What is here
 
@@ -21,6 +21,7 @@ This folder is how the kit is checked against something other than itself. It is
 | [audit](../docs/audit.md) | `audit_ref.py` (with `audit_lib.py` for the histories) | `build_audit_cases.py` | `test/fixtures/audit` | `fuzz/audit_fuzz.py`, `audit_ref_run.py`, `audit_compare.mjs`, `audit_batch.sh` |
 | [announcements](../docs/announcements.md) | `announce_ref.py` (on `audit_ref.py`, `audit_effects_ref.py`) | `build_announce_cases.py` | `test/fixtures/announce` | `fuzz/announce_fuzz.py`, `announce_ref_run.py`, `announce_compare.mjs`, `announce_batch.sh` |
 | [audit-effects](../docs/audit-effects.md) | `audit_effects_ref.py` (on `audit_ref.py`) | `build_audit_effects_cases.py` | `test/fixtures/audit-effects` | `fuzz/effects_fuzz.py`, `effects_ref_run.py`, `effects_compare.mjs`, `effects_batch.sh` |
+| [install](../docs/install.md), [releases](../docs/releases.md) | `verify_manifest.py` (verifies a manifest, and with `--build` writes the one it would build) | none: `test/manifest.test.mjs` makes the folders it runs both programs on | | |
 
 ## The rules for changing any of it
 
@@ -49,6 +50,8 @@ reference/fuzz/change_batch.sh /tmp/change-fuzz 4000 7 4 && cat /tmp/change-fuzz
 # mutation testing of the lines of record-keeper.mjs that differ from a commit
 python3 reference/fuzz/mutate_diff.py . 4 <base commit>
 ```
+
+`check_ref.py` holds the files that the check guards (`WORKFLOW_FILES`, `CODE_FILES`, [the files of the check](../docs/protected-files.md)) written out and not built, as a second implementation should; `fuzz/change_fuzz.py` puts files at all of those paths, and `fuzz/change_compare.mjs` prints how many scenarios had a workflow or code act at each path, which shows that the guard is exercised everywhere and not only that the two programs agree. `verify_manifest.py` is run by the release workflow as well as by the tests, so it is the one file of this folder that a release job needs.
 
 `fuzz/mutate_change.py` mutates every line of the part of the library that checks a change, `fuzz/mutate_pr.py` every line of `check-pull-request.mjs` (or of another program: `MUT_FILE`, `MUT_TESTS` and `MUT_LINES` name it, its tests and the lines to mutate; `AUDIT_RUN_STRIDE=8` makes the tests of `run-audit.mjs` run a sample of their cases, for a quick first pass) and `mutate_pr2.py` only the lines that differ from a commit, and `fuzz/mutate_note_case.py` is an example of a hand-written list of mutants for one change. The batch scripts and the other fuzz scripts say how they are called in their first lines.
 

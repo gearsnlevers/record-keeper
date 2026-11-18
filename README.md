@@ -4,7 +4,7 @@ Keeps a repository's decision records trustworthy: templates, one validator, sea
 
 A decision record binds people and coding agents once it is accepted, and the rule that an accepted record is never edited, only superseded, is usually only text. Record Keeper makes it checkable: an accepted record carries a seal, a pull request that changes a sealed record fails a required check, and a nightly audit finds what got past it and reports it.
 
-Status: in progress, milestone M2. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request, judges an erratum (with its 48 hours) and a deviation note, and the `Records integrity` workflow runs all of that on a pull request. It guards the files of the check as acts and holds an amendment of the protocol, and a change of the owners, to the bar of all owners and seven days. It refuses a record that applies to nothing and a change that leaves an `applies-to` item without a file, and `audit` reads the whole history for what a push round the check left behind. The workflow that runs the audit, its issues and log, and the updater are still to come.
+Status: in progress, milestone M3. The canonical form of a record (generation g1) is settled and published with test vectors, and `record-keeper.mjs` seals a record, verifies a seal, checks the format of a records folder, reads a records folder and the settings file from a commit, and judges a change (a head commit against a base commit). It counts the owners' approvals of a change from the reviews of its pull request, judges an erratum (with its 48 hours) and a deviation note, and the `Records integrity` workflow runs all of that on a pull request. It guards the files of the check as acts and holds an amendment of the protocol, and a change of the owners, to the bar of all owners and seven days. It refuses a record that applies to nothing and a change that leaves an `applies-to` item without a file, and `audit` reads the whole history for what a push round the check left behind. The workflow that runs the audit writes its incident issues, its log and the announcements of the acts that the owners approved. Milestone M3 makes it installable: `install.json` lists what a release installs and where, `tools/build-release-manifest.mjs` writes the manifest of digests of a release, and the `Release` workflow cuts one (it has not been run yet). The updater, the setup check and the first release are still to come.
 
 ```sh
 node record-keeper.mjs seal <file>             # print the seal of a record
@@ -31,8 +31,16 @@ node check-pull-request.mjs --repo <owner/name> --pr <number>
                                                # what the pull request workflow runs: read the pull request from GitHub, then check-pr
 node run-audit.mjs --repo <owner/name> [--dry-run]
                                                # what the audit workflow runs: evidence from GitHub, the plan, the log branch and the incident issues
+node tools/build-release-manifest.mjs --version <semver> --tag <tag> --commit <id> --out <file>
+                                               # write the manifest of a release: the digest of every file of install.json
+node tools/build-release-manifest.mjs --verify <manifest>
+                                               # check a manifest against the files of the working tree
+node tools/update-changelog.mjs --tag <tag> --notes <file>
+                                               # add a section for a release to CHANGELOG.md (what the release workflow runs)
 npm test                                       # the library, the command line, the test vectors and the fixtures
 ```
+
+These are the paths of this repository, which keeps its programs at its root. A repository that installs the kit keeps them in `.github/record-keeper/`, next to its settings ([docs/install.md](docs/install.md)): `node .github/record-keeper/record-keeper.mjs validate`.
 
 It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no network code and never writes a file; `check-pull-request.mjs` only reads from GitHub and adds git objects and two refs to the clone it runs in; `run-audit.mjs` is the only part that writes, to the incident issues of the repository and to the branch `record-keeper/log`.
 
@@ -52,6 +60,8 @@ It needs Node.js 22 or later and has no dependencies. `record-keeper.mjs` has no
 - [docs/protected-files.md](docs/protected-files.md): the files that make the check, why a change to one is an act, and the rule against another workflow that names the check.
 - [docs/errata-and-deviations.md](docs/errata-and-deviations.md): the entries of Errata and Known deviations, the erratum chain, the 48 hours, and what the check looks up outside the commits.
 - [docs/approvals.md](docs/approvals.md): when the owners have approved a change: which reviews count, what the command prints, with [fixtures](test/fixtures/approval/README.md).
+- [docs/install.md](docs/install.md): the install set and the layout of a repository that installs the kit: the folder `.github/record-keeper/`, files that an update replaces (managed) and files that are copied once (templates), what the check guards, and `install.json`.
+- [docs/releases.md](docs/releases.md): how the kit is versioned, the release manifest and how it is verified, the `Release` workflow and its dry run, immutable releases, and what a repository can check of a release.
 - [docs/workflow.md](docs/workflow.md): the `Records integrity` workflow: what it reads from GitHub, what it runs, when it cannot run, and what a repository must set for it to mean anything.
 - [reference/](reference/README.md): the second implementations of the pages in Python and Node, the generators of the fixtures, the fuzz and the mutation scripts. Not part of the kit; `npm test` does not run it.
 
