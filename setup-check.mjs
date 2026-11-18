@@ -645,7 +645,8 @@ async function readGithub(context, { repo, owners, pin, last }) {
     github.classic = await reading(() => readClassic(context, repo, branch));
     github.bypass = {};
     if (github.rules.ok) {
-      for (const id of [...new Set(github.rules.rules.map((rule) => rule.id))].sort((a, b) => a - b).slice(0, BOUNDS.rulesets)) github.bypass[String(id)] = await reading(() => readRuleset(context, repo, id));
+      const carrying = github.rules.rules.filter((rule) => rule.checks.includes(CHECK)).map((rule) => rule.id);
+      for (const id of [...new Set(carrying)].sort((a, b) => a - b).slice(0, BOUNDS.rulesets)) github.bypass[String(id)] = await reading(() => readRuleset(context, repo, id));
     }
   }
   github.accounts = {};

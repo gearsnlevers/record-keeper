@@ -248,6 +248,12 @@ describe('the rules that apply to the default branch', () => {
     assert.deepEqual(reads(state).filter((line) => /rulesets/.test(line)), ['GET /repos/example/repo/rulesets/4101', 'GET /repos/example/repo/rulesets/4200']);
   });
 
+  test('a ruleset that requires other checks only is not read for its bypass list', async () => {
+    const { state, dir } = await world((s) => { s.rules = [...others(4101), requiring(4101), requiring(4200, { checks: ['Test gate'] })]; });
+    assert.deepEqual((await check(state, dir)).found, []);
+    assert.deepEqual(reads(state).filter((line) => /rulesets/.test(line)), ['GET /repos/example/repo/rulesets/4101']);
+  });
+
   test('a list that comes in pages is read to its end, with a link that stays on the API', async () => {
     const { state, dir } = await world((s) => { s.rules = [...others(4101), requiring(4101)]; s.pageSize = 1; });
     const got = await check(state, dir);
