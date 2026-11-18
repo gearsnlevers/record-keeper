@@ -121,7 +121,7 @@ describe('what is refused', () => {
 
   test('a source that is not there, a folder as a source, and a file where a folder should be', () => {
     refused(folder(ok, one('gone.txt', '.github/gone.txt')), /source gone\.txt: no such file/);
-    refused(folder({ 'sub/x.txt': 'x' }, one('sub', '.github/sub')), /source sub: is not a regular file/);
+    refused(folder({ 'sub/x.txt': 'x' }, one('sub', '.github/sub')), 'source sub: is not a regular file');
     refused(folder(ok, one('a.txt/b.txt', '.github/b.txt')), /source a\.txt\/b\.txt: a\.txt is not a folder/);
   });
 
@@ -217,6 +217,8 @@ describe('what is refused', () => {
     refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'] }] } }) }), 'install.json: a ruleset: missing key up-to-date');
     refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: '', checks: ['A'], 'up-to-date': true }] } }) }), 'install.json: a ruleset needs a branch');
     refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'], 'up-to-date': 'yes' }] } }) }), 'install.json: a ruleset: up-to-date must be true or false');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: 'A', 'up-to-date': true }] } }) }), 'install.json: a ruleset: checks: must be a list of texts');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A', 'A'], 'up-to-date': true }] } }) }), 'install.json: a ruleset: checks: names something twice');
     refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: ['x'] } }) }), 'install.json: a ruleset must be an object');
     refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: 'x' } }) }), 'install.json: requires.rulesets must be a list');
     refused(folder(ok, null, { install: text({ extra: 1 }) }), 'install.json: unknown key extra');
