@@ -1,6 +1,9 @@
 // The workflow `Records integrity` (docs/workflow.md): what the page says about the file is stated here as tests. The file is read line by line, with
 // no YAML library; `lint` returns what is wrong with a text, and the tests check both the real file and damaged copies of it, so that the
 // rules cannot silently stop saying anything.
+//
+// The rules are tried on two files: the workflow of the kit, which runs its programs at the root, and the version that a repository gets when it installs the kit,
+// which runs them in `.github/record-keeper/` (docs/install.md). The second is the first with the paths of the programs changed, and nothing else (test/install.test.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,19 +11,22 @@ import test, { describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const file = path.join(root, '.github/workflows/records-integrity.yml');
-const workflow = fs.readFileSync(file, 'utf8');
 const page = fs.readFileSync(path.join(root, 'docs/workflow.md'), 'utf8');
 
 const FILTERS = ['paths', 'paths-ignore', 'branches', 'branches-ignore', 'tags', 'tags-ignore'];
 const FROM_THE_PULL_REQUEST = ['pull_request.head', 'head.sha', 'head.ref', 'head_ref', 'head.repo', 'refs/pull', 'merge_commit', 'github.sha', 'github.ref', 'secrets.'];
 
+const VARIANTS = [
+  { name: 'the kit', path: '.github/workflows/records-integrity.yml', program: 'check-pull-request.mjs' },
+  { name: 'a repository that installs the kit', path: 'templates/workflows/records-integrity.yml', program: '.github/record-keeper/check-pull-request.mjs' },
+];
+
 const indentOf = (line) => line.length - line.trimStart().length;
 /** The lines that are not comments or blank, without the comment at the end of a line. */
 const codeOf = (text) => text.split('\n').filter((line) => line.trim() !== '' && !line.trimStart().startsWith('#')).map((line) => line.replace(/\s+#.*$/, ''));
 
-/** What is wrong with the text of a workflow file, by the rules of docs/workflow.md. Empty when nothing is. */
-function lint(text) {
+/** What is wrong with the text of a workflow file that runs `program`, by the rules of docs/workflow.md. Empty when nothing is. */
+function lint(text, program) {
   const code = codeOf(text);
   const found = [];
   const under = (key, indent) => {
@@ -66,90 +72,99 @@ function lint(text) {
   });
   if (runs.length !== 1) found.push(`run steps: ${runs.length}`);
   for (const run of runs) if (run.includes('${{')) found.push('expression in run');
-  if (!runs.every((run) => run.includes('node check-pull-request.mjs --repo "$GITHUB_REPOSITORY" --pr "$PULL_REQUEST"'))) found.push('run does not call the program as the page says');
+  if (!runs.every((run) => run.includes(`node ${program} --repo "$GITHUB_REPOSITORY" --pr "$PULL_REQUEST"`))) found.push('run does not call the program as the page says');
   if (!code.includes('          GITHUB_TOKEN: ${{ github.token }}')) found.push('token');
   if (!code.includes('          PULL_REQUEST: ${{ github.event.pull_request.number }}')) found.push('number');
   return found;
 }
 
-describe('the workflow file', () => {
-  test('follows every rule of the page', () => {
-    assert.deepEqual(lint(workflow), []);
-  });
+for (const variant of VARIANTS) {
+  const workflow = fs.readFileSync(path.join(root, variant.path), 'utf8');
 
-  test('is named Records integrity, in the file and in the job', () => {
-    assert.match(workflow, /^name: Records integrity$/m);
-    assert.match(workflow, /^ {4}name: Records integrity$/m);
-  });
-
-  test('runs for the events the page lists', () => {
-    const types = /^ {4}types: \[(.*)\]$/m.exec(workflow)[1].split(', ');
-    assert.deepEqual(types, ['opened', 'synchronize', 'reopened', 'ready_for_review', 'edited']);
-    for (const type of types) assert.ok(page.includes(`\`${type}\``), type);
-  });
-
-  test('calls a program that is in the repository, at the path it names', () => {
-    assert.ok(fs.existsSync(path.join(root, 'check-pull-request.mjs')));
-    assert.ok(fs.existsSync(path.join(root, 'record-keeper.mjs')));
-  });
-
-  test('uses the same two actions at the same commits as the tests of the kit', () => {
-    const used = (text) => [...text.matchAll(/uses: (\S+)/g)].map((m) => m[1]).sort();
-    const tests = fs.readFileSync(path.join(root, '.github/workflows/test.yml'), 'utf8');
-    for (const action of used(workflow)) assert.ok(used(tests).includes(action), action);
-  });
-});
-
-describe('the rules of the page, tried on damaged copies', () => {
-  const damage = (from, to) => {
-    assert.ok(workflow.includes(from), from);
-    return workflow.replace(from, to);
-  };
-  const cases = [
-    ['pull_request instead of pull_request_target', damage('pull_request_target:', 'pull_request:'), /trigger: pull_request$/],
-    ['a second trigger', damage('\non:\n', '\non:\n  workflow_dispatch:\n'), /trigger: /],
-    ['a trigger on a review', damage('  pull_request_target:\n    types: [opened, synchronize, reopened, ready_for_review, edited]', '  pull_request_target:\n    types: [opened]\n  pull_request_review:\n    types: [submitted]'), /trigger: /],
-    ['a paths filter', damage('    types: [opened', '    paths: [docs/**]\n    types: [opened'), /filter: paths/],
-    ['a paths-ignore filter', damage('    types: [opened', '    paths-ignore: [docs/**]\n    types: [opened'), /filter: paths-ignore/],
-    ['a branches filter', damage('    types: [opened', '    branches: [main]\n    types: [opened'), /filter: branches/],
-    ['a condition on the job', damage('    runs-on:', '    if: github.actor != \'bot\'\n    runs-on:'), /condition: if/],
-    ['a condition on a step', damage('      - name: Judge', '      - if: always()\n        name: Judge'), /condition: if/],
-    ['continue-on-error', damage('    runs-on:', '    continue-on-error: true\n    runs-on:'), /continue-on-error/],
-    ['write permission on the job', damage('      contents: read', '      contents: write'), /job permissions/],
-    ['checks: write', damage('      checks: read', '      checks: write'), /job permissions/],
-    ['no checks permission', damage('      checks: read\n', ''), /job permissions/],
-    ['an extra permission', damage('      pull-requests: read', '      pull-requests: read\n      checks: write'), /job permissions/],
-    ['pull-requests: write', damage('      pull-requests: read', '      pull-requests: write'), /job permissions/],
-    ['no permissions at the top', damage('permissions: {}\n', ''), /top-level permissions/],
-    ['permissions at the top that write', damage('permissions: {}', 'permissions: write-all'), /top-level permissions/],
-    ['a second job', `${workflow}  other:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo\n`, /jobs: 2/],
-    ['another name of the job', damage('    name: Records integrity', '    name: Integrity'), /job name/],
-    ['no timeout', damage('    timeout-minutes: 10\n', ''), /timeout/],
-    ['an action by tag', damage('actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1', 'actions/checkout@v4'), /not pinned/],
-    ['an action by a short commit', damage('actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1', 'actions/setup-node@949feb2'), /not pinned/],
-    ['an action from a branch', damage('actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1', 'actions/setup-node@main'), /not pinned/],
-    ['the checkout of the head of the pull request', damage('ref: ${{ github.event.repository.default_branch }}', 'ref: ${{ github.event.pull_request.head.sha }}'), /checkout of something else|from the pull request/],
-    ['the checkout of the merge ref', damage('ref: ${{ github.event.repository.default_branch }}', 'ref: refs/pull/${{ github.event.number }}/merge'), /checkout of something else|from the pull request/],
-    ['a checkout without a ref', damage('          ref: ${{ github.event.repository.default_branch }}\n', ''), /checkout of something else/],
-    ['a shallow checkout', damage('          fetch-depth: 0\n', ''), /whole history/],
-    ['the head ref anywhere', damage('node check-pull-request.mjs', 'echo ${{ github.head_ref }}; node check-pull-request.mjs'), /from the pull request/],
-    ['a secret', damage('GITHUB_TOKEN: ${{ github.token }}', 'GITHUB_TOKEN: ${{ secrets.PAT }}'), /from the pull request: secrets\.|token/],
-    ['an expression in the command', damage('--pr "$PULL_REQUEST"', '--pr ${{ github.event.pull_request.number }}'), /expression in run|does not call/],
-    ['a second command', damage('--pr "$PULL_REQUEST"', '--pr "$PULL_REQUEST"\n      - run: echo done'), /run steps: 2/],
-    ['another command', damage('node check-pull-request.mjs', 'node record-keeper.mjs'), /does not call/],
-    ['the number from elsewhere', damage('PULL_REQUEST: ${{ github.event.pull_request.number }}', 'PULL_REQUEST: ${{ github.event.number }}'), /number/],
-    ['the token from elsewhere', damage('GITHUB_TOKEN: ${{ github.token }}', 'GITHUB_TOKEN: ${{ github.event.pull_request.title }}'), /token/],
-  ];
-  for (const [name, text, expected] of cases) {
-    test(`${name} is found`, () => {
-      const found = lint(text);
-      assert.ok(found.length > 0, 'nothing found');
-      assert.ok(found.some((message) => expected.test(message)), found.join(' | '));
+  describe(`the workflow file of ${variant.name}`, () => {
+    test('follows every rule of the page', () => {
+      assert.deepEqual(lint(workflow, variant.program), []);
     });
-  }
 
-  test('a comment does not count as a line of the file', () => {
-    assert.deepEqual(lint(`# if: x\n# paths: y\n${workflow}`), []);
-    assert.deepEqual(lint(workflow.replace('    runs-on:', '    # if: always()\n    runs-on:')), []);
+    test('is named Records integrity, in the file and in the job', () => {
+      assert.match(workflow, /^name: Records integrity$/m);
+      assert.match(workflow, /^ {4}name: Records integrity$/m);
+    });
+
+    test('runs for the events the page lists', () => {
+      const types = /^ {4}types: \[(.*)\]$/m.exec(workflow)[1].split(', ');
+      assert.deepEqual(types, ['opened', 'synchronize', 'reopened', 'ready_for_review', 'edited']);
+      for (const type of types) assert.ok(page.includes(`\`${type}\``), type);
+    });
+
+    test('calls a program that is in the repository, at the path it names', () => {
+      const install = JSON.parse(fs.readFileSync(path.join(root, 'install.json'), 'utf8'));
+      // The kit runs its programs where they are; a repository runs them where install.json puts them.
+      const source = variant.program.includes('/') ? install.files.find((entry) => entry.path === variant.program)?.source : variant.program;
+      assert.ok(source !== undefined, variant.program);
+      assert.ok(fs.existsSync(path.join(root, source)), source);
+      assert.ok(fs.existsSync(path.join(root, 'record-keeper.mjs')));
+      if (variant.program.includes('/')) assert.ok(install.files.some((entry) => entry.path === variant.program.replace('check-pull-request.mjs', 'record-keeper.mjs')), 'the rules file stands next to the program');
+    });
+
+    test('uses the same two actions at the same commits as the tests of the kit', () => {
+      const used = (text) => [...text.matchAll(/uses: (\S+)/g)].map((m) => m[1]).sort();
+      const tests = fs.readFileSync(path.join(root, '.github/workflows/test.yml'), 'utf8');
+      for (const action of used(workflow)) assert.ok(used(tests).includes(action), action);
+    });
   });
-});
+
+  describe(`the rules of the page, tried on damaged copies of the workflow of ${variant.name}`, () => {
+    const damage = (from, to) => {
+      assert.ok(workflow.includes(from), from);
+      return workflow.replace(from, to);
+    };
+    const cases = [
+      ['pull_request instead of pull_request_target', damage('pull_request_target:', 'pull_request:'), /trigger: pull_request$/],
+      ['a second trigger', damage('\non:\n', '\non:\n  workflow_dispatch:\n'), /trigger: /],
+      ['a trigger on a review', damage('  pull_request_target:\n    types: [opened, synchronize, reopened, ready_for_review, edited]', '  pull_request_target:\n    types: [opened]\n  pull_request_review:\n    types: [submitted]'), /trigger: /],
+      ['a paths filter', damage('    types: [opened', '    paths: [docs/**]\n    types: [opened'), /filter: paths/],
+      ['a paths-ignore filter', damage('    types: [opened', '    paths-ignore: [docs/**]\n    types: [opened'), /filter: paths-ignore/],
+      ['a branches filter', damage('    types: [opened', '    branches: [main]\n    types: [opened'), /filter: branches/],
+      ['a condition on the job', damage('    runs-on:', '    if: github.actor != \'bot\'\n    runs-on:'), /condition: if/],
+      ['a condition on a step', damage('      - name: Judge', '      - if: always()\n        name: Judge'), /condition: if/],
+      ['continue-on-error', damage('    runs-on:', '    continue-on-error: true\n    runs-on:'), /continue-on-error/],
+      ['write permission on the job', damage('      contents: read', '      contents: write'), /job permissions/],
+      ['checks: write', damage('      checks: read', '      checks: write'), /job permissions/],
+      ['no checks permission', damage('      checks: read\n', ''), /job permissions/],
+      ['an extra permission', damage('      pull-requests: read', '      pull-requests: read\n      checks: write'), /job permissions/],
+      ['pull-requests: write', damage('      pull-requests: read', '      pull-requests: write'), /job permissions/],
+      ['no permissions at the top', damage('permissions: {}\n', ''), /top-level permissions/],
+      ['permissions at the top that write', damage('permissions: {}', 'permissions: write-all'), /top-level permissions/],
+      ['a second job', `${workflow}  other:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo\n`, /jobs: 2/],
+      ['another name of the job', damage('    name: Records integrity', '    name: Integrity'), /job name/],
+      ['no timeout', damage('    timeout-minutes: 10\n', ''), /timeout/],
+      ['an action by tag', damage('actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1', 'actions/checkout@v4'), /not pinned/],
+      ['an action by a short commit', damage('actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1', 'actions/setup-node@949feb2'), /not pinned/],
+      ['an action from a branch', damage('actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1', 'actions/setup-node@main'), /not pinned/],
+      ['the checkout of the head of the pull request', damage('ref: ${{ github.event.repository.default_branch }}', 'ref: ${{ github.event.pull_request.head.sha }}'), /checkout of something else|from the pull request/],
+      ['the checkout of the merge ref', damage('ref: ${{ github.event.repository.default_branch }}', 'ref: refs/pull/${{ github.event.number }}/merge'), /checkout of something else|from the pull request/],
+      ['a checkout without a ref', damage('          ref: ${{ github.event.repository.default_branch }}\n', ''), /checkout of something else/],
+      ['a shallow checkout', damage('          fetch-depth: 0\n', ''), /whole history/],
+      ['the head ref anywhere', damage(`node ${variant.program}`, `echo \${{ github.head_ref }}; node ${variant.program}`), /from the pull request/],
+      ['a secret', damage('GITHUB_TOKEN: ${{ github.token }}', 'GITHUB_TOKEN: ${{ secrets.PAT }}'), /from the pull request: secrets\.|token/],
+      ['an expression in the command', damage('--pr "$PULL_REQUEST"', '--pr ${{ github.event.pull_request.number }}'), /expression in run|does not call/],
+      ['a second command', damage('--pr "$PULL_REQUEST"', '--pr "$PULL_REQUEST"\n      - run: echo done'), /run steps: 2/],
+      ['another command', damage(`node ${variant.program}`, 'node record-keeper.mjs'), /does not call/],
+      ['the number from elsewhere', damage('PULL_REQUEST: ${{ github.event.pull_request.number }}', 'PULL_REQUEST: ${{ github.event.number }}'), /number/],
+      ['the token from elsewhere', damage('GITHUB_TOKEN: ${{ github.token }}', 'GITHUB_TOKEN: ${{ github.event.pull_request.title }}'), /token/],
+    ];
+    for (const [name, text, expected] of cases) {
+      test(`${name} is found`, () => {
+        const found = lint(text, variant.program);
+        assert.ok(found.length > 0, 'nothing found');
+        assert.ok(found.some((message) => expected.test(message)), found.join(' | '));
+      });
+    }
+
+    test('a comment does not count as a line of the file', () => {
+      assert.deepEqual(lint(`# if: x\n# paths: y\n${workflow}`, variant.program), []);
+      assert.deepEqual(lint(workflow.replace('    runs-on:', '    # if: always()\n    runs-on:'), variant.program), []);
+    });
+  });
+}

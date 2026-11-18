@@ -4,6 +4,8 @@ Status: draft for review (M2.5, with the lookups of errata and deviation notes a
 
 Two files make the check. `.github/workflows/records-integrity.yml` is the workflow. `check-pull-request.mjs` is the program it runs: it is the only part of the kit that talks to the network, and it does nothing but read, ask `check-pr`, and pass on the answer. `record-keeper.mjs`, which holds every rule, still has no network code and no token.
 
+**Where the files stand.** This page writes the paths of the kit's own repository, which keeps its programs at its root. A repository that installs the kit keeps them in `.github/record-keeper/`, and its workflow is the same file with the program run from there (`node .github/record-keeper/check-pull-request.mjs`): see [the install set](install.md#the-workflows-of-a-repository). The tests of this page are run on both files.
+
 ## What the workflow is
 
 - **One trigger: `pull_request_target`**, for the events `opened`, `synchronize`, `reopened`, `ready_for_review` and `edited` (a change of title, text or **base branch**). GitHub runs a `pull_request_target` workflow from the **default branch** of the repository, so a pull request cannot change the check it is judged by. A copy of the workflow that exists only in a pull request or on another branch does not run for it ([the design](design.md#how-a-pull-request-is-checked), experiment E1).
