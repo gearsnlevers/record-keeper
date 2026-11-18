@@ -18,7 +18,9 @@ export const CHECK = 'Records integrity';
 export const COMMIT = 'a1'.repeat(20);
 
 const servers = [];
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-setup-'));
+// The folder for the working trees is made when the first one is asked for, so that a file that only imports this one (the runner of the tests takes it for a test
+// file too) leaves nothing behind.
+let scratch = null;
 let made = 0;
 
 /** Closes every server and removes every folder that this file made. */
@@ -27,10 +29,11 @@ export function cleanUp() {
     server.closeAllConnections();
     server.close();
   }
-  fs.rmSync(scratch, { recursive: true, force: true });
+  if (scratch !== null) fs.rmSync(scratch, { recursive: true, force: true });
 }
 
 export const folder = (name = 'tree') => {
+  scratch ??= fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-setup-'));
   const dir = path.join(scratch, `${name}-${(made += 1)}`);
   fs.mkdirSync(dir, { recursive: true });
   return dir;
