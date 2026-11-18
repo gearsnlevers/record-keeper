@@ -438,12 +438,12 @@ describe('a repository with the layout of a consumer', () => {
       assert.equal(got.stderr, '');
       assert.match(got.stdout, /^warning: \[codeowners-missing\] /m);
       assert.match(got.stdout, /^warning: \[pin-missing\] /m);
-      assert.match(got.stdout, /^notice: \[single-owner\] /m);
+      assert.doesNotMatch(got.stdout, /single-owner/, 'the single-owner mode is said by the pull request that starts it, and by no other run');
       assert.match(got.stdout, /^notice: \[not-checked\] not checked: what GitHub holds/m);
-      assert.match(got.stdout, /setup check: 0 errors, 2 warnings, 2 notices\n$/);
+      assert.match(got.stdout, /setup check: 0 errors, 2 warnings, 1 notice\n$/);
     });
 
-    test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing but the single-owner mode', async () => {
+    test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing, though the owner is in the single-owner mode', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
@@ -454,9 +454,26 @@ describe('a repository with the layout of a consumer', () => {
       const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr + got.stdout);
       assert.equal(got.stderr, '');
-      assert.match(got.stdout, /^::notice title=single-owner::the single-owner mode is on /);
+      assert.equal(got.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
+    });
+
+    test('a pull request that puts the single-owner mode on is told so once, by the installed program, from the settings at its base', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files, { requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
+      state.settingsAt.set('main', 'owners: [alice/1001, bob/1002]\napprovals: 2\n');
+      await serveGithub(state);
+      const env = { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env });
+      assert.equal(got.code, 0, got.stderr + got.stdout);
+      assert.match(got.stdout, /^::notice title=single-owner::this pull request puts the single-owner mode on/);
       assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
-      assert.equal(got.stdout.split('\n').length, 3);
+      state.settingsAt.set('main', OWNERS);
+      const again = await exec([program, '--repo', 'example/repo'], { cwd: dir, env });
+      assert.equal(again.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
     });
 
     test('a file of the folder that is not the release\'s is found', async () => {
