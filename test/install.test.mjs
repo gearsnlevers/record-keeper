@@ -26,7 +26,8 @@ after(() => {
   fs.rmSync(scratch, { recursive: true, force: true });
 });
 
-const CLEAN = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_') && name !== 'GITHUB_TOKEN' && name !== 'GITHUB_API_URL'));
+// Nothing of the environment of the runner that runs the tests reaches a program: on GitHub it says GITHUB_ACTIONS and GITHUB_EVENT_NAME, which change what a program prints.
+const CLEAN = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_') && !name.startsWith('GITHUB_') && !name.endsWith('RECORD_KEEPER_TOKEN')));
 // The git of the tests reads no configuration of the person who runs them (no signing, no hooks, no templates): the repositories here are made from nothing.
 const IDENTITY = { GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
 const git = (cwd, ...args) => {
