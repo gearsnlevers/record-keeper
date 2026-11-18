@@ -82,6 +82,7 @@ function derive(text, { program, installed, page }) {
 const WORKFLOWS = [
   { name: 'records-integrity.yml', program: 'check-pull-request.mjs', page: 'workflow.md' },
   { name: 'records-audit.yml', program: 'run-audit.mjs', page: 'audit-run.md' },
+  { name: 'records-setup-check.yml', program: 'setup-check.mjs', page: 'setup-check.md' },
 ].map((item) => ({ ...item, installed: `.github/record-keeper/${item.program}` }));
 
 describe('the workflows of a repository that installs the kit', () => {
@@ -125,6 +126,7 @@ describe('the workflows of a repository that installs the kit', () => {
   test('the consumer versions do not name the Records integrity check anywhere but the workflow of that check', () => {
     assert.ok(/^name: Records integrity$/m.test(read('templates/workflows/records-integrity.yml')));
     assert.doesNotMatch(read('templates/workflows/records-audit.yml'), /records[ _-]?integrity/i);
+    assert.doesNotMatch(read('templates/workflows/records-setup-check.yml'), /records[ _-]?integrity/i);
   });
 });
 
@@ -232,8 +234,8 @@ describe('the files that install.json installs, and the files that the check gua
 
   test('a program is installed next to the rules file, and the workflows that run the programs are installed with them', () => {
     const programs = managed.filter(({ path: destination }) => destination.startsWith('.github/record-keeper/')).map(({ path: destination }) => path.posix.basename(destination)).sort();
-    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'updater.mjs']);
-    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml', 'records-updater.yml']);
+    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs']);
+    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml', 'records-setup-check.yml', 'records-updater.yml']);
   });
 
   test('the updater and its workflow are managed files, guarded at both places where the guard lists them, and the kit has no copy of the workflow of its own', () => {
@@ -283,7 +285,7 @@ describe('the files that install.json installs, and the files that the check gua
     git(dir, 'rm', '-q', '-r', '.github/record-keeper');
     git(dir, 'commit', '-q', '-m', 'Remove');
     const kinds = checkChange(dir, 'main', 'work').acts.map((act) => `${act.kind} ${act.path}`);
-    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs', 'code .github/record-keeper/updater.mjs']);
+    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs', 'code .github/record-keeper/setup-check.mjs', 'code .github/record-keeper/updater.mjs']);
   });
 });
 

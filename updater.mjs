@@ -28,8 +28,8 @@ export const MANIFEST_ASSET = 'release-manifest.json';
 export const CHANNELS = ['stable', 'prerelease'];
 export const LIMITS = { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80 };
 
-const DEFAULT_API = 'https://api.github.com';
-const TIMEOUT_MS = 30_000;
+export const DEFAULT_API = 'https://api.github.com';
+export const TIMEOUT_MS = 30_000;
 const ATTEMPTS = 3;
 const MAX_WAIT_SECONDS = 60;
 const PER_PAGE = 30;
@@ -516,7 +516,8 @@ export const redact = (text, secrets) => secrets.filter((secret) => secret !== u
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // The runner: HTTP
 
-function apiBase(address) {
+/** The address of the API without a trailing slash: https, or http for localhost only, with no credentials, query or fragment. Throws Failed. */
+export function apiBase(address) {
   let url;
   try {
     url = new URL(address);
@@ -529,7 +530,7 @@ function apiBase(address) {
   return url.origin + url.pathname.replace(/\/+$/, '');
 }
 
-const wait = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
+export const wait = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
 
 /** The body of a response, at most `limit` bytes: { bytes, over } where `over` says that there was more, which was not read. */
 async function readBounded(response, limit) {
@@ -573,7 +574,7 @@ export function mayFollow(base, location, from) {
  * caller, once, without the token). A GET is repeated, at most `ATTEMPTS` times in all, when the connection failed, GitHub answered 5xx or asked to wait for a
  * moment (the secondary limit); a request that writes is never repeated.
  */
-async function request(context, method, target, { accept = 'application/vnd.github+json', body, ok = [200], limit = LIMITS.page, redirects = false, authorize = true } = {}) {
+export async function request(context, method, target, { accept = 'application/vnd.github+json', body, ok = [200], limit = LIMITS.page, redirects = false, authorize = true } = {}) {
   const url = target.startsWith('http') ? target : context.base + target;
   const where = printable(url.startsWith(context.base) ? url.slice(context.base.length) : new URL(url).origin);
   for (let attempt = 1; ; attempt++) {
@@ -584,7 +585,7 @@ async function request(context, method, target, { accept = 'application/vnd.gith
         headers: {
           Accept: accept,
           'X-GitHub-Api-Version': '2022-11-28',
-          'User-Agent': 'record-keeper-updater',
+          'User-Agent': context.agent ?? 'record-keeper-updater',
           ...(authorize && context.token !== undefined ? { Authorization: `Bearer ${context.token}` } : {}),
           ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
         },
@@ -625,7 +626,7 @@ async function request(context, method, target, { accept = 'application/vnd.gith
   }
 }
 
-async function getJson(context, target) {
+export async function getJson(context, target) {
   const answer = await request(context, 'GET', target);
   const where = printable(target.startsWith(context.base) ? target.slice(context.base.length) : target);
   if (answer.over) throw new Failed(`the answer to ${where} is larger than the updater takes`);
@@ -637,7 +638,7 @@ async function getJson(context, target) {
 }
 
 /** The page after this one, or null: the `Link` header of GitHub, `rel="next"`, which must stay on the API. */
-function nextPage(context, link, seen) {
+export function nextPage(context, link, seen) {
   const next = [...(link ?? '').matchAll(/<([^>]*)>([^<]*)/g)].find(([, , parameters]) => /;\s*rel="([^"]*\s)?next(\s[^"]*)?"/.test(parameters));
   if (next === undefined) return null;
   let url;
@@ -652,7 +653,7 @@ function nextPage(context, link, seen) {
 }
 
 /** Every release of the source, all pages. */
-async function listReleases(context, source) {
+export async function listReleases(context, source) {
   const releases = [];
   const seen = new Set();
   let url = `/repos/${source}/releases?per_page=${PER_PAGE}`;
@@ -678,7 +679,7 @@ async function tagCommit(context, source, tag) {
 }
 
 /** The bytes of the manifest of a release, or null when the release has none. A download that GitHub sends on is followed once, to a place `mayFollow` allows, without the token. */
-async function downloadManifest(context, source, release) {
+export async function downloadManifest(context, source, release) {
   const asset = Array.isArray(release.assets) ? release.assets.find((item) => isObject(item) && item.name === MANIFEST_ASSET) : undefined;
   if (asset === undefined || !Number.isSafeInteger(asset.id) || asset.id <= 0) return null;
   const route = `/repos/${source}/releases/assets/${asset.id}`;
@@ -727,7 +728,7 @@ export function inspect(root, relative) {
 }
 
 /** The text of the pin of a working tree, or null when there is none. Throws Refused when it is there and is not a small file of text. */
-function readPin(root) {
+export function readPin(root) {
   const here = inspect(root, PIN_PATH);
   if (here.kind === 'absent') return null;
   if (here.kind !== 'file' || fs.statSync(path.join(root, PIN_PATH)).size > LIMITS.pin) throw new Refused('pin-text');
