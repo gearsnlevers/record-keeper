@@ -643,7 +643,8 @@ function nextPage(context, link, seen) {
   } catch {
     throw new Failed('the link to the next page is not the API');
   }
-  if (!url.startsWith(`${context.base}/`) || seen.has(url)) throw new Failed('the link to the next page is not the API');
+  if (!url.startsWith(`${context.base}/`)) throw new Failed('the link to the next page is not the API');
+  if (seen.has(url)) throw new Failed('the link to the next page goes back to a page that was read');
   return url;
 }
 
@@ -833,7 +834,8 @@ async function publish(context, update, contents, notes, defaultBranch, say) {
     const pull = await upsertPull(context, defaultBranch, renderTitle(update.from, update.to), renderBody(update, notes));
     say(`${pull.created ? 'opened' : 'updated'} pull request #${pull.number}`);
   } finally {
-    git(context, ['checkout', '--quiet', before]);
+    // Whatever happened on the update branch, the working tree goes back to where it was. It was clean when the branch was made, so nothing of a person's is lost.
+    git(context, ['checkout', '--force', '--quiet', before]);
   }
 }
 
@@ -954,8 +956,10 @@ export async function runCli(argv, env, options = {}) {
   try {
     code = await execute(opts, env, options, (line) => out.push(`${line}\n`));
   } catch (caught) {
-    if (!(caught instanceof Refused) && !(caught instanceof Failed)) throw caught;
-    error = `updater: ${caught instanceof Refused ? 'refused' : 'failed'}: ${caught.message}\n`;
+    // A file that cannot be read or written is a failure of the run, said in a line, and not a stack.
+    const failure = caught?.code !== undefined && /^E[A-Z0-9]+$/.test(caught.code) && !(caught instanceof Refused) ? new Failed(`${caught.syscall ?? 'a file operation'}${caught.path === undefined ? '' : ` ${printable(caught.path)}`} failed: ${caught.code}`) : caught;
+    if (!(failure instanceof Refused) && !(failure instanceof Failed)) throw caught;
+    error = `updater: ${failure instanceof Refused ? 'refused' : 'failed'}: ${failure.message}\n`;
     code = 1;
   }
   const secrets = [env.RECORD_KEEPER_TOKEN];

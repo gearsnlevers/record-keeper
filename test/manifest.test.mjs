@@ -463,6 +463,7 @@ describe('this repository', () => {
     const manifest = build(root);
     assert.equal(manifest.node, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).engines.node);
     assert.deepEqual(verifyManifest(canonical(manifest), root), []);
+    assert.deepEqual(manifest.requires.secrets, ['RECORD_KEEPER_TOKEN'], 'the updater needs a secret of its own');
   });
 
   test('install.json is written in the order of its destinations, so that a change to it reads as a list', () => {

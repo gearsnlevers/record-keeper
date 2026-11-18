@@ -431,7 +431,7 @@ describe('an update in Actions', () => {
     git(work, 'pull', '-q');
     const got = await call(['--target', 'v1.0.0'], state, work);
     assert.equal(got.code, 0, got.stderr);
-    assert.match(got.stdout, /^update v1\.0\.0 to v1\.0\.0 \(stable\)\n  change \.github\/record-keeper\/record-keeper\.mjs\n  local change overwritten \.github\/record-keeper\/record-keeper\.mjs\n1 file to add|^update v1\.0\.0 to v1\.0\.0 \(stable\)\n  change \.github\/record-keeper\/record-keeper\.mjs\n  local change overwritten/);
+    assert.match(got.stdout, /^update v1\.0\.0 to v1\.0\.0 \(stable\)\n  change \.github\/record-keeper\/record-keeper\.mjs\n  local change overwritten \.github\/record-keeper\/record-keeper\.mjs\n0 files to add, 1 to change, 0 to remove, 0 templates to install, 1 local change overwritten\npushed record-keeper\/update \([0-9a-f]{7}\)\nopened pull request #1\n$/);
     assert.equal(state.pulls[0].title, 'chore: repair Record Keeper v1.0.0');
     assert.equal(show(bare, `refs/heads/${BRANCH}`, '.github/record-keeper/record-keeper.mjs'), '// rules 1');
     assert.equal(git(bare, 'diff', '--name-only', 'main', BRANCH), '.github/record-keeper/record-keeper.mjs', 'the pin is the same and is not in the change');
@@ -460,10 +460,11 @@ describe('a dry run', () => {
 
   test('with the token it still only reads, and sends it only to the API', async () => {
     const { state, bare, work } = await world({ redirect: true });
+    const refs = refsOf(bare);
     const got = await call(['--dry-run'], state, work);
     assert.equal(got.code, 0, got.stderr);
     assert.equal(writes(state).length, 0);
-    assert.equal(refsOf(bare), refsOf(bare));
+    assert.equal(refsOf(bare), refs);
     assert.ok(state.requests.filter((r) => r.path !== '/blob/101' && r.path !== '/blob/102').every((r) => r.authorization === `Bearer ${TOKEN}`));
     const blobs = state.requests.filter((r) => r.path.startsWith('/blob/'));
     assert.ok(blobs.length >= 2, 'the manifests were fetched through the redirect');
@@ -574,6 +575,7 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
 
     test('a list that names entries that are not releases, tags that are no tags of the kit, and drafts: they are left out, and nothing is run or fetched for them', async () => {
       const { state, bare, work } = await world();
+      const refs = refsOf(bare);
       state.listBody = [
         { tag_name: '../../../etc/passwd', draft: false, prerelease: false, body: 'x', assets: [{ id: 1, name: 'release-manifest.json', size: 1 }] },
         { tag_name: 'v9.9.9', draft: true, prerelease: false, body: 'x', assets: [{ id: 1, name: 'release-manifest.json', size: 1 }] },
@@ -587,7 +589,8 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
       assert.equal(got.code, 0, got.stderr);
       assert.match(got.stdout, /^update v1\.0\.0 to v1\.1\.0 \(stable\)/);
       assert.ok(!state.requests.some((r) => /passwd|9\.9\.9|nightly/.test(r.path)));
-      assert.equal(refsOf(bare), refsOf(bare));
+      assert.equal(writes(state).length, 0);
+      assert.equal(refsOf(bare), refs);
     });
 
     test('a list of something else than a list', async () => {
@@ -599,7 +602,8 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
     });
 
     test('a link to the next page that leaves the API, or goes round', async () => {
-      for (const link of ['<https://evil.example/releases?page=2>; rel="next"', '<http://127.0.0.2:1/repos/gearsnlevers/record-keeper/releases?page=2>; rel="next"', '</repos/gearsnlevers/record-keeper/releases?per_page=100&page=1>; rel="next"']) {
+      for (const [link, said] of [['<https://evil.example/releases?page=2>; rel="next"', 'is not the API'], ['<http://127.0.0.2:1/repos/gearsnlevers/record-keeper/releases?page=2>; rel="next"', 'is not the API'],
+      ['</repos/gearsnlevers/record-keeper/releases?per_page=100&page=1>; rel="next"', 'goes back to a page that was read']]) {
         const state = await github({ pageSize: 1 });
         release(state, 'v1.0.0', V1);
         release(state, 'v1.1.0', V2);
@@ -607,7 +611,7 @@ describe('a release that is wrong writes nothing and pushes nothing', () => {
         const { work } = adopted();
         const got = await call(['--dry-run'], state, work);
         assert.equal(got.code, 1, link);
-        assert.equal(got.stderr, 'updater: failed: the link to the next page is not the API\n', link);
+        assert.equal(got.stderr, `updater: failed: the link to the next page ${said}\n`, link);
         assert.ok(asked.every((url) => !url.includes('evil.example')), 'the program did not ask the other place');
       }
     });
@@ -1120,6 +1124,23 @@ describe('the first adoption, with --local', () => {
     assert.equal(git(work, 'status', '--porcelain', '--untracked-files=all').split('\n').length, 6);
     assert.equal(writes(state).length, 0);
     assert.equal(git(work, 'symbolic-ref', '--short', 'HEAD'), 'main');
+  });
+
+  test('a write that fails is a failure of the run in one line, with nothing written before it', { skip: process.getuid?.() === 0 }, async () => {
+    const state = await github();
+    releaseOfTheKit(state, 'v1.0.0');
+    const work = folder('adopt');
+    fs.mkdirSync(path.join(work, '.github/record-keeper'), { recursive: true });
+    fs.chmodSync(path.join(work, '.github/record-keeper'), 0o555);
+    try {
+      const got = await call(['--local', '--source', 'gearsnlevers/record-keeper'], state, work, { token: null });
+      assert.equal(got.code, 1);
+      assert.equal(got.stdout.includes('wrote'), false);
+      assert.match(got.stderr, /^updater: failed: (open|mkdir) [^\n]*\.github\/record-keeper\/[a-z-]+\.mjs\.updating-\d+ failed: EACCES\n$/);
+      assert.ok(!fs.existsSync(path.join(work, PIN_PATH)), 'the pin is written last');
+    } finally {
+      fs.chmodSync(path.join(work, '.github/record-keeper'), 0o755);
+    }
   });
 
   test('a template that is there is kept, in whatever form it is: a file, a folder, a link', async () => {

@@ -53,7 +53,7 @@ function repository() {
   return dir;
 }
 
-/** What the updater of M3b will do on the first adoption, in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
+/** What the updater does on the first adoption (docs/updater.md), in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
 function installKit(dir, kinds = ['managed', 'template']) {
   for (const entry of install.files.filter(({ kind }) => kinds.includes(kind))) write(dir, entry.path, fs.readFileSync(path.join(root, entry.source)));
 }

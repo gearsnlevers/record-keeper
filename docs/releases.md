@@ -1,8 +1,8 @@
 # Releases
 
-Status: draft for review (M3a). This page says how the kit is versioned, what a release holds, what the release manifest says and how it is built and verified, how the `Release` workflow cuts a release, why immutable releases are switched on only after the first real release, and what a repository that installs the kit can check for itself. It is not part of the protocol. The release workflow is run for real for the first time in M3e; until then it has only been tested as a file ([test/release-workflow.test.mjs](../test/release-workflow.test.mjs)) and its two programs have been run against folders of their own. The files that a release installs are on [the page of the install set](install.md).
+Status: draft for review (M3a, with what the updater of M3b checks). This page says how the kit is versioned, what a release holds, what the release manifest says and how it is built and verified, how the `Release` workflow cuts a release, why immutable releases are switched on only after the first real release, and what a repository that installs the kit can check for itself. It is not part of the protocol. The release workflow is run for real for the first time in M3e; until then it has only been tested as a file ([test/release-workflow.test.mjs](../test/release-workflow.test.mjs)) and its two programs have been run against folders of their own. The files that a release installs are on [the page of the install set](install.md).
 
-A repository pins a released version and never a branch. `main` is work in progress; a release is the point where the maintainers say that it is safe to take. The repository takes a release through a pull request that the updater (M3b) opens and a maintainer merges.
+A repository pins a released version and never a branch. `main` is work in progress; a release is the point where the maintainers say that it is safe to take. The repository takes a release through a pull request that [the updater](updater.md) opens and a maintainer merges.
 
 ## Versioning
 
@@ -32,7 +32,7 @@ An example (the digests and sizes are those of the files of the release that it 
   ],
   "generations": ["g1"],
   "node": ">=22",
-  "requires": { "rulesets": [{ "branch": "default", "checks": ["Records integrity"], "up-to-date": true }], "secrets": [], "settings": ["owners"] },
+  "requires": { "rulesets": [{ "branch": "default", "checks": ["Records integrity"], "up-to-date": true }], "secrets": ["RECORD_KEEPER_TOKEN"], "settings": ["owners"] },
   "schema": 1,
   "tag": "v1.2.3",
   "version": "1.2.3"
@@ -49,7 +49,7 @@ An example (the digests and sizes are those of the files of the release that it 
 | `files` | Every file of the install set, **sorted by destination** (by the bytes of the path): `path` is where it goes in a repository, `source` is where it is in the kit, `kind` is `managed` or `template` ([install](install.md#managed-and-template)), `sha256` is the digest of its bytes and `size` their number. |
 | `requires` | What a repository must provide: `secrets` (names), `settings` (keys of the settings file that must be set) and `rulesets` (what a ruleset on a branch requires). Copied from `install.json`. |
 
-- **`secrets` is `[]` today.** The updater (M3b) will need a secret of its own, `RECORD_KEEPER_TOKEN`, to open pull requests; it is added to the list when the updater is added to the kit, and a new required secret makes a release a major one. The check that a ruleset requires `Records setup check` is added with the setup check (M3c).
+- **`secrets` is `["RECORD_KEEPER_TOKEN"]`.** The updater needs a secret of its own to open pull requests ([the token](updater.md#the-token)); it was added to the list with the updater (M3b), and from the first release a new required secret makes a release a major one. The check that a ruleset requires `Records setup check` is added with the setup check (M3c).
 - **The bytes are fixed:** keys in the order of their bytes at every depth, two spaces of indentation, line feeds, one line feed at the end, no time and no machine name. A manifest that says the right things in another form does not verify.
 - **A file is hashed as it is.** A carriage return, a byte order mark, an empty file and a name with a space are what they are. `.gitattributes` keeps git from changing the line endings of the files of the install set.
 - **Nothing is read that is not in the release.** A source that is missing, a source that is a symbolic link (or has one on its path), a destination twice (also in other capitals), a destination outside `.github/` and `docs/decisions/`, an absolute path or one with `..`, and a `kind` that is not one of the two are refused with a message that names the entry ([install](install.md#installjson)).
@@ -118,8 +118,8 @@ GitHub can make the releases of a repository immutable: "where the assets and as
 
 | Check | How | What it shows | Status |
 | ----- | --- | ------------- | ------ |
-| The files are the release's | `--verify` of the manifest, against the files that were downloaded for the tag | each file is what the release holds, byte for byte | Tried on folders of their own and on this repository. |
-| The release is of that commit | `git rev-parse <tag>^{commit}` equals `commit` of the manifest | the manifest is of the commit that the tag names | Not tried: there is no tag yet. |
+| The files are the release's | `--verify` of the manifest, against the files that were downloaded for the tag; the updater does the same for every file it downloads, at the commit of the tag, by the SHA-256 and the size of the manifest, and writes nothing when one does not match | each file is what the release holds, byte for byte | Tried on folders of their own and on this repository, and by the updater against a local server ([the updater](updater.md#what-is-verified-and-what-is-not)); not against GitHub. |
+| The release is of that commit | `git rev-parse <tag>^{commit}` equals `commit` of the manifest; the updater asks the API for the commit that the tag points at, through an annotated tag, and refuses a manifest that names another | the manifest is of the commit that the tag names | Tried by the updater against a local server; not tried on a real tag, because there is none yet. |
 | The release was not changed after it was published | `gh release verify <tag>` and `gh release verify-asset <tag> release-manifest.json` | the release is immutable, and the manifest is the asset that was published | **Unverified**, see above. |
 | The installed files are the release's | the setup check (M3c) compares the installed managed files with the manifest | a managed file was not edited in the repository | Not built yet. |
 
@@ -128,7 +128,7 @@ What the manifest does not show: that the code is right, or that nobody with the
 ## What this page does not do
 
 - **It does not publish anything.** The first release is M3e, by the maintainer.
-- **It does not say how the updater reads a release.** The updater is M3b; it reads `install.json` and the manifest of the release it installs.
+- **It does not say how the updater reads a release.** [The updater](updater.md) does: it reads the manifest as untrusted data, and a manifest that it does not read is a refusal and not a guess.
 - **It does not publish the kit to npm.** The package is private.
 
 ## Choices in this draft for you to decide

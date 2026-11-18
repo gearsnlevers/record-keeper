@@ -1,6 +1,6 @@
 # The install set and the layout of a repository
 
-Status: draft for review (M3a). This page says what a repository gets when it installs the kit, where each file stands, which files are replaced by every update and which are copied once, what the check guards, and how `install.json` lists all of it. It is not part of the protocol. It is read with [the files of the check](protected-files.md), which says which of these files are acts, and with [releases](releases.md), which says how the list becomes a release. The updater that does the installing is M3b; this page says what it will have to put where.
+Status: draft for review (M3a, with the updater of M3b added). This page says what a repository gets when it installs the kit, where each file stands, which files are replaced by every update and which are copied once, what the check guards, and how `install.json` lists all of it. It is not part of the protocol. It is read with [the files of the check](protected-files.md), which says which of these files are acts, and with [releases](releases.md), which says how the list becomes a release. The updater that does the installing is [the updater](updater.md) (M3b); this page says what it puts where.
 
 ## The layout
 
@@ -8,19 +8,19 @@ A repository that installs the kit has these files, and no other file of the kit
 
 ```
 .github/
-  record-keeper.yml                        the pin: which release the repository wants (written by the updater, M3b)
+  record-keeper.yml                        the pin: which release the repository wants (written by the updater)
   record-keeper/
     settings.yml                           the settings: the folder, the owners and the rest ([settings](settings.md))
     record-keeper.mjs                      the rules: validate, seal, check-pr, audit
     check-pull-request.mjs                 what the pull request workflow runs
     run-audit.mjs                          what the audit workflow runs
     setup-check.mjs                        later (M3c)
-    updater.mjs                            later (M3b)
+    updater.mjs                            what the updater workflow runs: the update, and the first adoption by hand
   workflows/
     records-integrity.yml                  the workflow that judges a pull request: the check `Records integrity`
     records-audit.yml                      the nightly audit
     records-setup-check.yml                later (M3c)
-    records-updater.yml                    later (M3b)
+    records-updater.yml                    the daily update: one branch and one pull request
 docs/decisions/
   README.md                                the rules of the folder, and the index
   template.md                              the template of a record
@@ -76,7 +76,7 @@ The install set is one file at the root of the kit, `install.json`. The release 
     { "source": "record-keeper.mjs", "path": ".github/record-keeper/record-keeper.mjs", "kind": "managed" },
     { "source": "templates/settings.yml", "path": ".github/record-keeper/settings.yml", "kind": "template" }
   ],
-  "requires": { "secrets": [], "settings": ["owners"], "rulesets": [{ "branch": "default", "checks": ["Records integrity"], "up-to-date": true }] }
+  "requires": { "secrets": ["RECORD_KEEPER_TOKEN"], "settings": ["owners"], "rulesets": [{ "branch": "default", "checks": ["Records integrity"], "up-to-date": true }] }
 }
 ```
 
@@ -89,7 +89,7 @@ The install set is one file at the root of the kit, `install.json`. The release 
 
 **What a path may be.** `source` and `path` are relative paths written with `/`, made of printable ASCII (a space is allowed inside a name). A path has no empty part, no `.` or `..`, no part that starts or ends with a space or ends with a dot, no `.git`, no backslash and no colon, and does not start with `/`. A `source` is a regular file of the kit: a symbolic link, on the way or at the end, is refused, because the release must hold what the manifest says it holds. A `path` is below `.github/` or `docs/decisions/`; the kit does not write anywhere else. Two paths that are the same but for capitals are one path, and a path that is a file may not have another path below it.
 
-**What `requires` says today.** The workflows need nothing but the token that GitHub gives each run, so `secrets` is `[]`. The updater (M3b) opens pull requests, which the workflow token may not do under the policy planned for the organisation ([the design](design.md#delivery-and-versions)), so it will need a secret of its own, `RECORD_KEEPER_TOKEN`; it is not listed now because nothing in this release uses it. M3b adds it to this list, and after the first release a new required secret makes a release a major one ([releases](releases.md#versioning)). `settings` is `["owners"]`: without owners no act can be approved. `rulesets` is one entry: a ruleset on the default branch that requires the check `Records integrity` and requires branches to be up to date ([the workflow](workflow.md#what-a-repository-must-set)); M3c adds the check `Records setup check`.
+**What `requires` says today.** The workflows of the check and of the audit need nothing but the token that GitHub gives each run. The updater opens pull requests, which the workflow token may not do under the policy planned for the organisation ([the design](design.md#delivery-and-versions)), so it needs a secret of its own, `RECORD_KEEPER_TOKEN` ([the token](updater.md#the-token)), and `secrets` lists it. After the first release a new required secret makes a release a major one ([releases](releases.md#versioning)). A test keeps the list equal to the secrets that the installed workflows use. `settings` is `["owners"]`: without owners no act can be approved. `rulesets` is one entry: a ruleset on the default branch that requires the check `Records integrity` and requires branches to be up to date ([the workflow](workflow.md#what-a-repository-must-set)); M3c adds the check `Records setup check`.
 
 **A change to this file is read by a person.** It is the list of what a release writes into other people's repositories, so the order of `files` is the order in which a person reads it: the managed files first, then the templates. A test keeps it so.
 
@@ -99,12 +99,23 @@ The workflows that a repository installs are the kit's own with one change: the 
 
 The tests of [the workflow](workflow.md#the-tests) and of [the audit run](audit-run.md) are run on both files, so a rule of the page holds for the version that a repository gets. The programs run from the folder with the repository as the working directory: they import `./record-keeper.mjs` and need nothing else of the kit. Another test builds a repository with this layout, and runs `validate`, `config`, `seal`, the pull request check and the audit from `.github/record-keeper/` against a local server that plays GitHub.
 
+## First adoption
+
+A repository gets the kit **once, by hand,** with `updater.mjs --local`; every later update is a pull request that the updater opens ([the updater](updater.md)). In order:
+
+1. **The owners first.** Write `.github/record-keeper/settings.yml` with `owners` (and `approvals`) and commit it, as an administrator. Without owners no act can be approved, and a template is copied only where nothing is, so the updater keeps that file.
+2. **Fetch the updater of the release** you adopt and run it with `--local --source gearsnlevers/record-keeper --target <tag>` from the root of the repository. It downloads every file at the commit of the tag, verifies it against the manifest, writes the managed files, installs the templates that are missing and writes the pin. It touches no branch and makes no pull request.
+3. **Read the diff** (the first adoption is the one change that nothing checks, because the check is part of what it installs), open the pull request by hand, and have the owners approve and merge it.
+4. **Create the secret `RECORD_KEEPER_TOKEN`** and set the ruleset in `requires`. Updates arrive from then on.
+
+The commands and what each can go wrong with are on [the page of the updater](updater.md#first-adoption-by-hand). It cannot be tried before the first release exists (M3e).
+
 ## What this page does not do
 
-- **It does not install anything.** The first adoption, and the update that follows it, are the updater (M3b). It reads `install.json` of the release it installs, and the manifest ([releases](releases.md)) to verify what it downloaded.
-- **It does not say what happens to a file that the repository changed.** A managed file that a person edited is replaced by the next update; whether the update pull request lists it is for the updater to decide.
-- **It does not move the records folder.** The templates are installed where the default setting says. A repository that keeps its records elsewhere (`folder:` in the settings) tells the updater at its first adoption; how is for M3b.
-- **It does not install the setup check or the updater.** Their files are guarded already; their entries are added to `install.json` by M3c and M3b.
+- **It does not install anything.** The first adoption, and the update that follows it, are [the updater](updater.md). It reads the manifest of the release it installs ([releases](releases.md)), which is made from `install.json`, and verifies every file it downloads against it.
+- **It does not say what happens to a file that the repository changed,** but the updater does: a managed file that a person edited is replaced by the next update, and the update pull request lists it under "Local changes this update overwrites" ([the updater](updater.md#the-plan)).
+- **It does not move the records folder.** The templates are installed where the default setting says, and the updater does not read the settings. A repository that keeps its records elsewhere (`folder:` in the settings) removes the two files of `docs/decisions/` from its first adoption pull request, and the updater does not bring them back ([the updater](updater.md#what-is-managed-and-what-is-a-template)).
+- **It does not install the setup check.** Its files are guarded already; its entries are added to `install.json` by M3c. The updater's two entries were added by M3b, with no change to the guard.
 
 ## Choices in this draft for you to decide
 
@@ -113,7 +124,7 @@ The tests of [the workflow](workflow.md#the-tests) and of [the audit run](audit-
 3. **`install.json` is an object, not a bare list,** with `schema`, `generations`, `files` and `requires`. The manifest is made from it alone, so there is one file to read for what a release says, and a later field has a place. A bare list would be shorter and would need a second file for `requires`.
 4. **`generations` and `requires` are in `install.json`,** not in the code of the manifest builder, so that a person changes them in the file that is reviewed as the list of what a release writes. A test compares `generations` with the generation that the code knows.
 5. **A path is printable ASCII.** The kit's own paths are, and a rule that needed a table of Unicode would be read differently by the two implementations of the manifest. A name with a space is allowed, because a repository may have one.
-6. **A destination is below `.github/` or `docs/decisions/` only.** The kit writes nowhere else. The records folder is only the default one; a repository with another folder is a question for M3b.
+6. **A destination is below `.github/` or `docs/decisions/` only.** The kit writes nowhere else. The records folder is only the default one; the updater does not read the settings, and a repository with another folder removes the templates of `docs/decisions/` by hand once ([the updater](updater.md#choices-in-this-draft-for-you-to-decide), choice 15).
 7. **The settings are a template, not a managed file,** although the kit defines every key in it. They are the repository's: an update that replaced them would drop the owners.
 8. **`requires.rulesets` includes "up to date".** The page of the workflow says a repository must set it, although the check does not depend on it (a stale head fails with P-09). Say so here too, or leave it out when you decide that it is only advice.
 9. **The consumer workflows are made by a test, not by a script.** The test makes each from the kit's file and compares; the committed copy is the file that is installed. A script that rewrote the copy would be one more program to trust; the cost is that a change to a kit workflow is made twice, and the test says which line differs.
