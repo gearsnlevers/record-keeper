@@ -276,8 +276,10 @@ def decide(input):
         branch = github['repo']['branch']
         requiring = [rule for rule in github['rules']['rules'] if CHECK in rule['checks']]
         classic = github['classic']['ok'] and github['classic']['requires']
-        if len(requiring) == 0 and not classic:
-            add('check-not-required', branch + ('' if github['classic']['ok'] else '; branch protection could not be read'))
+        if len(requiring) == 0 and not github['classic']['ok']:
+            unchecked('branch protection', github['classic']['why'])
+        elif len(requiring) == 0 and not classic:
+            add('check-not-required', branch)
         else:
             passed.append('check-required')
             strict = release['upToDate'] if release['state'] == 'read' and release['upToDate'] is not None else True

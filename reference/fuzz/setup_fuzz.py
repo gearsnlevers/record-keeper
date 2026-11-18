@@ -454,6 +454,10 @@ def classify(item, expect):
                 hits.add('rules requiring %s' % (len(req) if len(req) < 2 else '2 or more'))
                 hits.add('rules entries %s' % ('0' if not g['rules']['rules'] else 'some'))
                 hits.add('classic ' + ('not ok' if not g['classic']['ok'] else 'requires' if g['classic']['requires'] else 'does not require'))
+                if not req:
+                    hits.add('no ruleset requires, branch protection ' + ('not read' if not g['classic']['ok'] else 'requires' if g['classic']['requires'] else 'read and does not'))
+                elif not g['classic']['ok']:
+                    hits.add('a ruleset requires, branch protection not read')
                 if req:
                     hits.add('requiring %s' % ('strict' if any(x['strict'] for x in req) else 'not strict'))
                     if len({x['id'] for x in req}) > 1:

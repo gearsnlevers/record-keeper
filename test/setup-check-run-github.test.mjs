@@ -357,16 +357,35 @@ describe('branch protection, the older way to require a check', () => {
     }
   });
 
-  test('it cannot be read, or is not what the check needs: no ruleset requires the check and that is said', async () => {
+  test('it cannot be read, or is not what the check needs, and no ruleset requires the check: a notice, and the run stays green', async () => {
     const unread = await world(noRuleset({}));
     unread.state.fault = (entry) => (entry.path === '/repos/example/repo/branches/main' ? { status: 403 } : undefined);
-    assert.deepEqual((await check(unread.state, unread.dir)).found, ['check-not-required main; branch protection could not be read']);
+    const refused = await check(unread.state, unread.dir);
+    assert.equal(refused.code, 0, refused.stderr);
+    assert.match(refused.found.join('|'), /^not-checked branch protection: GET \/repos\/example\/repo\/branches\/main answered 403: /);
+    assert.equal(refused.found.length, 1);
+    assert.deepEqual(refused.report.passed, without('check-required', 'check-strict', 'bypass'));
+    assert.deepEqual(refused.report.findings.filter((finding) => finding.severity === 'error'), []);
     for (const branchBody of [{ name: 'main' }, { protection: 'x' }, { protection: { enabled: 'yes' } }, { protection: { enabled: true } }, { protection: { enabled: true, required_status_checks: { enforcement_level: 'off', contexts: 'x', checks: [] } } }]) {
       const { state, dir } = await world(noRuleset({ branchBody }));
       const got = await check(state, dir);
-      assert.equal(got.code, 1, JSON.stringify(branchBody));
-      assert.deepEqual(got.found, ['check-not-required main; branch protection could not be read']);
+      assert.equal(got.code, 0, JSON.stringify(branchBody));
+      assert.deepEqual(got.found, ['not-checked branch protection: the answer about branch protection is not what the check needs']);
     }
+    for (const status of [401, 404, 500]) {
+      const { state, dir } = await world(noRuleset({}));
+      state.fault = (entry) => (entry.path === '/repos/example/repo/branches/main' ? { status } : undefined);
+      const got = await check(state, dir);
+      assert.equal(got.code, 0, String(status));
+      assert.match(got.found[0], new RegExp(`^not-checked branch protection: GET /repos/example/repo/branches/main answered ${status}`));
+    }
+  });
+
+  test('it is read and requires nothing, and no ruleset requires the check: the error, and the run fails', async () => {
+    const { state, dir } = await world(noRuleset({}));
+    const got = await check(state, dir);
+    assert.equal(got.code, 1);
+    assert.deepEqual(got.found, ['check-not-required main']);
   });
 
   test('a ruleset that requires the check is enough, whatever the answer about branch protection is', async () => {

@@ -74,6 +74,7 @@ export const TOPICS = {
   github: { what: `what GitHub holds: the rules of the default branch, the accounts of the owners, the pinned release and the last run of the audit`, fix: `Run it without --local, in the workflow or with a token that can read the repository.` },
   repository: { what: `the default branch, its rules and the last run of the audit`, fix: `Check that the token of the workflow can read the repository (the workflow asks for contents: read), and run it again.` },
   rules: { what: `the rules that apply to the default branch`, fix: `Read them under Settings, Rules, Rulesets: a ruleset on the default branch must require the check "${CHECK}". Run the check again later if GitHub was busy.` },
+  'branch protection': { what: `whether branch protection requires the check, which no ruleset does`, fix: `Read it under Settings, Branches, or put the rule into a ruleset (Settings, Rules, Rulesets), which the check reads. Run the check again later if GitHub was busy.` },
   strict: { what: `whether the check must be up to date`, fix: `Branch protection does not tell the token of the workflow. Move the rule into a ruleset, which the check reads, or read the setting under Settings, Branches.` },
   bypass: { what: `who may bypass the ruleset`, fix: `The token of a workflow may not see the bypass list of a ruleset. Read it under Settings, Rules, Rulesets: no actor may bypass except for pull requests.` },
   accounts: { what: `the accounts of the owners`, fix: `Read https://api.github.com/user/<id> for each owner and compare the login, or run the check again later.` },
@@ -289,7 +290,10 @@ export function decide(input) {
     const { branch } = github.repo;
     const requiring = github.rules.rules.filter((rule) => rule.checks.includes(CHECK));
     const classic = github.classic.ok && github.classic.requires;
-    if (requiring.length === 0 && !classic) add('check-not-required', `${branch}${github.classic.ok ? '' : '; branch protection could not be read'}`);
+    // No ruleset requires the check. That is an error only when branch protection, the other way to require it, could be read and does not either: a read that failed is
+    // a notice, never an error.
+    if (requiring.length === 0 && !github.classic.ok) unchecked('branch protection', github.classic.why);
+    else if (requiring.length === 0 && !classic) add('check-not-required', branch);
     else {
       passed.push('check-required');
       const strict = release.state === 'read' && release.upToDate !== null ? release.upToDate : true;

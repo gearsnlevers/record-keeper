@@ -210,8 +210,8 @@ case('c-11', 'the first unreadable line is the one that is said', lambda s: s['c
 case('r-0', 'no rule requires the check', set_rules(), [('check-not-required', 'main')], without('check-required', 'check-strict', 'bypass'))
 case('r-1', 'rules that require other checks', set_rules((11, ['Test gate'], True)), [('check-not-required', 'main')], without('check-required', 'check-strict', 'bypass'))
 case('r-2', 'the name of the check is compared as it is', set_rules((11, ['records integrity', 'Records integrity '], True)), [('check-not-required', 'main')], without('check-required', 'check-strict', 'bypass'))
-case('r-3', 'branch protection could not be read, and no ruleset requires the check', lambda s: (set_rules()(s), g(s).update({'classic': {'ok': False, 'why': 'GET answered 403'}})),
-     [('check-not-required', 'main; branch protection could not be read')], without('check-required', 'check-strict', 'bypass'))
+case('r-3', 'branch protection could not be read, and no ruleset requires the check: a notice, and no error', lambda s: (set_rules()(s), g(s).update({'classic': {'ok': False, 'why': 'GET answered 403'}})),
+     [('not-checked', 'branch protection: GET answered 403')], without('check-required', 'check-strict', 'bypass'))
 case('r-4', 'branch protection requires the check and no ruleset does: required, but whether it is up to date is not said', lambda s: (set_rules()(s), g(s).update({'classic': {'ok': True, 'requires': True}})),
      [('not-checked', 'strict: the check is required by branch protection, and not by a ruleset')], without('check-strict', 'bypass'))
 case('r-5', 'the rule requires the check but does not require branches to be up to date', set_rules((11, [CHECK], False)), [('check-not-strict', 'main')], without('check-strict'))
@@ -248,6 +248,13 @@ case('r-22', 'a rule not strict but required: the manifest asks for up to date',
 case('r-24', 'two rulesets that carry the rule and cannot be seen: one notice that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].update({
     '11': {'ok': False, 'why': 'x'}, '12': {'ok': True, 'name': 'twelve', 'actors': None}})),
      [('not-checked', 'bypass: ruleset 11: x; ruleset 12: the token cannot see the bypass list')], without('bypass'))
+case('r-25', 'branch protection could not be read, but a ruleset requires the check: nothing is said of it', lambda s: g(s).update({'classic': {'ok': False, 'why': 'GET answered 403'}}))
+case('r-26', 'branch protection could not be read, and the rules require other checks only: a notice, and no error', lambda s: (set_rules((11, ['Test gate'], True))(s), g(s).update({'classic': {'ok': False, 'why': 'timeout'}})),
+     [('not-checked', 'branch protection: timeout')], without('check-required', 'check-strict', 'bypass'))
+case('r-27', 'branch protection could be read and does not require the check, and no ruleset does: the error', lambda s: (set_rules()(s), g(s).update({'classic': {'ok': True, 'requires': False}})),
+     [('check-not-required', 'main')], without('check-required', 'check-strict', 'bypass'))
+case('r-28', 'branch protection could be read and requires the check, and the rules require other checks only: required, and not known whether up to date', lambda s: (set_rules((11, ['Test gate'], True))(s), g(s).update({'classic': {'ok': True, 'requires': True}})),
+     [('not-checked', 'strict: the check is required by branch protection, and not by a ruleset')], without('check-strict', 'bypass'))
 case('r-23', 'a default branch with a slash in its name', lambda s: (g(s).update({'repo': {'ok': True, 'branch': 'release/next'}}), set_rules()(s)),
      [('check-not-required', 'release/next')], without('check-required', 'check-strict', 'bypass'))
 

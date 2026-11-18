@@ -7301,7 +7301,7 @@
   },
   {
    "id": "r-3",
-   "note": "branch protection could not be read, and no ruleset requires the check",
+   "note": "branch protection could not be read, and no ruleset requires the check: a notice, and no error",
    "input": {
     "now": 1795003200000,
     "local": false,
@@ -7423,9 +7423,9 @@
    "expect": {
     "findings": [
      {
-      "code": "check-not-required",
-      "severity": "error",
-      "detail": "main; branch protection could not be read"
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "branch protection: GET answered 403"
      }
     ],
     "passed": [
@@ -10499,6 +10499,600 @@
      "codeowners",
      "check-required",
      "check-strict",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
+   "id": "r-25",
+   "note": "branch protection could not be read, but a ruleset requires the check: nothing is said of it",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": false,
+      "why": "GET answered 403"
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
+   "id": "r-26",
+   "note": "branch protection could not be read, and the rules require other checks only: a notice, and no error",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Test gate"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": false,
+      "why": "timeout"
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "branch protection: timeout"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
+   "id": "r-27",
+   "note": "branch protection could be read and does not require the check, and no ruleset does: the error",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": []
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "check-not-required",
+      "severity": "error",
+      "detail": "main"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
+   "id": "r-28",
+   "note": "branch protection could be read and requires the check, and the rules require other checks only: required, and not known whether up to date",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Test gate"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": true
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "strict: the check is required by branch protection, and not by a ruleset"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
      "pin",
      "manifest",
      "managed-files",
