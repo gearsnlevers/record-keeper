@@ -18401,6 +18401,34 @@
    "owners": {}
   },
   {
+   "id": "xo-14",
+   "note": "a pattern with the owner \"@aB1\", which is read",
+   "text": "/a @aB1\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-15",
+   "note": "a pattern with the owner \"@a1-B2\", which is read",
+   "text": "/a @a1-B2\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-16",
+   "note": "a pattern with the owner \"A1@B2.C3\", which is read",
+   "text": "/a A1@B2.C3\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-17",
+   "note": "a pattern with the owner \"z9@y8.x7\", which is read",
+   "text": "/a z9@y8.x7\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
    "id": "xi-0",
    "note": "a pattern with the owner \"a\", which is not read",
    "text": "/a a\n",

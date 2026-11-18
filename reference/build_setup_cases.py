@@ -401,7 +401,7 @@ unreadable('x-14', 'a name of an owner of 40 characters is too long', '/a @' + '
 unreadable('x-15', 'a name of an owner of 39 characters', '/a @' + 'a' * 39 + '\n', [])
 unreadable('x-16', 'a team with a dot, an underscore and a hyphen', '/a @o/t.e_a-m\n', [])
 unreadable('x-18', 'a bracket that is closed and not opened', '/a] @a\n', [{'line': 1, 'reason': 'a pattern with \\, [, ] or ?'}])
-VALID_OWNERS = ['@a', '@A', '@0', '@a-b', '@a-', '@' + 'a' * 39, '@org/team', '@org/Te_am.x-1', '@org/' + 't' * 100, 'a@b.co', 'A.b_c%d+e-f@x-y.example.com', 'x@a-b.c-d.e', 'a@B.C-d.Ex', '@0/1']
+VALID_OWNERS = ['@a', '@A', '@0', '@a-b', '@a-', '@' + 'a' * 39, '@org/team', '@org/Te_am.x-1', '@org/' + 't' * 100, 'a@b.co', 'A.b_c%d+e-f@x-y.example.com', 'x@a-b.c-d.e', 'a@B.C-d.Ex', '@0/1', '@aB1', '@a1-B2', 'A1@B2.C3', 'z9@y8.x7']
 INVALID_OWNERS = ['a', '@', '@-a', '@' + 'a' * 40, '@org/', '@org/' + 't' * 101, '@org/te!am', 'a@b', 'a@.b', 'a@b.', 'a@b..c', '@a/b/c', 'x@@y.z', 'a@b_c.d', '@x.y', 'x!@a', '!@a', '@a.b', '@a_b', '\u00e9@x.y', '@a/b+c']
 for n, owner in enumerate(VALID_OWNERS):
     unreadable('xo-%d' % n, 'a pattern with the owner %s, which is read' % json.dumps(owner), '/a %s\n' % owner, [])
