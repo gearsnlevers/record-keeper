@@ -1,0 +1,246 @@
+name: Release
+
+# Cuts a Record Keeper release: the tests, the next version, a preflight, the changelog, the release manifest, the tag and the GitHub release (docs/releases.md).
+# It is modelled on the release workflows of the action repositories of this organisation and uses the same actions.
+#
+# It runs by hand only. A real release runs from the default branch; a dry run runs from any branch, writes nothing to the repository and publishes
+# nothing, and uploads the manifest and the notes as an artifact. The first time, choose `major` with the dry run switched on, read the summary, and then
+# run it again with the dry run switched off.
+#
+# The release is first a draft, then the manifest is uploaded to it, and only then is it published: an immutable release takes no assets after it is
+# published, and the maintainer switches immutable releases on after the first real release (docs/releases.md).
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release kind: prerelease | premajor | patch | minor | major'
+        type: choice
+        options:
+          - prerelease
+          - premajor
+          - patch
+          - minor
+          - major
+        default: 'prerelease'
+        required: true
+      dry-run:
+        description: 'Compute everything and upload the manifest and the notes as an artifact, but do not commit, tag or publish'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# One release at a time, and a release that has started is never cancelled: it may be half way through its writes.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # The AI changelog needs a key for a language model; without one the notes are the ones that GitHub generates.
+      HAS_LLM_KEY: ${{ secrets.LLM_API_KEY != '' }}
+      DRY_RUN: ${{ inputs.dry-run }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Require the default branch for a real release
+        if: env.DRY_RUN != 'true' && github.ref_name != github.event.repository.default_branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          echo "::error::A real release must run from ${DEFAULT_BRANCH}. Switch the dry run on to try another branch."
+          exit 1
+
+      - name: Tests
+        run: npm test
+
+      - name: The records of the kit
+        run: node record-keeper.mjs validate docs/decisions
+
+      - name: Compute the next version
+        id: version
+        uses: gearsnlevers/version-bump-action@0ee6d19f6b0da78996bf17da9a3fc9cfd6078d09 # v1.1.0
+        with:
+          release-type: ${{ inputs.release-type }}
+
+      - name: Release preflight checks
+        uses: gearsnlevers/release-preflight-action@c5b6bf27adcd3b0da9088841b22aecba47a3fa17 # v1.0.4
+        with:
+          candidate-version: ${{ steps.version.outputs.newVersion }}
+          candidate-tag: ${{ steps.version.outputs.newTag }}
+          package-name: 'record-keeper'
+          current-version: ${{ steps.version.outputs.base }}
+          check-remote-tag: true
+          check-npm-version: false
+          check-version-drift: true
+
+      - name: Update package.json
+        uses: gearsnlevers/manifest-version-update-action@b12e72175cf5af138e466c11fe5148277c137cec # v1.0.5
+        with:
+          version: ${{ steps.version.outputs.newVersion }}
+          update-package-lock: false
+
+      - name: Release notes and changelog (AI)
+        if: env.HAS_LLM_KEY == 'true'
+        uses: gearsnlevers/ai-changelog-action@088269a817c890a026e6fdf4826e24130607a59e # v1.1.13
+        with:
+          github-token: ${{ github.token }}
+          llm-api-key: ${{ secrets.LLM_API_KEY }}
+          target-user-type: developer
+          release-type: ${{ steps.version.outputs.action_release_type }}
+          version: ${{ steps.version.outputs.newVersion }}
+          promote-release: true
+          release-tag: ${{ steps.version.outputs.newTag }}
+          release-notes-path: RELEASE_NOTES.md
+          commit: false
+
+      - name: Release notes and changelog (GitHub generated)
+        if: env.HAS_LLM_KEY != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+          PREVIOUS: ${{ steps.version.outputs.base_ref }}
+        run: |
+          set -euo pipefail
+          args=(-f "tag_name=${TAG}" -f "target_commitish=${GITHUB_SHA}")
+          if [ -n "${PREVIOUS}" ]; then args+=(-f "previous_tag_name=${PREVIOUS}"); fi
+          gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" "${args[@]}" --jq .body > RELEASE_NOTES.md
+          if ! grep -q '[^[:space:]]' RELEASE_NOTES.md; then printf 'Release %s.\n' "${TAG}" > RELEASE_NOTES.md; fi
+          node tools/update-changelog.mjs --tag "${TAG}" --notes RELEASE_NOTES.md
+
+      # What the install set refuses (a source that is gone, a link, a path that is not allowed) stops the run here, before anything is written.
+      - name: Check the install set
+        env:
+          VERSION: ${{ steps.version.outputs.newVersion }}
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: |
+          set -euo pipefail
+          node tools/build-release-manifest.mjs --version "${VERSION}" --tag "${TAG}" --commit "$(git rev-parse HEAD)" --out "${RUNNER_TEMP}/install-set-check.json"
+          node tools/build-release-manifest.mjs --verify "${RUNNER_TEMP}/install-set-check.json"
+
+      - name: Commit the changelog and the version
+        if: env.DRY_RUN != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md package.json
+          if git diff --cached --quiet; then
+            echo "No changelog or version changes to commit"
+          else
+            git commit -m "chore: release ${TAG}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      # The manifest is of the commit that is tagged: after the commit above, so that it names the commit the release is made from.
+      - name: Build and verify the release manifest
+        env:
+          VERSION: ${{ steps.version.outputs.newVersion }}
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: |
+          set -euo pipefail
+          node tools/build-release-manifest.mjs --version "${VERSION}" --tag "${TAG}" --commit "$(git rev-parse HEAD)" --out release-manifest.json
+          node tools/build-release-manifest.mjs --verify release-manifest.json
+          python3 reference/verify_manifest.py --verify release-manifest.json
+
+      - name: Create and push the tag
+        if: env.DRY_RUN != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: |
+          set -euo pipefail
+          git fetch --tags
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            existing="$(git rev-list -n 1 "${TAG}")"
+            current="$(git rev-parse HEAD)"
+            if [ "${existing}" = "${current}" ]; then
+              echo "Tag ${TAG} already exists on the current commit; skipping"
+              exit 0
+            fi
+            echo "::error::Tag ${TAG} already exists on a different commit"
+            exit 1
+          fi
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          git push origin "${TAG}"
+
+      - name: Create the draft release
+        if: env.DRY_RUN != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+          IS_PRERELEASE: ${{ steps.version.outputs.preRelease }}
+        run: |
+          set -euo pipefail
+          # A draft that a failed run left behind is replaced. A published release is never touched: creating it again fails.
+          if gh release list --json tagName,isDraft --jq '.[] | select(.isDraft) | .tagName' | grep -xF "${TAG}" >/dev/null; then
+            gh release delete "${TAG}" --yes
+          fi
+          if [ "${IS_PRERELEASE}" = "true" ]; then
+            gh release create "${TAG}" --draft --verify-tag --prerelease --title "Record Keeper ${TAG}" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "${TAG}" --draft --verify-tag --title "Record Keeper ${TAG}" --notes-file RELEASE_NOTES.md
+          fi
+
+      - name: Upload the manifest to the draft release
+        if: env.DRY_RUN != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: |
+          set -euo pipefail
+          gh release upload "${TAG}" release-manifest.json
+          # The draft must hold the whole manifest before it is published.
+          size="$(wc -c < release-manifest.json | tr -d ' ')"
+          gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate \
+            --jq '.[] | select(.draft and .tag_name == env.TAG) | .assets[] | select(.name == "release-manifest.json") | .size' | grep -xF "${size}"
+
+      - name: Publish the release
+        if: env.DRY_RUN != 'true'
+        env:
+          TAG: ${{ steps.version.outputs.newTag }}
+        run: gh release edit "${TAG}" --draft=false
+
+      - name: Upload the dry run
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-dry-run
+          path: |
+            release-manifest.json
+            RELEASE_NOTES.md
+            CHANGELOG.md
+
+      - name: Summary
+        if: always()
+        env:
+          RELEASE_TYPE: ${{ inputs.release-type }}
+          VERSION: ${{ steps.version.outputs.newVersion }}
+          TAG: ${{ steps.version.outputs.newTag }}
+          PRERELEASE: ${{ steps.version.outputs.preRelease }}
+          BASE: ${{ steps.version.outputs.base }}
+        run: |
+          {
+            echo "## Record Keeper release"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Release type | ${RELEASE_TYPE} |"
+            echo "| Base version | ${BASE:-n/a} |"
+            echo "| New version | ${VERSION:-n/a} |"
+            echo "| Tag | ${TAG:-n/a} |"
+            echo "| Prerelease | ${PRERELEASE:-n/a} |"
+            echo "| Notes | $([ "${HAS_LLM_KEY}" = "true" ] && echo "AI changelog" || echo "GitHub generated") |"
+            echo "| Dry run | ${DRY_RUN} |"
+          } >> "$GITHUB_STEP_SUMMARY"
