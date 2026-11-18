@@ -103,6 +103,13 @@ describe('the settings file', () => {
     }
   });
 
+  test('a file of exactly 64 KiB is read, and one byte more is not', async () => {
+    const head = 'owners: [alice/1001, bob/1002]\n';
+    const fill = (size) => `${head}${'#'.repeat(size - head.length - 1)}\n`;
+    assert.deepEqual(await said(owners(fill(64 * 1024))), []);
+    assert.deepEqual(await said(owners(fill(64 * 1024 + 1))), ['settings-unusable not a regular file of text']);
+  });
+
   test('a problem in a line: the first one is said, and the owners that could be read are judged', async () => {
     assert.deepEqual(await said(owners('owners: [alice/1001, bob/1002]\napprovals: 2\nnonsense: 1\n')), ['settings-unusable S-05 at line 3']);
     assert.deepEqual(await said(owners('owners: [alice/1001, bob/1002]\napprovals: two\nextra-keys\n')), ['settings-unusable S-07 at line 2 and 1 more']);
@@ -199,6 +206,12 @@ describe('CODEOWNERS', () => {
     for (const content of [Buffer.from([0x2f, 0xff, 0x20, 0x40, 0x61]), `${COVERS}\u0000`, `\ufeff${COVERS}`, `${COVERS}# a\u2028b\n`, `${COVERS}\u001b[31m\n`, `${COVERS}\u007f`]) {
       assert.deepEqual(await located({ '.github/CODEOWNERS': content }), ['not-checked codeowners: .github/CODEOWNERS is not a small file of text'], JSON.stringify(String(content).slice(0, 20)));
     }
+  });
+
+  test('a file of exactly 1 MiB is read, and one byte more is not', async () => {
+    const fill = (size) => `${COVERS}${'#'.repeat(size - COVERS.length - 1)}\n`;
+    assert.deepEqual(await located({ '.github/CODEOWNERS': fill(1024 * 1024) }), []);
+    assert.deepEqual(await located({ '.github/CODEOWNERS': fill(1024 * 1024 + 1) }), ['not-checked codeowners: .github/CODEOWNERS is not a small file of text']);
   });
 
   test('tabs, carriage returns, comments and blank lines are what a file has', async () => {

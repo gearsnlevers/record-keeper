@@ -282,6 +282,7 @@ describe('what is written for GitHub', () => {
     const text = markdown('[a](http://x) ![b](y) @mention <b>x</b> | a | `c` *d* _e_ # f\n- g');
     for (const bad of ['[a](', '![', ' @mention', '<b>', ' | ', '`c`']) assert.ok(!text.includes(bad), bad);
     assert.ok(!text.includes('\n'));
+    for (const character of ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '|', '<', '>', '&', '@', '~', ':']) assert.equal(markdown(character), `\\${character}`, character);
     assert.equal(markdown('plain words'), 'plain words');
     assert.equal(markdown('a\\b'), 'a\\\\b');
   });
@@ -289,7 +290,7 @@ describe('what is written for GitHub', () => {
   test('the summary has a row for each finding, and says what was found fine', () => {
     const result = decide(decisions.find((c) => c.id === 'z-0').input);
     const text = summary(result, { repo: 'example/repo', at: '2026-11-18T12:00:00Z' });
-    assert.match(text, /^## Records setup check\n\n`example\/repo` at 2026-11-18T12:00:00Z: \*\*2 errors, 4 warnings, 1 notice\*\*\n\n\| Severity \| Code \| What \|\n/);
+    assert.match(text, /^## Records setup check\n\n`example\/repo` at 2026-11-18T12:00:00Z: \*\*2 errors, 4 warnings, 1 notice\*\*\n\n\| Severity \| Code \| What \|\n\| -------- \| ---- \| ---- \|\n\| error \| `check-not-required` \|/);
     assert.equal(text.split('\n').filter((line) => line.startsWith('| error ') || line.startsWith('| warning ') || line.startsWith('| notice ')).length, 7);
     assert.match(text, /Checked, and fine: `settings`, `owners`\.\n$/);
     assert.match(summary({ findings: [], passed: [] }, { repo: null, at: '2026-11-18T12:00:00Z' }), /^## Records setup check\n\nThe working tree at 2026-11-18T12:00:00Z: \*\*0 errors, 0 warnings, 0 notices\*\*\n\nNo finding\.\n\nChecked, and fine: nothing\.\n$/);

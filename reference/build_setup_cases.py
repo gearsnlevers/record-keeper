@@ -143,6 +143,8 @@ case('s-3', 'several problems: the first, and how many more', lambda s: s['setti
      [('settings-unusable', 'S-03 at line 2 and 2 more')], without('settings'))
 case('s-4', 'a problem that has no line', lambda s: s['settings'].update({'problems': [{'rule': 'S-02', 'line': None}]}),
      [('settings-unusable', 'S-02')], without('settings'))
+case('s-12', 'two problems: the first, and one more', lambda s: s['settings'].update({'problems': [{'rule': 'S-03', 'line': 2}, {'rule': 'S-07', 'line': 5}]}),
+     [('settings-unusable', 'S-03 at line 2 and 1 more')], without('settings'))
 case('s-5', 'one owner where two approvals are needed', chain(owners(('alice', 1001))),
      [('owners-few', '1 listed, 2 needed')], without('owners'))
 case('s-6', 'no owner at all: nothing to ask GitHub about', chain(owners()),
@@ -243,6 +245,9 @@ case('r-21', 'a ruleset that was not read, and a bypass that is always: both are
     '11': {'ok': True, 'name': 'a', 'actors': [{'type': 'Integration', 'id': 3, 'mode': 'always'}]}, '12': {'ok': False, 'why': 'x'}})),
      [('bypass-always', 'a: Integration 3, mode always'), ('not-checked', 'bypass: ruleset 12: x')], without('bypass'))
 case('r-22', 'a rule not strict but required: the manifest asks for up to date', lambda s: (set_rules((11, [CHECK], False))(s), s['release'].update({'upToDate': True})), [('check-not-strict', 'main')], without('check-strict'))
+case('r-24', 'two rulesets that carry the rule and cannot be seen: one notice that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].update({
+    '11': {'ok': False, 'why': 'x'}, '12': {'ok': True, 'name': 'twelve', 'actors': None}})),
+     [('not-checked', 'bypass: ruleset 11: x; ruleset 12: the token cannot see the bypass list')], without('bypass'))
 case('r-23', 'a default branch with a slash in its name', lambda s: (g(s).update({'repo': {'ok': True, 'branch': 'release/next'}}), set_rules()(s)),
      [('check-not-required', 'release/next')], without('check-required', 'check-strict', 'bypass'))
 
@@ -376,6 +381,7 @@ owned('o-22', 'the same name at several depths, and what is below a name that is
 owned('o-23', 'a pattern that is deeper than the path', '/a/b/c/d @a\n', {'a/b/c': [], 'a/b/c/d': ['@a'], 'a/b/c/d/e': ['@a']})
 owned('o-24', 'two stars alone match everything', '** @a\n', {'x': ['@a'], 'a/b': ['@a']})
 owned('o-25', 'a star before two stars', '/a/*/**/z @a\n', {'a/b/z': ['@a'], 'a/b/c/z': ['@a'], 'a/z': []})
+owned('o-27', 'a comment right after the pattern: no owner', '/x/ # nobody\n/y/ #\n', {'x/f': [], 'y/f': []})
 owned('o-26', 'upper and lower case are different', '/Docs/ @a\n', {'docs/x': [], 'Docs/x': ['@a']})
 unreadable('x-0', 'a pattern with a bracket', '/a[b] @a\n', [{'line': 1, 'reason': 'a pattern with \\, [, ] or ?'}])
 unreadable('x-1', 'a pattern with a question mark', '/a? @a\n', [{'line': 1, 'reason': 'a pattern with \\, [, ] or ?'}])
@@ -394,11 +400,19 @@ unreadable('x-13', 'several lines, with the numbers of the lines', '\n/a @a\n# c
 unreadable('x-14', 'a name of an owner of 40 characters is too long', '/a @' + 'a' * 40 + '\n', [{'line': 1, 'reason': 'an owner that is not @name, @org/team or an e-mail address'}])
 unreadable('x-15', 'a name of an owner of 39 characters', '/a @' + 'a' * 39 + '\n', [])
 unreadable('x-16', 'a team with a dot, an underscore and a hyphen', '/a @o/t.e_a-m\n', [])
+unreadable('x-18', 'a bracket that is closed and not opened', '/a] @a\n', [{'line': 1, 'reason': 'a pattern with \\, [, ] or ?'}])
+VALID_OWNERS = ['@a', '@A', '@0', '@a-b', '@a-', '@' + 'a' * 39, '@org/team', '@org/Te_am.x-1', '@org/' + 't' * 100, 'a@b.co', 'A.b_c%d+e-f@x-y.example.com', 'x@a-b.c-d.e', 'a@B.C-d.Ex', '@0/1']
+INVALID_OWNERS = ['a', '@', '@-a', '@' + 'a' * 40, '@org/', '@org/' + 't' * 101, '@org/te!am', 'a@b', 'a@.b', 'a@b.', 'a@b..c', '@a/b/c', 'x@@y.z', 'a@b_c.d', '@x.y', 'x!@a', '!@a', '@a.b', '@a_b', '\u00e9@x.y', '@a/b+c']
+for n, owner in enumerate(VALID_OWNERS):
+    unreadable('xo-%d' % n, 'a pattern with the owner %s, which is read' % json.dumps(owner), '/a %s\n' % owner, [])
+for n, owner in enumerate(INVALID_OWNERS):
+    unreadable('xi-%d' % n, 'a pattern with the owner %s, which is not read' % json.dumps(owner), '/a %s\n' % owner, [{'line': 1, 'reason': 'an owner that is not @name, @org/team or an e-mail address'}])
 unreadable('x-17', 'a pattern that starts with a hash is a comment, with an escape it is not read', '#/a @a\n\\#/b @a\n', [{'line': 2, 'reason': 'a pattern with \\, [, ] or ?'}])
 
 # ---- times ---------------------------------------------------------------------------------------------------------------------------------------------
 for text, note in [
-    ('2026-11-18T12:00:00Z', 'a time'), ('1970-01-01T00:00:00Z', 'the first second'), ('1970-01-01T00:00:01Z', 'the second second'), ('9999-12-31T23:59:59Z', 'the last year'),
+    ('2026-11-18T12:00:00Z', 'a time'), ('2026-11-30T12:00:00Z', 'the 30th'), ('2026-04-30T00:00:00Z', 'the 30th of April'), ('2026-12-31T23:59:59Z', 'the 31st'), ('2026-10-20T20:20:20Z', 'a time with the digit 2 and 0 in every part'),
+    ('2026-09-09T09:09:09Z', 'a time with 9 in every part'), ('1999-01-01T01:01:01Z', 'the year 1999'), ('2100-02-28T05:15:45Z', 'the year 2100'), ('1970-01-01T00:00:00Z', 'the first second'), ('1970-01-01T00:00:01Z', 'the second second'), ('9999-12-31T23:59:59Z', 'the last year'),
     ('2024-02-29T00:00:00Z', 'a leap day'), ('2026-02-29T00:00:00Z', 'a leap day in a year that is not one'), ('2026-04-31T00:00:00Z', 'the 31st of April'),
     ('2026-13-01T00:00:00Z', 'a thirteenth month'), ('2026-00-01T00:00:00Z', 'a month 0'), ('2026-01-00T00:00:00Z', 'a day 0'), ('2026-01-01T24:00:00Z', 'the hour 24'),
     ('2026-01-01T00:60:00Z', 'the minute 60'), ('2026-01-01T00:00:60Z', 'a leap second'), ('1969-12-31T23:59:59Z', 'before 1970'), ('0000-01-01T00:00:00Z', 'the year 0'),

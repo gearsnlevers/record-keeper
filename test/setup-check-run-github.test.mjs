@@ -186,6 +186,16 @@ describe('the failures of a read: every one is a notice that says what was not l
     ].sort((a, b) => got.found.findIndex((line) => line.replace(/\d+/g, 'N') === a) - got.found.findIndex((line) => line.replace(/\d+/g, 'N') === b)));
   });
 
+  test('an answer of exactly 1 MiB is read, and one byte more is a read that failed', async () => {
+    const padded = (size) => Buffer.concat([Buffer.from('[]'), Buffer.alloc(size - 2, 0x20)]);
+    const exact = await world();
+    exact.state.fault = (entry) => (entry.path.includes('/rules/') ? { status: 200, body: padded(1024 * 1024) } : undefined);
+    assert.deepEqual((await check(exact.state, exact.dir)).found.filter((line) => line.startsWith('check-not-required')), ['check-not-required main']);
+    const over = await world();
+    over.state.fault = (entry) => (entry.path.includes('/rules/') ? { status: 200, body: padded(1024 * 1024 + 1) } : undefined);
+    assert.match((await check(over.state, over.dir)).found.find((line) => line.startsWith('not-checked rules')), /is larger than the check takes$/);
+  });
+
   test('an answer that arrives in pieces with no length is read as it is', async () => {
     const { state, dir } = await world((s) => { s.chunked = true; });
     assert.deepEqual((await check(state, dir)).found, []);
@@ -560,6 +570,14 @@ describe('the record of the last run of the audit', () => {
     assert.equal(got.code, 1);
     assert.deepEqual(got.found, ['audit-dead the last run was at 2026-11-16T11:59:59Z, more than two days ago']);
     assert.deepEqual(got.report.passed, without('audit'));
+  });
+
+  test('a record of exactly 64 KiB is read, and one byte more is not', async () => {
+    const padded = (size) => `${lastRunText(hoursAgo(1)).trimEnd()}${' '.repeat(size - lastRunText(hoursAgo(1)).trimEnd().length)}`;
+    const exact = await world(text(padded(64 * 1024)));
+    assert.deepEqual((await check(exact.state, exact.dir)).found, []);
+    const over = await world(text(padded(64 * 1024 + 1)));
+    assert.deepEqual((await check(over.state, over.dir)).found, ['audit-record-unreadable larger than 64 KiB']);
   });
 
   test('what else the record says is not read: more keys, fewer keys, a line that does not end', async () => {

@@ -1358,6 +1358,168 @@
    }
   },
   {
+   "id": "s-12",
+   "note": "two problems: the first, and one more",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [
+      {
+       "rule": "S-03",
+       "line": 2
+      },
+      {
+       "rule": "S-07",
+       "line": 5
+      }
+     ],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "settings-unusable",
+      "severity": "warning",
+      "detail": "S-03 at line 2 and 1 more"
+     }
+    ],
+    "passed": [
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
    "id": "s-5",
    "note": "one owner where two approvals are needed",
    "input": {
@@ -10189,6 +10351,164 @@
    }
   },
   {
+   "id": "r-24",
+   "note": "two rulesets that carry the rule and cannot be seen: one notice that names both, in the order of their numbers",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 12,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       },
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": false,
+       "why": "x"
+      },
+      "12": {
+       "ok": true,
+       "name": "twelve",
+       "actors": null
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "bypass: ruleset 11: x; ruleset 12: the token cannot see the bypass list"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ]
+   }
+  },
+  {
    "id": "r-23",
    "note": "a default branch with a slash in its name",
    "input": {
@@ -17761,6 +18081,16 @@
    }
   },
   {
+   "id": "o-27",
+   "note": "a comment right after the pattern: no owner",
+   "text": "/x/ # nobody\n/y/ #\n",
+   "unreadable": [],
+   "owners": {
+    "x/f": [],
+    "y/f": []
+   }
+  },
+  {
    "id": "o-26",
    "note": "upper and lower case are different",
    "text": "/Docs/ @a\n",
@@ -17961,6 +18291,368 @@
    "owners": {}
   },
   {
+   "id": "x-18",
+   "note": "a bracket that is closed and not opened",
+   "text": "/a] @a\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "a pattern with \\, [, ] or ?"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xo-0",
+   "note": "a pattern with the owner \"@a\", which is read",
+   "text": "/a @a\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-1",
+   "note": "a pattern with the owner \"@A\", which is read",
+   "text": "/a @A\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-2",
+   "note": "a pattern with the owner \"@0\", which is read",
+   "text": "/a @0\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-3",
+   "note": "a pattern with the owner \"@a-b\", which is read",
+   "text": "/a @a-b\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-4",
+   "note": "a pattern with the owner \"@a-\", which is read",
+   "text": "/a @a-\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-5",
+   "note": "a pattern with the owner \"@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", which is read",
+   "text": "/a @aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-6",
+   "note": "a pattern with the owner \"@org/team\", which is read",
+   "text": "/a @org/team\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-7",
+   "note": "a pattern with the owner \"@org/Te_am.x-1\", which is read",
+   "text": "/a @org/Te_am.x-1\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-8",
+   "note": "a pattern with the owner \"@org/tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\", which is read",
+   "text": "/a @org/tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-9",
+   "note": "a pattern with the owner \"a@b.co\", which is read",
+   "text": "/a a@b.co\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-10",
+   "note": "a pattern with the owner \"A.b_c%d+e-f@x-y.example.com\", which is read",
+   "text": "/a A.b_c%d+e-f@x-y.example.com\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-11",
+   "note": "a pattern with the owner \"x@a-b.c-d.e\", which is read",
+   "text": "/a x@a-b.c-d.e\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-12",
+   "note": "a pattern with the owner \"a@B.C-d.Ex\", which is read",
+   "text": "/a a@B.C-d.Ex\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xo-13",
+   "note": "a pattern with the owner \"@0/1\", which is read",
+   "text": "/a @0/1\n",
+   "unreadable": [],
+   "owners": {}
+  },
+  {
+   "id": "xi-0",
+   "note": "a pattern with the owner \"a\", which is not read",
+   "text": "/a a\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-1",
+   "note": "a pattern with the owner \"@\", which is not read",
+   "text": "/a @\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-2",
+   "note": "a pattern with the owner \"@-a\", which is not read",
+   "text": "/a @-a\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-3",
+   "note": "a pattern with the owner \"@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", which is not read",
+   "text": "/a @aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-4",
+   "note": "a pattern with the owner \"@org/\", which is not read",
+   "text": "/a @org/\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-5",
+   "note": "a pattern with the owner \"@org/ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\", which is not read",
+   "text": "/a @org/ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-6",
+   "note": "a pattern with the owner \"@org/te!am\", which is not read",
+   "text": "/a @org/te!am\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-7",
+   "note": "a pattern with the owner \"a@b\", which is not read",
+   "text": "/a a@b\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-8",
+   "note": "a pattern with the owner \"a@.b\", which is not read",
+   "text": "/a a@.b\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-9",
+   "note": "a pattern with the owner \"a@b.\", which is not read",
+   "text": "/a a@b.\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-10",
+   "note": "a pattern with the owner \"a@b..c\", which is not read",
+   "text": "/a a@b..c\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-11",
+   "note": "a pattern with the owner \"@a/b/c\", which is not read",
+   "text": "/a @a/b/c\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-12",
+   "note": "a pattern with the owner \"x@@y.z\", which is not read",
+   "text": "/a x@@y.z\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-13",
+   "note": "a pattern with the owner \"a@b_c.d\", which is not read",
+   "text": "/a a@b_c.d\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-14",
+   "note": "a pattern with the owner \"@x.y\", which is not read",
+   "text": "/a @x.y\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-15",
+   "note": "a pattern with the owner \"x!@a\", which is not read",
+   "text": "/a x!@a\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-16",
+   "note": "a pattern with the owner \"!@a\", which is not read",
+   "text": "/a !@a\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-17",
+   "note": "a pattern with the owner \"@a.b\", which is not read",
+   "text": "/a @a.b\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-18",
+   "note": "a pattern with the owner \"@a_b\", which is not read",
+   "text": "/a @a_b\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-19",
+   "note": "a pattern with the owner \"\\u00e9@x.y\", which is not read",
+   "text": "/a \u00e9@x.y\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
+   "id": "xi-20",
+   "note": "a pattern with the owner \"@a/b+c\", which is not read",
+   "text": "/a @a/b+c\n",
+   "unreadable": [
+    {
+     "line": 1,
+     "reason": "an owner that is not @name, @org/team or an e-mail address"
+    }
+   ],
+   "owners": {}
+  },
+  {
    "id": "x-17",
    "note": "a pattern that starts with a hash is a comment, with an escape it is not read",
    "text": "#/a @a\n\\#/b @a\n",
@@ -17978,6 +18670,41 @@
    "text": "2026-11-18T12:00:00Z",
    "note": "a time",
    "expect": 1795003200000
+  },
+  {
+   "text": "2026-11-30T12:00:00Z",
+   "note": "the 30th",
+   "expect": 1796040000000
+  },
+  {
+   "text": "2026-04-30T00:00:00Z",
+   "note": "the 30th of April",
+   "expect": 1777507200000
+  },
+  {
+   "text": "2026-12-31T23:59:59Z",
+   "note": "the 31st",
+   "expect": 1798761599000
+  },
+  {
+   "text": "2026-10-20T20:20:20Z",
+   "note": "a time with the digit 2 and 0 in every part",
+   "expect": 1792527620000
+  },
+  {
+   "text": "2026-09-09T09:09:09Z",
+   "note": "a time with 9 in every part",
+   "expect": 1788944949000
+  },
+  {
+   "text": "1999-01-01T01:01:01Z",
+   "note": "the year 1999",
+   "expect": 915152461000
+  },
+  {
+   "text": "2100-02-28T05:15:45Z",
+   "note": "the year 2100",
+   "expect": 4107474945000
   },
   {
    "text": "1970-01-01T00:00:00Z",
