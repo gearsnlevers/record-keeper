@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test, { after, describe } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { GENERATION } from '../record-keeper.mjs';
 import { DESTINATIONS, KINDS, ManifestError, SCHEMA, buildManifest, canonical, pathProblem, readInstall, run, verifyManifest } from '../tools/build-release-manifest.mjs';
 
@@ -36,7 +36,8 @@ function folder(files, entries, { install, engines = '>=22' } = {}) {
 }
 const entry = (source, destination, kind = 'managed') => ({ source, path: destination, kind });
 const build = (dir, over = {}) => buildManifest({ root: dir, version: '1.2.3', tag: 'v1.2.3', commit: COMMIT, ...over });
-const refused = (dir, pattern, over) => assert.throws(() => build(dir, over), (error) => error instanceof ManifestError && pattern.test(error.message), String(pattern));
+/** The build is refused with an error of the tool whose message is `expected` (a text, which is the whole message) or matches it (a pattern). */
+const refused = (dir, expected, over) => assert.throws(() => build(dir, over), (error) => error instanceof ManifestError && (typeof expected === 'string' ? error.message === expected : expected.test(error.message)), String(expected));
 
 describe('the manifest of a small folder', () => {
   const files = { 'b.txt': 'B\n', 'a.txt': 'A\n', 'docs/z.md': 'Z\n' };
@@ -127,10 +128,10 @@ describe('what is refused', () => {
   test('a symbolic link as a source, or in front of it', () => {
     const dir = folder({ 'real.txt': 'R\n', 'real/x.txt': 'X\n' }, [entry('link.txt', '.github/link.txt')]);
     fs.symlinkSync('real.txt', path.join(dir, 'link.txt'));
-    refused(dir, /source link\.txt: is a symbolic link/);
+    refused(dir, 'source link.txt: is a symbolic link');
     const other = folder({ 'real/x.txt': 'X\n' }, one('linked/x.txt', '.github/x.txt'));
     fs.symlinkSync('real', path.join(other, 'linked'));
-    refused(other, /source linked\/x\.txt: linked is a symbolic link/);
+    refused(other, 'source linked/x.txt: linked is a symbolic link');
     const dangling = folder(ok, one('dangling.txt', '.github/d.txt'));
     fs.symlinkSync('nowhere', path.join(dangling, 'dangling.txt'));
     refused(dangling, /source dangling\.txt: is a symbolic link/);
@@ -140,11 +141,11 @@ describe('what is refused', () => {
     const dir = folder(ok, one('a.txt', '.github/a.txt'));
     fs.renameSync(path.join(dir, 'install.json'), path.join(dir, 'real-install.json'));
     fs.symlinkSync('real-install.json', path.join(dir, 'install.json'));
-    refused(dir, /file install\.json: is a symbolic link/);
+    refused(dir, 'file install.json: is a symbolic link');
     const other = folder(ok, one('a.txt', '.github/a.txt'));
     fs.renameSync(path.join(other, 'package.json'), path.join(other, 'real-package.json'));
     fs.symlinkSync('real-package.json', path.join(other, 'package.json'));
-    refused(other, /file package\.json: is a symbolic link/);
+    refused(other, 'file package.json: is a symbolic link');
   });
 
   test('a destination twice, also in other capitals', () => {
@@ -164,79 +165,107 @@ describe('what is refused', () => {
   });
 
   test('an absolute path, a path with .., a drive, a backslash, and the parts that no system keeps', () => {
+    const ABSOLUTE = 'is absolute';
+    const DOTS = 'has a part that is . or ..';
+    const EMPTY = 'has an empty part';
+    const COLON = 'has a backslash or a colon';
+    const SPACE = 'has a part that starts with a space or ends with a space or a dot';
+    const GIT = 'has a part that is .git';
+    const ASCII = 'has a character other than printable ASCII';
     const cases = [
-      ['/etc/passwd', /is absolute/], ['/.github/a.txt', /is absolute/], ['.github/../x', /part that is \. or \.\./], ['.github/..', /part that is \. or \.\./], ['..', /part that is \. or \.\./],
-      ['.github/./a.txt', /part that is \. or \.\./], ['.github//a.txt', /empty part/], ['.github/a.txt/', /empty part/], ['C:/x', /backslash or a colon/], ['.github\\a.txt', /backslash or a colon/],
-      ['.github/a:b', /backslash or a colon/], ['.github/ a.txt', /starts with a space/], ['.github/a.txt ', /ends with a space/], ['.github/a.', /ends with a space or a dot/], ['.github/.git/x', /part that is \.git/],
-      ['.github/.GIT', /part that is \.git/], ['.github/a\tb', /printable ASCII/], ['.github/a\nb', /printable ASCII/], ['.github/\u00e9', /printable ASCII/], ['.github/a\u0000b', /printable ASCII/],
-      ['.github/a\u007fb', /printable ASCII/], ['', /is not a path/],
+      ['/etc/passwd', ABSOLUTE], ['/.github/a.txt', ABSOLUTE], ['.github/../x', DOTS], ['.github/..', DOTS], ['..', DOTS], ['.', DOTS], ['.github/./a.txt', DOTS], ['.github//a.txt', EMPTY], ['.github/a.txt/', EMPTY],
+      ['C:/x', COLON], ['.github\\a.txt', COLON], ['.github/a:b', COLON], ['.github/ a.txt', SPACE], ['.github/a.txt ', SPACE], ['.github/a.', SPACE], ['.github/ ', SPACE], ['.github/.git/x', GIT], ['.github/.GIT', GIT],
+      ['.git', GIT], ['.github/a\tb', ASCII], ['.github/a\nb', ASCII], ['.github/\u00e9', ASCII], ['.github/a\u0000b', ASCII], ['.github/a\u007fb', ASCII], ['.github/\u2028', ASCII], ['', 'is not a path'],
     ];
-    for (const [destination, pattern] of cases) {
-      refused(folder(ok, one('a.txt', destination)), pattern);
-      refused(folder(ok, one(destination, '.github/a.txt')), pattern);
+    for (const [destination, reason] of cases) {
+      refused(folder(ok, one('a.txt', destination)), `install.json: entry 1: path ${reason}`);
+      refused(folder(ok, one(destination, '.github/a.txt')), `install.json: entry 1: source ${reason}`);
     }
   });
 
   test('a source outside the folder', () => {
-    for (const source of ['../x', 'a/../../x', '/etc/passwd']) refused(folder(ok, one(source, '.github/a.txt')), /source|part that is|absolute/);
+    refused(folder(ok, one('../x', '.github/a.txt')), 'install.json: entry 1: source has a part that is . or ..');
+    refused(folder(ok, one('a/../../x', '.github/a.txt')), 'install.json: entry 1: source has a part that is . or ..');
+    refused(folder(ok, one('/etc/passwd', '.github/a.txt')), 'install.json: entry 1: source is absolute');
   });
 
   test('an entry that is not what install.json allows', () => {
-    refused(folder(ok, one('a.txt', '.github/a.txt', 'other')), /kind must be managed or template/);
-    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: null }]), /kind must be managed or template/);
-    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: 'managed', extra: 1 }]), /unknown key extra/);
-    refused(folder(ok, [{ source: 'a.txt', kind: 'managed' }]), /missing key path/);
-    refused(folder(ok, ['a.txt']), /entry 1: must be an object/);
-    refused(folder(ok, []), /files must be a list with at least one entry/);
-    refused(folder(ok, null), /files must be a list/);
-    refused(folder(ok, [{ source: 3, path: '.github/a.txt', kind: 'managed' }]), /source is not a path/);
+    refused(folder(ok, one('a.txt', '.github/a.txt', 'other')), 'install.json: entry 1: kind must be managed or template');
+    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: null }]), 'install.json: entry 1: kind must be managed or template');
+    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: 'managed', extra: 1 }]), 'install.json: entry 1: unknown key extra');
+    refused(folder(ok, [{ source: 'a.txt', kind: 'managed' }]), 'install.json: entry 1: missing key path');
+    refused(folder(ok, ['a.txt']), 'install.json: entry 1: must be an object');
+    refused(folder(ok, []), 'install.json: files must be a list with at least one entry');
+    refused(folder(ok, null), 'install.json: files must be a list with at least one entry');
+    refused(folder(ok, [{ source: 3, path: '.github/a.txt', kind: 'managed' }]), 'install.json: entry 1: source is not a path');
   });
 
   test('an install.json that is not what the page says', () => {
     const good = { schema: 1, generations: ['g1'], files: one('a.txt', '.github/a.txt'), requires: REQUIRES };
     const text = (over) => JSON.stringify({ ...good, ...over });
-    refused(folder(ok, null, { install: '{' }), /is not one JSON document/);
-    refused(folder(ok, null, { install: `\ufeff${text({})}` }), /is not one JSON document/);
-    refused(folder(ok, null, { install: '[]' }), /must be an object/);
-    refused(folder(ok, null, { install: text({ schema: 2 }) }), /schema must be 1/);
-    refused(folder(ok, null, { install: text({ generations: [] }) }), /generations must name at least one/);
-    refused(folder(ok, null, { install: text({ generations: ['G1'] }) }), /generations must name at least one/);
-    refused(folder(ok, null, { install: text({ generations: ['g1', 'g1'] }) }), /names something twice/);
-    refused(folder(ok, null, { install: text({ requires: [] }) }), /requires must be an object/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, secrets: 'X' } }) }), /requires\.secrets: must be a list of texts/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, settings: [''] } }) }), /requires\.settings: must be a list of texts/);
-    refused(folder(ok, null, { install: text({ requires: { secrets: [], settings: [] } }) }), /missing key rulesets/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'] }] } }) }), /missing key up-to-date/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: '', checks: ['A'], 'up-to-date': true }] } }) }), /needs a branch/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'], 'up-to-date': 'yes' }] } }) }), /up-to-date must be true or false/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: ['x'] } }) }), /ruleset must be an object/);
-    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: 'x' } }) }), /rulesets must be a list/);
-    refused(folder(ok, null, { install: text({ extra: 1 }) }), /unknown key extra/);
-    refused(folder(ok, null, { install: JSON.stringify({ schema: 1, generations: ['g1'], files: good.files }) }), /missing key requires/);
+    refused(folder(ok, null, { install: '{' }), 'install.json: is not one JSON document in UTF-8 without a byte order mark');
+    refused(folder(ok, null, { install: `\ufeff${text({})}` }), 'install.json: is not one JSON document in UTF-8 without a byte order mark');
+    refused(folder(ok, null, { install: '[]' }), 'install.json: must be an object');
+    refused(folder(ok, null, { install: text({ schema: 2 }) }), 'install.json: schema must be 1');
+    refused(folder(ok, null, { install: text({ generations: [] }) }), 'install.json: generations must name at least one generation, like g1');
+    refused(folder(ok, null, { install: text({ generations: ['G1'] }) }), 'install.json: generations must name at least one generation, like g1');
+    refused(folder(ok, null, { install: text({ generations: ['g1', 'g1'] }) }), 'install.json: generations: names something twice');
+    refused(folder(ok, null, { install: text({ requires: [] }) }), 'install.json: requires must be an object');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, secrets: 'X' } }) }), 'install.json: requires.secrets: must be a list of texts');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, settings: [''] } }) }), 'install.json: requires.settings: must be a list of texts');
+    refused(folder(ok, null, { install: text({ requires: { secrets: [], settings: [] } }) }), 'install.json: requires: missing key rulesets');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'] }] } }) }), 'install.json: a ruleset: missing key up-to-date');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: '', checks: ['A'], 'up-to-date': true }] } }) }), 'install.json: a ruleset needs a branch');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: [{ branch: 'default', checks: ['A'], 'up-to-date': 'yes' }] } }) }), 'install.json: a ruleset: up-to-date must be true or false');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: ['x'] } }) }), 'install.json: a ruleset must be an object');
+    refused(folder(ok, null, { install: text({ requires: { ...REQUIRES, rulesets: 'x' } }) }), 'install.json: requires.rulesets must be a list');
+    refused(folder(ok, null, { install: text({ extra: 1 }) }), 'install.json: unknown key extra');
+    refused(folder(ok, null, { install: JSON.stringify({ schema: 1, generations: ['g1'], files: good.files }) }), 'install.json: missing key requires');
     assert.throws(() => readInstall(path.join(scratch, 'nowhere')), /file install\.json: no such file/);
+  });
+
+  test('a generation is g and a number of up to nine digits without a leading zero', () => {
+    const good = { schema: 1, files: one('a.txt', '.github/a.txt'), requires: REQUIRES };
+    for (const generations of [['g1'], ['g9'], ['g10'], ['g123456789'], ['g1', 'g2']]) assert.deepEqual(build(folder(ok, null, { install: JSON.stringify({ ...good, generations }) })).generations, generations);
+    for (const name of ['g', 'g0', 'g01', 'g1234567890', 'G1', '1', 'g1 ', ' g1', 'xg1', 'g1x', 'g-1', 'g1\n']) {
+      refused(folder(ok, null, { install: JSON.stringify({ ...good, generations: [name] }) }), 'install.json: generations must name at least one generation, like g1');
+    }
+  });
+
+  test('a name that the system cannot read is refused with the reason, and a file that is not UTF-8 is not read', () => {
+    const long = 'a'.repeat(300);
+    refused(folder(ok, one(long, '.github/a.txt')), `source ${long}: cannot be read (ENAMETOOLONG)`);
+    const dir = folder(ok, one('a.txt', '.github/a.txt'));
+    fs.writeFileSync(path.join(dir, 'install.json'), Buffer.concat([Buffer.from('{"schema":1,"generations":["g1"],"files":[{"source":"a.txt","path":".github/'), Buffer.from([0xff]), Buffer.from(`.txt","kind":"managed"}],"requires":${JSON.stringify(REQUIRES)}}`)]));
+    refused(dir, 'install.json: is not one JSON document in UTF-8 without a byte order mark');
   });
 
   test('a version, a tag and a commit that are not what a release has', () => {
     const dir = folder(ok, one('a.txt', '.github/a.txt'));
-    for (const version of ['1', '1.2', '01.2.3', '1.02.3', '1.2.3+build', 'v1.2.3', '1.2.3-', '1.2.3-01', '1.2.3-a..b', '', ' 1.2.3', '1.2.3\n', undefined]) {
-      refused(dir, /is not a semantic version/, { version, tag: `v${version}` });
+    for (const version of ['1', '1.2', '01.2.3', '1.02.3', '1.2.03', '1.2.3+build', 'v1.2.3', '1.2.3-', '1.2.3-01', '1.2.3-a..b', '1.2.3-.a', '1.2.3-a.', '1.2.3-a.01', '1.2.3-a_b', '1.2.3-a+b', '1.2.3-é',
+      '1.2.3.4', '1.2.3-a b', '', ' 1.2.3', '1.2.3 ', '1.2.3\n', '1.2.3-a\n', '-1.2.3', '1.-2.3', '1.2.-3', 'a.b.c', undefined]) {
+      refused(dir, `version ${JSON.stringify(version)} is not a semantic version without build metadata`, { version, tag: `v${version}` });
     }
-    for (const version of ['0.0.0', '1.2.3', '10.20.30', '1.0.0-1', '1.0.0-rc.1', '1.0.0-alpha-beta.2', '1.0.0-0', '2.0.0-premajor.0']) assert.equal(build(dir, { version, tag: `v${version}` }).version, version);
-    for (const tag of ['1.2.3', 'v1.2.4', 'V1.2.3', 'v1.2.3 ', undefined]) refused(dir, /tag .* is not v1\.2\.3/, { tag });
-    for (const commit of ['abc', 'A'.repeat(40), 'a'.repeat(39), 'a'.repeat(41), 'g'.repeat(40), `${'a'.repeat(40)}\n`, undefined, 'HEAD']) refused(dir, /commit .* is not a full commit id/, { commit });
-    assert.equal(build(dir, { commit: 'f'.repeat(64) }).commit, 'f'.repeat(64));
+    // Every part of the form of a version that has a part of its own: the numbers, a prerelease of one identifier and of several, each of letters, digits and hyphens.
+    for (const version of ['0.0.0', '1.2.3', '10.20.30', '1.0.0-1', '1.0.0-rc.1', '1.0.0-alpha-beta.2', '1.0.0-0', '2.0.0-premajor.0', '1.0.0-a', '1.0.0-Z', '1.0.0--', '1.0.0-1a', '1.0.0-0a', '1.0.0-a1b2',
+      '1.0.0-Alpha.BETA.1', '1.0.0-x.-y.z-', '1.0.0-rc.1a.2b.0c', '1.0.0-0.0.0', '1.0.0-1.2.3.4.5', '1.0.0-z9.9z', '9.99.999', '1.0.0-A-Z.a-z.0-9']) assert.equal(build(dir, { version, tag: `v${version}` }).version, version);
+    for (const tag of ['1.2.3', 'v1.2.4', 'V1.2.3', 'v1.2.3 ', undefined]) refused(dir, `tag ${JSON.stringify(tag)} is not v1.2.3`, { tag });
+    for (const commit of ['abc', 'A'.repeat(40), 'a'.repeat(39), 'a'.repeat(41), 'g'.repeat(40), `${'a'.repeat(40)}\n`, undefined, 'HEAD']) refused(dir, `commit ${JSON.stringify(commit)} is not a full commit id of 40 or 64 lower case hexadecimal digits`, { commit });
+    for (const commit of ['f'.repeat(64), '0'.repeat(40), '9'.repeat(64), `${'0123456789'.repeat(4)}`, `${'0123456789abcdef'.repeat(4)}`, 'a1'.repeat(20)]) assert.equal(build(dir, { commit }).commit, commit);
   });
 
   test('a package.json without engines.node', () => {
-    refused(folder(ok, one('a.txt', '.github/a.txt'), { engines: null }), /engines\.node is missing/);
-    refused(folder(ok, one('a.txt', '.github/a.txt'), { engines: '' }), /engines\.node is missing/);
+    refused(folder(ok, one('a.txt', '.github/a.txt'), { engines: null }), 'package.json: engines.node is missing');
+    refused(folder(ok, one('a.txt', '.github/a.txt'), { engines: '' }), 'package.json: engines.node is missing');
     const dir = folder(ok, one('a.txt', '.github/a.txt'));
-    fs.writeFileSync(path.join(dir, 'package.json'), '[]');
-    refused(dir, /engines\.node is missing/);
+    for (const text of ['[]', 'null', '7', '{}', '{"engines": 5}', '{"engines": []}', '{"engines": null}', '{"engines": {"node": 22}}']) {
+      fs.writeFileSync(path.join(dir, 'package.json'), text);
+      refused(dir, 'package.json: engines.node is missing');
+    }
     fs.writeFileSync(path.join(dir, 'package.json'), '{');
-    refused(dir, /package\.json: is not one JSON document/);
+    refused(dir, 'package.json: is not one JSON document in UTF-8 without a byte order mark');
     fs.rmSync(path.join(dir, 'package.json'));
-    refused(dir, /file package\.json: no such file/);
+    refused(dir, 'file package.json: no such file');
   });
 
   test('pathProblem says why, and nothing about a path that is fine', () => {
@@ -310,8 +339,8 @@ describe('verifying a manifest against the files', () => {
     twice.files.push(structuredClone(twice.files[0]));
     assert.deepEqual(problemsOf(twice, dir), ['the manifest lists a path twice']);
     const odd = structuredClone(manifest);
-    odd.files.push(7);
-    assert.deepEqual(problemsOf(odd, dir), ['not in install.json: 7']);
+    odd.files.push(7, null);
+    assert.deepEqual(problemsOf(odd, dir), ['not in install.json: 7', 'not in install.json: null']);
     const nameless = structuredClone(manifest);
     nameless.files.push({ kind: 'managed' });
     assert.deepEqual(problemsOf(nameless, dir), ['not in install.json: undefined']);
@@ -392,8 +421,13 @@ describe('the command line', () => {
   test('wrong usage prints the usage and exits 2', () => {
     const all = ['--version', '1.2.3', '--tag', 'v1.2.3', '--commit', COMMIT, '--out', 'out.json'];
     const wrong = [[], ['--version'], ['--verify'], ['--verify', 'a', '--out', 'b'], ['--verify', 'a', 'b'], ['--build'], all.slice(2), all.slice(0, 6), [...all, '--version', '1.2.3'], [...all, 'extra'],
-      [...all, '--verify', 'x'], ['--version', '1.2.3', '--tag', 'v1.2.3', '--commit', COMMIT, '--root', '.'], [...all, '--root'], [...all, '--unknown', 'x'], ['--verify', 'a', '--verify', 'b'], ['--help']];
+      [...all, '--verify', 'x'], ['--version', '1.2.3'], ['--tag', 'v1.2.3'], ['--commit', COMMIT], ['--out', 'out.json'], ['--version', '1.2.3', '--tag', 'v1.2.3'], ['--root', '.'], ['--version', '1.2.3', '--tag', 'v1.2.3', '--commit', COMMIT, '--root', '.'], [...all, '--root'], [...all, '--unknown', 'x'], ['--verify', 'a', '--verify', 'b'], ['--help']];
     for (const argv of wrong) assert.deepEqual(run(argv), { code: 2, stdout: '', stderr: USAGE }, argv.join(' '));
+  });
+
+  test('importing the module runs nothing and sets no exit status', () => {
+    const got = spawnSync(process.execPath, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(tool).href)}); console.log('imported');`], { encoding: 'utf8' });
+    assert.deepEqual([got.status, got.stdout, got.stderr], [0, 'imported\n', '']);
   });
 
   test('as a program, also through a link', () => {
@@ -539,6 +573,30 @@ describe('the second implementation, reference/verify_manifest.py', () => {
     for (const version of ['1.2', '01.2.3', '1.2.3+x']) assert.equal(py(['--build', version, `v${version}`, COMMIT]).status, 1, version);
     assert.equal(py(['--build', '1.2.3', 'v1.2.4', COMMIT]).status, 1);
     assert.equal(py(['--build', '1.2.3', 'v1.2.3', 'abc']).status, 1);
+  });
+
+  test('takes the same versions, tags and commits as the Node program, and refuses the same', { skip }, () => {
+    const dir = folder(files, entries);
+    const versions = ['0.0.0', '1.2.3', '10.20.30', '1.0.0-1', '1.0.0-rc.1', '1.0.0-a', '1.0.0--', '1.0.0-1a', '1.0.0-Alpha.BETA.1', '1.0.0-x.-y.z-', '1.0.0-0.0.0', '1.0.0-A-Z.a-z.0-9',
+      '1', '1.2', '01.2.3', '1.02.3', '1.2.03', '1.2.3+build', '1.2.3-', '1.2.3-01', '1.2.3-a..b', '1.2.3-.a', '1.2.3-a.', '1.2.3-a.01', '1.2.3-a_b', '1.2.3.4', '1.2.3-a b', ' 1.2.3', '1.2.3\n', '-1.2.3'];
+    for (const version of versions) {
+      let node = true;
+      try {
+        build(dir, { version, tag: `v${version}` });
+      } catch {
+        node = false;
+      }
+      assert.equal(py(['--build', version, `v${version}`, COMMIT, '--root', dir]).status === 0, node, JSON.stringify(version));
+    }
+    for (const commit of ['a'.repeat(40), 'f'.repeat(64), 'a'.repeat(39), 'a'.repeat(41), 'A'.repeat(40), `${'a'.repeat(40)}\n`, 'g'.repeat(40), 'HEAD', '']) {
+      let node = true;
+      try {
+        build(dir, { commit });
+      } catch {
+        node = false;
+      }
+      assert.equal(py(['--build', '1.2.3', 'v1.2.3', commit, '--root', dir]).status === 0, node, JSON.stringify(commit));
+    }
   });
 
   test('refuses a key that is written twice, which JSON.parse would let through', { skip }, () => {

@@ -204,7 +204,7 @@ jobs:
           # The draft must hold the whole manifest before it is published.
           size="$(wc -c < release-manifest.json | tr -d ' ')"
           gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate \
-            --jq '.[] | select(.draft and .tag_name == env.TAG) | .assets[] | select(.name == "release-manifest.json") | .size' | grep -xF "${size}"
+            --jq ".[] | select(.draft and .tag_name == \"${TAG}\") | .assets[] | select(.name == \"release-manifest.json\") | .size" | grep -xF "${size}"
 
       - name: Publish the release
         if: env.DRY_RUN != 'true'

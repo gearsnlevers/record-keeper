@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test, { after, describe } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { addRelease, demoteHeadings, run } from '../tools/update-changelog.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -69,11 +69,29 @@ describe('addRelease', () => {
     assert.ok(out.includes('**Full Changelog**: https://example.com'));
   });
 
-  test('the notes are trimmed, and the file ends with one line feed and has no run of empty lines', () => {
+  test('the notes are trimmed, the empty lines in front of the new section are one, and the file ends with one line feed', () => {
     const out = addRelease('# Changelog\n\n\n\n## [v0.9.0] - 2026-01-01\n\n- old\n\n\n', args('v1.0.0', '\n\n- a\n\n- b\n\n\n'));
-    assert.ok(out.endsWith('- old\n'));
-    assert.ok(!out.includes('\n\n\n'));
-    assert.ok(out.includes('## [v1.0.0] - 2026-11-17\n\n- a\n\n- b\n'));
+    assert.equal(out, '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a\n\n- b\n\n## [v0.9.0] - 2026-01-01\n\n- old\n');
+  });
+
+  test('what was there is kept as it was: the older sections, with their empty lines and their spaces, and the words before them', () => {
+    const old = '# Changelog\n\nPreamble.\n\n## [v0.9.0] - 2026-01-01\n\n\n- old  \n\n\n\n- older\n\n## [v0.8.0] - 2025-12-01\n\n- x\n';
+    const out = addRelease(old, args('v1.0.0'));
+    assert.equal(out, `# Changelog\n\nPreamble.\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n\n${old.slice(old.indexOf('## [v0.9.0]'))}`);
+    const notes = '- a\n\n\n\n- b';
+    assert.ok(addRelease('', args('v1.0.0', notes)).includes('- a\n\n\n\n- b\n'), 'the notes are kept too');
+  });
+
+  test('a file that does not end with a line feed, or has a title with nothing but a section after it, is made the same way', () => {
+    assert.equal(addRelease('# Changelog\n\n## [v0.9.0] - 2026-01-01\n\n- old', args('v1.0.0')), '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n\n## [v0.9.0] - 2026-01-01\n\n- old\n');
+    assert.equal(addRelease('# Changelog\n## [v0.9.0] - 2026-01-01\n\n- old\n', args('v1.0.0')), '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n\n## [v0.9.0] - 2026-01-01\n\n- old\n');
+    assert.equal(addRelease('# Changelog', args('v1.0.0')), '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n');
+  });
+
+  test('a title, a section or a fence is only one at the start of a line', () => {
+    assert.equal(addRelease('not a title # here\n', args('v1.0.0')), '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n\nnot a title # here\n');
+    assert.equal(addRelease('# Changelog\n\nSee ## [v0.1.0] and ## more.\n', args('v1.0.0')), '# Changelog\n\nSee ## [v0.1.0] and ## more.\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n');
+    assert.equal(demoteHeadings('use ``` here\n# a\n'), 'use ``` here\n## a\n');
   });
 });
 
@@ -99,6 +117,12 @@ describe('the command line', () => {
     assert.ok(fs.readFileSync(path.join(dir, 'CHANGELOG.md'), 'utf8').startsWith('# Changelog\n\n## [v1.1.0] - 2026-12-01\n'));
   });
 
+  test('takes the tags that a release has: numbers of any length, and a prerelease of letters, digits, dots and hyphens', () => {
+    const dir = folder({ 'n.md': '- x\n' });
+    for (const tag of ['v0.0.1', 'v1.2.3', 'v10.20.30', 'v1.0.0-1', 'v1.0.0-rc.1', 'v1.0.0-RC-1', 'v1.0.0-a.b-c', 'v1.0.0-Z.9', 'v1.0.0-0.0']) assert.equal(run(['--tag', tag, '--notes', 'n.md', '--date', '2026-11-17'], { cwd: dir }).code, 0, tag);
+    assert.equal((fs.readFileSync(path.join(dir, 'CHANGELOG.md'), 'utf8').match(/^## \[/gm) || []).length, 9);
+  });
+
   test('takes another file, and the arguments in any order', () => {
     const dir = folder({ 'n.md': '- x\n', 'LOG.md': '# Changelog\n\nWords.\n' });
     assert.deepEqual(run(['--file', 'LOG.md', '--notes', 'n.md', '--date', '2026-11-17', '--tag', 'v2.0.0-1'], { cwd: dir }), { code: 0, stdout: 'added v2.0.0-1 to LOG.md\n', stderr: '' });
@@ -112,6 +136,8 @@ describe('the command line', () => {
     const before = fs.readFileSync(path.join(dir, 'CHANGELOG.md'), 'utf8');
     const refused = (argv, message) => assert.deepEqual(run(argv, { cwd: dir }), { code: 1, stdout: '', stderr: `update-changelog: ${message}\n` }, argv.join(' '));
     refused(['--tag', 'v1.0.0', '--notes', 'notes.md'], 'CHANGELOG already has a section for v1.0.0');
+    for (const tag of ['v1.0.0-', 'xv1.2.3', 'v1.2.3\n', 'v1.2.3 ', 'v1.2.3+b', 'v01.2.3', 'v1.2.03', 'v1.2.3-a_b', 'v1.2', 'v1.2.3.4', 'V1.2.3', '']) refused(['--tag', tag, '--notes', 'notes.md'], `${JSON.stringify(tag)} is not a tag like v1.2.3`);
+    for (const date of ['2026-11-17x', 'x2026-11-17', '2026-11-1', '2026-1-17', '26-11-17', '2026-11-17\n', '']) refused(['--tag', 'v1.1.0', '--notes', 'notes.md', '--date', date], `${JSON.stringify(date)} is not a date like 2026-11-17`);
     refused(['--tag', '1.0.0', '--notes', 'notes.md'], '"1.0.0" is not a tag like v1.2.3');
     refused(['--tag', 'v1.0', '--notes', 'notes.md'], '"v1.0" is not a tag like v1.2.3');
     refused(['--tag', 'v1.0.0\n## [v9.9.9]', '--notes', 'notes.md'], '"v1.0.0\\n## [v9.9.9]" is not a tag like v1.2.3');
@@ -133,6 +159,11 @@ describe('the command line', () => {
     const wrong = [[], ['--tag'], ['--tag', 'v1.0.0'], ['--notes', 'n.md'], ['--tag', 'v1.0.0', '--notes'], ['--tag', 'v1.0.0', '--notes', 'n.md', '--tag', 'v1.0.1'], ['--tag', 'v1.0.0', '--notes', 'n.md', 'x'],
       ['--tag', 'v1.0.0', '--notes', 'n.md', '--other', 'x'], ['--help']];
     for (const argv of wrong) assert.deepEqual(run(argv, { cwd: scratch }), { code: 2, stdout: '', stderr: USAGE }, argv.join(' '));
+  });
+
+  test('importing the module runs nothing and sets no exit status', () => {
+    const got = spawnSync(process.execPath, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(tool).href)}); console.log('imported');`], { encoding: 'utf8' });
+    assert.deepEqual([got.status, got.stdout, got.stderr], [0, 'imported\n', '']);
   });
 
   test('as a program, also through a link', () => {

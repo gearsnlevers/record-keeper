@@ -104,9 +104,9 @@ python3 reference/verify_manifest.py --verify release-manifest.json
 
 GitHub can make the releases of a repository immutable: "where the assets and associated Git tag cannot be changed after publication". "Git tags cannot be moved", and "release assets cannot be modified or deleted"; the title, the notes and the status as a prerelease can still be edited. GitHub recommends creating the release as a draft, attaching all assets, and then publishing it, "to ensure that all assets are in place before the release becomes immutable" ([immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases)). That is the order of step 9.
 
-**The maintainer switches them on after the first real release has succeeded** (Settings, General, in the repository), not before:
+**The maintainer switches them on after the first real release has succeeded** (in the settings of the repository), not before:
 
-- A published immutable release cannot be changed or deleted, and its tag cannot be moved, nor reused after the release is deleted (as that page puts it, in other words). A botched first release would then cost a version number, and a pipeline that has never run is the likeliest thing to botch one.
+- A published immutable release keeps its assets and its tag as they are: the tag cannot be moved, and, as the page describes it, once the release is deleted the name of the tag cannot be used again. A botched first release would then cost a version number, and a pipeline that has never run is the likeliest thing to botch one.
 - While the setting is off, a release can be deleted and made again, which is what the rehearsal of the first release needs.
 - The workflow does not depend on the setting: it makes a draft, uploads and publishes whether the repository is immutable or not.
 

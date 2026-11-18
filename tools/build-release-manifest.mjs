@@ -62,7 +62,8 @@ function readRegular(root, relative, what) {
     try {
       stat = fs.lstatSync(at);
     } catch (error) {
-      if (error.code === 'ENOENT' || error.code === 'ENOTDIR') throw new ManifestError(`${what} ${relative}: no such file`);
+      // Every part of the path above this one is a folder (it was looked at), so what is not there is not there: ENOTDIR cannot happen.
+      if (error.code === 'ENOENT') throw new ManifestError(`${what} ${relative}: no such file`);
       throw new ManifestError(`${what} ${relative}: cannot be read (${error.code ?? error.message})`);
     }
     if (stat.isSymbolicLink()) throw new ManifestError(`${what} ${relative}: ${i === parts.length - 1 ? 'is a symbolic link' : `${parts.slice(0, i + 1).join('/')} is a symbolic link`}`);
@@ -73,10 +74,8 @@ function readRegular(root, relative, what) {
 
 function readJson(root, relative, what) {
   const bytes = readRegular(root, relative, what);
-  let text;
   try {
-    text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
-    return JSON.parse(text);
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes));
   } catch {
     throw new ManifestError(`${relative}: is not one JSON document in UTF-8 without a byte order mark`);
   }

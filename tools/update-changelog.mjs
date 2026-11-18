@@ -36,12 +36,13 @@ export function addRelease(existing, { tag, date, notes }) {
   const lines = text.split('\n');
   const titleIdx = lines.findIndex((l) => /^# /.test(l));
   if (titleIdx === -1) return `${HEADER}\n${section}\n${text}`;
-  // Before the first older section, or at the end of the text that comes before it.
+  // Before the first older section, or at the end of the text that comes before it. What is there is kept as it is: only the empty lines between the new
+  // section and what comes before it are made one, and the file ends with one line feed.
   let at = lines.findIndex((l, i) => i > titleIdx && /^## /.test(l));
   if (at === -1) at = lines.length;
-  const before = lines.slice(0, at).join('\n').replace(/\n+$/, '\n');
+  const before = lines.slice(0, at).join('\n').replace(/\n*$/, '\n');
   const after = lines.slice(at).join('\n');
-  return `${before}\n${section}${after ? `\n${after}` : ''}`.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n');
+  return `${before}\n${section}${after === '' ? '' : `\n${after}`}`.replace(/\n*$/, '\n');
 }
 
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */

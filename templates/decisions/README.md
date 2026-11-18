@@ -9,7 +9,7 @@ The records of this folder are kept trustworthy by [Record Keeper](https://githu
 - An accepted record binds people and coding agents until a newer record supersedes it. An agent whose task conflicts with one stops and says so in the issue or pull request.
 - Only a lasting decision gets a record: something you would be surprised to see reversed without discussion. Not minor implementation notes or routine refactors.
 - A record is `proposed` while it is discussed. Accepting it is an act of the owners named in `.github/record-keeper/settings.yml`: the pull request sets `status: accepted` and writes the seal.
-- An accepted record is not edited. Three changes are allowed: its status becomes `superseded by NNNN`, an entry is added to `Known deviations`, and an erratum corrects the sealed text with a new seal and an entry in `Errata`. Each needs the approval of the owners.
+- An accepted record is not edited. Three changes are allowed: its status becomes `superseded by NNNN`, once the record NNNN that replaces it is accepted and sealed; an entry is added to `Known deviations`; and an erratum corrects the sealed text with a new seal and an entry in `Errata`. The acceptance of a record, a deviation entry and an erratum need the approval of the owners.
 - A changed decision is a new record that names the records it replaces in `supersedes:`. Numbers are never reused, and a record is never deleted or renamed.
 - A pull request that changes a decided behaviour adds or supersedes a record in the same pull request.
 - Records are public. No credentials, tenant names, security-incident details or personal information.

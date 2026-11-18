@@ -24,7 +24,8 @@ after(() => {
 });
 
 const CLEAN = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_') && name !== 'GITHUB_TOKEN' && name !== 'GITHUB_API_URL'));
-const IDENTITY = { GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com' };
+// The git of the tests reads no configuration of the person who runs them (no signing, no hooks, no templates): the repositories here are made from nothing.
+const IDENTITY = { GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
 const git = (cwd, ...args) => {
   const result = spawnSync('git', args, { cwd, env: { ...CLEAN, ...IDENTITY }, encoding: 'utf8' });
   assert.equal(result.status, 0, `git ${args.join(' ')}: ${result.stderr}`);
@@ -432,6 +433,21 @@ describe('a repository with the layout of a consumer', () => {
       assert.equal(real.code, 0, real.stderr);
       assert.match(real.stdout, /log: the record of the run pushed to record-keeper\/log\n$/);
       assert.match(git(bare, 'show', 'refs/heads/record-keeper/log:last-run.json'), /"violations":0/);
+    });
+
+    test('the commit that the release workflow pushes, the changelog and the version, is no act and no breach', async () => {
+      const dev = adopted();
+      write(dev, 'CHANGELOG.md', '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n');
+      write(dev, 'package.json', '{\n  "name": "record-keeper",\n  "version": "1.0.0",\n  "private": true\n}\n');
+      git(dev, 'add', '-A');
+      git(dev, 'commit', '-q', '-m', 'chore: release v1.0.0');
+      const { work } = origin(dev);
+      const server = await github(dev);
+      const got = await run(work, server, '--dry-run');
+      assert.equal(got.code, 0, got.stdout + got.stderr);
+      assert.match(got.stdout, /dry run: nothing was written\n$/);
+      assert.deepEqual(server.requests.filter((request) => /\/commits\//.test(request.path)), [], 'no evidence is asked for a commit without an act');
+      assert.doesNotMatch(got.stdout + got.stderr, /A-0\d/);
     });
 
     test('an act after the adoption that the owners approved is announced, from the folder of the kit', async () => {
