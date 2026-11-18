@@ -291,6 +291,12 @@ case('r-22', 'a rule not strict but required: the manifest asks for up to date',
 case('r-24', 'two rulesets that carry the rule and cannot be seen: one notice that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].update({
     '11': {'ok': False, 'why': 'x'}, '12': {'ok': True, 'name': 'twelve', 'actors': None}})),
      [('not-checked', 'bypass: ruleset 11: x')], without('bypass'), [('bypass', 'ruleset 12: the token cannot see the bypass list')])
+case('r-29', 'two rulesets that carry the rule and are not shown to the token: one entry that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].update({
+    '11': {'ok': True, 'name': 'eleven', 'actors': None}, '12': {'ok': True, 'name': 'twelve', 'actors': None}})),
+     [], without('bypass'), [('bypass', 'ruleset 11: the token cannot see the bypass list; ruleset 12: the token cannot see the bypass list')])
+case('r-30', 'two rulesets that carry the rule and cannot be read, or were not asked for: one notice that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].clear(), g(s)['bypass'].update({
+    '11': {'ok': False, 'why': 'x'}})),
+     [('not-checked', 'bypass: ruleset 11: x; ruleset 12: not read')], without('bypass'))
 case('r-25', 'branch protection could not be read, but a ruleset requires the check: nothing is said of it', lambda s: g(s).update({'classic': {'ok': False, 'why': 'GET answered 403'}}))
 case('r-26', 'branch protection could not be read, and the rules require other checks only: a notice, and no error', lambda s: (set_rules((11, ['Test gate'], True))(s), g(s).update({'classic': {'ok': False, 'why': 'timeout'}})),
      [('not-checked', 'branch protection: timeout')], without('check-required', 'check-strict', 'bypass'))
