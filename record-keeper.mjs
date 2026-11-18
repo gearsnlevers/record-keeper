@@ -916,9 +916,19 @@ export const CHANGE_RULES = {
 /** The pin of a repository: which release of the kit it wants. Its content is not read; a change to it is an act. */
 export const PIN_PATH = '.github/record-keeper.yml';
 
-/** The files that make the check (docs/protected-files.md): a change to one is an act, and no other workflow may name the check. */
-export const WORKFLOW_FILES = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml'];
-export const CODE_FILES = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs'];
+/**
+ * The files that make the check (docs/protected-files.md): a change to one is an act, and no other workflow may name the check. The programs are
+ * guarded in both places they can stand: at the root, where the kit keeps them, and in `.github/record-keeper/`, where a repository that installs
+ * the kit keeps them (docs/install.md). The workflows stand at the same paths in both.
+ */
+export const WORKFLOW_FILES = [
+  '.github/workflows/records-integrity.yml',
+  '.github/workflows/records-audit.yml',
+  '.github/workflows/records-setup-check.yml',
+  '.github/workflows/records-updater.yml',
+];
+const PROGRAMS = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs'];
+export const CODE_FILES = [...PROGRAMS, ...PROGRAMS.map((name) => `.github/record-keeper/${name}`)];
 const WORKFLOW_FOLDER = '.github/workflows';
 const NAMES_THE_CHECK = /records[ _-]?integrity/i;
 

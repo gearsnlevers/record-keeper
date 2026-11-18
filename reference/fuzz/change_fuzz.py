@@ -14,6 +14,17 @@ STATUSES = ['proposed', 'rejected', 'accepted', 'deprecated', 'superseded by 000
 def name(n, slug=None): return f'{n:04d}-{slug or SLUGS[(n - 1) % len(SLUGS)]}.md'
 
 
+# The files that may stand in a repository: the guarded ones (docs/protected-files.md), where the kit keeps them and where a repository that installs it does,
+# and one that is not guarded. Written out and not built, like the lists of the reference.
+GUARDED = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', '.github/workflows/records-setup-check.yml', '.github/workflows/records-updater.yml',
+           'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs',
+           '.github/record-keeper/record-keeper.mjs', '.github/record-keeper/check-pull-request.mjs', '.github/record-keeper/run-audit.mjs',
+           '.github/record-keeper/setup-check.mjs', '.github/record-keeper/updater.mjs']
+KIT_FILES = GUARDED + ['.github/workflows/test.yml']
+# What a mutation may touch: a guarded file, a folder or a file in front of one, something below one, and lookalikes.
+KIT_PATHS = GUARDED + ['.github/workflows', '.github/record-keeper', '.github', 'record-keeper.mjs/x', '.github/record-keeper/updater.mjs/x', '.github/workflows/records-updater.yml/x',
+                       '.github/record-keeper/sub/run-audit.mjs', '.github/record-keeper/run-audit.mjs.bak', '.github/updater.mjs', 'scripts/updater.mjs']
+
 APPLIES = ['src/**', 'src/**/*.ts', 'README.md', 'lib/*.js', 'missing/**', 'src/x/*', 'my file.txt', 'src/a.t?', 'src/', 'src/***', 'lib/**/c.js', 'src/a.ts', 'old.txt', 'docs/*.md', 'src/**/b.ts', 'l**/c.js']
 
 
@@ -104,7 +115,7 @@ def world(rng):
     for tree_file in ['src/a.ts', 'src/x/b.ts', 'lib/c.js', 'README.md', 'my file.txt', 'docs/guide.md']:
         if rng.random() < 0.7: files[tree_file] = 'x\n'
     if rng.random() < 0.5:
-        for kit in ['.github/workflows/records-integrity.yml', '.github/workflows/test.yml', 'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']:
+        for kit in KIT_FILES:
             if rng.random() < 0.8: files[kit] = '// ' + kit + '\n'
         if rng.random() < 0.2: files['.github/workflows/other.yml'] = 'name: Records integrity\n'
     return folder, files
@@ -218,14 +229,15 @@ def mutate(rng, folder, files):
             else: f['.github/record-keeper/settings.yml'] = choice
         elif what == 'pin': f['.github/record-keeper.yml'] = rng.choice(['source: a/b\n', 'x: y\n'])
         elif what == 'kit-file':
-            path = rng.choice(['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', 'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', '.github/workflows', 'record-keeper.mjs/x', '.github'])
+            path = rng.choice(KIT_PATHS)
             act = rng.choice(['write', 'write', 'delete', 'mode', 'link', 'file'])
             if act == 'delete': f.pop(path, None)
             elif act == 'mode': f[path] = ('100755', 'x')
             elif act == 'link': f[path] = ('120000', 'elsewhere')
             else: f[path] = rng.choice(['x\n', 'name: Records integrity\n', '// code\n'])
         elif what == 'workflow':
-            wfname = rng.choice(['a.yml', 'b.yaml', 'c.YML', 'records-integrity.yaml', 'Records_Integrity.yml', 'records integrity.yml', 'sub/d.yml', 'e.txt', 'test.yml', 'recordſ-integrity.yml'])
+            wfname = rng.choice(['a.yml', 'b.yaml', 'c.YML', 'records-integrity.yaml', 'Records_Integrity.yml', 'records integrity.yml', 'sub/d.yml', 'e.txt', 'test.yml', 'recordſ-integrity.yml',
+                                 'records-updater.yml', 'records-setup-check.yml', 'records-updater.yaml', 'records-audit.yml', 'records-integrity.yml'])
             body = rng.choice(['name: Test\n', 'name: Records integrity\n', '# records-integrity\n', 'x: RECORDS_INTEGRITY\n', 'Records  integrity\n', 'records\nintegrity\n', 'recordsintegrity\n', 'RECORDſ INTEGRITY\n', 'name: \u00e9 Records integrity\n', ''])
             mode = rng.choice(['100644', '100644', '100755'])
             if rng.random() < 0.15: f.pop(f'.github/workflows/{wfname}', None)
