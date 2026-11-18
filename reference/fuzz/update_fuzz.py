@@ -274,7 +274,7 @@ def scenario(r, hits):
             elif roll < 0.30:
                 entry['kind'] = 'template' if entry['kind'] == 'managed' and entry['path'] in TEMPLATES else entry['kind']
         old_files = [e for e in old_files if chance(r, 0.8)]
-        for path in r.sample(MANAGED, r.randint(0, 3)):
+        for path in r.sample(MANAGED, r.randint(0, 6)):
             if all(e['path'] != path for e in old_files):
                 old_files.append({'kind': 'managed', 'path': path, 'sha256': pick(r, SHAS), 'size': 10, 'source': source_of(path)})
         for path in r.sample(TEMPLATES, r.randint(0, 2)):
@@ -352,11 +352,18 @@ def count_hits(hits, expect, inp):
         hits[name] = hits.get(name, 0) + 1
     status = expect['status']
     hit('answer: ' + status + (' ' + expect['code'] if status == 'refused' else ''))
+    if status == 'refused' and expect['code'] == 'path-blocked':
+        hit('path-blocked at ' + ('the pin' if expect['detail'] == ref.PIN_PATH else 'a managed path') + ' that is ' + inp['tree'][expect['detail']]['kind'])
+    if status == 'refused' and expect['code'] in ('manifest-path', 'manifest-source', 'manifest-size', 'manifest-kind', 'manifest-entry', 'manifest-digest'):
+        hit('entry refusal ' + expect['code'])
     if status in ('update', 'unchanged'):
         for key in ['added', 'changed', 'unchanged', 'templates', 'kept', 'remove', 'overwritten']:
             if expect[key]:
                 hit('plan has ' + key)
         hit('plan pin ' + ('changed' if expect['pinChanged'] else 'same'))
+        for key, size in [('remove', 4), ('added', 4), ('changed', 4), ('overwritten', 3), ('templates', 2), ('kept', 3), ('unchanged', 4)]:
+            if len(expect[key]) >= size:
+                hit('plan has %d or more in %s' % (size, key))
         for w in expect['warnings']:
             hit('warning ' + w['code'] + (' ' + w['detail'] if w['code'] == 'previous-unusable' else ''))
         hit('plan ' + ('first adoption' if expect['from'] is None else 'repair' if expect['from'] == expect['to'] else 'update'))
