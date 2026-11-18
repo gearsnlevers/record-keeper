@@ -63,6 +63,14 @@ describe('the options and the failures of the run', () => {
     }
   });
 
+  test('a mistake of the program itself is a failure of the run, with the status 2 and not the status of an error that was found', async () => {
+    const dir = tree();
+    const got = await runCli(['--local', '--root', dir], { GITHUB_TOKEN: TOKEN }, { now: () => { throw new TypeError(`broken ${TOKEN}\nsecond line`); } });
+    assert.deepEqual(got, { code: 2, stdout: '', stderr: 'setup-check: failed: unexpected TypeError: broken ***\\u{a}second line\n' });
+    const empty = await runCli(['--local', '--root', dir], {}, { now: () => { throw null; } });
+    assert.deepEqual(empty, { code: 2, stdout: '', stderr: 'setup-check: failed: unexpected error: undefined\n' });
+  });
+
   test('a token with white space in it is not a token, and is not printed', async () => {
     const dir = tree();
     const got = await runCli(['--repo', 'a/b', '--root', dir], { GITHUB_TOKEN: 'a b' }, { now: () => NOW });

@@ -719,10 +719,13 @@ export async function runCli(argv, env, options = {}) {
     }
     return { code: findings.some((finding) => finding.severity === 'error') ? 1 : 0, stdout: redact(stdout, secrets), stderr: redact(stderr, secrets) };
   } catch (caught) {
-    // A file that cannot be read is a failure of the run, said in a line, and not a stack.
-    const failure = caught?.code !== undefined && /^E[A-Z0-9]+$/.test(caught.code) && !(caught instanceof Failed) ? new Failed(`${caught.syscall ?? 'a file operation'}${caught.path === undefined ? '' : ` ${printable(caught.path)}`} failed: ${caught.code}`) : caught;
-    if (!(failure instanceof Failed)) throw caught;
-    return { code: 2, stdout: '', stderr: redact(`setup-check: failed: ${failure.message}\n`, secrets) };
+    // A file that cannot be read is a failure of the run, said in a line, and not a stack; so is a mistake of the program itself, whose status must not be 1, the status of
+    // a finding that is an error.
+    let message;
+    if (caught instanceof Failed) message = caught.message;
+    else if (caught?.code !== undefined && /^E[A-Z0-9]+$/.test(caught.code)) message = `${caught.syscall ?? 'a file operation'}${caught.path === undefined ? '' : ` ${printable(caught.path)}`} failed: ${caught.code}`;
+    else message = `unexpected ${caught?.name ?? 'error'}: ${printable(String(caught?.message)).slice(0, 200)}`;
+    return { code: 2, stdout: '', stderr: redact(`setup-check: failed: ${message}\n`, secrets) };
   }
 }
 

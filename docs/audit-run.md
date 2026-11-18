@@ -47,7 +47,7 @@ The branch is `record-keeper/log`. It holds, at its root:
 | ---- | ---- |
 | `incidents.jsonl` | The entries of the `log` of every plan, one JSON document on each line, appended. Never rewritten by the program. |
 | `announcements.jsonl` | The `log` of every plan of announcements, one JSON document on each line, appended. Made by the first announcement; a run that announces nothing leaves it as it is. |
-| `last-run.json` | The `run` of the last plan, one line, replaced at every run. It is what the setup check (M3) reads to see that the audit runs. |
+| `last-run.json` | The `run` of the last plan, one line, replaced at every run. It is what [the setup check](setup-check.md) reads to see that the audit runs. |
 | `README.md` | Written when the branch is made: what the files are. |
 
 - **One commit for each run,** also when the plan has no entry: the record of the run changes every time. The commit has the author and the committer `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`, the time of the run, and the message `Audit of <head> at <at>: <violations> violations, <entries> entries` (`1 violation` and `1 entry` in the singular), with `, <n> announcements` (`1 announcement`) added when the run announced something.
@@ -119,7 +119,7 @@ On 2026-11-15, asked of the two owners (only an owner can see their own notifica
 ## What this does not do
 
 - **It does not announce** an act that was not approved, or an acceptance ([announcements](announcements.md#what-this-does-not-do)).
-- **It does not ping a monitor outside the repository** (a dead-man's switch is a later option), and it does not read `last-run.json` back; the setup check (M3) does.
+- **It does not ping a monitor outside the repository** (a dead-man's switch is a later option), and it does not read `last-run.json` back; [the setup check](setup-check.md) does, and fails when its `at` is older than two days.
 - **It does not keep the evidence of earlier runs.** Every run asks again for every commit with an act, which is why there is a limit.
 - **It does not restrict who writes the log branch.** The ruleset keeps its history; it cannot keep a person with write access from adding to it, because the token of a workflow cannot be put on the list of those who may.
 - **It does not read a pull request that is not merged,** or one made against another branch.
