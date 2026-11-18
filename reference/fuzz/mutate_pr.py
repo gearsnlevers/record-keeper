@@ -1,5 +1,5 @@
 """Mutation test of every line of check-pull-request.mjs against test/github.test.mjs; MUT_FILE and MUT_TESTS name another program and its tests
-(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers.
+(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers (a-b pairs); MUT_STRIDE=n runs every nth mutant (MUT_OFFSET=k from the kth).
 Usage: mutate_pr.py <repo_dir> <workers>"""
 import concurrent.futures, os, re, shutil, subprocess, sys, tempfile, threading
 repo, workers = sys.argv[1], int(sys.argv[2])
@@ -87,6 +87,8 @@ for i, l in enumerate(lines):
 seen, uniq = set(), []
 for i, new, d in muts:
     if (i, new) not in seen: seen.add((i, new)); uniq.append((i, new, d))
+STRIDE = int(os.environ.get('MUT_STRIDE', '1'))   # every STRIDE-th mutant only: a sample, for a first pass over a program whose tests take long (the survivors of a sample are survivors of the whole)
+uniq = uniq[int(os.environ.get('MUT_OFFSET', '0'))::STRIDE]   # MUT_OFFSET=k starts at the kth, so that several runs with one stride cover different mutants
 print(len(uniq), 'mutants', flush=True)
 
 def run(idx_mut):

@@ -53,7 +53,7 @@ function repository() {
   return dir;
 }
 
-/** What the updater of M3b will do on the first adoption, in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
+/** What the updater does on the first adoption (docs/updater.md), in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
 function installKit(dir, kinds = ['managed', 'template']) {
   for (const entry of install.files.filter(({ kind }) => kinds.includes(kind))) write(dir, entry.path, fs.readFileSync(path.join(root, entry.source)));
 }
@@ -232,8 +232,27 @@ describe('the files that install.json installs, and the files that the check gua
 
   test('a program is installed next to the rules file, and the workflows that run the programs are installed with them', () => {
     const programs = managed.filter(({ path: destination }) => destination.startsWith('.github/record-keeper/')).map(({ path: destination }) => path.posix.basename(destination)).sort();
-    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs']);
-    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml']);
+    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'updater.mjs']);
+    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml', 'records-updater.yml']);
+  });
+
+  test('the updater and its workflow are managed files, guarded at both places where the guard lists them, and the kit has no copy of the workflow of its own', () => {
+    assert.deepEqual(install.files.find(({ source }) => source === 'updater.mjs'), { source: 'updater.mjs', path: '.github/record-keeper/updater.mjs', kind: 'managed' });
+    assert.deepEqual(install.files.find(({ source }) => source === 'templates/workflows/records-updater.yml'), { source: 'templates/workflows/records-updater.yml', path: '.github/workflows/records-updater.yml', kind: 'managed' });
+    assert.ok(CODE_FILES.includes('updater.mjs') && CODE_FILES.includes('.github/record-keeper/updater.mjs'));
+    assert.ok(WORKFLOW_FILES.includes('.github/workflows/records-updater.yml'));
+    assert.ok(!fs.existsSync(path.join(root, '.github/workflows/records-updater.yml')), 'the kit does not update itself');
+    assert.equal(kindOf('.github/record-keeper/updater.mjs'), 'code');
+    assert.equal(kindOf('.github/workflows/records-updater.yml'), 'workflow');
+  });
+
+  test('install.json lists as required the secrets that the installed workflows use, and no others', () => {
+    const used = new Set();
+    for (const { source } of install.files.filter(({ path: destination }) => destination.startsWith('.github/workflows/'))) {
+      for (const match of read(source).replace(/^\s*#.*$/gm, '').matchAll(/secrets\.([A-Za-z0-9_]+)/g)) used.add(match[1]);
+    }
+    assert.deepEqual([...used].sort(), [...install.requires.secrets].sort());
+    assert.deepEqual(install.requires.secrets, ['RECORD_KEEPER_TOKEN']);
   });
 
   test('a change to any managed file in an installed repository is an act of the right kind, and a change to a template is not', () => {
@@ -264,7 +283,7 @@ describe('the files that install.json installs, and the files that the check gua
     git(dir, 'rm', '-q', '-r', '.github/record-keeper');
     git(dir, 'commit', '-q', '-m', 'Remove');
     const kinds = checkChange(dir, 'main', 'work').acts.map((act) => `${act.kind} ${act.path}`);
-    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs']);
+    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs', 'code .github/record-keeper/updater.mjs']);
   });
 });
 
