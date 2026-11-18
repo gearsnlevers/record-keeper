@@ -1,5 +1,5 @@
 """Mutation test of every line of check-pull-request.mjs against test/github.test.mjs; MUT_FILE and MUT_TESTS name another program and its tests
-(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers (a-b pairs); MUT_STRIDE=n runs every nth mutant (MUT_OFFSET=k from the kth).
+(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers (a-b pairs); MUT_STRIDE=n runs every nth mutant (MUT_OFFSET=k from the kth); MUT_CONFIRM=1 runs every mutant that was killed once more, and it is killed when that fails too.
 Usage: mutate_pr.py <repo_dir> <workers>"""
 import concurrent.futures, os, re, shutil, subprocess, sys, tempfile, threading
 repo, workers = sys.argv[1], int(sys.argv[2])
@@ -100,19 +100,25 @@ def run(idx_mut):
         open(os.path.join(w, FILE), 'w').write(mutated)
         # a new session, so that a timeout stops the test runner and everything it started (a mutant can loop for ever); a mutant is killed
         # at the first test that fails, which is when the runner has printed `not ok`
-        proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
-        timed = []   # a mutant that the timer stopped is not a kill: it may only be slow, or loop for ever, and it is counted and listed apart
-        timer = threading.Timer(240, lambda: (timed.append(1), os.killpg(proc.pid, 9)))
-        timer.start()
-        failed = False
-        for line in proc.stdout:
-            if re.match(r'\s*not ok ', line):
-                failed = True
-                os.killpg(proc.pid, 9)
-                break
-        proc.wait()
-        timer.cancel()
-        killed = failed or (proc.returncode != 0 and not timed)
+        def once():
+            proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
+            timed = []   # a mutant that the timer stopped is not a kill: it may only be slow, or loop for ever, and it is counted and listed apart
+            timer = threading.Timer(240, lambda: (timed.append(1), os.killpg(proc.pid, 9)))
+            timer.start()
+            failed = False
+            for line in proc.stdout:
+                if re.match(r'\s*not ok ', line):
+                    failed = True
+                    os.killpg(proc.pid, 9)
+                    break
+            proc.wait()
+            timer.cancel()
+            return failed or (proc.returncode != 0 and not timed), bool(timed)
+        killed, timed = once()
+        # MUT_CONFIRM=1: a kill counts when a second run of the same mutant fails too, so that a test that failed for a reason of the machine (a port that could not be
+        # opened on a loaded one) is not taken for a kill of the mutant
+        if killed and os.environ.get('MUT_CONFIRM') == '1':
+            killed, timed = once()
         return n, i, d, 'killed' if killed else 'timer' if timed else 'survived'
 
 locks = [threading.Lock() for _ in range(workers)]
