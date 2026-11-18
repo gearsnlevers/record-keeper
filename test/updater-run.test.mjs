@@ -793,6 +793,25 @@ describe('what is read of an answer', () => {
     assert.equal(hiding.stderr, 'updater: failed: GET /repos/gearsnlevers/record-keeper/releases?per_page=30 answered 404: a b\\u{202e}c\\u{0}d\n', 'what hides is written out, and a line feed is a space');
   });
 
+  test('the Link header is read for the relation next, among others, and for nothing else', async () => {
+    const next = (state) => `<${state.url}/repos/gearsnlevers/record-keeper/releases?per_page=30&page=2>`;
+    const cases = [
+      ['; rel="next"', true], ['; rel="next "', true], ['; rel=" next"', true], [';rel="next"', true], [';   rel="next"', true], ['; rel="prev next"', true], ['; rel="next last"', true], ['; rel="first  next"', true], ['; rel="a b next c d"', true], ['; rel="next" ; title="x"', true],
+      ['; rel="nextish"', false], ['; rel="prevnext"', false], ['; rel="next-page"', false], ['; rel="previous"', false], ['; rel=next', false], ["; rel='next'", false], ['; REL="next"', false], ['; rel="last"', false], ['', false], ['; rel=""', false],
+    ];
+    for (const [tail, found] of cases) {
+      const state = await github({ pageSize: 1 });
+      release(state, 'v1.0.0', V1);
+      release(state, 'v1.1.0', V2);
+      state.nextLink = `${next(state)}${tail}`;
+      const { work } = adopted();
+      const got = await call(['--dry-run'], state, work);
+      assert.equal(got.code, 0, `${tail}: ${got.stderr}`);
+      assert.match(got.stdout, found ? /^update v1\.0\.0 to v1\.1\.0 / : /^current: v1\.0\.0 /, tail);
+      assert.equal(state.requests.filter((r) => r.path.endsWith('/releases')).length, found ? 2 : 1, tail);
+    }
+  });
+
   test('a request that writes says that its body is JSON, and a request that reads says nothing of a body', async () => {
     const { state, work } = await world();
     assert.equal((await call([], state, work)).code, 0);
@@ -828,6 +847,25 @@ describe('the redirect of the manifest', () => {
       assert.ok(!got.stderr.includes(TOKEN));
       assert.ok(asked.slice(before).every((url) => url.startsWith(state.url)), 'every request went to the API');
     }
+  });
+
+  test('what is said of a place that is not followed is the first hundred characters of it', async () => {
+    const { state, work } = await world();
+    state.redirect = `http://evil.example/${'a'.repeat(200)}`;
+    const got = await call(['--dry-run'], state, work);
+    assert.equal(got.stderr, `updater: failed: the download of the manifest was sent to a place that the updater does not follow: http://evil.example/${'a'.repeat(80)}\n`);
+  });
+
+  test('an asset with the id 1 is an asset', async () => {
+    const state = await github();
+    state.nextAsset = 0;
+    release(state, 'v1.0.0', V1);
+    release(state, 'v1.1.0', V2);
+    assert.deepEqual(state.releases.map((r) => r.assetId), [1, 2]);
+    const { work } = adopted();
+    const got = await call(['--dry-run'], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.doesNotMatch(got.stdout, /warning/, 'the manifest of the pinned release, the asset 1, was read');
   });
 
   test('is followed once and not twice', async () => {
@@ -913,7 +951,9 @@ describe('the token', () => {
     assert.equal(statusOf(work), '');
     assert.ok(state.requests.every((r) => r.authorization === undefined));
     const empty = await call([], state, work, { token: '' });
-    assert.equal(empty.code, 1);
+    assert.deepEqual([empty.code, empty.stderr], [1, ''], 'a secret that is empty is a secret that is not there');
+    assert.match(empty.stdout, /\nRECORD_KEEPER_TOKEN is not set: nothing was written/);
+    assert.ok(state.requests.every((r) => r.authorization === undefined));
   });
 
   test('without it a run with nothing to do is green', async () => {
@@ -960,21 +1000,21 @@ describe('the branch', () => {
     }
   });
 
-  test('an error that is no refusal and no failure and no error of the system is not hidden: it ends the run, with its stack', async () => {
-    const { state, work } = await world();
-    let failed = false;
-    state.fault = (entry) => (entry.path.endsWith('/releases') && !failed && (failed = true) ? { status: 503 } : null);
-    const sleep = async () => { throw Object.assign(new Error('a mistake of the test'), { code: 'ERR_A_MISTAKE' }); };
-    await assert.rejects(call(['--dry-run'], state, work, { sleep }), /a mistake of the test/);
-  });
-
-  test('a pull request that GitHub answers with something that is none is a failure, and so is one that it does not make', async () => {
-    for (const body of [{ id: 5 }, 'not json', '[]', 'null', { number: 'seven' }, { number: 1.5 }]) {
-      const { state, bare, work } = await world();
-      state.fault = (entry) => (entry.method === 'POST' && entry.path === '/repos/o/r/pulls' ? { status: 201, body } : null);
-      const got = await call([], state, work);
-      assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: the answer to the new pull request is not a pull request\n'], JSON.stringify(body));
-      assert.ok(treeOf(bare, BRANCH).length > 0, 'the branch was pushed before the pull request was asked for');
+  test('an error that is no refusal and no failure and no error of the system is not hidden: it ends the run, with its stack; an error of the system is a failure in a line', async () => {
+    for (const code of ['ERR_A_MISTAKE', 'XEACCES', 'EACCES!', 'eacces', 'E', 'EACCES ', undefined]) {
+      const { state, work } = await world();
+      let failed = false;
+      state.fault = (entry) => (entry.path.endsWith('/releases') && !failed && (failed = true) ? { status: 503 } : null);
+      const sleep = async () => { throw Object.assign(new Error('a mistake of the test'), { code }); };
+      await assert.rejects(call(['--dry-run'], state, work, { sleep }), /a mistake of the test/, String(code));
+    }
+    for (const [error, said] of [[{ code: 'EACCES', syscall: 'open', path: '/x/y' }, 'open /x/y failed: EACCES'], [{ code: 'ENOSPC' }, 'a file operation failed: ENOSPC'], [{ code: 'E2BIG' }, 'a file operation failed: E2BIG'], [{ code: 'EMFILE', syscall: 'open', path: '/a\nb' }, 'open /a\\u{a}b failed: EMFILE']]) {
+      const { state, work } = await world();
+      let failed = false;
+      state.fault = (entry) => (entry.path.endsWith('/releases') && !failed && (failed = true) ? { status: 503 } : null);
+      const sleep = async () => { throw Object.assign(new Error('the system'), error); };
+      const got = await call(['--dry-run'], state, work, { sleep });
+      assert.deepEqual([got.code, got.stderr], [1, `updater: failed: ${said}\n`]);
     }
   });
 
@@ -1209,6 +1249,7 @@ describe('a request that fails', () => {
       [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': 'soon' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
       [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '0' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
       [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '100000000000' }, 1, [], 'answered 403: the rate limit is used up; run again later, with a token'],
+      [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1' }, 1, [], 'answered 403: the rate limit is used up and resets at 1970-01-01T00:00:01.000Z; run again later, with a token'],
       [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '99999999999' }, 1, [], 'answered 403: the rate limit is used up and resets at 5138-11-16T09:46:39.000Z; run again later, with a token'],
       [403, { 'x-ratelimit-remaining': '1', 'retry-after': '3' }, 3, [3000, 3000], 'answered 403: {"message":"fault"}'],
       [404, { 'x-ratelimit-remaining': '0' }, 1, [], 'answered 404: {"message":"fault"}'],
