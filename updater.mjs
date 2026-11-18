@@ -44,6 +44,8 @@ const PIN_KEYS = ['source', 'version', 'commit', 'channel'];
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?$/;
 const COMMIT = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const SOURCE = /^[A-Za-z0-9._-]{1,100}\/[A-Za-z0-9._-]{1,100}$/;
+/** Whether a text is `owner/name`: the parts are names of GitHub, and neither is . or .., so that the text cannot walk out of /repos/ in a request. */
+export const isSource = (value) => typeof value === 'string' && SOURCE.test(value) && !value.split('/').some((part) => part === '.' || part === '..');
 const NAME = '[a-z][a-z0-9]*(?:-[a-z0-9]+)*';
 const PROGRAM = new RegExp(`^\\.github/record-keeper/${NAME}\\.mjs$`);
 const WORKFLOW = new RegExp(`^\\.github/workflows/records-${NAME}\\.yml$`);
@@ -87,8 +89,7 @@ const REASONS = {
   'manifest-source': (d) => `the manifest names a source that is not a path: ${d}`,
   'manifest-digest': (d) => `entry ${d} of the manifest has a digest that is not 64 hexadecimal digits`,
   'manifest-size': (d) => `entry ${d} of the manifest has a size that is not a number of bytes within the limit`,
-  'manifest-duplicate': (d) => `the manifest installs one path twice (also in other capitals): ${d}`,
-  'manifest-clash': (d) => `the manifest installs a file and a path below it: ${d}`,
+  'manifest-duplicate': (d) => `the manifest installs one path twice: ${d}`,
   'manifest-too-large': () => 'the files of the manifest are together larger than the updater takes',
   'node-version': (d) => `this Node.js does not satisfy the range that the release names: ${d}`,
   'download-missing': (d) => `the file ${d} of the release was not downloaded`,
@@ -96,6 +97,9 @@ const REASONS = {
   'digest-mismatch': (d) => `digest mismatch: ${d}`,
   'path-blocked': (d) => `something other than a file is in the way of ${d}`,
 };
+
+/** The codes of every refusal that the page lists. */
+export const CODES = Object.keys(REASONS);
 
 /** A reason to stop that the page lists; the plan of a refusal is its code and its detail. */
 export class Refused extends Error {
@@ -164,7 +168,7 @@ export function renderPin({ source, version, commit, channel }) {
 }
 
 const PIN_VALUES = {
-  source: (value) => SOURCE.test(value) && !value.split('/').some((part) => part === '.' || part === '..'),
+  source: isSource,
   version: (value) => parseTag(value) !== null,
   commit: (value) => COMMIT.test(value),
   channel: (value) => CHANNELS.includes(value),
@@ -301,17 +305,16 @@ export function checkManifest(manifest, { tag, commit }) {
     const at = index + 1;
     if (!isObject(entry) || Object.keys(entry).sort().join() !== ENTRY_KEYS.join()) throw new Refused('manifest-entry', at);
     if (entry.kind !== 'managed' && entry.kind !== 'template') throw new Refused('manifest-kind', at);
-    if (pathProblem(entry.path) !== null || !mayInstall(entry.kind, entry.path)) throw new Refused('manifest-path', entry.path);
+    if (!mayInstall(entry.kind, entry.path)) throw new Refused('manifest-path', entry.path);
     if (pathProblem(entry.source) !== null) throw new Refused('manifest-source', entry.source);
     if (typeof entry.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(entry.sha256)) throw new Refused('manifest-digest', at);
     if (!isIntegral(entry.size) || entry.size < 0 || entry.size > LIMITS.file) throw new Refused('manifest-size', at);
   }
-  const seen = new Map();
+  const seen = new Set();
   for (const { path: destination } of files) {
-    if (seen.has(destination.toLowerCase())) throw new Refused('manifest-duplicate', destination);
-    seen.set(destination.toLowerCase(), destination);
+    if (seen.has(destination)) throw new Refused('manifest-duplicate', destination);
+    seen.add(destination);
   }
-  for (const [lower, destination] of seen) if ([...seen.keys()].some((other) => other.startsWith(`${lower}/`))) throw new Refused('manifest-clash', destination);
   if (files.reduce((sum, { size }) => sum + size, 0) > LIMITS.total) throw new Refused('manifest-too-large');
 }
 
@@ -344,10 +347,9 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
     if (got.sha256 !== entry.sha256) throw new Refused('digest-mismatch', entry.path);
   }
   const state = (destination) => (Object.hasOwn(tree, destination) ? tree[destination] : { kind: 'absent' });
-  for (const destination of [PIN_PATH, ...files.map((entry) => entry.path)]) {
-    const kind = state(destination).kind;
-    const template = TEMPLATES.includes(destination);
-    if (kind === 'blocked' || (!template && kind !== 'absent' && kind !== 'file')) throw new Refused('path-blocked', destination);
+  for (const destination of [PIN_PATH, ...files.filter((entry) => entry.kind === 'managed').map((entry) => entry.path)]) {
+    const { kind } = state(destination);
+    if (kind !== 'absent' && kind !== 'file') throw new Refused('path-blocked', destination);
   }
   const warnings = [];
   let before = null;
@@ -363,6 +365,7 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
     }
   }
   const was = new Map((before === null ? [] : before.files.filter((entry) => entry.kind === 'managed')).map((entry) => [entry.path, entry]));
+  const wasTemplates = new Set((before === null ? [] : before.files.filter((entry) => entry.kind === 'template')).map((entry) => entry.path));
   const added = [];
   const changed = [];
   const unchanged = [];
@@ -371,7 +374,8 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
   const overwritten = [];
   for (const entry of files) {
     const here = state(entry.path);
-    if (entry.kind === 'template') (here.kind === 'absent' ? templates : kept).push(entry.path);
+    // A template is installed once: at the first adoption, and by the update that brings it. Where the pinned release is not known, nothing tells the two apart.
+    if (entry.kind === 'template') (here.kind === 'absent' && (pin === null || (before !== null && !wasTemplates.has(entry.path))) ? templates : kept).push(entry.path);
     else if (here.kind === 'absent') added.push(entry.path);
     else if (here.sha256 === entry.sha256) unchanged.push(entry.path);
     else {
@@ -423,7 +427,7 @@ export function plan(input) {
     const channel = input.channel ?? pin?.channel ?? 'stable';
     const chosen = selectRelease({ pin, channel, target: input.target, releases: input.releases });
     if (chosen.status === 'current') return chosen;
-    return planUpdate({ ...input, pin, source, channel, tag: chosen.release.tag_name });
+    return planUpdate({ ...input, previous: input.previous ?? null, pin, source, channel, tag: chosen.release.tag_name });
   } catch (error) {
     if (!(error instanceof Refused)) throw error;
     return { status: 'refused', code: error.code, detail: error.detail };
@@ -491,7 +495,7 @@ export const renderMessage = (update) => `${renderTitle(update.from, update.to)}
 export function parseArgs(argv) {
   const options = { dryRun: false, local: false, target: null, source: null, channel: null };
   const flags = { '--dry-run': 'dryRun', '--local': 'local' };
-  const values = { '--target': ['target', (value) => parseTag(value) !== null], '--source': ['source', (value) => SOURCE.test(value)], '--channel': ['channel', (value) => CHANNELS.includes(value)] };
+  const values = { '--target': ['target', (value) => parseTag(value) !== null], '--source': ['source', isSource], '--channel': ['channel', (value) => CHANNELS.includes(value)] };
   const given = new Set();
   for (let at = 0; at < argv.length; at++) {
     const name = argv[at];
@@ -888,7 +892,7 @@ async function execute(opts, env, options, say) {
   const token = env.RECORD_KEEPER_TOKEN === undefined || env.RECORD_KEEPER_TOKEN === '' ? undefined : env.RECORD_KEEPER_TOKEN;
   if (token !== undefined && !/^\S+$/.test(token)) throw new Failed('RECORD_KEEPER_TOKEN is not a token');
   const repo = env.GITHUB_REPOSITORY;
-  if (mode === 'pull' && !(typeof repo === 'string' && SOURCE.test(repo))) throw new Failed('GITHUB_REPOSITORY must be owner/name');
+  if (mode === 'pull' && !isSource(repo)) throw new Failed('GITHUB_REPOSITORY must be owner/name');
   const context = { base: apiBase(env.GITHUB_API_URL || DEFAULT_API), token, fetch: options.fetch ?? globalThis.fetch, sleep: options.sleep ?? wait, timeout: options.timeout ?? TIMEOUT_MS, root, repo, gitEnv: options.gitEnv ?? process.env };
   const pinText = readPin(root);
   const pin = pinText === null ? null : parsePin(pinText);

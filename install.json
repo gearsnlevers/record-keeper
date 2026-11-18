@@ -5,14 +5,16 @@
     { "source": "record-keeper.mjs", "path": ".github/record-keeper/record-keeper.mjs", "kind": "managed" },
     { "source": "check-pull-request.mjs", "path": ".github/record-keeper/check-pull-request.mjs", "kind": "managed" },
     { "source": "run-audit.mjs", "path": ".github/record-keeper/run-audit.mjs", "kind": "managed" },
+    { "source": "updater.mjs", "path": ".github/record-keeper/updater.mjs", "kind": "managed" },
     { "source": "templates/workflows/records-integrity.yml", "path": ".github/workflows/records-integrity.yml", "kind": "managed" },
     { "source": "templates/workflows/records-audit.yml", "path": ".github/workflows/records-audit.yml", "kind": "managed" },
+    { "source": "templates/workflows/records-updater.yml", "path": ".github/workflows/records-updater.yml", "kind": "managed" },
     { "source": "templates/decisions/README.md", "path": "docs/decisions/README.md", "kind": "template" },
     { "source": "templates/decisions/template.md", "path": "docs/decisions/template.md", "kind": "template" },
     { "source": "templates/settings.yml", "path": ".github/record-keeper/settings.yml", "kind": "template" }
   ],
   "requires": {
-    "secrets": [],
+    "secrets": ["RECORD_KEEPER_TOKEN"],
     "settings": ["owners"],
     "rulesets": [
       { "branch": "default", "checks": ["Records integrity"], "up-to-date": true }
