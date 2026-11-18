@@ -1,7 +1,7 @@
 """A second implementation of the core of the setup check (docs/setup-check.md), in Python with the standard library only. It is written from the page and shares
 no code with setup-check.mjs: it reads what the runner read, as plain data, and says what is wrong with the installation of the kit in a repository.
 
-  decide(input)            -> {'findings': [{'code', 'severity', 'detail'}], 'passed': [topic]}
+  decide(input)            -> {'findings': [{'code', 'severity', 'detail'}], 'passed': [topic], 'notLookedAt': [{'topic', 'why'}]}
   parse_utc(text)          -> milliseconds, or None
   parse_codeowners(text)   -> {'rules': [{'line', 'pattern', 'owners'}], 'unreadable': [{'line', 'reason'}]}
   matches(pattern, file)   -> bool
@@ -186,6 +186,10 @@ def owners_of(rules, file):
     return []
 
 
+def _owner_list(owners):
+    return ','.join(sorted(('%s/%d' % (owner['login'], owner['id'])) for owner in owners))
+
+
 def _lower_ascii(text):
     return re.sub('[A-Z]', lambda letter: letter.group(0).lower(), text)
 
@@ -193,6 +197,7 @@ def _lower_ascii(text):
 def decide(input):
     found = []
     passed = []
+    not_looked_at = []
 
     def add(code, detail=''):
         found.append({'code': code, 'severity': SEVERITY[code], 'detail': detail})
@@ -223,7 +228,9 @@ def decide(input):
             add('owners-few', '%d listed, %d needed' % (len(settings['owners']), settings['approvals']))
         else:
             passed.append('owners')
-        if settings['approvals'] == 1:
+        base = input['baseSettings']
+        if settings['approvals'] == 1 and input['event'] == 'pull_request' and (
+                base['state'] == 'absent' or (base['state'] == 'read' and (base['approvals'] != 1 or _owner_list(base['owners']) != _owner_list(settings['owners'])))):
             add('single-owner')
 
     if not local and known and len(settings['owners']) > 0:
@@ -290,13 +297,14 @@ def decide(input):
             elif strict:
                 add('check-not-strict', branch)
             unseen = []
+            hidden = []
             always = 0
             for ruleset_id in sorted(set(rule['id'] for rule in requiring)):
                 ruleset = github['bypass'].get(str(ruleset_id))
                 if ruleset is None or not ruleset['ok']:
                     unseen.append('ruleset %d: %s' % (ruleset_id, 'not read' if ruleset is None else ruleset['why']))
                 elif ruleset['actors'] is None:
-                    unseen.append('ruleset %d: the token cannot see the bypass list' % ruleset_id)
+                    hidden.append('ruleset %d: the token cannot see the bypass list' % ruleset_id)
                 else:
                     for actor in ruleset['actors']:
                         if actor['mode'] != 'pull_request':
@@ -304,12 +312,14 @@ def decide(input):
                             add('bypass-always', '%s: %s %s, mode %s' % (ruleset['name'], actor['type'], 'without an ID' if actor['id'] is None else actor['id'], actor['mode']))
             if unseen:
                 unchecked('bypass', '; '.join(unseen))
-            elif always == 0 and len(requiring) > 0:
+            if hidden:
+                not_looked_at.append({'topic': 'bypass', 'why': '; '.join(hidden)})
+            if not unseen and not hidden and always == 0 and len(requiring) > 0:
                 passed.append('bypass')
 
     pin = input['pin']
     if input['own']:
-        unchecked('own', 'this is the repository of the kit: install.json is at its root')
+        not_looked_at.append({'topic': 'own', 'why': 'this is the repository of the kit: install.json is at its root'})
     elif pin['state'] == 'absent':
         add('pin-missing')
     elif pin['state'] == 'refused':
@@ -390,4 +400,4 @@ def decide(input):
                     add('audit-not-yet', 'there is no record of a run yet, and the audit workflow is on the default branch since %s' % age['at'])
 
     findings = [item for severity in ORDER for item in found if item['severity'] == severity]
-    return {'findings': findings, 'passed': passed}
+    return {'findings': findings, 'passed': passed, 'notLookedAt': not_looked_at}

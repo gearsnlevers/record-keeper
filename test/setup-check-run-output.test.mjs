@@ -185,7 +185,7 @@ describe('what is printed', () => {
     assert.equal((await say(state, dir)).stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
     assert.equal((await say(state, dir, { env: { GITHUB_ACTIONS: undefined } })).stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
     const json = JSON.parse((await say(state, dir, { argv: ['--repo', state.repo, '--json'] })).stdout);
-    assert.deepEqual(json, { repository: 'example/repo', at: '2026-11-18T12:00:00Z', findings: [], passed: json.passed });
+    assert.deepEqual(json, { repository: 'example/repo', at: '2026-11-18T12:00:00Z', findings: [], passed: json.passed, notLookedAt: [] });
     assert.equal(json.passed.length, 13);
   });
 
@@ -194,7 +194,7 @@ describe('what is printed', () => {
     const got = await say(state, dir, { argv: ['--repo', state.repo, '--json'] });
     assert.equal(got.stdout.split('\n').length, 2);
     const report = JSON.parse(got.stdout);
-    assert.deepEqual(Object.keys(report), ['repository', 'at', 'findings', 'passed']);
+    assert.deepEqual(Object.keys(report), ['repository', 'at', 'findings', 'passed', 'notLookedAt']);
     assert.deepEqual(report.findings.map((finding) => Object.keys(finding).join()), ['code,severity,detail,text', 'code,severity,detail,text', 'code,severity,detail,text']);
     assert.deepEqual(report.findings.map((finding) => finding.severity), ['error', 'warning', 'warning']);
     assert.ok(!got.stdout.includes('::error'));

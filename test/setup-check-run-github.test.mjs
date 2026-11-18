@@ -98,7 +98,7 @@ describe('what is asked of GitHub, and how', () => {
   });
 
   test('a default branch that is not a name that the check will put into a request is a repository that was not read', async () => {
-    for (const branch of ['a b', 'a?b', 'a#b', '../x', 'a/../x', 'a/./x', 'a//x', '/a', 'a/', '.', '..', 'a..b', 'x'.repeat(201), '']) {
+    for (const branch of ['a b', 'a?b', 'a#b', '-x', '--local', '../x', 'a/../x', 'a/./x', 'a//x', '/a', 'a/', '.', '..', 'a..b', 'x'.repeat(201), '']) {
       const { state, dir } = await world((s) => { s.branch = branch; });
       state.fault = (entry) => (entry.path === '/repos/example/repo' ? undefined : { status: 404 });
       const got = await check(state, dir);
@@ -416,11 +416,24 @@ describe('who may bypass a ruleset', () => {
     assert.deepEqual((await check(state, dir)).found, []);
   });
 
-  test('a token that is shown no list: the field is not there, and that is not a pass', async () => {
+  test('a token that is shown no list: the field is not there, nothing is said of it but in the report, and that is not a pass', async () => {
     const { state, dir } = await world((s) => { s.rulesets.set(4101, ruleset(4101, { actors: undefined })); });
     const got = await check(state, dir);
-    assert.deepEqual(got.found, ['not-checked bypass: ruleset 4101: the token cannot see the bypass list']);
+    assert.deepEqual(got.found, []);
+    assert.equal(got.code, 0);
     assert.deepEqual(got.report.passed, without('bypass'));
+    assert.deepEqual(got.report.notLookedAt.map(({ topic, why }) => ({ topic, why })), [{ topic: 'bypass', why: 'ruleset 4101: the token cannot see the bypass list' }]);
+    assert.match(got.report.notLookedAt[0].text, /^not looked at: who may bypass the ruleset \(ruleset 4101: the token cannot see the bypass list\)\. The token of a workflow is not shown the bypass list/);
+  });
+
+  test('a ruleset that could not be read is not the same as one that was read without its list: the first is a notice, the second is not', async () => {
+    const { state, dir } = await world((s) => {
+      s.rules = [...others(4101), requiring(4101), requiring(4200)];
+      s.rulesets.set(4101, ruleset(4101, { actors: undefined }));
+    });
+    const got = await check(state, dir);
+    assert.deepEqual(got.found, ['not-checked bypass: ruleset 4200: GET /repos/example/repo/rulesets/4200 answered 404: {"message":"Not Found","documentation_url":"https://docs.github.com/rest","status":"404"}']);
+    assert.deepEqual(got.report.notLookedAt.map(({ topic, why }) => ({ topic, why })), [{ topic: 'bypass', why: 'ruleset 4101: the token cannot see the bypass list' }]);
   });
 
   test('a ruleset that is not there, or is not what the check needs', async () => {
@@ -484,12 +497,12 @@ describe('the accounts of the owners', () => {
     for (const login of accepted) {
       const { state, dir } = await world((s) => { s.users = new Map([[1001, login]]); });
       write(dir, '.github/record-keeper/settings.yml', `owners: ["${login}/1001"]\napprovals: 1\n`);
-      assert.deepEqual((await check(state, dir)).found, ['single-owner'], login.slice(0, 12));
+      assert.deepEqual((await check(state, dir)).found, [], login.slice(0, 12));
     }
     for (const login of ['a'.repeat(40), '-a', '_a', 'a_b', 'a b', 'a[bot', 'a[bot]x', '[bot]', '', 'a.b', 'a\nb']) {
       const { state, dir } = await world((s) => { s.users = new Map([[1001, login]]); });
       write(dir, '.github/record-keeper/settings.yml', 'owners: [alice/1001]\napprovals: 1\n');
-      assert.deepEqual((await check(state, dir)).found, ['single-owner', 'not-checked accounts: alice/1001: the answer about the account 1001 is not what the check needs'], login.slice(0, 12));
+      assert.deepEqual((await check(state, dir)).found, ['not-checked accounts: alice/1001: the answer about the account 1001 is not what the check needs'], login.slice(0, 12));
     }
   });
 

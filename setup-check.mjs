@@ -76,14 +76,22 @@ export const TOPICS = {
   rules: { what: `the rules that apply to the default branch`, fix: `Read them under Settings, Rules, Rulesets: a ruleset on the default branch must require the check "${CHECK}". Run the check again later if GitHub was busy.` },
   'branch protection': { what: `whether branch protection requires the check, which no ruleset does`, fix: `Read it under Settings, Branches, or put the rule into a ruleset (Settings, Rules, Rulesets), which the check reads. Run the check again later if GitHub was busy.` },
   strict: { what: `whether the check must be up to date`, fix: `Branch protection does not tell the token of the workflow. Move the rule into a ruleset, which the check reads, or read the setting under Settings, Branches.` },
-  bypass: { what: `who may bypass the ruleset`, fix: `The token of a workflow may not see the bypass list of a ruleset. Read it under Settings, Rules, Rulesets: no actor may bypass except for pull requests.` },
+  bypass: { what: `who may bypass the ruleset`, fix: `The ruleset could not be read. Run the check again later, and read it under Settings, Rules, Rulesets if it keeps failing: no actor may bypass except for pull requests.` },
   accounts: { what: `the accounts of the owners`, fix: `Read https://api.github.com/user/<id> for each owner and compare the login, or run the check again later.` },
   codeowners: { what: `who CODEOWNERS gives the files of the kit to`, fix: `Write CODEOWNERS with the patterns that docs/setup-check.md says are read, or read the file by hand.` },
-  own: { what: `the pin, the pinned release and the installed files`, fix: `Nothing to do: the kit does not install itself.` },
   release: { what: `the manifest of the pinned release`, fix: `Run the check again later. The release is read from the repository named in the pin.` },
   secret: { what: `whether ${SECRET} is set`, fix: `Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN), which a run for a pull request cannot.` },
   audit: { what: `the last run of the audit`, fix: `Run the check again later, and look at the branch record-keeper/log by hand.` },
   age: { what: `how long the audit workflow has been in the repository`, fix: `Run the check again later, and look at the history of ${AUDIT_WORKFLOW} by hand.` },
+};
+
+/**
+ * What the check does not look at, because nothing that the repository does would let it: not a finding and no annotation, but said in the job summary and in `--json`
+ * (and, outside Actions, in one plain line). `why` is made by the decision.
+ */
+export const NOT_LOOKED_AT = {
+  bypass: { what: `who may bypass the ruleset`, note: `The token of a workflow is not shown the bypass list of a ruleset, whoever the repository is. The audit finds the effect (a change to a guarded file that came in without a pull request is a violation, A-03), and run by hand with the token of a person who may administer the repository the program says bypass-always.` },
+  own: { what: `the pin, the pinned release and the installed files`, note: `The kit does not install itself.` },
 };
 
 const TEXT = {
@@ -105,7 +113,7 @@ const TEXT = {
   'audit-workflow-missing': (d) => `the audit workflow ${AUDIT_WORKFLOW} is ${d === '' ? 'not in this checkout' : 'not a file'}, so nothing runs the nightly audit. Restore it with the updater.`,
   'audit-record-unreadable': (d) => `last-run.json on the branch ${LOG_BRANCH} cannot be read (${d}), so the age of the last audit run is not known. Run the workflow "Records audit" by hand: it replaces the file.`,
   'audit-record-future': (d) => `last-run.json on the branch ${LOG_BRANCH} says the audit ran at ${d}, which is in the future. Look at the file and at the clock of the runner.`,
-  'single-owner': () => `the single-owner mode is on (approvals: 1). The owner is the whole authority: the checks keep the records in order and stop contributors, agents and forgetfulness, but not the owner, nor whoever holds the owner's token. The delays and the audit still apply.`,
+  'single-owner': () => `this pull request puts the single-owner mode on, or changes who the owners are while it is on (approvals: 1). The owner is the whole authority: the checks keep the records in order and stop contributors, agents and forgetfulness, but not the owner, nor whoever holds the owner's token. The delays and the audit still apply.`,
   'audit-not-yet': (d) => `${d}. The audit writes its record on every push to the default branch and every night, so this goes away by itself; look at the workflow "Records audit" if it does not.`,
 };
 
@@ -116,6 +124,9 @@ export function describe({ code, detail }) {
   const topic = detail.slice(0, at);
   return `not checked: ${TOPICS[topic].what} (${printable(detail.slice(at + 2))}). ${TOPICS[topic].fix}`;
 }
+
+/** The sentence that says what is not looked at: `{ topic, why }` as `decide` gives it. */
+export const describeLooked = ({ topic, why }) => `not looked at: ${NOT_LOOKED_AT[topic].what} (${printable(why)}). ${NOT_LOOKED_AT[topic].note}`;
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Times
@@ -218,15 +229,20 @@ export function ownersOf(rules, file) {
 const compare = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
 const lowerAscii = (text) => text.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
 const SEVERITIES = ['error', 'warning', 'notice'];
+/** The owners as a list of `login/id` in the order of their bytes, so that two lists of the same owners are the same text. */
+const ownerList = (owners) => owners.map((owner) => `${owner.login}/${owner.id}`).sort(compare).join(',');
 
 /**
- * What the setup check says: the findings, errors first and each group in the order the checks are made, and the topics that were checked and found fine. `input` is
+ * What the setup check says: the findings, errors first and each group in the order the checks are made, the topics that were checked and found fine, and what was not
+ * looked at (a topic and why: no finding, and no annotation). `input` is
  * what the runner read, as plain data (the page and test/fixtures/setup/README.md say what each part is): `now` in milliseconds, `local`, `own` (the kit's own
- * repository), `event`, `secretSet` (true, false or null), `settings`, `codeowners`, `pin`, `release`, `tree`, `auditWorkflow` and `github` (null with `local`).
+ * repository), `event`, `secretSet` (true, false or null), `settings`, `baseSettings` (the settings of the base of a pull request), `codeowners`, `pin`, `release`, `tree`,
+ * `auditWorkflow` and `github` (null with `local`).
  */
 export function decide(input) {
   const found = [];
   const passed = [];
+  const notLookedAt = [];
   const add = (code, detail = '') => found.push({ code, severity: SEVERITY[code], detail });
   const unchecked = (topic, why) => add('not-checked', `${topic}: ${why}`);
   const { settings, github, local, now } = input;
@@ -242,7 +258,11 @@ export function decide(input) {
   if (known) {
     if (settings.owners.length < settings.approvals) add('owners-few', `${settings.owners.length} listed, ${settings.approvals} needed`);
     else passed.push('owners');
-    if (settings.approvals === 1) add('single-owner');
+    // The single-owner mode is said once, by the pull request that puts it on or changes its owners (on every other run nobody could do anything about it, and the audit
+    // announces the change to the owners): when the settings of its head say approvals 1 and those of its base did not exist, said another number or listed other owners.
+    // Settings of the base that could not be read, or were not asked for, say nothing.
+    const base = input.baseSettings;
+    if (settings.approvals === 1 && input.event === 'pull_request' && (base.state === 'absent' || (base.state === 'read' && (base.approvals !== 1 || ownerList(base.owners) !== ownerList(settings.owners))))) add('single-owner');
   }
 
   // The accounts of the owners.
@@ -301,11 +321,12 @@ export function decide(input) {
       else if (strict && requiring.some((rule) => rule.strict)) passed.push('check-strict');
       else if (strict) add('check-not-strict', branch);
       const unseen = [];
+      const hidden = [];
       let always = 0;
       for (const id of [...new Set(requiring.map((rule) => rule.id))].sort((a, b) => a - b)) {
         const ruleset = github.bypass[String(id)];
         if (ruleset === undefined || !ruleset.ok) unseen.push(`ruleset ${id}: ${ruleset === undefined ? 'not read' : ruleset.why}`);
-        else if (ruleset.actors === null) unseen.push(`ruleset ${id}: the token cannot see the bypass list`);
+        else if (ruleset.actors === null) hidden.push(`ruleset ${id}: the token cannot see the bypass list`);
         else {
           for (const actor of ruleset.actors.filter((item) => item.mode !== 'pull_request')) {
             always++;
@@ -314,13 +335,14 @@ export function decide(input) {
         }
       }
       if (unseen.length > 0) unchecked('bypass', unseen.join('; '));
-      else if (always === 0 && requiring.length > 0) passed.push('bypass');
+      if (hidden.length > 0) notLookedAt.push({ topic: 'bypass', why: hidden.join('; ') });
+      if (unseen.length === 0 && hidden.length === 0 && always === 0 && requiring.length > 0) passed.push('bypass');
     }
   }
 
   // The pin, the pinned release, the files that were installed, and the secret.
   const { pin } = input;
-  if (input.own) unchecked('own', 'this is the repository of the kit: install.json is at its root');
+  if (input.own) notLookedAt.push({ topic: 'own', why: 'this is the repository of the kit: install.json is at its root' });
   else if (pin.state === 'absent') add('pin-missing');
   else if (pin.state === 'refused') add('pin-unusable', pin.code);
   else {
@@ -377,7 +399,7 @@ export function decide(input) {
   }
 
   const findings = SEVERITIES.flatMap((severity) => found.filter((finding) => finding.severity === severity));
-  return { findings, passed };
+  return { findings, passed, notLookedAt };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -398,7 +420,7 @@ export const tally = (findings) => `setup check: ${SEVERITIES.map((severity, at)
 /** A text of a finding as Markdown that cannot make a link, an image, a mention or a table of its own. */
 export const markdown = (text) => printable(text).replace(/[\\`*_{}[\]()#+\-.!|<>&@~:]/g, (character) => `\\${character}`);
 
-/** The job summary: a table of the findings, and what was checked and found fine. */
+/** The job summary: a table of the findings, what was checked and found fine, and what was not looked at. */
 export function summary(result, { repo, at }) {
   const lines = [`## Records setup check`, '', `${repo === null ? 'The working tree' : `\`${repo}\``} at ${at}: **${tally(result.findings).slice('setup check: '.length)}**`, ''];
   if (result.findings.length === 0) lines.push('No finding.', '');
@@ -408,6 +430,11 @@ export function summary(result, { repo, at }) {
     lines.push('');
   }
   lines.push(`Checked, and fine: ${result.passed.length === 0 ? 'nothing' : result.passed.map((topic) => `\`${topic}\``).join(', ')}.`, '');
+  if (result.notLookedAt.length > 0) {
+    lines.push('Not looked at, and nothing that this repository can do about it:', '');
+    for (const item of result.notLookedAt) lines.push(`- \`${item.topic}\`: ${markdown(describeLooked(item))}`);
+    lines.push('');
+  }
   return lines.join('\n');
 }
 
@@ -498,8 +525,8 @@ function readInstalled(root, relative) {
 // The runner: GitHub
 
 const BRANCH = /^[A-Za-z0-9._/-]{1,200}$/;
-/** Whether a name is a default branch that the check will put into a request: no empty part and no part that walks out of the path. */
-const isBranch = (name) => typeof name === 'string' && BRANCH.test(name) && name.split('/').every((part) => part !== '' && !part.includes('..') && part !== '.');
+/** Whether a name is a branch that the check will put into a request: no empty part, no part that walks out of the path, and no hyphen first (git has no such branch). */
+const isBranch = (name) => typeof name === 'string' && BRANCH.test(name) && !name.startsWith('-') && name.split('/').every((part) => part !== '' && !part.includes('..') && part !== '.');
 const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}(?:\[bot\])?$/;
 const encoded = (name) => name.split('/').map(encodeURIComponent).join('/');
 const isCount = (value) => Number.isSafeInteger(value) && value > 0;
@@ -620,6 +647,23 @@ async function readAge(context, repo, branch) {
   throw new Failed(`more than ${BOUNDS.pages * BOUNDS.perPage} commits touch ${AUDIT_WORKFLOW}`);
 }
 
+/**
+ * The settings file at the base branch of a pull request, for the one finding that compares it with the head's: { state: 'absent' } when there is none, { state: 'read',
+ * owners, approvals } when there is one, and { state: 'not-read' } when it could not be read (and then nothing is said).
+ */
+async function readBase(context, repo, base) {
+  try {
+    const answer = await request(context, 'GET', `/repos/${repo}/contents/${encoded(SETTINGS_PATH)}?ref=${encodeURIComponent(base)}`, { accept: 'application/vnd.github.raw+json', ok: [200, 404], limit: BOUNDS.settings });
+    if (answer.status === 404) return { state: 'absent' };
+    if (answer.over) return { state: 'not-read' };
+    const { settings, problems } = parseSettings(answer.bytes);
+    return problems.some(({ rule }) => rule === 'S-02') ? { state: 'not-read' } : { state: 'read', owners: settings.owners, approvals: settings.approvals };
+  } catch (error) {
+    if (!(error instanceof Failed)) throw error;
+    return { state: 'not-read' };
+  }
+}
+
 /** The manifest of the pinned release of the source, read as untrusted data: what the check needs of it, or why not. */
 async function readRelease(context, pin) {
   try {
@@ -683,6 +727,7 @@ async function execute(opts, env, options) {
     event: env.GITHUB_EVENT_NAME || null,
     secretSet: env.HAS_RECORD_KEEPER_TOKEN === 'true' ? true : env.HAS_RECORD_KEEPER_TOKEN === 'false' ? false : null,
     settings: readSettingsFile(root),
+    baseSettings: { state: 'not-read' },
     codeowners: readCodeowners(root),
     pin: readPinFile(root),
     auditWorkflow: { absent: 'absent', file: 'file' }[inspect(root, AUDIT_WORKFLOW).kind] ?? 'other',
@@ -696,6 +741,8 @@ async function execute(opts, env, options) {
     input.github = found.github;
     input.release = found.release;
     if (input.release.state === 'read') input.tree = Object.fromEntries(input.release.files.map((file) => [file.path, readInstalled(root, file.path)]));
+    // The runner of GitHub names the branch that a pull request goes into in GITHUB_BASE_REF, and only for a pull request. It is asked for only when it can change the answer.
+    if (input.event === 'pull_request' && input.settings.state === 'read' && input.settings.approvals === 1 && isBranch(env.GITHUB_BASE_REF)) input.baseSettings = await readBase(context, repo, env.GITHUB_BASE_REF);
   }
   const result = decide(input);
   return { ...result, repo: opts.local ? null : repo, at: new Date(now).toISOString().replace(/\.\d{3}Z$/, 'Z') };
@@ -709,11 +756,18 @@ export async function runCli(argv, env, options = {}) {
   try {
     const done = await execute(opts, env, options);
     // The token is taken out of what a remote place said before the text is made, so that no text of any kind (a line, a JSON document, a Markdown table) holds it.
-    const result = { ...done, findings: done.findings.map((finding) => ({ ...finding, detail: redact(finding.detail, secrets) })) };
+    const result = { ...done, findings: done.findings.map((finding) => ({ ...finding, detail: redact(finding.detail, secrets) })), notLookedAt: done.notLookedAt.map((item) => ({ ...item, why: redact(item.why, secrets) })) };
     const findings = result.findings.map((finding) => ({ ...finding, text: describe(finding) }));
+    const looked = result.notLookedAt.map((item) => ({ ...item, text: describeLooked(item) }));
     let stdout;
-    if (opts.json) stdout = `${JSON.stringify({ repository: result.repo, at: result.at, findings, passed: result.passed })}\n`;
-    else stdout = `${findings.map((finding) => (env.GITHUB_ACTIONS === 'true' ? annotation(finding) : `${finding.severity}: [${finding.code}] ${printable(finding.text)}`)).join('\n')}${findings.length === 0 ? '' : '\n'}${tally(findings)}\n`;
+    if (opts.json) stdout = `${JSON.stringify({ repository: result.repo, at: result.at, findings, passed: result.passed, notLookedAt: looked })}\n`;
+    else {
+      // In Actions a finding is an annotation, and what is not looked at is in the summary and in --json only: nobody who reads the run could do anything about it.
+      const actions = env.GITHUB_ACTIONS === 'true';
+      const lines = findings.map((finding) => (actions ? annotation(finding) : `${finding.severity}: [${finding.code}] ${printable(finding.text)}`));
+      if (!actions) lines.push(...looked.map((item) => printable(item.text)));
+      stdout = `${lines.map((line) => `${line}\n`).join('')}${tally(findings)}\n`;
+    }
     let stderr = '';
     if (env.GITHUB_STEP_SUMMARY) {
       try {

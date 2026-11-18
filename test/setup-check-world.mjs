@@ -125,6 +125,7 @@ export function healthy() {
     branchBody: branchByRuleset(),
     users: new Map([[1001, 'alice'], [1002, 'Bob']]),
     lastRun: lastRunText(hoursAgo(3)),
+    settingsAt: new Map(),
     commits: [commitOf(hoursAgo(500))],
     releases: [release],
     requests: [],
@@ -211,6 +212,11 @@ function route(state, entry, origin) {
   if (where === `${repo}/contents/last-run.json`) {
     if (entry.query.get('ref') !== 'record-keeper/log' || state.lastRun === null) return undefined;
     return { body: Buffer.from(state.lastRun), headers: { 'content-type': 'application/vnd.github.raw+json; charset=utf-8' } };
+  }
+  if (where === `${repo}/contents/.github/record-keeper/settings.yml`) {
+    // the settings file at a branch, for a run for a pull request: a branch that is not in the map has no such file
+    const text = state.settingsAt.get(entry.query.get('ref'));
+    return text === undefined ? undefined : { body: Buffer.from(text), headers: { 'content-type': 'application/vnd.github.raw+json; charset=utf-8' } };
   }
   if (where === `${repo}/commits`) {
     if (entry.query.get('path') !== '.github/workflows/records-audit.yml' || entry.query.get('sha') !== state.branch) return { body: [] };

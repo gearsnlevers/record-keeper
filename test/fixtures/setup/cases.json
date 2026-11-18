@@ -24,6 +24,9 @@
      ],
      "approvals": 2
     },
+    "baseSettings": {
+     "state": "not-read"
+    },
     "codeowners": {
      "state": "read",
      "path": ".github/CODEOWNERS",
@@ -145,7 +148,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -171,6 +175,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -293,7 +300,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -319,6 +327,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -441,7 +452,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -467,6 +479,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -594,7 +609,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -608,6 +624,9 @@
     "secretSet": true,
     "settings": {
      "state": "absent"
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -733,7 +752,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -747,6 +767,9 @@
     "secretSet": true,
     "settings": {
      "state": "unreadable"
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -872,7 +895,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -903,6 +927,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1030,7 +1057,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -1069,6 +1097,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1196,7 +1227,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -1227,6 +1259,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1354,7 +1389,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -1389,6 +1425,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1516,7 +1555,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -1538,6 +1578,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1665,7 +1708,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -1682,6 +1726,9 @@
      "problems": [],
      "owners": [],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -1808,12 +1855,13 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
    "id": "s-7",
-   "note": "the single-owner mode: one owner, one approval, and a notice on this run",
+   "note": "the single-owner mode on a schedule: nothing is said, whatever the settings were before",
    "input": {
     "now": 1795003200000,
     "local": false,
@@ -1830,6 +1878,9 @@
       }
      ],
      "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
     },
     "codeowners": {
      "state": "read",
@@ -1937,13 +1988,7 @@
     }
    },
    "expect": {
-    "findings": [
-     {
-      "code": "single-owner",
-      "severity": "notice",
-      "detail": ""
-     }
-    ],
+    "findings": [],
     "passed": [
      "settings",
      "owners",
@@ -1958,17 +2003,18 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
    "id": "s-8",
-   "note": "the single-owner mode with two owners listed: the notice all the same",
+   "note": "the single-owner mode with two owners listed, on a manual run of the workflow: nothing is said",
    "input": {
     "now": 1795003200000,
     "local": false,
     "own": false,
-    "event": "schedule",
+    "event": "workflow_dispatch",
     "secretSet": true,
     "settings": {
      "state": "read",
@@ -1985,6 +2031,9 @@
      ],
      "approvals": 1
     },
+    "baseSettings": {
+     "state": "absent"
+    },
     "codeowners": {
      "state": "read",
      "path": ".github/CODEOWNERS",
@@ -2091,13 +2140,7 @@
     }
    },
    "expect": {
-    "findings": [
-     {
-      "code": "single-owner",
-      "severity": "notice",
-      "detail": ""
-     }
-    ],
+    "findings": [],
     "passed": [
      "settings",
      "owners",
@@ -2112,7 +2155,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -2138,6 +2182,9 @@
       }
      ],
      "approvals": 3
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -2265,23 +2312,27 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
    "id": "s-10",
-   "note": "the single-owner mode with no owner: both are said",
+   "note": "the single-owner mode with no owner, on a pull request that starts it: both are said",
    "input": {
     "now": 1795003200000,
     "local": false,
     "own": false,
-    "event": "schedule",
+    "event": "pull_request",
     "secretSet": true,
     "settings": {
      "state": "read",
      "problems": [],
      "owners": [],
      "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
     },
     "codeowners": {
      "state": "read",
@@ -2297,9 +2348,7 @@
     },
     "release": {
      "state": "read",
-     "secrets": [
-      "RECORD_KEEPER_TOKEN"
-     ],
+     "secrets": [],
      "upToDate": true,
      "files": [
       {
@@ -2410,10 +2459,10 @@
      "pin",
      "manifest",
      "managed-files",
-     "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -2423,7 +2472,7 @@
     "now": 1795003200000,
     "local": false,
     "own": false,
-    "event": "schedule",
+    "event": "pull_request",
     "secretSet": true,
     "settings": {
      "state": "read",
@@ -2445,6 +2494,9 @@
      ],
      "approvals": 1
     },
+    "baseSettings": {
+     "state": "absent"
+    },
     "codeowners": {
      "state": "read",
      "path": ".github/CODEOWNERS",
@@ -2459,9 +2511,7 @@
     },
     "release": {
      "state": "read",
-     "secrets": [
-      "RECORD_KEEPER_TOKEN"
-     ],
+     "secrets": [],
      "upToDate": true,
      "files": [
       {
@@ -2573,10 +2623,10 @@
      "pin",
      "manifest",
      "managed-files",
-     "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -2602,6 +2652,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -2729,7 +2782,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -2755,6 +2809,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -2877,7 +2934,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -2903,6 +2961,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3030,7 +3091,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3056,6 +3118,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3183,7 +3248,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3209,6 +3275,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3332,7 +3401,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3358,6 +3428,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3490,7 +3563,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3516,6 +3590,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3648,7 +3725,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3674,6 +3752,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3801,7 +3882,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -3827,6 +3909,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -3954,7 +4039,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -4096,6 +4182,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -4347,7 +4436,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -4485,6 +4575,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -4731,7 +4824,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -4757,6 +4851,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -4880,7 +4977,8 @@
      "manifest",
      "managed-files",
      "secret"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -4902,6 +5000,9 @@
       }
      ],
      "approvals": 1
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -5013,6 +5114,152 @@
     }
    },
    "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-1",
+   "note": "a pull request puts the mode on: the base has no settings file",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
     "findings": [
      {
       "code": "single-owner",
@@ -5031,10 +5278,2259 @@
      "pin",
      "manifest",
      "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-2",
+   "note": "a pull request puts the mode on: the base wants two approvals",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 2,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-3",
+   "note": "a pull request puts the mode on: the base says 3 approvals and names the same owner",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 3,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-4",
+   "note": "the base is in the mode already, with the same owner: nothing is said",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-5",
+   "note": "the base is in the mode already, with the same owners in another order: nothing is said",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "bob",
+       "id": 1002
+      },
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-6",
+   "note": "a pull request changes the owner of the mode: another owner at the base",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-7",
+   "note": "a pull request adds an owner to the mode",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-8",
+   "note": "a pull request changes the login of an owner who is the same account",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "alice2",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-9",
+   "note": "the settings of the base could not be read, or were not asked for: nothing is said",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "not-read"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-10",
+   "note": "a pull request that ends the mode says nothing",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 1,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-11",
+   "note": "a pull request that leaves the mode off says nothing, whatever the base says",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ],
+     "approvals": 2
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-12",
+   "note": "a manual run of the workflow never says it",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "workflow_dispatch",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-13",
+   "note": "a run with no event, as a person starts it, never says it",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": null,
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-14",
+   "note": "a schedule never says it",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "schedule",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "read",
+     "approvals": 2,
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      },
+      {
+       "login": "bob",
+       "id": 1002
+      }
+     ]
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "secret",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-15",
+   "note": "a run for a pull request with --local says nothing: the base is not asked for",
+   "input": {
+    "now": 1795003200000,
+    "local": true,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "not-read"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "not-checked",
+     "why": "--local"
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": null
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "github: the command line says --local"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "codeowners",
+     "pin"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "so-16",
+   "note": "on a pull request the secret is not judged, and the notice about the mode is made all the same",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": true,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "read",
+     "path": ".github/CODEOWNERS",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "read",
+     "source": "example/kit",
+     "version": "v1.0.0",
+     "commit": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+     "channel": "stable"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "file",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": [
+       {
+        "id": 11,
+        "checks": [
+         "Records integrity"
+        ],
+        "strict": true
+       }
+      ]
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "alice"
+      },
+      "1002": {
+       "ok": true,
+       "login": "Bob"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-18T09:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "single-owner",
+      "severity": "notice",
+      "detail": ""
+     },
+     {
+      "code": "not-checked",
+      "severity": "notice",
+      "detail": "secret: a run for a pull request is not given the secrets"
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners",
+     "owner-accounts",
+     "codeowners",
+     "check-required",
+     "check-strict",
+     "bypass",
+     "pin",
+     "manifest",
+     "managed-files",
+     "audit-workflow",
+     "audit"
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5060,6 +7556,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "absent",
@@ -5187,7 +7686,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5213,6 +7713,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "unreadable",
@@ -5340,7 +7843,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5366,6 +7870,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -5488,7 +7995,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5514,6 +8022,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -5641,7 +8152,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5667,6 +8179,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -5794,7 +8309,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5820,6 +8336,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -5942,7 +8461,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -5968,6 +8488,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6095,7 +8618,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6121,6 +8645,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6248,7 +8775,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6274,6 +8802,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6396,7 +8927,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6422,6 +8954,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6549,7 +9084,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6575,6 +9111,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6697,7 +9236,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6723,6 +9263,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6850,7 +9393,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -6876,6 +9420,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -6993,7 +9540,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7019,6 +9567,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7144,7 +9695,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7170,6 +9722,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7296,7 +9851,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7322,6 +9878,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7439,7 +9998,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7465,6 +10025,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7583,7 +10146,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7609,6 +10173,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7736,7 +10303,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7762,6 +10330,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -7897,7 +10468,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -7923,6 +10495,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8044,7 +10619,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8070,6 +10646,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8197,7 +10776,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8223,6 +10803,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8331,7 +10914,8 @@
      "pin",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8357,6 +10941,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8486,7 +11073,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8512,6 +11100,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8629,7 +11220,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8655,6 +11247,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8778,7 +11373,8 @@
      "manifest",
      "managed-files",
      "secret"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8804,6 +11400,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -8931,7 +11530,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -8957,6 +11557,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9099,12 +11702,13 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
    "id": "r-15",
-   "note": "the token was not shown the bypass list",
+   "note": "the token was not shown the bypass list: no finding, and it is not looked at",
    "input": {
     "now": 1795003200000,
     "local": false,
@@ -9125,6 +11729,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9226,13 +11833,7 @@
     }
    },
    "expect": {
-    "findings": [
-     {
-      "code": "not-checked",
-      "severity": "notice",
-      "detail": "bypass: ruleset 11: the token cannot see the bypass list"
-     }
-    ],
+    "findings": [],
     "passed": [
      "settings",
      "owners",
@@ -9246,6 +11847,12 @@
      "secret",
      "audit-workflow",
      "audit"
+    ],
+    "notLookedAt": [
+     {
+      "topic": "bypass",
+      "why": "ruleset 11: the token cannot see the bypass list"
+     }
     ]
    }
   },
@@ -9272,6 +11879,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9392,7 +12002,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -9418,6 +12029,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9534,7 +12148,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -9560,6 +12175,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9695,11 +12313,6 @@
       "code": "bypass-always",
       "severity": "warning",
       "detail": "three: OrganizationAdmin 1, mode always"
-     },
-     {
-      "code": "not-checked",
-      "severity": "notice",
-      "detail": "bypass: ruleset 20: the token cannot see the bypass list"
      }
     ],
     "passed": [
@@ -9715,6 +12328,12 @@
      "secret",
      "audit-workflow",
      "audit"
+    ],
+    "notLookedAt": [
+     {
+      "topic": "bypass",
+      "why": "ruleset 20: the token cannot see the bypass list"
+     }
     ]
    }
   },
@@ -9741,6 +12360,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -9870,7 +12492,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -9896,6 +12519,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10025,7 +12651,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10051,6 +12678,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10194,7 +12824,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10220,6 +12851,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10347,7 +12981,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10373,6 +13008,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10489,7 +13127,7 @@
      {
       "code": "not-checked",
       "severity": "notice",
-      "detail": "bypass: ruleset 11: x; ruleset 12: the token cannot see the bypass list"
+      "detail": "bypass: ruleset 11: x"
      }
     ],
     "passed": [
@@ -10505,6 +13143,12 @@
      "secret",
      "audit-workflow",
      "audit"
+    ],
+    "notLookedAt": [
+     {
+      "topic": "bypass",
+      "why": "ruleset 12: the token cannot see the bypass list"
+     }
     ]
    }
   },
@@ -10531,6 +13175,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10653,7 +13300,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10679,6 +13327,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10804,7 +13455,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10830,6 +13482,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -10947,7 +13602,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -10973,6 +13629,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11099,7 +13758,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -11125,6 +13785,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11242,7 +13905,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -11268,6 +13932,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11318,7 +13985,8 @@
      "owners",
      "codeowners",
      "pin"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -11344,6 +14012,9 @@
       }
      ],
      "approvals": 1
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "absent",
@@ -11390,11 +14061,6 @@
       "detail": ""
      },
      {
-      "code": "single-owner",
-      "severity": "notice",
-      "detail": ""
-     },
-     {
       "code": "not-checked",
       "severity": "notice",
       "detail": "github: the command line says --local"
@@ -11403,12 +14069,13 @@
     "passed": [
      "settings",
      "owners"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
    "id": "l-2",
-   "note": "the repository of the kit has no pin of its own and nothing installed: it is said, and no pin is asked for",
+   "note": "the repository of the kit has no pin of its own and nothing installed: no pin is asked for, and it is not looked at",
    "input": {
     "now": 1795003200000,
     "local": false,
@@ -11429,6 +14096,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11532,13 +14202,7 @@
     }
    },
    "expect": {
-    "findings": [
-     {
-      "code": "not-checked",
-      "severity": "notice",
-      "detail": "own: this is the repository of the kit: install.json is at its root"
-     }
-    ],
+    "findings": [],
     "passed": [
      "settings",
      "owners",
@@ -11549,6 +14213,12 @@
      "bypass",
      "audit-workflow",
      "audit"
+    ],
+    "notLookedAt": [
+     {
+      "topic": "own",
+      "why": "this is the repository of the kit: install.json is at its root"
+     }
     ]
    }
   },
@@ -11575,6 +14245,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11618,17 +14291,18 @@
       "code": "not-checked",
       "severity": "notice",
       "detail": "github: the command line says --local"
-     },
-     {
-      "code": "not-checked",
-      "severity": "notice",
-      "detail": "own: this is the repository of the kit: install.json is at its root"
      }
     ],
     "passed": [
      "settings",
      "owners",
      "codeowners"
+    ],
+    "notLookedAt": [
+     {
+      "topic": "own",
+      "why": "this is the repository of the kit: install.json is at its root"
+     }
     ]
    }
   },
@@ -11655,6 +14329,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11775,7 +14452,8 @@
      "bypass",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -11801,6 +14479,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -11922,7 +14603,8 @@
      "bypass",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -11948,6 +14630,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12074,7 +14759,8 @@
      "pin",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12100,6 +14786,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12225,7 +14914,8 @@
      "pin",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12251,6 +14941,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12376,7 +15069,8 @@
      "pin",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12402,6 +15096,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12528,7 +15225,8 @@
      "pin",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12554,6 +15252,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12681,7 +15382,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12707,6 +15409,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12834,7 +15539,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -12860,6 +15566,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -12983,7 +15692,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13009,6 +15719,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13131,7 +15844,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13157,6 +15871,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13308,7 +16025,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13334,6 +16052,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13470,7 +16191,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13496,6 +16218,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13615,7 +16340,8 @@
      "managed-files",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13641,6 +16367,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13768,7 +16497,8 @@
      "managed-files",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13794,6 +16524,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -13921,7 +16654,8 @@
      "managed-files",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -13947,6 +16681,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14074,7 +16811,8 @@
      "managed-files",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14100,6 +16838,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14222,7 +16963,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14248,6 +16990,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14375,7 +17120,8 @@
      "managed-files",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14401,6 +17147,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "absent",
@@ -14455,7 +17204,8 @@
      "settings",
      "owners",
      "pin"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14481,6 +17231,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14608,7 +17361,8 @@
      "managed-files",
      "secret",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14634,6 +17388,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14761,7 +17518,8 @@
      "managed-files",
      "secret",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14787,6 +17545,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -14914,7 +17675,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -14940,6 +17702,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15067,7 +17832,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15093,6 +17859,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15215,7 +17984,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15241,6 +18011,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15363,7 +18136,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15389,6 +18163,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15516,7 +18293,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15542,6 +18320,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15669,7 +18450,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15695,6 +18477,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15822,7 +18607,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -15848,6 +18634,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -15975,7 +18764,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16001,6 +18791,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16128,7 +18921,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16154,6 +18948,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16280,7 +19077,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16306,6 +19104,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16436,7 +19237,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16462,6 +19264,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16592,7 +19397,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16618,6 +19424,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16748,7 +19557,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16774,6 +19584,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -16904,7 +19717,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -16930,6 +19744,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17060,7 +19877,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17086,6 +19904,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17216,7 +20037,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17242,6 +20064,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17368,7 +20193,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17394,6 +20220,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17524,7 +20353,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17550,6 +20380,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17675,7 +20508,8 @@
      "manifest",
      "managed-files",
      "secret"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17701,6 +20535,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17832,7 +20669,8 @@
      "manifest",
      "managed-files",
      "secret"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -17858,6 +20696,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -17988,7 +20829,8 @@
      "managed-files",
      "secret",
      "audit-workflow"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -18014,6 +20856,9 @@
       }
      ],
      "approvals": 2
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "read",
@@ -18140,7 +20985,8 @@
      "secret",
      "audit-workflow",
      "audit"
-    ]
+    ],
+    "notLookedAt": []
    }
   },
   {
@@ -18162,6 +21008,9 @@
       }
      ],
      "approvals": 1
+    },
+    "baseSettings": {
+     "state": "not-read"
     },
     "codeowners": {
      "state": "absent",
@@ -18283,6 +21132,156 @@
       "code": "audit-workflow-missing",
       "severity": "warning",
       "detail": ""
+     }
+    ],
+    "passed": [
+     "settings",
+     "owners"
+    ],
+    "notLookedAt": []
+   }
+  },
+  {
+   "id": "z-1",
+   "note": "everything is wrong on a pull request that starts the single-owner mode: the notice comes last",
+   "input": {
+    "now": 1795003200000,
+    "local": false,
+    "own": false,
+    "event": "pull_request",
+    "secretSet": false,
+    "settings": {
+     "state": "read",
+     "problems": [],
+     "owners": [
+      {
+       "login": "alice",
+       "id": 1001
+      }
+     ],
+     "approvals": 1
+    },
+    "baseSettings": {
+     "state": "absent"
+    },
+    "codeowners": {
+     "state": "absent",
+     "path": "",
+     "text": "# the kit\n/.github/ @alice @bob\n"
+    },
+    "pin": {
+     "state": "absent"
+    },
+    "release": {
+     "state": "read",
+     "secrets": [],
+     "upToDate": true,
+     "files": [
+      {
+       "path": ".github/record-keeper/record-keeper.mjs",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "size": 100
+      },
+      {
+       "path": ".github/workflows/records-audit.yml",
+       "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+       "size": 200
+      },
+      {
+       "path": ".github/workflows/records-integrity.yml",
+       "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+       "size": 300
+      }
+     ]
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 100
+     },
+     ".github/workflows/records-audit.yml": {
+      "kind": "file",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size": 200
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size": 300
+     }
+    },
+    "auditWorkflow": "absent",
+    "github": {
+     "repo": {
+      "ok": true,
+      "branch": "main"
+     },
+     "rules": {
+      "ok": true,
+      "rules": []
+     },
+     "classic": {
+      "ok": true,
+      "requires": false
+     },
+     "bypass": {
+      "11": {
+       "ok": true,
+       "name": "protect main",
+       "actors": [
+        {
+         "type": "RepositoryRole",
+         "id": 5,
+         "mode": "pull_request"
+        }
+       ]
+      }
+     },
+     "accounts": {
+      "1001": {
+       "ok": true,
+       "login": "zed"
+      }
+     },
+     "lastRun": {
+      "ok": true,
+      "state": "record",
+      "at": "2026-11-14T08:00:00Z"
+     }
+    }
+   },
+   "expect": {
+    "findings": [
+     {
+      "code": "check-not-required",
+      "severity": "error",
+      "detail": "main"
+     },
+     {
+      "code": "audit-dead",
+      "severity": "error",
+      "detail": "the last run was at 2026-11-14T08:00:00Z, more than two days ago"
+     },
+     {
+      "code": "owner-mismatch",
+      "severity": "warning",
+      "detail": "alice/1001: GitHub says zed"
+     },
+     {
+      "code": "codeowners-missing",
+      "severity": "warning",
+      "detail": ""
+     },
+     {
+      "code": "pin-missing",
+      "severity": "warning",
+      "detail": ""
+     },
+     {
+      "code": "audit-workflow-missing",
+      "severity": "warning",
+      "detail": ""
      },
      {
       "code": "single-owner",
@@ -18293,7 +21292,8 @@
     "passed": [
      "settings",
      "owners"
-    ]
+    ],
+    "notLookedAt": []
    }
   }
  ],

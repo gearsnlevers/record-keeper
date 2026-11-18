@@ -57,7 +57,8 @@ describe('--local: the files are read, and GitHub is not asked', () => {
     for (const relative of Object.keys(FILES)) delete files[relative];
     const dir = tree({ ...files, 'install.json': '{}\n' });
     const got = await runCli(['--local', '--root', dir, '--json'], {}, { now: () => NOW });
-    assert.deepEqual(JSON.parse(got.stdout).findings.map((finding) => `${finding.code} ${finding.detail.split(':')[0]}`.trim()), ['codeowners-missing', 'not-checked github', 'not-checked own']);
+    assert.deepEqual(JSON.parse(got.stdout).findings.map((finding) => `${finding.code} ${finding.detail.split(':')[0]}`.trim()), ['codeowners-missing', 'not-checked github']);
+    assert.deepEqual(JSON.parse(got.stdout).notLookedAt.map((item) => item.topic), ['own']);
   });
 
   test('the default root is the working directory, and a root that is not there is a failure of the run', async () => {
@@ -122,14 +123,16 @@ describe('the settings file', () => {
   test('fewer owners than approvals needs, and the single-owner mode', async () => {
     assert.deepEqual(await said(owners('owners: [alice/1001]\n')), ['owners-few 1 listed, 2 needed']);
     assert.deepEqual(await said(owners('# no owner yet\n')), ['owners-few 0 listed, 2 needed']);
-    assert.deepEqual(await said(owners('owners: [alice/1001]\napprovals: 1\n')), ['single-owner']);
-    assert.deepEqual(await said(owners('owners: [alice/1001, bob/1002]\napprovals: 1\nwitnesses: [carol/1003]\n')), ['single-owner']);
+    assert.deepEqual(await said(owners('owners: [alice/1001]\napprovals: 1\n')), [], 'the single-owner mode is not said on a schedule');
+    assert.deepEqual(await said(owners('owners: [alice/1001, bob/1002]\napprovals: 1\nwitnesses: [carol/1003]\n')), []);
   });
 
-  test('the notice of the single-owner mode is made on every run, with --local too', async () => {
+  test('the single-owner mode is not said with --local either, nor with the environment of a pull request when the base is not asked for', async () => {
     const dir = tree({ ...installed(), [SETTINGS]: 'owners: [alice/1001]\napprovals: 1\n' });
-    const got = await runCli(['--local', '--root', dir, '--json'], {}, { now: () => NOW });
-    assert.ok(JSON.parse(got.stdout).findings.some((finding) => finding.code === 'single-owner'));
+    for (const env of [{}, { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' }]) {
+      const got = await runCli(['--local', '--root', dir, '--json'], env, { now: () => NOW, fetch: () => { throw new Error('a request'); } });
+      assert.ok(!JSON.parse(got.stdout).findings.some((finding) => finding.code === 'single-owner'), JSON.stringify(env));
+    }
   });
 
   test('a file that cannot be read is a failure of the run, said in a line', { skip: process.getuid?.() === 0 ? 'the user can read everything' : false }, async () => {
@@ -313,7 +316,8 @@ describe('the audit workflow, and the repository of the kit', () => {
     const { state, dir } = await repository({ [PIN]: null });
     write(dir, 'install.json', '{}\n');
     const got = await check(state, dir);
-    assert.deepEqual(got.found, ['not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.deepEqual(got.found, []);
+    assert.deepEqual(got.report.notLookedAt.map(({ topic, why }) => ({ topic, why })), [{ topic: 'own', why: 'this is the repository of the kit: install.json is at its root' }]);
     assert.equal(state.requests.some((request) => request.path.includes('/example/kit/')), false);
     assert.deepEqual(got.report.passed.filter((topic) => ['pin', 'manifest', 'managed-files', 'secret'].includes(topic)), []);
   });
@@ -322,7 +326,8 @@ describe('the audit workflow, and the repository of the kit', () => {
     const { state, dir } = await repository();
     write(dir, 'install.json', '{}\n');
     const got = await check(state, dir);
-    assert.deepEqual(got.found, ['not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.deepEqual(got.found, []);
+    assert.deepEqual(got.report.notLookedAt.map((item) => item.topic), ['own']);
     assert.equal(state.requests.some((request) => request.path.includes('/example/kit/')), false);
   });
 
@@ -338,7 +343,8 @@ describe('the audit workflow, and the repository of the kit', () => {
     state.rules = [];
     const got = await check(state, dir);
     assert.equal(got.code, 1);
-    assert.deepEqual(got.found, ['check-not-required main', 'codeowners-missing', 'single-owner', 'not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.deepEqual(got.found, ['check-not-required main', 'codeowners-missing']);
+    assert.deepEqual(got.report.notLookedAt.map((item) => item.topic), ['own']);
   });
 });
 

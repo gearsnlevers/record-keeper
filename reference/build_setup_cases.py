@@ -46,6 +46,7 @@ def healthy():
     return {
         'now': NOW, 'local': False, 'own': False, 'event': 'schedule', 'secretSet': True,
         'settings': {'state': 'read', 'problems': [], 'owners': [{'login': 'alice', 'id': 1001}, {'login': 'bob', 'id': 1002}], 'approvals': 2},
+        'baseSettings': {'state': 'not-read'},
         'codeowners': {'state': 'read', 'path': '.github/CODEOWNERS', 'text': '# the kit\n/.github/ @alice @bob\n'},
         'pin': {'state': 'read', 'source': 'example/kit', 'version': 'v1.0.0', 'commit': COMMIT, 'channel': 'stable'},
         'release': {'state': 'read', 'secrets': ['RECORD_KEEPER_TOKEN'], 'upToDate': True, 'files': [
@@ -71,12 +72,16 @@ def finding(code, detail=''):
     return {'code': code, 'severity': SEVERITY[code], 'detail': detail}
 
 
-def case(id, note, edit=None, findings=(), passed=None):
-    """A decision. `edit` changes a copy of the healthy repository; `findings` are (code, detail) in the order that is expected; `passed` are the topics found fine."""
+def case(id, note, edit=None, findings=(), passed=None, looked=()):
+    """A decision. `edit` changes a copy of the healthy repository; `findings` are (code, detail) in the order that is expected; `passed` are the topics found fine; `looked` are
+    the (topic, why) that were not looked at."""
     state = healthy()
     if edit is not None:
         edit(state)
-    decisions.append({'id': id, 'note': note, 'input': state, 'expect': {'findings': [finding(*item) for item in findings], 'passed': ALL if passed is None else passed}})
+    if passed is None and state['release'].get('secrets') == [] and state['event'] == 'pull_request':
+        passed = without('secret')   # the helper of a pull request asks for no secret, so that the secret is not judged
+    decisions.append({'id': id, 'note': note, 'input': state, 'expect': {'findings': [finding(*item) for item in findings], 'passed': ALL if passed is None else passed,
+                                                                             'notLookedAt': [{'topic': topic, 'why': why} for topic, why in looked]}})
 
 
 def g(state):
@@ -111,6 +116,22 @@ def set_rules(*rules):
 def set_last(**fields):
     def edit(state):
         g(state)['lastRun'] = dict({'ok': True}, **fields)
+    return edit
+
+
+def pull_request(base):
+    """A run for a pull request whose base has these settings. The release asks for no secret, so that the notice about it (a pull request is given none) is not in the way."""
+    def edit(state):
+        state['event'] = 'pull_request'
+        state['baseSettings'] = base
+        state['release']['secrets'] = []
+    return edit
+
+
+def single(*pairs):
+    def edit(state):
+        state['settings']['approvals'] = 1
+        state['settings']['owners'] = [{'login': login, 'id': number} for login, number in pairs]
     return edit
 
 
@@ -149,14 +170,13 @@ case('s-5', 'one owner where two approvals are needed', chain(owners(('alice', 1
      [('owners-few', '1 listed, 2 needed')], without('owners'))
 case('s-6', 'no owner at all: nothing to ask GitHub about', chain(owners()),
      [('owners-few', '0 listed, 2 needed')], without('owners', 'owner-accounts'))
-case('s-7', 'the single-owner mode: one owner, one approval, and a notice on this run', lambda s: (owners(('alice', 1001))(s), s['settings'].update({'approvals': 1})),
-     [('single-owner', '')])
-case('s-8', 'the single-owner mode with two owners listed: the notice all the same', lambda s: s['settings'].update({'approvals': 1}), [('single-owner', '')])
+case('s-7', 'the single-owner mode on a schedule: nothing is said, whatever the settings were before', lambda s: (owners(('alice', 1001))(s), s['settings'].update({'approvals': 1}), s.update({'baseSettings': {'state': 'absent'}})))
+case('s-8', 'the single-owner mode with two owners listed, on a manual run of the workflow: nothing is said', lambda s: (s['settings'].update({'approvals': 1}), s.update({'event': 'workflow_dispatch', 'baseSettings': {'state': 'absent'}})))
 case('s-9', 'three approvals needed, two owners', lambda s: s['settings'].update({'approvals': 3}), [('owners-few', '2 listed, 3 needed')], without('owners'))
-case('s-10', 'the single-owner mode with no owner: both are said', lambda s: (owners()(s), s['settings'].update({'approvals': 1})),
-     [('owners-few', '0 listed, 1 needed'), ('single-owner', '')], without('owners', 'owner-accounts'))
-case('s-11', 'the notice does not depend on a problem in another line', lambda s: (s['settings'].update({'approvals': 1, 'problems': [{'rule': 'S-05', 'line': 1}]})),
-     [('settings-unusable', 'S-05 at line 1'), ('single-owner', '')], without('settings'))
+case('s-10', 'the single-owner mode with no owner, on a pull request that starts it: both are said', lambda s: (single()(s), pull_request({'state': 'absent'})(s)),
+     [('owners-few', '0 listed, 1 needed'), ('single-owner', '')], without('owners', 'owner-accounts', 'secret'))
+case('s-11', 'the notice does not depend on a problem in another line', lambda s: (s['settings'].update({'approvals': 1, 'problems': [{'rule': 'S-05', 'line': 1}]}), pull_request({'state': 'absent'})(s)),
+     [('settings-unusable', 'S-05 at line 1'), ('single-owner', '')], without('settings', 'secret'))
 
 # ---- the accounts of the owners ----------------------------------------------------------------------------------------------------------------------
 case('a-0', 'an owner whose login is another one on GitHub', lambda s: g(s)['accounts'].update({'1001': {'ok': True, 'login': 'carol'}}),
@@ -181,8 +201,31 @@ case('a-9', 'more owners than the check asks about: the first 30 are read, and t
 case('a-10', 'exactly 30 owners, all read', lambda s: (owners(*many[:30])(s), g(s)['accounts'].update({str(i): {'ok': True, 'login': l} for l, i in many})))
 case('a-11', 'an account that is not read when the repository is not either: the accounts do not depend on the repository', lambda s: g(s).update({'repo': {'ok': False, 'why': 'x'}}),
      [('not-checked', 'repository: x')], without('check-required', 'check-strict', 'bypass', 'audit-workflow', 'audit'))
-case('a-12', 'a login that GitHub writes with other capitals, and an ID that is not a number of 4 digits', lambda s: (owners(('Alice', 7))(s), s['settings'].update({'approvals': 1}), g(s)['accounts'].update({'7': {'ok': True, 'login': 'aLICE'}})),
-     [('single-owner', '')])
+case('a-12', 'a login that GitHub writes with other capitals, and an ID that is not a number of 4 digits', lambda s: (owners(('Alice', 7))(s), s['settings'].update({'approvals': 1}), g(s)['accounts'].update({'7': {'ok': True, 'login': 'aLICE'}})))
+
+# ---- the single-owner mode is said once: by the pull request that starts it, or changes the owners while it is on ---------------------------------------------------
+ALICE = {'login': 'alice', 'id': 1001}
+BOB = {'login': 'bob', 'id': 1002}
+base_read = lambda approvals, *owners_: {'state': 'read', 'approvals': approvals, 'owners': list(owners_)}
+case('so-1', 'a pull request puts the mode on: the base has no settings file', lambda s: (single(('alice', 1001))(s), pull_request({'state': 'absent'})(s)), [('single-owner', '')])
+case('so-2', 'a pull request puts the mode on: the base wants two approvals', lambda s: (single(('alice', 1001))(s), pull_request(base_read(2, ALICE, BOB))(s)), [('single-owner', '')])
+case('so-3', 'a pull request puts the mode on: the base says 3 approvals and names the same owner', lambda s: (single(('alice', 1001))(s), pull_request(base_read(3, ALICE))(s)), [('single-owner', '')])
+case('so-4', 'the base is in the mode already, with the same owner: nothing is said', lambda s: (single(('alice', 1001))(s), pull_request(base_read(1, ALICE))(s)))
+case('so-5', 'the base is in the mode already, with the same owners in another order: nothing is said', lambda s: (single(('alice', 1001), ('bob', 1002))(s), pull_request(base_read(1, BOB, ALICE))(s)))
+case('so-6', 'a pull request changes the owner of the mode: another owner at the base', lambda s: (single(('alice', 1001))(s), pull_request(base_read(1, BOB))(s)), [('single-owner', '')])
+case('so-7', 'a pull request adds an owner to the mode', lambda s: (single(('alice', 1001), ('bob', 1002))(s), pull_request(base_read(1, ALICE))(s)), [('single-owner', '')])
+case('so-8', 'a pull request changes the login of an owner who is the same account', lambda s: (single(('alice', 1001))(s), pull_request(base_read(1, {'login': 'alice2', 'id': 1001}))(s)), [('single-owner', '')])
+case('so-9', 'the settings of the base could not be read, or were not asked for: nothing is said', lambda s: (single(('alice', 1001))(s), pull_request({'state': 'not-read'})(s)))
+case('so-10', 'a pull request that ends the mode says nothing', lambda s: pull_request(base_read(1, ALICE))(s))
+case('so-11', 'a pull request that leaves the mode off says nothing, whatever the base says', lambda s: pull_request({'state': 'absent'})(s))
+case('so-12', 'a manual run of the workflow never says it', lambda s: (single(('alice', 1001))(s), s.update({'event': 'workflow_dispatch', 'baseSettings': {'state': 'absent'}})))
+case('so-13', 'a run with no event, as a person starts it, never says it', lambda s: (single(('alice', 1001))(s), s.update({'event': None, 'baseSettings': {'state': 'absent'}})))
+case('so-14', 'a schedule never says it', lambda s: (single(('alice', 1001))(s), s.update({'event': 'schedule', 'baseSettings': base_read(2, ALICE, BOB)})))
+case('so-15', 'a run for a pull request with --local says nothing: the base is not asked for', lambda s: (single(('alice', 1001))(s), local(s), s.update({'event': 'pull_request'})),
+     [('not-checked', 'github: the command line says --local')],
+     without('owner-accounts', 'check-required', 'check-strict', 'bypass', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit'))
+case('so-16', 'on a pull request the secret is not judged, and the notice about the mode is made all the same', lambda s: (single(('alice', 1001))(s), s.update({'event': 'pull_request', 'baseSettings': {'state': 'absent'}})),
+     [('single-owner', ''), ('not-checked', 'secret: a run for a pull request is not given the secrets')], without('secret'))
 
 # ---- CODEOWNERS --------------------------------------------------------------------------------------------------------------------------------------
 case('c-0', 'no CODEOWNERS file', lambda s: s['codeowners'].update({'state': 'absent', 'path': ''}), [('codeowners-missing', '')], without('codeowners'))
@@ -231,14 +274,14 @@ case('r-13', 'a bypass actor in the mode always', lambda s: g(s)['bypass'].updat
 case('r-14', 'a mode that is not the mode of a pull request is said, whatever its name', lambda s: g(s)['bypass'].update({'11': {'ok': True, 'name': 'r', 'actors': [
     {'type': 'Team', 'id': 9, 'mode': 'exempt'}, {'type': 'RepositoryRole', 'id': 5, 'mode': 'pull_request'}, {'type': 'DeployKey', 'id': None, 'mode': 'always'}]}}),
      [('bypass-always', 'r: Team 9, mode exempt'), ('bypass-always', 'r: DeployKey without an ID, mode always')], without('bypass'))
-case('r-15', 'the token was not shown the bypass list', lambda s: g(s)['bypass'].update({'11': {'ok': True, 'name': 'protect main', 'actors': None}}),
-     [('not-checked', 'bypass: ruleset 11: the token cannot see the bypass list')], without('bypass'))
+case('r-15', 'the token was not shown the bypass list: no finding, and it is not looked at', lambda s: g(s)['bypass'].update({'11': {'ok': True, 'name': 'protect main', 'actors': None}}),
+     [], without('bypass'), [('bypass', 'ruleset 11: the token cannot see the bypass list')])
 case('r-16', 'the ruleset could not be read', lambda s: g(s)['bypass'].update({'11': {'ok': False, 'why': 'GET /repos/x/rulesets/11 answered 403'}}),
      [('not-checked', 'bypass: ruleset 11: GET /repos/x/rulesets/11 answered 403')], without('bypass'))
 case('r-17', 'no bypass actor at all', lambda s: g(s)['bypass'].update({'11': {'ok': True, 'name': 'protect main', 'actors': []}}))
 case('r-18', 'two rulesets that carry the rule: both are read, in the order of their numbers', lambda s: (set_rules((20, [CHECK], True), (3, [CHECK], False))(s), g(s)['bypass'].update({
     '3': {'ok': True, 'name': 'three', 'actors': [{'type': 'OrganizationAdmin', 'id': 1, 'mode': 'always'}]}, '20': {'ok': True, 'name': 'twenty', 'actors': None}})),
-     [('bypass-always', 'three: OrganizationAdmin 1, mode always'), ('not-checked', 'bypass: ruleset 20: the token cannot see the bypass list')], without('bypass'))
+     [('bypass-always', 'three: OrganizationAdmin 1, mode always')], without('bypass'), [('bypass', 'ruleset 20: the token cannot see the bypass list')])
 case('r-19', 'two rules of one ruleset: read once', lambda s: set_rules((11, [CHECK], False), (11, [CHECK], True))(s))
 case('r-20', 'the ruleset that does not carry the rule is not read', lambda s: (set_rules((11, [CHECK], True), (30, ['Test gate'], True))(s)))
 case('r-21', 'a ruleset that was not read, and a bypass that is always: both are said', lambda s: (set_rules((11, [CHECK], True), (12, [CHECK], True))(s), g(s)['bypass'].update({
@@ -247,7 +290,7 @@ case('r-21', 'a ruleset that was not read, and a bypass that is always: both are
 case('r-22', 'a rule not strict but required: the manifest asks for up to date', lambda s: (set_rules((11, [CHECK], False))(s), s['release'].update({'upToDate': True})), [('check-not-strict', 'main')], without('check-strict'))
 case('r-24', 'two rulesets that carry the rule and cannot be seen: one notice that names both, in the order of their numbers', lambda s: (set_rules((12, [CHECK], True), (11, [CHECK], True))(s), g(s)['bypass'].update({
     '11': {'ok': False, 'why': 'x'}, '12': {'ok': True, 'name': 'twelve', 'actors': None}})),
-     [('not-checked', 'bypass: ruleset 11: x; ruleset 12: the token cannot see the bypass list')], without('bypass'))
+     [('not-checked', 'bypass: ruleset 11: x')], without('bypass'), [('bypass', 'ruleset 12: the token cannot see the bypass list')])
 case('r-25', 'branch protection could not be read, but a ruleset requires the check: nothing is said of it', lambda s: g(s).update({'classic': {'ok': False, 'why': 'GET answered 403'}}))
 case('r-26', 'branch protection could not be read, and the rules require other checks only: a notice, and no error', lambda s: (set_rules((11, ['Test gate'], True))(s), g(s).update({'classic': {'ok': False, 'why': 'timeout'}})),
      [('not-checked', 'branch protection: timeout')], without('check-required', 'check-strict', 'bypass'))
@@ -262,13 +305,13 @@ case('r-23', 'a default branch with a slash in its name', lambda s: (g(s).update
 case('l-0', 'with --local nothing that GitHub holds is judged, and it is said once', local, [('not-checked', 'github: the command line says --local')],
      without('owner-accounts', 'check-required', 'check-strict', 'bypass', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit'))
 case('l-1', 'with --local the files are still read: the settings, CODEOWNERS and the pin', lambda s: (local(s), s['settings'].update({'approvals': 1}), s['codeowners'].update({'state': 'absent', 'path': ''}), s['pin'].clear(), s['pin'].update({'state': 'absent'})),
-     [('codeowners-missing', ''), ('pin-missing', ''), ('single-owner', ''), ('not-checked', 'github: the command line says --local')],
+     [('codeowners-missing', ''), ('pin-missing', ''), ('not-checked', 'github: the command line says --local')],
      ['settings', 'owners'])
-case('l-2', 'the repository of the kit has no pin of its own and nothing installed: it is said, and no pin is asked for', lambda s: (s.update({'own': True}), s['pin'].clear(), s['pin'].update({'state': 'absent'})),
-     [('not-checked', 'own: this is the repository of the kit: install.json is at its root')], without('pin', 'manifest', 'managed-files', 'secret'))
+case('l-2', 'the repository of the kit has no pin of its own and nothing installed: no pin is asked for, and it is not looked at', lambda s: (s.update({'own': True}), s['pin'].clear(), s['pin'].update({'state': 'absent'})),
+     [], without('pin', 'manifest', 'managed-files', 'secret'), [('own', 'this is the repository of the kit: install.json is at its root')])
 case('l-3', 'the repository of the kit, with --local', lambda s: (local(s), s.update({'own': True})),
-     [('not-checked', 'github: the command line says --local'), ('not-checked', 'own: this is the repository of the kit: install.json is at its root')],
-     without('owner-accounts', 'check-required', 'check-strict', 'bypass', 'pin', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit'))
+     [('not-checked', 'github: the command line says --local')],
+     without('owner-accounts', 'check-required', 'check-strict', 'bypass', 'pin', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit'), [('own', 'this is the repository of the kit: install.json is at its root')])
 
 # ---- the pin, the pinned release, the files that were installed, the secret ----------------------------------------------------------------------------
 case('p-0', 'no pin', lambda s: (s['pin'].clear(), s['pin'].update({'state': 'absent'})), [('pin-missing', '')], without('pin', 'manifest', 'managed-files', 'secret'))
@@ -348,6 +391,9 @@ def all_wrong(s):
 
 
 case('z-0', 'everything is wrong: errors first, then warnings, then notices, each in the order of the checks', all_wrong,
+     [('check-not-required', 'main'), ('audit-dead', 'the last run was at %s, more than two days ago' % ago(100 * HOUR)), ('owner-mismatch', 'alice/1001: GitHub says zed'), ('codeowners-missing', ''),
+      ('pin-missing', ''), ('audit-workflow-missing', '')], ['settings', 'owners'])
+case('z-1', 'everything is wrong on a pull request that starts the single-owner mode: the notice comes last', lambda s: (all_wrong(s), pull_request({'state': 'absent'})(s)),
      [('check-not-required', 'main'), ('audit-dead', 'the last run was at %s, more than two days ago' % ago(100 * HOUR)), ('owner-mismatch', 'alice/1001: GitHub says zed'), ('codeowners-missing', ''),
       ('pin-missing', ''), ('audit-workflow-missing', ''), ('single-owner', '')], ['settings', 'owners'])
 

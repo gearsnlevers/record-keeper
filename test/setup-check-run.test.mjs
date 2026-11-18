@@ -42,9 +42,8 @@ describe('a repository with everything wrong at once', () => {
       'managed-differs .github/record-keeper/record-keeper.mjs (differs), .github/workflows/records-audit.yml (missing)',
       'secret-not-set',
       'audit-workflow-missing',
-      'single-owner',
     ]);
-    assert.deepEqual(got.report.findings.map((finding) => finding.severity), ['error', 'error', 'warning', 'warning', 'warning', 'warning', 'warning', 'notice']);
+    assert.deepEqual(got.report.findings.map((finding) => finding.severity), ['error', 'error', 'warning', 'warning', 'warning', 'warning', 'warning']);
     assert.deepEqual(got.report.passed, ['settings', 'owners', 'pin', 'manifest']);
   });
 
@@ -105,11 +104,12 @@ describe('the repository of the kit itself, as the real API answered for it', ()
     return { state, dir };
   }
 
-  test('with the settings that it has, it says that it has no CODEOWNERS and that it is in the single-owner mode, and fails on nothing', async () => {
+  test('with the settings that it has, it says that it has no CODEOWNERS, and nothing of the single-owner mode or of the pin, and fails on nothing', async () => {
     const { state, dir } = await kit();
     const got = await check(state, dir);
     assert.equal(got.code, 0);
-    assert.deepEqual(got.found, ['codeowners-missing', 'single-owner', 'not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.deepEqual(got.found, ['codeowners-missing']);
+    assert.deepEqual(got.report.notLookedAt.map((item) => item.topic), ['own']);
     assert.deepEqual(got.report.passed, ['settings', 'owners', 'owner-accounts', 'check-required', 'check-strict', 'bypass', 'audit-workflow', 'audit']);
     assert.deepEqual(state.requests.filter((request) => request.path.includes('/example/kit/')), [], 'the kit does not ask for its own release');
   });
@@ -118,7 +118,8 @@ describe('the repository of the kit itself, as the real API answered for it', ()
     const { dir } = await kit();
     write(dir, '.github/CODEOWNERS', '/.github/ @maintainer-one @maintainer-two\n');
     const got = await check(healthy(), dir, { argv: ['--local'] });
-    assert.deepEqual(got.found, ['single-owner', 'not-checked github: the command line says --local', 'not-checked own: this is the repository of the kit: install.json is at its root']);
+    assert.deepEqual(got.found, ['not-checked github: the command line says --local']);
+    assert.deepEqual(got.report.notLookedAt.map((item) => item.topic), ['own']);
   });
 
   test('a ruleset that does not require the check, and an audit that stopped, fail it', async () => {

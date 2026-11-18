@@ -137,7 +137,7 @@ for (const variant of VARIANTS) {
     });
 
     test('says what the page says: three triggers, the time, the permission, the secret, the name of the job and the paths', () => {
-      for (const word of ['`Records setup check`', '`schedule`', '`workflow_dispatch`', '`pull_request`', '`pull_request_target`', '07:37 UTC', '`contents: read`', '`HAS_RECORD_KEEPER_TOKEN`', '`RECORD_KEEPER_TOKEN`', '`GITHUB_TOKEN`', '`persist-credentials: false`', '`actions: read`']) assert.ok(page.includes(word), word);
+      for (const word of ['`Records setup check`', '`schedule`', '`workflow_dispatch`', '`pull_request`', '`pull_request_target`', '07:37 UTC', '`contents: read`', '`HAS_RECORD_KEEPER_TOKEN`', '`RECORD_KEEPER_TOKEN`', '`GITHUB_TOKEN`', '`persist-credentials: false`', '`actions: read`', '`GITHUB_BASE_REF`']) assert.ok(page.includes(word), word);
       for (const entry of PATHS) assert.ok(page.includes(`\`${entry.slice(3, -1)}\``), entry);
       const [minute, hour] = /- cron: '(\d+) (\d+) \* \* \*'/.exec(workflow).slice(1);
       assert.equal(`${hour.padStart(2, '0')}:${minute.padStart(2, '0')} UTC`, '07:37 UTC');
@@ -165,6 +165,11 @@ for (const variant of VARIANTS) {
       assert.match(lines[at], /^ {10}HAS_RECORD_KEEPER_TOKEN: \$\{\{ secrets\.RECORD_KEEPER_TOKEN != '' \}\}$/);
       assert.ok(!/node [^\n]*RECORD_KEEPER_TOKEN/.test(workflow));
       assert.ok(!/with:\n[^\n]*secrets/.test(workflow));
+    });
+
+    test('passes nothing of the pull request to the program: the base of a pull request is named by the runner (GITHUB_BASE_REF), which the page says', () => {
+      assert.doesNotMatch(codeOf(workflow).join('\n'), /BASE|base_ref|base\.|github\.event/);
+      assert.match(page, /The runner of GitHub itself sets `GITHUB_BASE_REF`[^.]*; the workflow does not pass it/);
     });
 
     test('does not name the pull request check: the one workflow that does is the check itself', () => {

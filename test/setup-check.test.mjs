@@ -8,8 +8,8 @@ import test, { describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { WORKFLOW_FILES } from '../record-keeper.mjs';
 import {
-  AUDIT_WORKFLOW, BOUNDS, CHECK, CODEOWNERS_PLACES, CODES, COVERED, MAX_AGE_MS, SECRET, SEVERITY, SKEW_MS, TOPICS,
-  annotation, decide, describe as say, escapeData, escapeProperty, markdown, matches, ownersOf, parseArgs, parseCodeowners, parseUtc, summary, tally,
+  AUDIT_WORKFLOW, BOUNDS, CHECK, CODEOWNERS_PLACES, CODES, COVERED, MAX_AGE_MS, NOT_LOOKED_AT, SECRET, SEVERITY, SKEW_MS, TOPICS,
+  annotation, decide, describe as say, describeLooked, escapeData, escapeProperty, markdown, matches, ownersOf, parseArgs, parseCodeowners, parseUtc, summary, tally,
 } from '../setup-check.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -35,21 +35,25 @@ const GOLDEN = [
   ["audit-workflow-missing", "<DETAIL>", "the audit workflow .github/workflows/records-audit.yml is not a file, so nothing runs the nightly audit. Restore it with the updater."],
   ["audit-record-unreadable", "<DETAIL>", "last-run.json on the branch record-keeper/log cannot be read (<DETAIL>), so the age of the last audit run is not known. Run the workflow \"Records audit\" by hand: it replaces the file."],
   ["audit-record-future", "<DETAIL>", "last-run.json on the branch record-keeper/log says the audit ran at <DETAIL>, which is in the future. Look at the file and at the clock of the runner."],
-  ["single-owner", "<DETAIL>", "the single-owner mode is on (approvals: 1). The owner is the whole authority: the checks keep the records in order and stop contributors, agents and forgetfulness, but not the owner, nor whoever holds the owner's token. The delays and the audit still apply."],
+  ["single-owner", "<DETAIL>", "this pull request puts the single-owner mode on, or changes who the owners are while it is on (approvals: 1). The owner is the whole authority: the checks keep the records in order and stop contributors, agents and forgetfulness, but not the owner, nor whoever holds the owner's token. The delays and the audit still apply."],
   ["audit-not-yet", "<DETAIL>", "<DETAIL>. The audit writes its record on every push to the default branch and every night, so this goes away by itself; look at the workflow \"Records audit\" if it does not."],
   ["not-checked", "github: <WHY>", "not checked: what GitHub holds: the rules of the default branch, the accounts of the owners, the pinned release and the last run of the audit (<WHY>). Run it without --local, in the workflow or with a token that can read the repository."],
   ["not-checked", "repository: <WHY>", "not checked: the default branch, its rules and the last run of the audit (<WHY>). Check that the token of the workflow can read the repository (the workflow asks for contents: read), and run it again."],
   ["not-checked", "rules: <WHY>", "not checked: the rules that apply to the default branch (<WHY>). Read them under Settings, Rules, Rulesets: a ruleset on the default branch must require the check \"Records integrity\". Run the check again later if GitHub was busy."],
   ["not-checked", "branch protection: <WHY>", "not checked: whether branch protection requires the check, which no ruleset does (<WHY>). Read it under Settings, Branches, or put the rule into a ruleset (Settings, Rules, Rulesets), which the check reads. Run the check again later if GitHub was busy."],
   ["not-checked", "strict: <WHY>", "not checked: whether the check must be up to date (<WHY>). Branch protection does not tell the token of the workflow. Move the rule into a ruleset, which the check reads, or read the setting under Settings, Branches."],
-  ["not-checked", "bypass: <WHY>", "not checked: who may bypass the ruleset (<WHY>). The token of a workflow may not see the bypass list of a ruleset. Read it under Settings, Rules, Rulesets: no actor may bypass except for pull requests."],
+  ["not-checked", "bypass: <WHY>", "not checked: who may bypass the ruleset (<WHY>). The ruleset could not be read. Run the check again later, and read it under Settings, Rules, Rulesets if it keeps failing: no actor may bypass except for pull requests."],
   ["not-checked", "accounts: <WHY>", "not checked: the accounts of the owners (<WHY>). Read https://api.github.com/user/<id> for each owner and compare the login, or run the check again later."],
   ["not-checked", "codeowners: <WHY>", "not checked: who CODEOWNERS gives the files of the kit to (<WHY>). Write CODEOWNERS with the patterns that docs/setup-check.md says are read, or read the file by hand."],
-  ["not-checked", "own: <WHY>", "not checked: the pin, the pinned release and the installed files (<WHY>). Nothing to do: the kit does not install itself."],
   ["not-checked", "release: <WHY>", "not checked: the manifest of the pinned release (<WHY>). Run the check again later. The release is read from the repository named in the pin."],
   ["not-checked", "secret: <WHY>", "not checked: whether RECORD_KEEPER_TOKEN is set (<WHY>). Run the workflow on its schedule or by hand: it says whether the secret is set (HAS_RECORD_KEEPER_TOKEN), which a run for a pull request cannot."],
   ["not-checked", "audit: <WHY>", "not checked: the last run of the audit (<WHY>). Run the check again later, and look at the branch record-keeper/log by hand."],
   ["not-checked", "age: <WHY>", "not checked: how long the audit workflow has been in the repository (<WHY>). Run the check again later, and look at the history of .github/workflows/records-audit.yml by hand."],
+];
+
+const GOLDEN_LOOKED = [
+  ["bypass", "<WHY>", "not looked at: who may bypass the ruleset (<WHY>). The token of a workflow is not shown the bypass list of a ruleset, whoever the repository is. The audit finds the effect (a change to a guarded file that came in without a pull request is a violation, A-03), and run by hand with the token of a person who may administer the repository the program says bypass-always."],
+  ["own", "<WHY>", "not looked at: the pin, the pinned release and the installed files (<WHY>). The kit does not install itself."],
 ];
 
 describe('the fixtures of the decision', () => {
@@ -210,6 +214,22 @@ describe('the text of a finding', () => {
     });
   }
 
+  for (const [topic, why, text] of GOLDEN_LOOKED) {
+    test(`not looked at: ${topic}`, () => {
+      assert.equal(describeLooked({ topic, why }), text);
+    });
+  }
+
+  test('what is not looked at has a text for every topic that a case shows, and no more', () => {
+    assert.deepEqual(GOLDEN_LOOKED.map(([topic]) => topic), Object.keys(NOT_LOOKED_AT));
+    const shown = new Set(decisions.flatMap((c) => c.expect.notLookedAt.map((item) => item.topic)));
+    assert.deepEqual(Object.keys(NOT_LOOKED_AT).filter((topic) => !shown.has(topic)), []);
+    for (const topic of shown) assert.ok(Object.hasOwn(NOT_LOOKED_AT, topic), topic);
+    assert.ok(!Object.hasOwn(TOPICS, 'own'), 'a topic is either not checked or not looked at');
+    for (const topic of Object.keys(NOT_LOOKED_AT)) assert.ok(page.includes(`\`${topic}\``), topic);
+    assert.match(describeLooked({ topic: 'bypass', why: 'a\nb::c' }), /\(a\\u\{a\}b::c\)/);
+  });
+
   test('every code has a text, and a text for every topic of a check that was not made', () => {
     assert.deepEqual(GOLDEN.filter(([code]) => code !== 'not-checked').map(([code]) => code), CODES.filter((code) => code !== 'not-checked'));
     assert.deepEqual(GOLDEN.filter(([code]) => code === 'not-checked').map(([, detail]) => detail.split(':')[0]), Object.keys(TOPICS));
@@ -289,17 +309,27 @@ describe('what is written for GitHub', () => {
   });
 
   test('the summary has a row for each finding, and says what was found fine', () => {
-    const result = decide(decisions.find((c) => c.id === 'z-0').input);
+    const result = decide(decisions.find((c) => c.id === 'z-1').input);
     const text = summary(result, { repo: 'example/repo', at: '2026-11-18T12:00:00Z' });
     assert.match(text, /^## Records setup check\n\n`example\/repo` at 2026-11-18T12:00:00Z: \*\*2 errors, 4 warnings, 1 notice\*\*\n\n\| Severity \| Code \| What \|\n\| -------- \| ---- \| ---- \|\n\| error \| `check-not-required` \|/);
     assert.equal(text.split('\n').filter((line) => line.startsWith('| error ') || line.startsWith('| warning ') || line.startsWith('| notice ')).length, 7);
     assert.match(text, /Checked, and fine: `settings`, `owners`\.\n$/);
-    assert.match(summary({ findings: [], passed: [] }, { repo: null, at: '2026-11-18T12:00:00Z' }), /^## Records setup check\n\nThe working tree at 2026-11-18T12:00:00Z: \*\*0 errors, 0 warnings, 0 notices\*\*\n\nNo finding\.\n\nChecked, and fine: nothing\.\n$/);
+    assert.match(summary({ findings: [], passed: [], notLookedAt: [] }, { repo: null, at: '2026-11-18T12:00:00Z' }), /^## Records setup check\n\nThe working tree at 2026-11-18T12:00:00Z: \*\*0 errors, 0 warnings, 0 notices\*\*\n\nNo finding\.\n\nChecked, and fine: nothing\.\n$/);
+  });
+
+  test('what is not looked at is a list in the summary, and no row of the table', () => {
+    const result = decide(decisions.find((c) => c.id === 'r-18').input);
+    assert.equal(result.notLookedAt.length, 1);
+    const text = summary(result, { repo: 'example/repo', at: '2026-11-18T12:00:00Z' });
+    assert.match(text, /\n\nNot looked at, and nothing that this repository can do about it:\n\n- `bypass`: not looked at\\: who may bypass the ruleset \\\(ruleset 20\\: the token cannot see the bypass list\\\)\\\. The token of a workflow/);
+    assert.equal(text.split('\n').filter((line) => /^\| (error|warning|notice) /.test(line)).length, 1, 'one finding, and the bypass list is not one');
+    assert.ok(!/^\| notice .*not looked at/m.test(text));
+    assert.ok(text.endsWith('.\n') && !text.endsWith('\n\n'));
   });
 
   test('a hostile text does not break out of its row of the summary', () => {
     const result = { findings: [{ code: 'owner-mismatch', severity: 'warning', detail: 'a|b\n| error | `x` | y |\n[x](http://evil)' }], passed: [] };
-    const rows = summary(result, { repo: null, at: 'x' }).split('\n').filter((line) => line.startsWith('|'));
+    const rows = summary({ ...result, notLookedAt: [] }, { repo: null, at: 'x' }).split('\n').filter((line) => line.startsWith('|'));
     assert.equal(rows.length, 3);
     assert.ok(!rows[2].includes('](http'));
   });

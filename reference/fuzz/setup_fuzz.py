@@ -277,6 +277,28 @@ def gen_github(r, owners):
     return github
 
 
+def gen_base(r, settings):
+    """The settings of the base of a pull request: not read, none, or a file whose owners and number of approvals are the head's, or not."""
+    roll = r.random()
+    if roll < 0.35:
+        return {'state': 'not-read'}
+    if roll < 0.50:
+        return {'state': 'absent'}
+    owners = list(settings.get('owners', []))
+    kind = r.choice(['same', 'same', 'reordered', 'other approvals', 'fewer owners', 'more owners', 'other login', 'nobody'])
+    if kind == 'reordered':
+        owners = list(reversed(owners))
+    elif kind == 'fewer owners':
+        owners = owners[:-1]
+    elif kind == 'more owners':
+        owners = owners + [{'login': 'zed', 'id': 9999}]
+    elif kind == 'other login':
+        owners = [dict(owner, login=owner['login'] + 'x') for owner in owners]
+    elif kind == 'nobody':
+        owners = []
+    return {'state': 'read', 'approvals': r.choice([2, 3]) if kind == 'other approvals' else r.choice([1, 1, 1, 2]), 'owners': owners}
+
+
 def gen_healthy(r):
     """A repository in which nothing is wrong, with a little that varies: how many owners, which branch, how long ago the audit ran."""
     owners = [{'login': LOGINS[i], 'id': 2000 + i} for i in range(r.choice([2, 2, 3, 4]))]
@@ -285,7 +307,7 @@ def gen_healthy(r):
     identity = r.choice([11, 4101])
     return {
         'now': NOW, 'local': False, 'own': False, 'event': r.choice(['schedule', 'workflow_dispatch', None]), 'secretSet': True,
-        'settings': {'state': 'read', 'problems': [], 'owners': owners, 'approvals': 2},
+        'settings': {'state': 'read', 'problems': [], 'owners': owners, 'approvals': 2}, 'baseSettings': {'state': 'not-read'},
         'codeowners': {'state': 'read', 'path': '.github/CODEOWNERS', 'text': r.choice(['/.github/ @a\n', '* @a @b\n', '.github/ @org/team # all\n', '/.github/**  @a\n'])},
         'pin': {'state': 'read', 'source': 'example/kit', 'version': 'v1.0.0', 'commit': 'a1' * 20, 'channel': 'stable'},
         'release': {'state': 'read', 'secrets': ['RECORD_KEEPER_TOKEN'], 'upToDate': r.choice([True, None]), 'files': files},
@@ -320,7 +342,7 @@ def gen_decision(r):
         'now': NOW, 'local': local, 'own': own,
         'event': r.choice([None, 'schedule', 'workflow_dispatch', 'pull_request']),
         'secretSet': r.choice([True, False, None]),
-        'settings': settings, 'codeowners': gen_codeowners(r), 'pin': pin, 'release': release,
+        'settings': settings, 'baseSettings': gen_base(r, settings), 'codeowners': gen_codeowners(r), 'pin': pin, 'release': release,
         'tree': gen_tree(r, release), 'auditWorkflow': r.choices(['file', 'absent', 'other'], [88, 8, 4])[0],
         'github': github,
     }
@@ -380,6 +402,8 @@ def classify(item, expect):
             hits.add('not-checked ' + f['detail'].split(':')[0])
     for t in answer['passed']:
         hits.add('passed ' + t)
+    for looked in answer['notLookedAt']:
+        hits.add('not looked at ' + looked['topic'])
     inp = item['input']
     s = inp['settings']
     hits.add('settings ' + s['state'])
@@ -395,6 +419,17 @@ def classify(item, expect):
         if len(s['owners']) > 30:
             hits.add('owners more than 30')
         hits.add('approvals %s' % ('1' if s['approvals'] == 1 else 'more'))
+        base = inp['baseSettings']
+        if s['approvals'] == 1:
+            said = any(f['code'] == 'single-owner' for f in answer['findings'])
+            if inp['event'] != 'pull_request':
+                hits.add('approvals 1, not a pull request: ' + ('said' if said else 'silent'))
+            else:
+                hits.add('approvals 1, pull request, base %s: %s' % (base['state'] if base['state'] != 'read' else (
+                    'other approvals' if base['approvals'] != 1 else 'same owners' if sorted(o['login'] + '/' + str(o['id']) for o in base['owners']) == sorted(o['login'] + '/' + str(o['id']) for o in s['owners']) else 'other owners'),
+                    'said' if said else 'silent'))
+        elif any(f['code'] == 'single-owner' for f in answer['findings']):
+            hits.add('single-owner said with approvals other than 1')
     hits.add('local' if inp['local'] else 'not local')
     if inp['own']:
         hits.add('own repository')
