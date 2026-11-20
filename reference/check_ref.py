@@ -6,7 +6,7 @@ check_pr(repo, base, head) -> {'settings': [(line, rule, detail)], 'problems': [
 with the lists in the order the page gives; line and file are None when there is none, detail is '' when there is none."""
 import hashlib, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(__file__))
-import g1, commit_ref, config_ref
+import g1, commit_ref, config_ref, agent_ref
 from commit_ref import git, listing, RECORD_FILE
 
 SETTINGS_PATH = config_ref.SETTINGS_PATH
@@ -14,7 +14,7 @@ PIN_PATH = '.github/record-keeper.yml'
 CONTENT_RULES = {f'V-{n:02d}' for n in list(range(9, 20)) + list(range(21, 29)) + [35, 36, 37]}
 ITEM = re.compile(r'^ +- +(\S.*)$')
 STATUS_SUPERSEDED = re.compile(r'superseded by ([0-9]{4})')
-ACT_ORDER = {'accept': 0, 'erratum': 1, 'deviation': 2, 'settings': 3, 'owners': 4, 'amendment': 5, 'pin': 6, 'workflow': 7, 'code': 8}
+ACT_ORDER = {'accept': 0, 'erratum': 1, 'deviation': 2, 'settings': 3, 'owners': 4, 'amendment': 5, 'pin': 6, 'workflow': 7, 'code': 8, 'instructions': 9}
 # Written out, not built from one list: the reference does not share the way the library makes these lists (docs/protected-files.md).
 WORKFLOW_FILES = [
     '.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml',
@@ -25,6 +25,9 @@ CODE_FILES = [
     '.github/record-keeper/record-keeper.mjs', '.github/record-keeper/check-pull-request.mjs', '.github/record-keeper/run-audit.mjs',
     '.github/record-keeper/setup-check.mjs', '.github/record-keeper/updater.mjs',
 ]
+# The files that agents read (docs/agent-files.md): the skill is guarded like a workflow file, and AGENTS.md only where its block is.
+SKILL_PATH = '.claude/skills/record-a-decision/SKILL.md'
+AGENTS_PATH = 'AGENTS.md'
 DEVIATION_RULES = {'V-11', 'V-12', 'V-27', 'V-28'}
 FIXED_KEYS = ('applies-to', 'repos', 'window', 'supersedes')
 
@@ -361,6 +364,15 @@ def pin_related(path):
     return path == PIN_PATH or PIN_PATH.startswith(path + '/') or path.startswith(PIN_PATH + '/')
 
 
+def agents_changed(repo, lb, lh, changed):
+    """Whether what agents read in AGENTS.md changed (docs/agent-files.md): only a regular file in the same place before and after is read for its block; anything else that differs counts."""
+    before, after = lb.get(AGENTS_PATH), lh.get(AGENTS_PATH)
+    regular = lambda leaf: leaf is None or leaf[0] in ('100644', '100755')
+    if any(p != AGENTS_PATH and file_related(AGENTS_PATH, p) for p in changed) or not regular(before) or not regular(after): return True
+    blob = lambda leaf: None if leaf is None else git(repo, 'cat-file', 'blob', leaf[1])
+    return agent_ref.block_changed(blob(before), blob(after))
+
+
 def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=False, root=False):
     base, be = read_commit(repo, base_rev)
     head, he = read_commit(repo, head_rev)
@@ -470,6 +482,8 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
     for kind, files in (('workflow', WORKFLOW_FILES), ('code', CODE_FILES)):
         for f in files:
             if any(file_related(f, p) for p in changed): acts.add((kind, f))
+    if any(file_related(SKILL_PATH, p) for p in changed): acts.add(('instructions', SKILL_PATH))
+    if any(file_related(AGENTS_PATH, p) for p in changed) and agents_changed(repo, lb, lh, changed): acts.add(('instructions', AGENTS_PATH))
     return {
         'settings': sorted(settings_out, key=lambda t: (t[0] is not None, t[0] or 0, t[1], t[2])),
         'problems': sorted(problems, key=lambda t: (t[0] is not None, t[0] or '', t[1], t[2])),

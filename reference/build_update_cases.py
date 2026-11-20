@@ -8,6 +8,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 import update_ref as ref
+import agent_ref
 
 SOURCE = 'gearsnlevers/record-keeper'
 C1, C2, C3, C4 = 'a1' * 20, 'b2' * 20, 'c3' * 32, 'd4' * 20
@@ -16,9 +17,11 @@ PIN = '.github/record-keeper.yml'
 RK, CPR, RUN, UPD, SETUP = ['.github/record-keeper/%s.mjs' % n for n in ['record-keeper', 'check-pull-request', 'run-audit', 'updater', 'setup-check']]
 WI, WA, WU = ['.github/workflows/records-%s.yml' % n for n in ['integrity', 'audit', 'updater']]
 SET, RD, RT = '.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md'
+SK, AG, CL = '.claude/skills/record-a-decision/SKILL.md', 'AGENTS.md', 'CLAUDE.md'
 SRC = {RK: 'record-keeper.mjs', CPR: 'check-pull-request.mjs', RUN: 'run-audit.mjs', UPD: 'updater.mjs', SETUP: 'setup-check.mjs', WI: 'templates/workflows/records-integrity.yml',
-       WA: 'templates/workflows/records-audit.yml', WU: 'templates/workflows/records-updater.yml', SET: 'templates/settings.yml', RD: 'templates/decisions/README.md', RT: 'templates/decisions/template.md'}
-TEMPLATE_PATHS = [SET, RD, RT]
+       WA: 'templates/workflows/records-audit.yml', WU: 'templates/workflows/records-updater.yml', SET: 'templates/settings.yml', RD: 'templates/decisions/README.md', RT: 'templates/decisions/template.md',
+       SK: 'templates/skills/record-a-decision/SKILL.md', AG: 'templates/agents-block.md', CL: 'templates/CLAUDE.md'}
+TEMPLATE_PATHS = [SET, RD, RT, CL]
 
 plans, pins, tags, ranges = [], [], [], []
 
@@ -32,7 +35,7 @@ def pin_text(version='v1.0.0', commit=C1, channel='stable', source=SOURCE):
 
 
 def entry(path, content):
-    return {'kind': 'template' if path in TEMPLATE_PATHS else 'managed', 'path': path, 'sha256': digest(content), 'size': len(content), 'source': SRC[path]}
+    return {'kind': 'template' if path in TEMPLATE_PATHS else 'block' if path == AG else 'managed', 'path': path, 'sha256': digest(content), 'size': len(content), 'source': SRC[path]}
 
 
 def manifest(tag, commit, files, node='>=22', requires=None):
@@ -88,12 +91,12 @@ def X(code, detail=None):
 
 
 def U(to='v1.1.0', frm='v1.0.0', commit=C2, status='update', channel='stable', source=SOURCE, added=(), changed=(), unchanged=(), templates=(), kept=(), remove=(), overwritten=(), pin_changed=True,
-      warnings=(), requires=REQUIRES):
+      warnings=(), requires=REQUIRES, block=None):
     def by_bytes(paths):
         return sorted(paths, key=lambda path: path.encode())
     return {'status': status, 'source': source, 'channel': channel, 'from': frm, 'to': to, 'commit': commit, 'added': by_bytes(added), 'changed': by_bytes(changed), 'unchanged': by_bytes(unchanged),
-            'templates': by_bytes(templates), 'kept': by_bytes(kept), 'remove': by_bytes(remove), 'overwritten': by_bytes(overwritten), 'pin': pin_text(to, commit, channel, source), 'pinChanged': pin_changed,
-            'requires': requires, 'warnings': list(warnings)}
+            'templates': by_bytes(templates), 'kept': by_bytes(kept), 'remove': by_bytes(remove), 'block': block, 'overwritten': by_bytes(overwritten), 'pin': pin_text(to, commit, channel, source),
+            'pinChanged': pin_changed, 'requires': requires, 'warnings': list(warnings)}
 
 
 def P(id, note, expect, *mods, scenario=None):
@@ -513,6 +516,109 @@ for n, (rng, node, satisfied) in enumerate([
         print('DIFFERENT range', rng, node, 'intended', satisfied)
         sys.exit(1)
     ranges.append({'id': 'r%02d' % n, 'range': rng, 'node': node, 'expect': {'parsed': None if parsed is None else [[op, v] for op, v in parsed], 'satisfied': satisfied}})
+
+
+# ---------------------------------------------------------------- the files of the agents (docs/agent-files.md)
+BLOCK = (agent_ref.BEGIN + b'\nrule one\nrule two\n' + agent_ref.END)
+OLD_BLOCK = (agent_ref.BEGIN + b'\nrule one\n' + agent_ref.END)
+BLOCK_SRC = SRC[AG]
+
+
+def hexed(data):
+    return {'kind': 'file', 'sha256': hashlib.sha256(data).hexdigest(), 'hex': data.hex()}
+
+
+def block_entry(data):
+    return {'kind': 'block', 'path': AG, 'sha256': hashlib.sha256(data).hexdigest(), 'size': len(data), 'source': BLOCK_SRC}
+
+
+def with_agents(block_text=BLOCK, previous_block=OLD_BLOCK, skill=True, claude=True):
+    """The update of base(), with the files of the agents in the new release: the skill, the block of AGENTS.md and the template CLAUDE.md. The pinned release has none of them, or only
+    the old block when `previous_block` is given."""
+    def mod(s):
+        extra = ([entry(SK, 'skill 2')] if skill else []) + [block_entry(block_text)] + ([entry(CL, '@AGENTS.md\n')] if claude else [])
+        edit_manifest(s, 'manifest', lambda m: m['files'].extend(extra))
+        new = json.loads(s['manifest'])
+        s['downloaded'] = downloaded(new['files'])
+        s['blocks'] = {BLOCK_SRC: block_text.decode()}
+        if previous_block is not None:
+            edit_manifest(s, 'previous', lambda m: m['files'].append(block_entry(previous_block)))
+    return mod
+
+
+def tree_of(**files):
+    def mod(s):
+        for path, data in files.items():
+            key = {'agents': AG, 'claude': CL, 'skill': SK}[path]
+            if data is None:
+                s['tree'].pop(key, None)
+            elif key == AG:
+                s['tree'][key] = hexed(data) if isinstance(data, bytes) else data
+            else:
+                s['tree'][key] = {'kind': 'file', 'sha256': digest(data)}
+    return mod
+
+
+AG_STANDARD = dict(STANDARD, added=[WU, SK], templates=[RT, CL])
+FIRST_AG = dict(FIRST, added=[RK, UPD, WI, WU, SK], templates=[RD, RT, SET, CL])
+P('q01-nothing-of-the-agents-exists', 'The release brings the skill, the block and CLAUDE.md, and the repository has none: the skill is added, CLAUDE.md is installed, AGENTS.md is created',
+  U(**AG_STANDARD, block={'path': AG, 'action': 'create', 'why': None}), with_agents(previous_block=None))
+P('q02-agents-without-markers', 'AGENTS.md exists and has no markers: the block is appended, and CLAUDE.md is installed once', U(**AG_STANDARD, block={'path': AG, 'action': 'append', 'why': None}),
+  with_agents(previous_block=None), tree_of(agents=b'# Mine\n\nText.\n'))
+P('q03-claude-exists', 'An existing CLAUDE.md is kept, whatever it holds: nothing writes to it', U(**{**AG_STANDARD, 'templates': [RT], 'kept': [SET, RD, CL]}, block={'path': AG, 'action': 'append', 'why': None}),
+  with_agents(previous_block=None), tree_of(agents=b'# Mine\n', claude='my own notes\n'))
+P('q04-claude-is-a-folder', 'A CLAUDE.md that is a folder, a link or blocked is kept as well', U(**{**AG_STANDARD, 'templates': [RT], 'kept': [SET, RD, CL]}, block={'path': AG, 'action': 'create', 'why': None}),
+  with_agents(previous_block=None), lambda s: s['tree'].__setitem__(CL, {'kind': 'dir'}))
+P('q05-block-is-current', 'AGENTS.md has the block of the release already: the action is current, and the rest of the update goes on', U(**AG_STANDARD, block={'path': AG, 'action': 'current', 'why': None}),
+  with_agents(previous_block=None), tree_of(agents=b'# Mine\n\n' + BLOCK + b'\n\nafter\n'))
+P('q06-block-of-the-pinned-release', 'AGENTS.md has the block of the pinned release: it is replaced, and that is no local change', U(**AG_STANDARD, block={'path': AG, 'action': 'replace', 'why': None}),
+  with_agents(), tree_of(agents=b'# Mine\n\n' + OLD_BLOCK + b'\n\nafter\n'))
+P('q07-block-edited-by-hand', 'A block that is not the pinned release\'s is replaced and listed as a local change', U(**AG_STANDARD, overwritten=[AG], block={'path': AG, 'action': 'replace', 'why': None}),
+  with_agents(), tree_of(agents=b'# Mine\n\n' + agent_ref.BEGIN + b'\nmy rule\n' + agent_ref.END + b'\n'))
+P('q08-block-with-no-pinned-block', 'The pinned release had no block, and the markers are there: the text between them was not installed by the updater, so it is a local change', U(**AG_STANDARD, overwritten=[AG], block={'path': AG, 'action': 'replace', 'why': None}),
+  with_agents(previous_block=None), tree_of(agents=b'# Mine\n\n' + OLD_BLOCK + b'\n'))
+P('q09-block-replaced-and-previous-unknown', 'Where the pinned release cannot be read nothing is listed as a local change, and no template is installed',
+  U(**{**AG_STANDARD, 'templates': [], 'kept': [SET, RD, RT, CL], 'added': [SK, WU], 'changed': [RK, UPD], 'unchanged': [WI], 'remove': [], 'warnings': [{'code': 'previous-missing', 'detail': 'v1.0.0'}]}, block={'path': AG, 'action': 'replace', 'why': None}),
+  with_agents(previous_block=None), lambda s: s.update(previous=None), tree_of(agents=b'# Mine\n\n' + OLD_BLOCK + b'\n'))
+REFUSED = dict(AG_STANDARD)
+for n, (why, data) in enumerate([('begin-without-end', b'a\n' + agent_ref.BEGIN + b'\nb\n'), ('end-without-begin', b'a\n' + agent_ref.END + b'\nb\n'), ('reversed', agent_ref.END + b'\n' + agent_ref.BEGIN + b'\n'),
+                                 ('doubled', BLOCK + b'\n' + BLOCK + b'\n'), ('partial-line', b'see ' + agent_ref.BEGIN + b' here\n'), ('fence', b'text\n```\ncode\n'), ('not-text', b'a\x00b\n')], 10):
+    P('q%02d-the-block-is-refused-%s' % (n, why), 'AGENTS.md says %s: the block is not written, a warning says so, and the rest of the update goes on' % why,
+      U(**REFUSED, block={'path': AG, 'action': 'refused', 'why': why}, warnings=[{'code': 'block-refused', 'detail': why}]), with_agents(previous_block=None), tree_of(agents=data))
+for n, (state, why) in enumerate([({'kind': 'dir'}, 'not-a-file'), ({'kind': 'link'}, 'not-a-file'), ({'kind': 'other'}, 'not-a-file'), ({'kind': 'blocked'}, 'not-a-file'), ({'kind': 'large'}, 'too-large')], 20):
+    P('q%02d-agents-is-%s' % (n, state['kind']), 'AGENTS.md is %s: it is not read or written, and the update goes on without the block' % state['kind'],
+      U(**REFUSED, block={'path': AG, 'action': 'refused', 'why': why}, warnings=[{'code': 'block-refused', 'detail': why}]), with_agents(previous_block=None), lambda s, state=state: s['tree'].__setitem__(AG, state))
+P('q30-a-block-that-is-not-a-block', 'A release whose block text is not one begin marker, text and one end marker, with the digest that the manifest names: refused, and the update goes on',
+  U(**REFUSED, block={'path': AG, 'action': 'refused', 'why': 'invalid-block'}, warnings=[{'code': 'block-refused', 'detail': 'invalid-block'}]), with_agents(block_text=b'no markers here', previous_block=None))
+P('q31-block-text-digest-mismatch', 'A block text that is not the one the manifest names is refused whole: nothing is spliced that the manifest does not vouch for', X('digest-mismatch', AG),
+  with_agents(previous_block=None), lambda s: s['blocks'].update({BLOCK_SRC: BLOCK.decode().replace('one', 'uno')}))
+P('q32-block-text-missing', 'The text of the block was not given', X('download-missing', BLOCK_SRC), with_agents(previous_block=None), lambda s: s['blocks'].clear())
+P('q33-only-the-block-changes', 'Everything else is installed and the block is to be put in: that alone is an update', U(frm='v1.1.0', unchanged=[RK, UPD, WI, WU, SK], kept=[RD, RT, SET, CL], pin_changed=False, block={'path': AG, 'action': 'append', 'why': None}),
+  with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
+  lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].pop(AG), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),
+  lambda s: s['tree'].__setitem__(AG, hexed(b'# Mine\n')), lambda s: s['tree'].__setitem__(CL, {'kind': 'file', 'sha256': digest('x')}))
+P('q34-all-installed', 'Everything is installed, the block is current: nothing to do', U(status='unchanged', frm='v1.1.0', unchanged=[RK, UPD, WI, WU, SK], kept=[RD, RT, SET, CL], pin_changed=False, block={'path': AG, 'action': 'current', 'why': None}),
+  with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
+  lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),
+  lambda s: s['tree'].__setitem__(AG, hexed(b'# Mine\n\n' + BLOCK + b'\n')), lambda s: s['tree'].__setitem__(CL, {'kind': 'file', 'sha256': digest('x')}))
+P('q35-the-block-is-refused-and-nothing-else-differs', 'The markers are broken and everything else is installed: nothing to write, and the warning stays', U(status='unchanged', frm='v1.1.0', unchanged=[RK, UPD, WI, WU, SK], kept=[RD, RT, SET, CL], pin_changed=False,
+  block={'path': AG, 'action': 'refused', 'why': 'begin-without-end'}, warnings=[{'code': 'block-refused', 'detail': 'begin-without-end'}]),
+  with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
+  lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),
+  lambda s: s['tree'].__setitem__(AG, hexed(agent_ref.BEGIN + b'\n')), lambda s: s['tree'].__setitem__(CL, {'kind': 'file', 'sha256': digest('x')}))
+P('q36-claude-deleted-after-the-first-release-that-had-it', 'CLAUDE.md that the pinned release listed and the repository removed is not installed again', U(**{**AG_STANDARD, 'templates': [RT], 'kept': [SET, RD, CL]}, block={'path': AG, 'action': 'create', 'why': None}),
+  with_agents(previous_block=None), lambda s: edit_manifest(s, 'previous', lambda m: m['files'].append(entry(CL, '@AGENTS.md\n'))))
+P('q37-skill-edited', 'The skill is a managed file: an edit is replaced, and reported as a local change', U(**{**AG_STANDARD, 'added': [WU], 'changed': [RK, UPD, SK], 'overwritten': [SK]}, block={'path': AG, 'action': 'create', 'why': None}),
+  with_agents(), tree_of(skill='my skill\n'), lambda s: edit_manifest(s, 'previous', lambda m: m['files'].append(entry(SK, 'skill 1'))), lambda s: s['tree'].pop(AG, None))
+P('q38-skill-in-the-way', 'A folder where the skill goes is a path that blocks, as for any managed file', X('path-blocked', SK), with_agents(previous_block=None), lambda s: s['tree'].__setitem__(SK, {'kind': 'dir'}))
+P('q39-skill-removed-by-a-later-release', 'A release that no longer lists the skill removes it, like any managed file', U(**{**STANDARD, 'remove': [CPR, SK]}), lambda s: edit_manifest(s, 'previous', lambda m: m['files'].append(entry(SK, 'skill 1'))),
+  lambda s: s['tree'].__setitem__(SK, {'kind': 'file', 'sha256': digest('skill 1')}))
+P('q40-first-adoption-of-the-agent-files', 'The first adoption brings every file of the agents: the skill, the block (AGENTS.md is created) and CLAUDE.md', U(**FIRST_AG, block={'path': AG, 'action': 'create', 'why': None}),
+  *adopt, with_agents(previous_block=None), lambda s: s.update(previous=None))
+P('q41-first-adoption-over-existing-agents-and-claude', 'At the first adoption an existing CLAUDE.md is never overwritten, and an existing AGENTS.md gets the block at its end',
+  U(**{**FIRST_AG, 'templates': [RD, RT, SET], 'kept': [CL]}, block={'path': AG, 'action': 'append', 'why': None}), *adopt, with_agents(previous_block=None), lambda s: s.update(previous=None), tree_of(agents=b'# Our agents\n', claude='ours\n'))
+P('q42-first-adoption-with-markers', 'At the first adoption a block between markers is replaced and listed nowhere: there is no pinned release to compare with', U(**FIRST_AG, block={'path': AG, 'action': 'replace', 'why': None}),
+  *adopt, with_agents(previous_block=None), lambda s: s.update(previous=None), tree_of(agents=b'x\n' + OLD_BLOCK + b'\ny\n'))
 
 # ---------------------------------------------------------------- check against the reference
 failed = 0
