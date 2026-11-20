@@ -98,7 +98,7 @@ None of the maintainers' repositories has a settings file yet, so each one reads
 - **It does not read the pin.** The plan for M2 said the settings file and the pin. The pin, `.github/record-keeper.yml`, tells the updater which release a repository wants; the check runs from the kit installed on the base branch, so the running code already is the pinned version, and nothing in M2 reads the content of the pin. Its fields are the updater's to define (M3). Protecting it against a change needs only its path (M2.7).
 - **It adds no setting without an effect.** `branches` and `compactor` come with the compactor (M8). `owners` and `approvals` came with the owners' approvals (M2.4), `witnesses` with the announcements (M2.9c).
 - **It does not say what the check does with a problem in the settings.** A problem is reported and the default stays, as the design says. What `Records integrity` does when the settings of the base have a problem, and how the pull request that fixes them can still pass, is for M2.3 and M2.7 to settle.
-- **It does not check that an owner exists.** An ID that belongs to no account, or to a different person than the login says, is not found here; the setup check will compare the two with GitHub.
+- **It does not check that an owner exists.** An ID that belongs to no account, or to a different person than the login says, is not found here; [the setup check](setup-check.md) compares the two with GitHub (`GET /user/{id}`, the logins without regard to case) on every run and says `owner-mismatch`.
 - **It does not change the list of conventional folders of T-03** ([reading a commit](reading-a-commit.md)), which stays fixed.
 
 ## Choices in this draft for you to decide

@@ -21,7 +21,7 @@ A separate, versioned repository, delivered to a repository the way Issue Concie
 | Templates | the records folder skeleton: the `README.md` with the rules, the record template, the index |
 | Validator | one script, `record-keeper.mjs`, with `validate`, `seal`, `check-pr` and `audit`; no dependencies |
 | Workflows | `Records integrity` (on pull requests), `Records audit` (nightly and on every push to the default branch), the updater, and `Records setup check` |
-| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the kit's settings, pin and workflow files, fewer owners listed than `approvals` needs (and a notice on every run while the single-owner mode is on), a ruleset that does not require `Records integrity`, a bypass role in the mode `always` (it allows direct pushes), an audit whose last run is older than two days, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and fails only on what would silently disable a layer. It is the kit's counterpart of the Concierge's deployment check. |
+| Setup check | `Records setup check` tells a repository when its installation is incomplete or wrong: no `CODEOWNERS` entry for the kit's settings, pin and workflow files, fewer owners listed than `approvals` needs (and, once, a notice from the pull request that puts the single-owner mode on or changes its owners), a ruleset that does not require `Records integrity`, a bypass role in the mode `always` (it allows direct pushes; a warning), an audit whose last run is older than two days, a settings file it cannot use, a workflow that differs from the installed release. It prints notices and warnings and fails only when the audit is dead (its last run is older than two days) or no rule requires `Records integrity` (decision of 2026-11-18, see [the setup check](setup-check.md)). It is the kit's counterpart of the Concierge's deployment check. |
 | Skill and instructions | the `record-a-decision` skill for Claude Code and Copilot, and a block for `AGENTS.md` |
 | Pin and settings | two files, as the Concierge has: `.github/record-keeper.yml` is the pin and belongs to the updater; `.github/record-keeper/settings.yml` holds the folder, the owners and the other settings and belongs to the maintainers |
 | Essence compactor | optional, a later release: finds records whose subject has moved on, or that say one thing in many places, and proposes a generalized or consolidated record to supersede them (see "The essence compactor") |
@@ -108,7 +108,7 @@ The check verifies these itself. With its read-only token it reads the reviews o
 
 ### Single-owner mode
 
-The maintainer's decision, 2026-10-29: a deployment with one maintainer sets `approvals: 1`. The owner list may then have one entry, and the owner's own pull request counts as the approval (the author counts once, as always), or the owner approves a pull request that someone else, or an agent, opened. The delays stay (seven days to amend the protocol, 48 hours for an erratum that changes prose) and so does the audit with its log and issues, because they cost the owner nothing. Lowering `approvals` meets the amendment bar, raising it needs one owner, and the setup check prints a notice on every run while the mode is on.
+The maintainer's decision, 2026-10-29: a deployment with one maintainer sets `approvals: 1`. The owner list may then have one entry, and the owner's own pull request counts as the approval (the author counts once, as always), or the owner approves a pull request that someone else, or an agent, opened. The delays stay (seven days to amend the protocol, 48 hours for an erratum that changes prose) and so does the audit with its log and issues, because they cost the owner nothing. Lowering `approvals` meets the amendment bar, raising it needs one owner, and the setup check prints a notice once, on the pull request that puts the mode on or changes its owners (the maintainer's decision of 2026-11-18: on every other day nobody could act on it, and the audit announces the change to the owners by an issue).
 
 The mode is for **keeping the maintainer honest and the records in order**. The seal, the status vouching, the append-only sections, the numbering, the index, the resolver and the audit work as before. What it gives up:
 
@@ -286,7 +286,7 @@ channel: stable
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
 owners: [alice/1001, bob/1002]    # accounts as login/id, matched by the numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings (M2.4 wrote it as one word; docs/settings.md says why)
-approvals: 2                      # how many owners must approve: 2 by default; 1 is the single-owner mode ("Single-owner mode"), which the setup check reports on every run
+approvals: 2                      # how many owners must approve: 2 by default; 1 is the single-owner mode ("Single-owner mode"), which the setup check reports once, on the pull request that starts it
 witnesses: []                     # accounts that are told, by mention, of every announced act but cannot approve; worth having in the single-owner mode
 extra-keys: []                    # front matter keys beyond the standard ones, for example repos
 branches: [main]                  # the branches whose records are in force; the compactor judges the window on each
@@ -392,7 +392,7 @@ Proposed after the threat review (2026-10-29), to be confirmed or changed in rev
 - **Readers go through the resolver**, and a gate holds a request instead of proceeding when a record fails verification.
 - **The bypass role uses the mode `pull_request`**, and the administrator remains the residual risk.
 - **Announcements**: a bot-authored issue for each erratum, deviation entry, amendment, and change to the owners, `approvals`, pin or workflow files, mentioning the owners and the optional `witnesses:`.
-- **The audit's last run is visible**, and the setup check fails when it is older than two days or when a bypass role allows direct pushes.
+- **The audit's last run is visible**, and the setup check fails when it is older than two days or when no rule requires `Records integrity`; a bypass role in the mode `always` (it allows direct pushes) is a warning (decision of 2026-11-18, see [the setup check](setup-check.md)).
 - **The canonical form of g1 is published** with fixed test vectors, and `record-keeper seal --verify <file>` lets anyone recompute a seal.
 - **The resolver hands over structured fields**, and a reader treats record text as a rule to apply and as data, never as an instruction about its own behavior.
 

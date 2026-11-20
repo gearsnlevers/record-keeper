@@ -1,5 +1,5 @@
 """Mutation test of every line of check-pull-request.mjs against test/github.test.mjs; MUT_FILE and MUT_TESTS name another program and its tests
-(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers (a-b pairs); MUT_STRIDE=n runs every nth mutant (MUT_OFFSET=k from the kth).
+(run-audit.mjs and test/audit-run.test.mjs); MUT_LINES limits the mutated lines to some ranges of line numbers (a-b pairs); MUT_STRIDE=n runs every nth mutant (MUT_OFFSET=k from the kth); MUT_CONFIRM=1 runs every mutant that was killed once more, and it is killed when that fails too.
 Usage: mutate_pr.py <repo_dir> <workers>"""
 import concurrent.futures, os, re, shutil, subprocess, sys, tempfile, threading
 repo, workers = sys.argv[1], int(sys.argv[2])
@@ -100,34 +100,43 @@ def run(idx_mut):
         open(os.path.join(w, FILE), 'w').write(mutated)
         # a new session, so that a timeout stops the test runner and everything it started (a mutant can loop for ever); a mutant is killed
         # at the first test that fails, which is when the runner has printed `not ok`
-        proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
-        timer = threading.Timer(240, lambda: os.killpg(proc.pid, 9))
-        timer.start()
-        failed = False
-        for line in proc.stdout:
-            if re.match(r'\s*not ok ', line):
-                failed = True
-                os.killpg(proc.pid, 9)
-                break
-        proc.wait()
-        timer.cancel()
-        killed = failed or proc.returncode != 0
-        return n, i, d, killed
+        def once():
+            proc = subprocess.Popen(['node', '--test', '--test-reporter=tap', *tests_for(i)], cwd=w, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True, text=True)
+            timed = []   # a mutant that the timer stopped is not a kill: it may only be slow, or loop for ever, and it is counted and listed apart
+            timer = threading.Timer(240, lambda: (timed.append(1), os.killpg(proc.pid, 9)))
+            timer.start()
+            failed = False
+            for line in proc.stdout:
+                if re.match(r'\s*not ok ', line):
+                    failed = True
+                    os.killpg(proc.pid, 9)
+                    break
+            proc.wait()
+            timer.cancel()
+            return failed or (proc.returncode != 0 and not timed), bool(timed)
+        killed, timed = once()
+        # MUT_CONFIRM=1: a kill counts when a second run of the same mutant fails too, so that a test that failed for a reason of the machine (a port that could not be
+        # opened on a loaded one) is not taken for a kill of the mutant
+        if killed and os.environ.get('MUT_CONFIRM') == '1':
+            killed, timed = once()
+        return n, i, d, 'killed' if killed else 'timer' if timed else 'survived'
 
 locks = [threading.Lock() for _ in range(workers)]
 tmp = tempfile.mkdtemp(prefix='mut-')
 for k in range(workers):
     shutil.copytree(repo, os.path.join(tmp, f'w{k}'), ignore=shutil.ignore_patterns('.git'))
 survivors = []
+timer_stops = 0
 done = 0
 with concurrent.futures.ThreadPoolExecutor(workers) as ex:
-    for n, i, d, killed in ex.map(run, list(enumerate(uniq))):
+    for n, i, d, outcome in ex.map(run, list(enumerate(uniq))):
         done += 1
-        if not killed:
+        if outcome != 'killed':
             survivors.append((i, d, uniq[n][1]))
-            print(f'survived L{i + 1}: {d}', flush=True)
+            timer_stops += outcome == 'timer'
+            print(f'{"ended by the timer" if outcome == "timer" else "survived"} L{i + 1}: {d}', flush=True)
         if done % 100 == 0: print(done, 'done,', len(survivors), 'survivors', flush=True)
-print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors)} survived')
+print(f'{len(uniq)} mutants, {len(uniq) - len(survivors)} killed, {len(survivors) - timer_stops} survived, {timer_stops} ended by the 240 s timer (not counted as killed)')
 for i, d, new in sorted(survivors):
     print(f'L{i + 1}: {d}\n     was: {lines[i].strip()[:150]}\n     now: {new.strip()[:150]}')
 shutil.rmtree(tmp)

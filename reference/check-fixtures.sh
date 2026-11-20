@@ -35,4 +35,5 @@ file audit-effects build_audit_effects_cases.py "$root/test/fixtures/audit-effec
 file announce build_announce_cases.py "$root/test/fixtures/announce/cases.json"
 file change build_change_cases.py "$root/test/fixtures/change/cases.json"
 file update build_update_cases.py "$root/test/fixtures/update/cases.json"
+file setup build_setup_cases.py "$root/test/fixtures/setup/cases.json"
 exit $failed

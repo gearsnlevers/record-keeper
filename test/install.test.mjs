@@ -10,11 +10,14 @@ import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CODE_FILES, SETTINGS_PATH, WORKFLOW_FILES, checkChange } from '../record-keeper.mjs';
+import { renderPin } from '../updater.mjs';
+import { COMMIT, cleanUp as cleanUpWorld, healthy, releaseOf, serve as serveGithub } from './setup-check-world.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const install = JSON.parse(fs.readFileSync(path.join(root, 'install.json'), 'utf8'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-install-'));
 const servers = [];
+after(cleanUpWorld);
 after(() => {
   for (const server of servers) {
     server.closeAllConnections();
@@ -23,7 +26,8 @@ after(() => {
   fs.rmSync(scratch, { recursive: true, force: true });
 });
 
-const CLEAN = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_') && name !== 'GITHUB_TOKEN' && name !== 'GITHUB_API_URL'));
+// Nothing of the environment of the runner that runs the tests reaches a program: on GitHub it says GITHUB_ACTIONS and GITHUB_EVENT_NAME, which change what a program prints.
+const CLEAN = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_') && !name.startsWith('GITHUB_') && !name.endsWith('RECORD_KEEPER_TOKEN')));
 // The git of the tests reads no configuration of the person who runs them (no signing, no hooks, no templates): the repositories here are made from nothing.
 const IDENTITY = { GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
 const git = (cwd, ...args) => {
@@ -82,6 +86,7 @@ function derive(text, { program, installed, page }) {
 const WORKFLOWS = [
   { name: 'records-integrity.yml', program: 'check-pull-request.mjs', page: 'workflow.md' },
   { name: 'records-audit.yml', program: 'run-audit.mjs', page: 'audit-run.md' },
+  { name: 'records-setup-check.yml', program: 'setup-check.mjs', page: 'setup-check.md' },
 ].map((item) => ({ ...item, installed: `.github/record-keeper/${item.program}` }));
 
 describe('the workflows of a repository that installs the kit', () => {
@@ -125,6 +130,7 @@ describe('the workflows of a repository that installs the kit', () => {
   test('the consumer versions do not name the Records integrity check anywhere but the workflow of that check', () => {
     assert.ok(/^name: Records integrity$/m.test(read('templates/workflows/records-integrity.yml')));
     assert.doesNotMatch(read('templates/workflows/records-audit.yml'), /records[ _-]?integrity/i);
+    assert.doesNotMatch(read('templates/workflows/records-setup-check.yml'), /records[ _-]?integrity/i);
   });
 });
 
@@ -232,8 +238,8 @@ describe('the files that install.json installs, and the files that the check gua
 
   test('a program is installed next to the rules file, and the workflows that run the programs are installed with them', () => {
     const programs = managed.filter(({ path: destination }) => destination.startsWith('.github/record-keeper/')).map(({ path: destination }) => path.posix.basename(destination)).sort();
-    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'updater.mjs']);
-    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml', 'records-updater.yml']);
+    assert.deepEqual(programs, ['check-pull-request.mjs', 'record-keeper.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs']);
+    assert.deepEqual(managed.filter(({ path: destination }) => destination.startsWith('.github/workflows/')).map(({ path: destination }) => path.posix.basename(destination)).sort(), ['records-audit.yml', 'records-integrity.yml', 'records-setup-check.yml', 'records-updater.yml']);
   });
 
   test('the updater and its workflow are managed files, guarded at both places where the guard lists them, and the kit has no copy of the workflow of its own', () => {
@@ -283,7 +289,7 @@ describe('the files that install.json installs, and the files that the check gua
     git(dir, 'rm', '-q', '-r', '.github/record-keeper');
     git(dir, 'commit', '-q', '-m', 'Remove');
     const kinds = checkChange(dir, 'main', 'work').acts.map((act) => `${act.kind} ${act.path}`);
-    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs', 'code .github/record-keeper/updater.mjs']);
+    assert.deepEqual(kinds, ['settings .github/record-keeper/settings.yml', 'code .github/record-keeper/check-pull-request.mjs', 'code .github/record-keeper/record-keeper.mjs', 'code .github/record-keeper/run-audit.mjs', 'code .github/record-keeper/setup-check.mjs', 'code .github/record-keeper/updater.mjs']);
   });
 });
 
@@ -339,7 +345,7 @@ describe('a repository with the layout of a consumer', () => {
 
   test('the programs are where install.json puts them, and are the files of the kit byte for byte', () => {
     const dir = adopted();
-    for (const name of ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs']) assert.ok(fs.readFileSync(path.join(dir, '.github/record-keeper', name)).equals(fs.readFileSync(path.join(root, name))), name);
+    for (const name of ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs']) assert.ok(fs.readFileSync(path.join(dir, '.github/record-keeper', name)).equals(fs.readFileSync(path.join(root, name))), name);
     assert.ok(!fs.existsSync(path.join(dir, 'record-keeper.mjs')), 'nothing is installed at the root');
   });
 
@@ -385,6 +391,8 @@ describe('a repository with the layout of a consumer', () => {
       ['the program that runs the audit', '.github/record-keeper/run-audit.mjs', 'code'],
       ['the workflow of the check', '.github/workflows/records-integrity.yml', 'workflow'],
       ['the workflow of the audit', '.github/workflows/records-audit.yml', 'workflow'],
+      ['the program of the setup check', '.github/record-keeper/setup-check.mjs', 'code'],
+      ['the workflow of the setup check', '.github/workflows/records-setup-check.yml', 'workflow'],
     ]) {
       test(`a change to ${name} needs the owners' approval, and an owner's review of the head meets it`, async () => {
         const dev = adopted();
@@ -417,6 +425,69 @@ describe('a repository with the layout of a consumer', () => {
       assert.equal(got.code, 1);
       assert.ok(got.stderr.startsWith(`${SETTINGS_PATH}: needs the owners' approval (settings)\n`), got.stderr);
       assert.doesNotMatch(got.stderr, /\(code\)/);
+    });
+  });
+
+  describe('the setup check', () => {
+    const program = '.github/record-keeper/setup-check.mjs';
+
+    test('--local runs from the folder of the kit, with the repository as the working directory, and reads its files', async () => {
+      const dir = adopted();
+      const got = await exec([program, '--local'], { cwd: dir });
+      assert.equal(got.code, 0, got.stderr);
+      assert.equal(got.stderr, '');
+      assert.match(got.stdout, /^warning: \[codeowners-missing\] /m);
+      assert.match(got.stdout, /^warning: \[pin-missing\] /m);
+      assert.doesNotMatch(got.stdout, /single-owner/, 'the single-owner mode is said by the pull request that starts it, and by no other run');
+      assert.match(got.stdout, /^notice: \[not-checked\] not checked: what GitHub holds/m);
+      assert.match(got.stdout, /setup check: 0 errors, 2 warnings, 1 notice\n$/);
+    });
+
+    test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing, though the owner is in the single-owner mode', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files)];
+      await serveGithub(state);
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      assert.equal(got.code, 0, got.stderr + got.stdout);
+      assert.equal(got.stderr, '');
+      assert.equal(got.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
+    });
+
+    test('a pull request that puts the single-owner mode on is told so once, by the installed program, from the settings at its base', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files, { requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
+      state.settingsAt.set('main', 'owners: [alice/1001, bob/1002]\napprovals: 2\n');
+      await serveGithub(state);
+      const env = { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env });
+      assert.equal(got.code, 0, got.stderr + got.stdout);
+      assert.match(got.stdout, /^::notice title=single-owner::this pull request puts the single-owner mode on/);
+      assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
+      state.settingsAt.set('main', OWNERS);
+      const again = await exec([program, '--repo', 'example/repo'], { cwd: dir, env });
+      assert.equal(again.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
+    });
+
+    test('a file of the folder that is not the release\'s is found', async () => {
+      const dir = adopted();
+      const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
+      write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
+      fs.appendFileSync(path.join(dir, program), '// edited\n');
+      const state = healthy();
+      state.releases = [releaseOf('v1.0.0', files)];
+      await serveGithub(state);
+      const got = await exec([program, '--repo', 'example/repo'], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      assert.equal(got.code, 0, got.stderr);
+      assert.match(got.stdout, /^warning: \[managed-differs\] files that the kit installed differ from the pinned release: \.github\/record-keeper\/setup-check\.mjs \(differs\)\./m);
     });
   });
 
