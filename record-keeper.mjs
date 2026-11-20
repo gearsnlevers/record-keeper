@@ -1,7 +1,8 @@
 // Record Keeper: reads a decision record, puts it into canonical form, seals it and verifies a seal, and checks the
 // format of the records in a folder.
 //
-// One file, no dependencies, no network. It implements generation g1 exactly as docs/generation-g1.md
+// One file, no dependencies, no network, except that it imports from `updater.mjs`, which stands beside it, the one function that says whether the block of AGENTS.md
+// changed (docs/agent-files.md): the updater is fetched alone for the first adoption and cannot import this file, so the function lives there. It implements generation g1 exactly as docs/generation-g1.md
 // describes it, and the format of a record and its folder as docs/record-format.md describes it; test/vectors/g1 and
 // test/fixtures/validate hold the answers it must give. It never writes a file: `seal` and `validate` only print.
 //
