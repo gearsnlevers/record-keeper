@@ -61,7 +61,7 @@ function repository() {
 }
 
 /** What the updater does on the first adoption (docs/updater.md), in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
-function installKit(dir, kinds = ['managed', 'template']) {
+function installKit(dir, kinds = ['managed', 'block', 'template']) {
   for (const entry of install.files.filter(({ kind }) => kinds.includes(kind))) write(dir, entry.path, fs.readFileSync(path.join(root, entry.source)));
 }
 
@@ -458,10 +458,11 @@ describe('a repository with the layout of a consumer', () => {
     test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing, though the owner is in the single-owner mode', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files)];
+      state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
       const got = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr + got.stdout);
@@ -472,10 +473,11 @@ describe('a repository with the layout of a consumer', () => {
     test('a pull request that puts the single-owner mode on is told so once, by the installed program, from the settings at its base', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files, { requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
+      state.releases = [releaseOf('v1.0.0', files, { blocks, requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
       state.settingsAt.set('main', 'owners: [alice/1001, bob/1002]\napprovals: 2\n');
       await serveGithub(state);
       const env = { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
@@ -491,11 +493,12 @@ describe('a repository with the layout of a consumer', () => {
     test('a file of the folder that is not the release\'s is found', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       fs.appendFileSync(path.join(dir, program), '// edited\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files)];
+      state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
       const got = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr);

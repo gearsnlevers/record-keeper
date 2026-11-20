@@ -645,7 +645,7 @@ describe('what the program may push', () => {
 describe('what the page says in numbers', () => {
   test('the limits of the program are the limits of the page', () => {
     assert.deepEqual(LIMITS, { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80, agents: 1024 * 1024 });
-    for (const sentence of ['1 to 100 entries', 'larger than 1 MiB', 'from 0 to 4 MiB', 'more than 16 MiB', 'at most 50 pages of 30', 'cut after 6,000 characters', 'at most 80 characters', 'larger than 64 KiB', 'is `.git` in any case', 'at most twice more', 'larger than 1 MiB']) {
+    for (const sentence of ['1 to 100 entries', 'larger than 1 MiB', 'from 0 to 4 MiB', 'more than 16 MiB', 'at most 50 pages of 30', 'cut after 6,000 characters', 'at most 80 characters', 'larger than 64 KiB', 'is `.git` in any case', 'at most twice more', 'larger than 1 MiB', 'of more than 1 MiB is not read']) {
       assert.ok(page.includes(sentence), sentence);
     }
   });
