@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { runCli } from '../setup-check.mjs';
 import { renderPin } from '../updater.mjs';
 import {
-  COMMIT, FILES, NOW, REQUIRES, actions, check, cleanUp, folder, healthy, installed, releaseOf, reads, serve, tree, write,
+  AGENTS, BLOCK, COMMIT, FILES, NOW, REQUIRES, actions, check, cleanUp, folder, healthy, installed, releaseOf, reads, serve, tree, write,
 } from './setup-check-world.mjs';
 
 after(cleanUp);
@@ -236,6 +236,84 @@ describe('CODEOWNERS', () => {
     assert.deepEqual(await located({ '.github/CODEOWNERS': '/.github/workflows/records-*.yml @alice\n/.github/record-keeper.yml @alice\n/.github/record-keeper/ @alice\n' }), []);
     assert.deepEqual(await located({ '.github/CODEOWNERS': '/.github/workflows/records-*.yml @alice\n/.github/record-keeper.yml @alice\n' }), ['codeowners-uncovered .github/record-keeper/settings.yml']);
     assert.deepEqual(await located({ '.github/CODEOWNERS': '/.github/ @alice\n/.github/workflows/records-updater.yml\n' }), ['codeowners-uncovered .github/workflows/records-updater.yml']);
+  });
+});
+
+describe('the files of the agents: the skill, and the block of AGENTS.md', () => {
+  const SKILL = '.claude/skills/record-a-decision/SKILL.md';
+  const BEGIN = '<!-- record-keeper:begin -->';
+  const END = '<!-- record-keeper:end -->';
+  const mine = (change, state) => repository(change, { state }).then((one) => one.got()).then((got) => got.found.filter((line) => /^(managed|block)/.test(line)));
+
+  test('a repository whose block is the release\'s says nothing, whatever else its AGENTS.md says, and the block is found by its text and not by its place', async () => {
+    assert.deepEqual(await mine({}), []);
+    assert.deepEqual(await mine({ 'AGENTS.md': `Another file.\n\n${BLOCK}\n` }), []);
+    assert.deepEqual(await mine({ 'AGENTS.md': `${BLOCK}\r\n\r\n- everything else is ours\r\n` }), []);
+    assert.deepEqual(await mine({ 'AGENTS.md': `top\n\n\`\`\`\n${BEGIN}\nexample\n${END}\n\`\`\`\n\n${BLOCK}` }), [], 'the markers of an example in a fence are not the block');
+    const { state, dir } = await repository({});
+    assert.equal((await check(state, dir)).report.passed.includes('managed-files'), true);
+  });
+
+  test('the skill is a managed file: an edit, a missing file and a folder are found like any other', async () => {
+    assert.deepEqual(await mine({ [SKILL]: 'my own skill\n' }), [`managed-differs ${SKILL} (differs)`]);
+    assert.deepEqual(await mine({ [SKILL]: null }), [`managed-differs ${SKILL} (missing)`]);
+  });
+
+  test('a file with no block, no file, and a file that is not a file: the block is missing, and the updater puts it back', async () => {
+    assert.deepEqual(await mine({ 'AGENTS.md': '# Ours only\n' }), ['managed-differs AGENTS.md (block missing)']);
+    assert.deepEqual(await mine({ 'AGENTS.md': '' }), ['managed-differs AGENTS.md (block missing)']);
+    assert.deepEqual(await mine({ 'AGENTS.md': `\`\`\`\n${BLOCK}\n\`\`\`\n` }), ['managed-differs AGENTS.md (block missing)'], 'a block inside a fence is no block');
+    assert.deepEqual(await mine({ 'AGENTS.md': null }), ['managed-differs AGENTS.md (missing)']);
+    const folderCase = await repository({ 'AGENTS.md': null });
+    fs.mkdirSync(path.join(folderCase.dir, 'AGENTS.md'));
+    assert.deepEqual((await folderCase.got()).found.filter((line) => line.startsWith('managed')), ['managed-differs AGENTS.md (not a file)']);
+    const linkCase = await repository({ 'AGENTS.md': null });
+    write(linkCase.dir, 'notes.md', AGENTS);
+    fs.symlinkSync(path.join(linkCase.dir, 'notes.md'), path.join(linkCase.dir, 'AGENTS.md'));
+    assert.deepEqual((await linkCase.got()).found.filter((line) => line.startsWith('managed')), ['managed-differs AGENTS.md (not a file)'], 'a link is not followed, even to a file that is right');
+  });
+
+  test('a block that differs by a word, a line end, a space or a character at the end is another block', async () => {
+    for (const changed of [BLOCK.replace('one', 'uno'), BLOCK.replace(/\n/g, '\r\n'), BLOCK.replace('rule one', 'rule one '), BLOCK.replace('rule one', 'rule  one'), BLOCK.replace('rule one\n', 'rule one\n\n')]) {
+      assert.deepEqual(await mine({ 'AGENTS.md': `top\n${changed}\nbottom\n` }), ['managed-differs AGENTS.md (block differs)'], JSON.stringify(changed));
+    }
+  });
+
+  test('markers that cannot be used are one finding, with the reason, and it is not said as a block that differs', async () => {
+    const cases = [
+      ['begin-without-end', `top\n${BEGIN}\nrule one\n`], ['end-without-begin', `top\n${END}\n`], ['reversed', `${END}\n${BEGIN}\n`], ['doubled', `${BLOCK}\n${BLOCK}\n`],
+      ['partial-line', `see ${BEGIN} here\n${BLOCK}\n`],
+    ];
+    for (const [why, text] of cases) assert.deepEqual(await mine({ 'AGENTS.md': text }), [`block-unusable ${why}`], why);
+    const got = await (await repository({ 'AGENTS.md': `${BEGIN}\n` })).got();
+    assert.equal(got.code, 0, 'a warning: only a dead audit and a check that is not required fail the run');
+    assert.equal(got.report.findings.find((finding) => finding.code === 'block-unusable').severity, 'warning');
+    assert.match(got.report.findings.find((finding) => finding.code === 'block-unusable').text, /cannot be used \(a begin marker has no end marker\).*docs\/agent-files\.md of the kit\)\.$/);
+    assert.equal(got.report.passed.includes('managed-files'), false);
+  });
+
+  test('a file that is larger than the check reads is one finding, and the rest of the file is never looked at', async () => {
+    assert.deepEqual(await mine({ 'AGENTS.md': `${BLOCK}\n${'x'.repeat(1024 * 1024)}` }), ['block-unusable too-large']);
+    assert.deepEqual(await mine({ 'AGENTS.md': `${BLOCK}\n${'x'.repeat(1024 * 1024 - BLOCK.length - 1)}` }), [], 'a file of exactly the limit is read');
+  });
+
+  test('a file that differs and markers that cannot be used: the finding of the files first, then the finding of the block', async () => {
+    assert.deepEqual(await mine({ [SKILL]: 'mine\n', 'AGENTS.md': `${BEGIN}\n` }), [`managed-differs ${SKILL} (differs)`, 'block-unusable begin-without-end']);
+  });
+
+  test('a release that lists no block does not look at AGENTS.md', async () => {
+    const state = healthy();
+    state.releases = [releaseOf('v1.0.0', FILES, { blocks: {} })];
+    assert.deepEqual(await mine({ 'AGENTS.md': `${BEGIN}\n` }, state), []);
+    assert.deepEqual(await mine({ 'AGENTS.md': null }, state), []);
+  });
+
+  test('the files of the agents are not asked for with --local, nothing of them is read, and the program does not write AGENTS.md', async () => {
+    const { dir, got } = await repository({ 'AGENTS.md': `${BEGIN}\n` }, { local: true });
+    const before = fs.readFileSync(path.join(dir, 'AGENTS.md'));
+    const result = await got();
+    assert.deepEqual(result.found, ['not-checked github: the command line says --local']);
+    assert.deepEqual(fs.readFileSync(path.join(dir, 'AGENTS.md')), before);
   });
 });
 

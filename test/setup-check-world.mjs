@@ -96,16 +96,21 @@ export const hoursAgo = (hours) => new Date(NOW - hours * 3600 * 1000).toISOStri
 // ---- the kit that was installed, and the release that it came from ------------------------------------------------------------------------------------
 
 export const FILES = {
+  '.claude/skills/record-a-decision/SKILL.md': '---\nname: record-a-decision\n---\nthe skill, 1\n',
   '.github/record-keeper/record-keeper.mjs': '// rules 1\n',
   '.github/record-keeper/setup-check.mjs': '// setup check 1\n',
   '.github/workflows/records-audit.yml': 'name: Records audit\n',
   '.github/workflows/records-setup-check.yml': 'name: Records setup check\n',
 };
+/** The block of the release v1.0.0 (the text between the markers, the markers included), and the AGENTS.md of a repository that adopted it, with text of its own around it. */
+export const BLOCK = '<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->';
+export const AGENTS = `# Our agents\r\n\r\nBuild with care. caf\u00e9\t \r\n\r\n${BLOCK}\r\n\r\n- ours`;
 export const REQUIRES = { rulesets: [{ branch: 'default', checks: [CHECK], 'up-to-date': true }], secrets: ['RECORD_KEEPER_TOKEN'], settings: ['owners'] };
 
 /** A release of the kit: the tag, the manifest as an asset, and the entry that the list of releases has for it. */
-export function releaseOf(tag, files = FILES, { requires = REQUIRES, commit = COMMIT, assetId = 700, mutate } = {}) {
-  const entries = Object.entries(files).map(([destination, content]) => ({ kind: 'managed', path: destination, sha256: sha(content), size: Buffer.byteLength(content), source: `kit/${destination}` }));
+export function releaseOf(tag, files = FILES, { requires = REQUIRES, commit = COMMIT, assetId = 700, mutate, blocks = { 'AGENTS.md': BLOCK } } = {}) {
+  const entries = [...Object.entries(files).map(([destination, content]) => ({ kind: 'managed', path: destination, sha256: sha(content), size: Buffer.byteLength(content), source: `kit/${destination}` })),
+    ...Object.entries(blocks).map(([destination, content]) => ({ kind: 'block', path: destination, sha256: sha(content), size: Buffer.byteLength(content), source: `kit/${destination}` }))].sort((a, b) => (a.path < b.path ? -1 : 1));
   const manifest = { commit, files: entries, generations: ['g1'], node: '>=22', requires, schema: 1, tag, version: tag.slice(1) };
   if (mutate) mutate(manifest);
   const text = canonical(manifest);
@@ -141,6 +146,7 @@ export const installed = () => ({
   '.github/record-keeper.yml': renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }),
   '.github/record-keeper/settings.yml': 'owners: [alice/1001, bob/1002]\napprovals: 2\n',
   '.github/CODEOWNERS': '# the kit\n/.github/ @alice @bob\n',
+  'AGENTS.md': AGENTS,
   ...FILES,
 });
 
