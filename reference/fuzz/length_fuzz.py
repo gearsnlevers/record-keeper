@@ -37,10 +37,12 @@ def fenced_block():
     return ['```' + rng.choice(['', 'md', 'sh'])] + inner + ['```']
 
 
-def units(pool, count):
+def units(pool, count, room=None):
+    """`count` units, each a line of the pool or a closed fence, in all at most `room` lines (a unit is never cut: a fence that is open would be G1-15)."""
     out = []
     for _ in range(count):
-        out += fenced_block() if rng.random() < 0.15 else [rng.choice(pool)]
+        unit = fenced_block() if rng.random() < 0.15 else [rng.choice(pool)]
+        if room is None or len(out) + len(unit) <= room: out += unit
     return out
 
 
@@ -58,8 +60,8 @@ def make_base(outside):
     """The lines of a record that has `outside` lines (with no empty line counted for a final line feed), and an Alternatives section half of the time."""
     tail = list(ALTERNATIVES) if rng.random() < 0.5 else []
     room = max(0, outside - len(HEAD) - len(tail))
-    noise = units(QUIET + ENDERS, rng.choice([0, 0, 2, 5]))[:room]
-    return HEAD + ['- filler line %d.' % i for i in range(room - len(noise))] + noise + tail
+    noise = units(QUIET + ENDERS, rng.choice([0, 0, 2, 5]), room)
+    return HEAD + ['- filler line %d.' % i for i in range(room - len(noise))] + noise + tail, bool(tail)
 
 
 def text_of(lines, final, white):
@@ -80,8 +82,10 @@ def counted(text, eol):
 
 
 def before_alternatives(lines, extra):
-    """The lines of a section put right before `## Alternatives considered`, after the empty line that stands there, and an empty line behind them."""
-    k = len(lines) - 1 - lines[::-1].index('## Alternatives considered')      # the last one: a fence may hold a line that looks like it
+    """The lines of a section put right before `## Alternatives considered` (the last lines of a base that has the section: a fence in the text may hold
+    a line that looks like the heading), after the empty line that stands there, and an empty line behind them."""
+    k = len(lines) - len(ALTERNATIVES) + 1
+    assert lines[k] == '## Alternatives considered'
     return lines[:k] + extra + [''] + lines[k:]
 
 
@@ -89,17 +93,18 @@ shutil.rmtree(out, ignore_errors=True)
 os.makedirs(out)
 results = {}
 stats = dict(pairs=0, over=0, broken=0, unread=0, inside=0, damaged=0)
+unread_by = {}
 for i in range(n):
     kind = rng.choice(['pair', 'pair', 'pair', 'inside', 'damaged'])
     outside = rng.choice([58, 59, 60, 60, 60, 61, 61, 62, 50, 70, rng.randint(40, 80)])
     final = rng.choice(['lf', 'lf', 'lf', 'none', 'lf+blank'])
     eol = rng.choice(['\n', '\n', '\n', '\r\n'])
-    lines = make_base(outside)
+    lines, has_alternatives = make_base(outside)
     folders = {}
     if kind == 'pair':
         stats['pairs'] += 1
         kd, er = rng.choice([(True, False), (False, True), (True, True), (True, True)])
-        middle = kd and '## Alternatives considered' in lines and rng.random() < 0.5
+        middle = kd and has_alternatives and rng.random() < 0.5
         at_end = [block(name, 'quiet') for name, wanted in (('Known deviations', kd and not middle), ('Errata', er)) if wanted]
         base = text_of(lines, final, white=False)
         with_text = text_of(before_alternatives(lines, block('Known deviations', 'quiet')) if middle else lines, final, white=False)
@@ -113,14 +118,15 @@ for i in range(n):
                 stats['broken'] += 1
                 print('INVARIANT BROKEN', f'f{i:05d}b', ca, cb)
             stats['over'] += cb > 60
-        except g1.Reject:
+        except g1.Reject as e:
             stats['unread'] += 1
+            unread_by[e.rule] = unread_by.get(e.rule, 0) + 1
     else:
         wild = list(lines)
         if kind == 'inside':
             stats['inside'] += 1
             for name in rng.choice([['Known deviations'], ['Errata'], ['Known deviations', 'Errata']]):
-                if '## Alternatives considered' in wild and name == 'Known deviations' and rng.random() < 0.4: wild = before_alternatives(wild, block(name, 'inside'))
+                if has_alternatives and name == 'Known deviations' and rng.random() < 0.4: wild = before_alternatives(wild, block(name, 'inside'))
                 else: wild += [''] + block(name, 'inside')
         else:
             stats['damaged'] += 1
@@ -139,4 +145,4 @@ hit = {}
 for v in results.values():
     for p in v['problems']: hit[p.split('|')[1]] = hit.get(p.split('|')[1], 0) + 1
 print(f"{len(results)} folders; {stats['pairs']} pairs ({stats['over']} over the cap, {stats['unread']} that g1 refuses), {stats['inside']} with lines that end a section, "
-      f"{stats['damaged']} damaged; the invariant broke {stats['broken']} times; V-10 in {hit.get('V-10', 0)} folders, V-09 in {hit.get('V-09', 0)}")
+      f"{stats['damaged']} damaged; the invariant broke {stats['broken']} times; V-10 in {hit.get('V-10', 0)} folders, V-09 in {hit.get('V-09', 0)}; pairs g1 refused: {unread_by}")
