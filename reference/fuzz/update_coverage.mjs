@@ -27,11 +27,14 @@ if (!found) {
 const lines = source.split('\n');
 const first = lines.findIndex((line) => line.startsWith('export function parseTag'));
 const last = lines.findIndex((line) => line.startsWith('// The pull request'));
+// The block functions (from `STEMS` to the heading of the plan) are run by the plan only in part: agent_fuzz.py runs them all, and agent_coverage.mjs says which lines of them it ran.
+const skipFrom = lines.findIndex((line) => line.startsWith('const STEMS'));
+const skipTo = lines.findIndex((line, index) => index > skipFrom && line.startsWith('// The plan'));
 let offset = 0;
 const never = [];
 let ran = 0;
 for (const [index, line] of lines.entries()) {
-  if (index >= first && index < last) {
+  if (index >= first && index < last && !(index >= skipFrom && index <= skipTo)) {
     const code = line.trimStart();
     const comment = code.startsWith('//') || code.startsWith('*') || code.startsWith('/**') || code === '' || code === '}' || code === '});' || code === '};';
     if (!comment) {

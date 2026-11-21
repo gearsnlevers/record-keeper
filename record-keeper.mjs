@@ -1,7 +1,8 @@
 // Record Keeper: reads a decision record, puts it into canonical form, seals it and verifies a seal, and checks the
 // format of the records in a folder.
 //
-// One file, no dependencies, no network. It implements generation g1 exactly as docs/generation-g1.md
+// One file, no dependencies, no network, except that it imports from `updater.mjs`, which stands beside it, the one function that says whether the block of AGENTS.md
+// changed (docs/agent-files.md): the updater is fetched alone for the first adoption and cannot import this file, so the function lives there. It implements generation g1 exactly as docs/generation-g1.md
 // describes it, and the format of a record and its folder as docs/record-format.md describes it; test/vectors/g1 and
 // test/fixtures/validate hold the answers it must give. It never writes a file: `seal` and `validate` only print.
 //
@@ -18,6 +19,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { AGENTS_PATH, SKILL_PATH, blockChanged } from './updater.mjs';
 
 export const GENERATION = 'g1';
 export const SEAL_PREFIX = `sha256-${GENERATION}:`;
@@ -929,6 +931,11 @@ export const WORKFLOW_FILES = [
 ];
 const PROGRAMS = ['record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs'];
 export const CODE_FILES = [...PROGRAMS, ...PROGRAMS.map((name) => `.github/record-keeper/${name}`)];
+/**
+ * The files that agents read (docs/agent-files.md): the skill, which is a managed file and guarded like a workflow file, and AGENTS.md, of which only the block between the
+ * two markers is guarded (`blockChanged` is the one function that says what that is). A change to either is the act `instructions`.
+ */
+export const INSTRUCTION_FILES = [SKILL_PATH, AGENTS_PATH];
 const WORKFLOW_FOLDER = '.github/workflows';
 const NAMES_THE_CHECK = /records[ _-]?integrity/i;
 
@@ -937,7 +944,7 @@ const CONTENT_RULES = new Set([
   'V-09', 'V-10', 'V-11', 'V-12', 'V-13', 'V-14', 'V-15', 'V-16', 'V-17', 'V-18', 'V-19',
   'V-21', 'V-22', 'V-23', 'V-24', 'V-25', 'V-26', 'V-27', 'V-28', 'V-35', 'V-36', 'V-37',
 ]);
-const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code'];
+const ACT_ORDER = ['accept', 'erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code', 'instructions'];
 /** The acts that the amendment bar governs (docs/amendments.md). */
 const BAR_KINDS = new Set(['owners', 'amendment']);
 const SUPERSEDED = /^superseded by (\d{4})$/;
@@ -1293,6 +1300,18 @@ export function protocolRecords(commit, folder) {
 
 const isRelated = (changed, path) => changed === path || path.startsWith(`${changed}/`) || changed.startsWith(`${path}/`);
 
+/**
+ * Whether the change touches what agents read in AGENTS.md. Only a regular file in the same place before and after is read for its block (docs/agent-files.md): a mode that
+ * differs between a file and an executable is nothing, a change outside the markers is nothing, and a change to the block or to the markers is the act. A link, a folder or a
+ * submodule in that place, before or after, counts as a change, because it can lead anywhere.
+ */
+function agentsChanged(base, head, leavesOfBase, leavesOfHead, changed) {
+  const regular = (leaf) => leaf === undefined || /^(?:file|executable) /.test(leaf);
+  const [before, after] = [leavesOfBase.get(AGENTS_PATH), leavesOfHead.get(AGENTS_PATH)];
+  if (changed.some((path) => path !== AGENTS_PATH && isRelated(path, AGENTS_PATH)) || !regular(before) || !regular(after)) return true;
+  return blockChanged(before === undefined ? null : base.read(AGENTS_PATH), after === undefined ? null : head.read(AGENTS_PATH));
+}
+
 /** True when `ancestor` is `descendant` or one of its ancestors. */
 function isAncestor(repo, ancestor, descendant) {
   const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')));
@@ -1439,6 +1458,8 @@ export function judgeChange(repo, base, head, { author, reviews, reviewed, cases
   for (const [kind, files] of [['workflow', WORKFLOW_FILES], ['code', CODE_FILES]]) {
     for (const file of files) if (changed.some((path) => isRelated(path, file))) acts.push({ kind, path: file });
   }
+  if (changed.some((path) => isRelated(path, SKILL_PATH))) acts.push({ kind: 'instructions', path: SKILL_PATH });
+  if (changed.some((path) => isRelated(path, AGENTS_PATH)) && agentsChanged(base, head, leavesOfBase, leavesOfHead, changed)) acts.push({ kind: 'instructions', path: AGENTS_PATH });
 
   const filesBefore = regularFiles(leavesOfBase);
   const filesAfter = regularFiles(leavesOfHead);
@@ -1937,7 +1958,7 @@ export function planAudit(result, issues, now) {
 // ---- announcements: docs/announcements.md -----------------------------------------------------------------------------------------------
 
 /** The acts that are announced, in the order of the title of an announcement. `accept` is not one of them. */
-const ANNOUNCED_KINDS = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code'];
+const ANNOUNCED_KINDS = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code', 'instructions'];
 const ANNOUNCEMENT_LIMIT = 20;
 const ANNOUNCEMENT_ROOM = 40000;
 const ANNOUNCEMENT_INTRO = 'The owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. Close it when you have seen it.';

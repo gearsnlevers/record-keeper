@@ -36,4 +36,5 @@ file announce build_announce_cases.py "$root/test/fixtures/announce/cases.json"
 file change build_change_cases.py "$root/test/fixtures/change/cases.json"
 file update build_update_cases.py "$root/test/fixtures/update/cases.json"
 file setup build_setup_cases.py "$root/test/fixtures/setup/cases.json"
+file agent build_agent_cases.py "$root/test/fixtures/agent/cases.json"
 exit $failed

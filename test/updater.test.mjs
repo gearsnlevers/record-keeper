@@ -8,7 +8,7 @@ import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
-  BRANCH, CODES, LIMITS, PIN_PATH, Failed, Refused, checkManifest, checkNode, compareTags, fenceNotes, inspect, isKitPath, mayFollow, mayInstall, parseArgs, parseManifest, parsePin, parseRange, parseTag,
+  AGENTS_PATH, BLOCK_WHY, BRANCH, CLAUDE_PATH, CODES, KINDS, LIMITS, PIN_PATH, SKILL_PATH, Failed, Refused, checkManifest, checkNode, compareTags, fenceNotes, inspect, isKitPath, mayFollow, mayInstall, parseArgs, parseManifest, parsePin, parseRange, parseTag,
   plan, planUpdate, printable, pushBranch, redact, renderBody, renderMessage, renderPin, renderTitle, satisfies, selectRelease, usableReleases,
 } from '../updater.mjs';
 
@@ -19,7 +19,14 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-updater-cor
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 
 const bytesOf = (value) => (value !== null && typeof value === 'object' ? Buffer.from(value.hex, 'hex') : value);
-const prepared = (input) => ({ ...input, manifest: bytesOf(input.manifest), previous: bytesOf(input.previous) });
+/** The input of a case as the core takes it: the manifests as bytes or text, the file AGENTS.md as bytes, and the text of a block as bytes. */
+const prepared = (input) => ({
+  ...input,
+  manifest: bytesOf(input.manifest),
+  previous: bytesOf(input.previous),
+  tree: Object.fromEntries(Object.entries(input.tree ?? {}).map(([name, state]) => [name, state.hex === undefined ? state : { ...state, bytes: Buffer.from(state.hex, 'hex') }])),
+  blocks: Object.fromEntries(Object.entries(input.blocks ?? {}).map(([source, text]) => [source, Buffer.from(typeof text === 'string' ? text : text.hex, typeof text === 'string' ? 'utf8' : 'hex')])),
+});
 /** The refusal that a function throws, as { code, detail }; null when it does not throw. */
 const refusal = (fn) => {
   try {
@@ -70,10 +77,13 @@ describe('the fixtures of the plan', () => {
       assert.ok(answers.some((a) => a[key].length > 0), `${key} is never full`);
       assert.ok(answers.some((a) => a[key].length === 0), `${key} is never empty`);
     }
+    assert.ok(answers.some((a) => a.block === null));
+    assert.deepEqual([...new Set(answers.filter((a) => a.block !== null).map((a) => a.block.action))].sort(), ['append', 'create', 'current', 'refused', 'replace']);
+    assert.deepEqual([...new Set(answers.filter((a) => a.block?.action === 'refused').map((a) => a.block.why))].sort(), Object.keys(BLOCK_WHY).sort());
     assert.deepEqual([...new Set(plans.map((c) => c.expect.status))].sort(), ['current', 'refused', 'unchanged', 'update']);
     assert.ok(answers.some((a) => a.from === null) && answers.some((a) => a.from !== null && a.from === a.to) && answers.some((a) => a.from !== a.to && a.from !== null));
     assert.ok(answers.some((a) => a.pinChanged) && answers.some((a) => !a.pinChanged));
-    assert.deepEqual([...new Set(answers.flatMap((a) => a.warnings.map((w) => w.code)))].sort(), ['previous-missing', 'previous-unusable']);
+    assert.deepEqual([...new Set(answers.flatMap((a) => a.warnings.map((w) => w.code)))].sort(), ['block-refused', 'previous-missing', 'previous-unusable']);
     assert.deepEqual([...new Set(answers.map((a) => a.channel))].sort(), ['prerelease', 'stable']);
   });
 
@@ -178,7 +188,7 @@ describe('the manifest as untrusted data', () => {
       assert.equal(mayInstall('managed', ok), true, ok);
       assert.equal(isKitPath(ok), true, ok);
     }
-    for (const template of ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md']) {
+    for (const template of ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md', 'CLAUDE.md']) {
       assert.equal(mayInstall('template', template), true, template);
       assert.equal(mayInstall('managed', template), false, template);
       assert.equal(isKitPath(template), true, template);
@@ -191,6 +201,27 @@ describe('the manifest as untrusted data', () => {
       assert.equal(mayInstall('template', bad), false, String(bad));
     }
     assert.equal(mayInstall('other', '.github/record-keeper/x.mjs'), false);
+  });
+
+  test('the files of the agents: the skill is one managed path, the block is only for AGENTS.md, and CLAUDE.md is a template', () => {
+    assert.equal(SKILL_PATH, '.claude/skills/record-a-decision/SKILL.md');
+    assert.equal(mayInstall('managed', SKILL_PATH), true);
+    assert.equal(isKitPath(SKILL_PATH), true);
+    assert.equal(mayInstall('template', SKILL_PATH), false);
+    assert.equal(mayInstall('block', SKILL_PATH), false);
+    assert.equal(mayInstall('block', AGENTS_PATH), true);
+    assert.equal(mayInstall('managed', AGENTS_PATH), false, 'a managed AGENTS.md would be replaced whole');
+    assert.equal(mayInstall('template', AGENTS_PATH), false);
+    assert.equal(mayInstall('template', CLAUDE_PATH), true);
+    assert.equal(mayInstall('managed', CLAUDE_PATH), false);
+    assert.equal(mayInstall('block', CLAUDE_PATH), false);
+    assert.deepEqual(KINDS, ['managed', 'template', 'block']);
+    // Exactly one path is added: not a folder of the agents, not another skill, not another file of this skill, not anything else below .claude.
+    for (const bad of ['.claude', '.claude/', '.claude/settings.json', '.claude/settings.local.json', '.claude/CLAUDE.md', '.claude/skills', '.claude/skills/record-a-decision', '.claude/skills/record-a-decision/', '.claude/skills/record-a-decision/other.md',
+      '.claude/skills/record-a-decision/SKILL.md/x', '.claude/skills/record-a-decision/skill.md', '.claude/skills/Record-a-decision/SKILL.md', '.claude/skills/other/SKILL.md', '.claude/skills/record-a-decision/../x/SKILL.md', '.claude/commands/x.md',
+      '.claude/skills/record-a-decision/SKILL.md ', 'claude/skills/record-a-decision/SKILL.md', '.claude/hooks/x.sh', '.github/copilot-instructions.md', '.github/instructions/x.instructions.md', 'AGENTS.md ', 'agents.md', 'docs/AGENTS.md', 'sub/AGENTS.md', 'CLAUDE.md ', 'claude.md', 'CLAUDE.local.md', '.claude/CLAUDE.local.md']) {
+      for (const kind of ['managed', 'block', 'template']) assert.equal(mayInstall(kind, bad), false, `${kind} ${bad}`);
+    }
   });
 
   test('a path of the kit: printable ASCII, relative, with no part that is empty, . or .., that starts or ends with a space, ends with a dot or is .git', () => {
@@ -305,6 +336,36 @@ describe('what goes into a pull request', () => {
     assert.ok(body.endsWith(`\`${BRANCH}\`; merge it or close it.`));
     assert.doesNotMatch(body, /Local changes this update overwrites|## Warnings/, 'sections that have nothing in them are left out');
     for (const item of [...answer.added, ...answer.changed, ...answer.remove, ...answer.templates]) assert.equal(body.split(`\`${item}\``).length, 2, item);
+  });
+
+  test('the block of AGENTS.md in the body: what happens to the file, in these words, under a heading of its own, and a refused block as a problem under Warnings', () => {
+    const bare = { ...answer, added: [], changed: [], remove: [], templates: [], pinChanged: false, from: 'v1.1.0' };
+    const section = (block, extra = {}) => renderBody({ ...bare, block, ...extra }, '').split('## Changes in this repository\n\n')[1].split('\n## ')[0];
+    assert.equal(section({ path: 'AGENTS.md', action: 'create', why: null }), '**Block**\n\n- AGENTS.md is created, with the Record Keeper block in it\n');
+    assert.equal(section({ path: 'AGENTS.md', action: 'append', why: null }), '**Block**\n\n- the Record Keeper block is added at the end of AGENTS.md, and nothing else in the file changes\n');
+    assert.equal(section({ path: 'AGENTS.md', action: 'replace', why: null }), '**Block**\n\n- the Record Keeper block in AGENTS.md is replaced, and nothing outside the two markers changes\n');
+    for (const block of [null, { path: 'AGENTS.md', action: 'current', why: null }, { path: 'AGENTS.md', action: 'refused', why: 'doubled' }]) assert.equal(section(block), 'Only the pin changes.\n', JSON.stringify(block));
+    const listed = renderBody({ ...bare, block: { path: 'AGENTS.md', action: 'replace', why: null }, overwritten: ['.github/record-keeper/run-audit.mjs', 'AGENTS.md'] }, '');
+    assert.ok(listed.includes('- `.github/record-keeper/run-audit.mjs`\n- `AGENTS.md` (the text between the two markers)\n'));
+    const refused = renderBody({ ...bare, block: { path: 'AGENTS.md', action: 'refused', why: 'doubled' }, warnings: [{ code: 'block-refused', detail: 'doubled' }] }, '');
+    assert.ok(refused.includes('## Warnings\n\n- **Problem: the block in AGENTS.md was not written** (there is more than one begin marker or more than one end marker). The rest of this update is not affected. Until AGENTS.md is repaired by hand and the updater has run again, the agents read the block of the older release, or none (docs/agent-files.md of the kit).\n\n## Approval'));
+  });
+
+  test('the reasons that a block is not written, in these words, and a reason for each that the page lists', () => {
+    assert.deepEqual(BLOCK_WHY, {
+      'partial-line': 'a line holds the text of a marker and more',
+      'begin-without-end': 'a begin marker has no end marker',
+      'end-without-begin': 'an end marker has no begin marker',
+      reversed: 'the end marker comes before the begin marker',
+      doubled: 'there is more than one begin marker or more than one end marker',
+      'not-text': 'the file holds a zero byte, so it is not text that the updater can add to',
+      fence: 'the file ends inside a code fence, where the block would be taken for an example',
+      'invalid-block': 'the block of the release is not one begin marker, text and one end marker',
+      'not-a-file': 'AGENTS.md is not a regular file',
+      'too-large': 'AGENTS.md is larger than the updater reads (1 MiB)',
+    });
+    const agents = fs.readFileSync(path.join(root, 'docs/agent-files.md'), 'utf8').replaceAll('`', '');
+    for (const [why, words] of Object.entries(BLOCK_WHY)) assert.ok(agents.includes(`| ${why} | ${words} |`), why);
   });
 
   test('the body of a pull request, whole: with every part, and with the fewest', () => {
@@ -472,7 +533,7 @@ describe('the text that is printed', () => {
     ['manifest-requires', "the requirements of the manifest are not what the updater reads"],
     ['manifest-files', "the list of files of the manifest is empty, too long or not a list"],
     ['manifest-entry', "entry D of the manifest is not an object with the five keys of a file"],
-    ['manifest-kind', "entry D of the manifest has a kind that is not managed or template"],
+    ['manifest-kind', "entry D of the manifest has a kind that is not managed, template or block"],
     ['manifest-path', "the manifest installs a path that the updater does not install: D"],
     ['manifest-source', "the manifest names a source that is not a path: D"],
     ['manifest-digest', "entry D of the manifest has a digest that is not 64 hexadecimal digits"],
@@ -613,8 +674,8 @@ describe('what the program may push', () => {
 
 describe('what the page says in numbers', () => {
   test('the limits of the program are the limits of the page', () => {
-    assert.deepEqual(LIMITS, { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80 });
-    for (const sentence of ['1 to 100 entries', 'larger than 1 MiB', 'from 0 to 4 MiB', 'more than 16 MiB', 'at most 50 pages of 30', 'cut after 6,000 characters', 'at most 80 characters', 'larger than 64 KiB', 'is `.git` in any case', 'at most twice more']) {
+    assert.deepEqual(LIMITS, { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80, agents: 1024 * 1024 });
+    for (const sentence of ['1 to 100 entries', 'larger than 1 MiB', 'from 0 to 4 MiB', 'more than 16 MiB', 'at most 50 pages of 30', 'cut after 6,000 characters', 'at most 80 characters', 'larger than 64 KiB', 'is `.git` in any case', 'at most twice more', 'larger than 1 MiB', 'of more than 1 MiB is not read']) {
       assert.ok(page.includes(sentence), sentence);
     }
   });

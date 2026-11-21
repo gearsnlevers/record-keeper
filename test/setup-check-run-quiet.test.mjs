@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { runCli } from '../setup-check.mjs';
 import { parseSettings } from '../record-keeper.mjs';
 import {
-  NOW, actions, check, cleanUp, folder, guardedFetch, healthy, installed, reads, ruleset, serve, tree,
+  BLOCK, NOW, actions, check, cleanUp, folder, guardedFetch, healthy, installed, reads, ruleset, serve, tree,
 } from './setup-check-world.mjs';
 
 after(cleanUp);
@@ -265,3 +265,36 @@ describe('the single-owner mode is said once, by the pull request that puts it o
   });
 });
 
+describe('the files of the agents are as quiet as the rest of a healthy installation', () => {
+  for (const event of ['schedule', 'workflow_dispatch', 'pull_request']) {
+    test(`${event}: the skill, the block of AGENTS.md and a CLAUDE.md of any content give no annotation, whatever else AGENTS.md says`, async () => {
+      for (const files of [
+        {},
+        { 'AGENTS.md': `${BLOCK}\n` },
+        { 'AGENTS.md': `# Another text entirely\n\nwith \`code\` and tabs\t\n\n${BLOCK}\n\n- more\n\n\`\`\`\n<!-- record-keeper:begin -->\n\`\`\`\n` },
+        { 'AGENTS.md': `a file that does not end in a line feed, with text after the block\n\n${BLOCK}\ntext` },
+        { 'CLAUDE.md': null },
+        { 'CLAUDE.md': 'the notes of the repository, which do not import the file\n' },
+      ]) {
+        const state = await world();
+        const dir = tree({ ...installed(), ...files });
+        const got = await run(state, dir, { GITHUB_EVENT_NAME: event, ...(event === 'pull_request' ? { GITHUB_BASE_REF: 'main' } : {}) });
+        assert.equal(got.stdout.endsWith(SILENT), true, `${Object.keys(files)}: ${got.stdout}`);
+        assert.deepEqual(annotations(got.stdout).filter((line) => !line.startsWith('::notice title=single-owner')), []);
+        assert.equal(got.stderr, '');
+        assert.equal(got.code, 0);
+      }
+    });
+  }
+
+  test('markers that cannot be used are one warning a day, with the step that mends it, and the status stays 0', async () => {
+    const state = await world();
+    const dir = tree({ ...installed(), 'AGENTS.md': `${BLOCK}\n\n${BLOCK}\n` });
+    const got = await run(state, dir, { GITHUB_EVENT_NAME: 'schedule' });
+    assert.equal(got.code, 0);
+    assert.deepEqual(annotations(got.stdout).map((line) => line.split('::')[1]), ['warning title=block-unusable']);
+    assert.match(got.stdout, /Repair or take out the two marker lines and the text between them by hand, and run the updater with --target set to the pinned version \(docs\/agent-files\.md of the kit\)\.\n/);
+    assert.match(got.stdout, /setup check: 0 errors, 1 warning, 0 notices\n$/);
+    assert.match(got.summary, /\| warning \| `block-unusable` \|/);
+  });
+});

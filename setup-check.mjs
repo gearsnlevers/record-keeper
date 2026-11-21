@@ -15,12 +15,14 @@
 //
 // The file is in two parts. The first is pure: it takes what was read, as plain data, and returns the findings (reference/setup_ref.py is a second implementation
 // of it). The second part is the runner: files and HTTP.
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SETTINGS_PATH, WORKFLOW_FILES, parseSettings } from './record-keeper.mjs';
 import {
-  DEFAULT_API, PIN_PATH, TIMEOUT_MS, Failed, Refused, apiBase, checkManifest, downloadManifest, inspect, isSource, listReleases, nextPage, parseManifest, parsePin, printable, readPin, redact, request, usableReleases, wait,
+  AGENTS_PATH, BLOCK_WHY, DEFAULT_API, PIN_PATH, TIMEOUT_MS, Failed, Refused, apiBase, checkManifest, downloadManifest, inspect, inspectAgents, isSource, listReleases, nextPage, parseManifest, parsePin, printable, readBlock, readPin,
+  redact, request, usableReleases, wait,
 } from './updater.mjs';
 import { LOG_BRANCH } from './run-audit.mjs';
 
@@ -52,6 +54,7 @@ export const SEVERITY = {
   'owners-few': 'warning',
   'owner-mismatch': 'warning',
   'managed-differs': 'warning',
+  'block-unusable': 'warning',
   'manifest-unreadable': 'warning',
   'pin-missing': 'warning',
   'pin-unusable': 'warning',
@@ -105,6 +108,7 @@ const TEXT = {
   'owners-few': (d) => `the settings list fewer owners than approvals needs (${d}), so an act cannot be approved. List more owners in .github/record-keeper/settings.yml.`,
   'owner-mismatch': (d) => `an owner of the settings is not the account that GitHub knows (${d}). Correct the entry in .github/record-keeper/settings.yml: the ID decides and the login must be the current one.`,
   'managed-differs': (d) => `files that the kit installed differ from the pinned release: ${d}. Run the updater with --target set to the pinned version to bring them back, or restore them.`,
+  'block-unusable': (d) => `the Record Keeper block in ${AGENTS_PATH} cannot be used (${Object.hasOwn(BLOCK_WHY, d) ? BLOCK_WHY[d] : d}), so the updater leaves the file alone and the agents may read old rules, or none. Repair or take out the two marker lines and the text between them by hand, and run the updater with --target set to the pinned version (docs/agent-files.md of the kit).`,
   'manifest-unreadable': (d) => `the pinned release has no manifest that can be read (${d}), so the installed files cannot be compared with it. Check the pin, and that the release still exists.`,
   'pin-missing': () => `there is no pin (.github/record-keeper.yml), so the updater has no release to keep this repository on. Adopt a release with the updater (docs/updater.md of the kit).`,
   'pin-unusable': (d) => `the pin cannot be used (${d}), so the updater will not update this repository. Fix .github/record-keeper.yml in a pull request (docs/updater.md of the kit).`,
@@ -355,15 +359,25 @@ export function decide(input) {
       else if (release.state === 'refused') add('manifest-unreadable', `${pin.version}: ${release.code}`);
       else {
         passed.push('manifest');
+        // The managed files and the block of AGENTS.md are compared by SHA-256 and size. A block is the text between the markers, so the file can be missing, can have no block, can have
+        // a block that differs (all of them `managed-differs`: the updater brings them back), or can have markers that cannot be used (`block-unusable`: the updater leaves such a file alone).
         const differing = [];
-        for (const file of [...release.files].sort((a, b) => compare(a.path, b.path))) {
+        const unusable = [];
+        const entries = [...release.files, ...release.blocks].sort((a, b) => compare(a.path, b.path));
+        for (const file of entries) {
           const here = Object.hasOwn(input.tree, file.path) ? input.tree[file.path] : { kind: 'absent' };
           if (here.kind === 'absent') differing.push(`${file.path} (missing)`);
-          else if (here.kind !== 'file') differing.push(`${file.path} (not a file)`);
+          else if (here.kind === 'large') unusable.push('too-large');
+          else if (here.kind === 'block') {
+            if (here.state === 'none') differing.push(`${file.path} (block missing)`);
+            else if (here.state === 'refused') unusable.push(here.why);
+            else if (here.sha256 !== file.sha256 || here.size !== file.size) differing.push(`${file.path} (block differs)`);
+          } else if (here.kind !== 'file') differing.push(`${file.path} (not a file)`);
           else if (here.sha256 !== file.sha256 || here.size !== file.size) differing.push(`${file.path} (differs)`);
         }
-        if (differing.length === 0) passed.push('managed-files');
-        else add('managed-differs', `${differing.slice(0, BOUNDS.list).join(', ')}${differing.length > BOUNDS.list ? `, and ${differing.length - BOUNDS.list} more` : ''}`);
+        if (differing.length === 0 && unusable.length === 0) passed.push('managed-files');
+        if (differing.length > 0) add('managed-differs', `${differing.slice(0, BOUNDS.list).join(', ')}${differing.length > BOUNDS.list ? `, and ${differing.length - BOUNDS.list} more` : ''}`);
+        for (const why of unusable) add('block-unusable', why);
         if (release.secrets.includes(SECRET)) {
           if (input.event === 'pull_request') notLookedAt.push({ topic: 'secret', why: 'a run for a pull request is not given the secrets' });
           else if (input.secretSet === null) unchecked('secret', 'the workflow did not say whether it is set');
@@ -522,6 +536,21 @@ function readInstalled(root, relative) {
   return { kind: 'file', sha256: here.sha256, size: fs.statSync(path.join(root, relative)).size };
 }
 
+/**
+ * What the working tree holds at the path of a block: { kind: 'absent' | 'other' | 'large' } as for a file, or { kind: 'block', state } for a file that was read: `none` (no markers),
+ * `refused` (with `why`, the reason of `readBlock`) or `one` (with the SHA-256 and the size of the text between the markers, the markers included).
+ */
+function readInstalledBlock(root) {
+  const here = inspectAgents(root);
+  if (here.kind === 'absent' || here.kind === 'large') return { kind: here.kind };
+  if (here.kind !== 'file') return { kind: 'other' };
+  const found = readBlock(here.bytes);
+  if (found.state === 'none') return { kind: 'block', state: 'none' };
+  if (found.state === 'refused') return { kind: 'block', state: 'refused', why: found.why };
+  const block = here.bytes.subarray(found.start, found.end);
+  return { kind: 'block', state: 'one', sha256: createHash('sha256').update(block).digest('hex'), size: block.length };
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // The runner: GitHub
 
@@ -676,7 +705,8 @@ async function readRelease(context, pin) {
     const manifest = parseManifest(bytes);
     checkManifest(manifest, { tag: pin.version, commit: pin.commit });
     const rule = manifest.requires.rulesets.find((item) => item.branch === 'default');
-    return { state: 'read', secrets: manifest.requires.secrets, upToDate: rule === undefined ? null : rule['up-to-date'], files: manifest.files.filter((file) => file.kind === 'managed').map(({ path: where, sha256, size }) => ({ path: where, sha256, size })) };
+    const listed = (kind) => manifest.files.filter((file) => file.kind === kind).map(({ path: where, sha256, size }) => ({ path: where, sha256, size }));
+    return { state: 'read', secrets: manifest.requires.secrets, upToDate: rule === undefined ? null : rule['up-to-date'], files: listed('managed'), blocks: listed('block') };
   } catch (error) {
     if (error instanceof Refused) return { state: 'refused', code: error.code };
     if (!(error instanceof Failed)) throw error;
@@ -741,7 +771,7 @@ async function execute(opts, env, options) {
     const found = await readGithub(context, { repo, owners: asked, pin: input.own || input.pin.state !== 'read' ? null : input.pin, last: input.auditWorkflow === 'file' });
     input.github = found.github;
     input.release = found.release;
-    if (input.release.state === 'read') input.tree = Object.fromEntries(input.release.files.map((file) => [file.path, readInstalled(root, file.path)]));
+    if (input.release.state === 'read') input.tree = Object.fromEntries([...input.release.files.map((file) => [file.path, readInstalled(root, file.path)]), ...input.release.blocks.map((file) => [file.path, readInstalledBlock(root)])]);
     // The runner of GitHub names the branch that a pull request goes into in GITHUB_BASE_REF, and only for a pull request. It is asked for only when it can change the answer.
     if (input.event === 'pull_request' && input.settings.state === 'read' && input.settings.approvals === 1 && isBranch(env.GITHUB_BASE_REF)) input.baseSettings = await readBase(context, repo, env.GITHUB_BASE_REF);
   }

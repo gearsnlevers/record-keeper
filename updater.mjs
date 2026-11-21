@@ -26,7 +26,15 @@ export const PIN_PATH = '.github/record-keeper.yml';
 export const BRANCH = 'record-keeper/update';
 export const MANIFEST_ASSET = 'release-manifest.json';
 export const CHANNELS = ['stable', 'prerelease'];
-export const LIMITS = { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80 };
+export const LIMITS = { files: 100, file: 4 * 1024 * 1024, total: 16 * 1024 * 1024, manifest: 1024 * 1024, pin: 64 * 1024, page: 8 * 1024 * 1024, pages: 50, notes: 6000, tag: 80, agents: 1024 * 1024 };
+/** The kinds of file a release installs (docs/install.md): replaced by every update, copied once, or a block between two markers of a file that the repository owns. */
+export const KINDS = ['managed', 'template', 'block'];
+/** The files of the agents (docs/agent-files.md): the skill is a managed file, the block is rewritten between two markers of AGENTS.md, and CLAUDE.md is a template. */
+export const AGENTS_PATH = 'AGENTS.md';
+export const CLAUDE_PATH = 'CLAUDE.md';
+export const SKILL_PATH = '.claude/skills/record-a-decision/SKILL.md';
+export const BLOCK_BEGIN = '<!-- record-keeper:begin -->';
+export const BLOCK_END = '<!-- record-keeper:end -->';
 
 export const DEFAULT_API = 'https://api.github.com';
 export const TIMEOUT_MS = 30_000;
@@ -37,7 +45,7 @@ const USAGE = `Usage:
   updater.mjs [--dry-run] [--target <tag>]
   updater.mjs --local --source <owner/name> [--target <tag>] [--channel stable|prerelease]
 `;
-const TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md'];
+const TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md', CLAUDE_PATH];
 const MANIFEST_KEYS = ['commit', 'files', 'generations', 'node', 'requires', 'schema', 'tag', 'version'];
 const ENTRY_KEYS = ['kind', 'path', 'sha256', 'size', 'source'];
 const PIN_KEYS = ['source', 'version', 'commit', 'channel'];
@@ -84,7 +92,7 @@ const REASONS = {
   'manifest-requires': () => 'the requirements of the manifest are not what the updater reads',
   'manifest-files': () => 'the list of files of the manifest is empty, too long or not a list',
   'manifest-entry': (d) => `entry ${d} of the manifest is not an object with the five keys of a file`,
-  'manifest-kind': (d) => `entry ${d} of the manifest has a kind that is not managed or template`,
+  'manifest-kind': (d) => `entry ${d} of the manifest has a kind that is not managed, template or block`,
   'manifest-path': (d) => `the manifest installs a path that the updater does not install: ${d}`,
   'manifest-source': (d) => `the manifest names a source that is not a path: ${d}`,
   'manifest-digest': (d) => `entry ${d} of the manifest has a digest that is not 64 hexadecimal digits`,
@@ -246,7 +254,10 @@ export function isKitPath(value) {
 }
 
 /** Whether the updater installs this path for a file of this kind: the only places it writes (docs/updater.md). */
-export const mayInstall = (kind, destination) => (kind === 'managed' ? typeof destination === 'string' && (PROGRAM.test(destination) || WORKFLOW.test(destination)) : TEMPLATES.includes(destination));
+export const mayInstall = (kind, destination) => {
+  if (kind === 'managed') return typeof destination === 'string' && (PROGRAM.test(destination) || WORKFLOW.test(destination) || destination === SKILL_PATH);
+  return kind === 'block' ? destination === AGENTS_PATH : TEMPLATES.includes(destination);
+};
 
 const isIntegral = (value) => typeof value === 'number' && Number.isSafeInteger(value);
 const isTextList = (value, pattern) => Array.isArray(value) && value.every((item) => typeof item === 'string' && pattern.test(item)) && new Set(value).size === value.length;
@@ -301,7 +312,7 @@ export function checkManifest(manifest, { tag, commit }) {
   for (const [index, entry] of files.entries()) {
     const at = index + 1;
     if (!isObject(entry) || Object.keys(entry).sort().join() !== ENTRY_KEYS.join()) throw new Refused('manifest-entry', at);
-    if (entry.kind !== 'managed' && entry.kind !== 'template') throw new Refused('manifest-kind', at);
+    if (!KINDS.includes(entry.kind)) throw new Refused('manifest-kind', at);
     if (!mayInstall(entry.kind, entry.path)) throw new Refused('manifest-path', entry.path);
     if (!isKitPath(entry.source)) throw new Refused('manifest-source', entry.source);
     if (typeof entry.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(entry.sha256)) throw new Refused('manifest-digest', at);
@@ -321,17 +332,136 @@ export function checkNode(manifest, node) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
+// The block of AGENTS.md (docs/agent-files.md): the one place where the kit writes into a file that the repository owns. It is the text between two marker lines
+// and nothing else. These functions are pure and are the only ones that find, replace or compare the block: the updater, the pull request check, the audit and the
+// setup check all use them. A file is read as bytes, one byte for one character (latin1), so that what is outside the markers is never decoded and never changes.
+
+const STEMS = ['record-keeper:begin', 'record-keeper:end'];
+const NEWLINE = Buffer.from('\n');
+
+/** A fence of Markdown at the start of a line: up to three spaces, then three or more backticks or tildes. { mark, count, info } or null. */
+function fenceOf(line) {
+  let at = 0;
+  while (line[at] === ' ') at++;
+  if (at > 3 || (line[at] !== '`' && line[at] !== '~')) return null;
+  const mark = line[at];
+  let count = 0;
+  while (line[at + count] === mark) count++;
+  return count < 3 ? null : { mark, count, info: line.slice(at + count) };
+}
+
+/**
+ * Where the block is in the bytes of a file. A marker is a whole line, with a carriage return allowed at its end, outside every fenced code block. Returns
+ * { state: 'none', fenced } when there is no marker (`fenced` says that the file ends inside a code fence), { state: 'one', start, end } for one begin marker and
+ * one end marker after it (`start` is the first byte of the begin line, `end` is the byte after the end marker, and the line end after it is not part of the
+ * block), or { state: 'refused', why } for anything else: a line that holds the text of a marker and more (`partial-line`), a begin marker with no end
+ * (`begin-without-end`), an end marker with no begin (`end-without-begin`), an end before the begin (`reversed`), or two or more of either (`doubled`).
+ */
+export function readBlock(bytes) {
+  const text = Buffer.from(bytes).toString('latin1');
+  const marks = [];
+  let fence = null;
+  for (let from = 0; ;) {
+    const newline = text.indexOf('\n', from);
+    const raw = text.slice(from, newline === -1 ? text.length : newline);
+    const line = raw.endsWith('\r') ? raw.slice(0, -1) : raw;
+    const found = fenceOf(line);
+    if (fence !== null) {
+      if (found !== null && found.mark === fence.mark && found.count >= fence.count && /^[ \t]*$/.test(found.info)) fence = null;
+    } else if (found !== null && !(found.mark === '`' && found.info.includes('`'))) fence = found;
+    else if (line === BLOCK_BEGIN) marks.push({ kind: 'B', at: from });
+    else if (line === BLOCK_END) marks.push({ kind: 'E', at: from + line.length });
+    else if (STEMS.some((stem) => line.includes(stem))) return { state: 'refused', why: 'partial-line' };
+    if (newline === -1) break;
+    from = newline + 1;
+  }
+  const kinds = marks.map((mark) => mark.kind).join('');
+  if (kinds === '') return { state: 'none', fenced: fence !== null };
+  if (kinds === 'BE') return { state: 'one', start: marks[0].at, end: marks[1].at };
+  return { state: 'refused', why: { B: 'begin-without-end', E: 'end-without-begin', EB: 'reversed' }[kinds] ?? 'doubled' };
+}
+
+/** The block of a file, as the bytes between the markers (the markers included), or null when the file has none or its markers are refused. */
+export function blockOf(bytes) {
+  const found = readBlock(bytes);
+  return found.state === 'one' ? Buffer.from(bytes).subarray(found.start, found.end) : null;
+}
+
+/**
+ * The file `current` (bytes, or null when there is none) with the block `block` in it, or the reason why it cannot be: { ok: true, action, output } where the action is
+ * `create` (there was no file), `append` (a file without markers: the block goes at the end, after one blank line), `replace` (the bytes between the markers change)
+ * or `current` (they are the block already, and the output is the file as it was); or { ok: false, why }. Outside the markers not a byte changes. The refusals are the
+ * why of `readBlock`, `not-text` (no markers, and a zero byte: not a text that can be added to), `fence` (no markers, and the file ends inside a code fence, where the block
+ * would be taken for an example) and `invalid-block` (the text to put in is not one begin marker, text and one end marker, and nothing else).
+ */
+export function spliceBlock(current, block) {
+  const text = Buffer.from(block);
+  const own = readBlock(text);
+  if (own.state !== 'one' || own.start !== 0 || own.end !== text.length) return { ok: false, why: 'invalid-block' };
+  if (current === null) return { ok: true, action: 'create', output: Buffer.concat([text, NEWLINE]) };
+  const have = Buffer.from(current);
+  const found = readBlock(have);
+  if (found.state === 'refused') return { ok: false, why: found.why };
+  if (found.state === 'one') {
+    if (have.subarray(found.start, found.end).equals(text)) return { ok: true, action: 'current', output: have };
+    return { ok: true, action: 'replace', output: Buffer.concat([have.subarray(0, found.start), text, have.subarray(found.end)]) };
+  }
+  if (have.includes(0)) return { ok: false, why: 'not-text' };
+  if (found.fenced) return { ok: false, why: 'fence' };
+  if (have.length === 0) return { ok: true, action: 'append', output: Buffer.concat([text, NEWLINE]) };
+  const tail = have.subarray(-3).toString('latin1');
+  const separator = tail.endsWith('\n\n') || tail.endsWith('\n\r\n') ? '' : tail.endsWith('\n') ? '\n' : '\n\n';
+  return { ok: true, action: 'append', output: Buffer.concat([have, Buffer.from(separator), text, NEWLINE]) };
+}
+
+/**
+ * Whether the text that agents read has changed between two versions of AGENTS.md (bytes, or null for no file): the block between the markers, or the markers. A change
+ * outside them is nothing. Two files without markers are the same, whatever they say. A file whose markers are refused is compared whole, so that any change to it, and
+ * any change between it and a file with a block or none, counts: the check cannot tell what is inside.
+ */
+export function blockChanged(before, after) {
+  const view = (bytes) => {
+    if (bytes === null) return { kind: 'none' };
+    const found = readBlock(bytes);
+    if (found.state === 'none') return { kind: 'none' };
+    return found.state === 'one' ? { kind: 'one', bytes: Buffer.from(bytes).subarray(found.start, found.end) } : { kind: 'refused', bytes: Buffer.from(bytes) };
+  };
+  const [x, y] = [view(before), view(after)];
+  return x.kind !== y.kind || (x.kind !== 'none' && !x.bytes.equals(y.bytes));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 // The plan
 
 const sorted = (list) => [...list].sort(byBytes);
 
+/** The actions on the block that write AGENTS.md. */
+const WRITES = ['create', 'append', 'replace'];
+
+/**
+ * What the update does with the block of AGENTS.md: { path, action, why, digest } where the action is `create`, `append`, `replace`, `current` or `refused` (and `why` is then the
+ * reason of `spliceBlock`, or `not-a-file` or `too-large` for a place that holds something else, or a file that is larger than the updater reads), and `digest` is the SHA-256
+ * of the block that stands in the file now, for a `replace`. `text` is the bytes of the block of the release: they are the bytes that the manifest names, or nothing is done.
+ */
+function planBlock(entry, here, text) {
+  if (text === undefined) throw new Refused('download-missing', entry.source);
+  if (sha256(text) !== entry.sha256) throw new Refused('digest-mismatch', entry.path);
+  const said = (action, why = null, digest = null) => ({ path: entry.path, action, why, digest });
+  if (here.kind === 'large') return said('refused', 'too-large');
+  if (here.kind !== 'absent' && here.kind !== 'file') return said('refused', 'not-a-file');
+  const result = spliceBlock(here.kind === 'absent' ? null : here.bytes, text);
+  if (!result.ok) return said('refused', result.why);
+  return said(result.action, null, result.action === 'replace' ? sha256(blockOf(here.bytes)) : null);
+}
+
 /**
  * What an update does: the plan of a release, from the pin, the manifest of the release and of the pinned release, the digests of what was downloaded and what the
  * working tree holds. `manifest` and `previous` are bytes or text; `previous` is null when the pinned release has no manifest to read. `downloaded` maps a source
- * to { sha256, size }; `tree` maps a destination to { kind: 'absent' | 'file' | 'dir' | 'link' | 'other' | 'blocked', sha256? } (a missing path is absent).
- * Returns { status: 'update' | 'unchanged', ... } or throws Refused.
+ * to { sha256, size }; `tree` maps a destination to { kind: 'absent' | 'file' | 'large' | 'dir' | 'link' | 'other' | 'blocked', sha256? } (a missing path is absent), and for
+ * AGENTS.md a `file` also has its `bytes`; `blocks` maps the source of an entry of the kind `block` to its bytes. Returns { status: 'update' | 'unchanged', ... } or
+ * throws Refused.
  */
-export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: manifestBytes, previous: previousBytes, node, downloaded, tree, pinText }) {
+export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: manifestBytes, previous: previousBytes, node, downloaded, tree, blocks = {}, pinText }) {
   const manifest = parseManifest(manifestBytes);
   checkManifest(manifest, { tag, commit: tagCommit });
   checkNode(manifest, node);
@@ -363,14 +493,21 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
   }
   const was = new Map((before === null ? [] : before.files.filter((entry) => entry.kind === 'managed')).map((entry) => [entry.path, entry]));
   const wasTemplates = new Set((before === null ? [] : before.files.filter((entry) => entry.kind === 'template')).map((entry) => entry.path));
+  const wasBlock = new Map((before === null ? [] : before.files.filter((entry) => entry.kind === 'block')).map((entry) => [entry.path, entry]));
   const added = [];
   const changed = [];
   const unchanged = [];
   const templates = [];
   const kept = [];
   const overwritten = [];
+  let block = null;
   for (const entry of files) {
     const here = state(entry.path);
+    if (entry.kind === 'block') {
+      block = planBlock(entry, here, Object.hasOwn(blocks, entry.source) ? blocks[entry.source] : undefined);
+      if (block.action === 'replace' && before !== null && wasBlock.get(entry.path)?.sha256 !== block.digest) overwritten.push(entry.path);
+      continue;
+    }
     // A template is installed once: at the first adoption, and by the update that brings it. Where the pinned release is not known, nothing tells the two apart.
     if (entry.kind === 'template') (here.kind === 'absent' && (pin === null || (before !== null && !wasTemplates.has(entry.path))) ? templates : kept).push(entry.path);
     else if (here.kind === 'absent') added.push(entry.path);
@@ -389,8 +526,9 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
   }
   const text = renderPin({ source, version: manifest.tag, commit: manifest.commit, channel });
   const pinChanged = pinText !== text;
+  if (block !== null && block.action === 'refused') warnings.push({ code: 'block-refused', detail: block.why });
   return {
-    status: added.length + changed.length + templates.length + remove.length > 0 || pinChanged ? 'update' : 'unchanged',
+    status: added.length + changed.length + templates.length + remove.length > 0 || pinChanged || (block !== null && WRITES.includes(block.action)) ? 'update' : 'unchanged',
     source,
     channel,
     from: pin === null ? null : pin.version,
@@ -402,6 +540,7 @@ export function planUpdate({ pin, source, channel, tag, tagCommit, manifest: man
     templates,
     kept,
     remove,
+    block: block === null ? null : { path: block.path, action: block.action, why: block.why },
     overwritten: sorted(overwritten),
     pin: text,
     pinChanged,
@@ -452,16 +591,36 @@ export function fenceNotes(notes, limit = LIMITS.notes) {
 
 const listOf = (title, paths) => (paths.length === 0 ? [] : [`**${title}** (${paths.length})`, '', ...paths.map((item) => `- \`${item}\``), '']);
 
+/** Why the block was not written, in words: the reasons of `spliceBlock`, and of a place that holds something other than a file. */
+export const BLOCK_WHY = {
+  'partial-line': 'a line holds the text of a marker and more',
+  'begin-without-end': 'a begin marker has no end marker',
+  'end-without-begin': 'an end marker has no begin marker',
+  reversed: 'the end marker comes before the begin marker',
+  doubled: 'there is more than one begin marker or more than one end marker',
+  'not-text': 'the file holds a zero byte, so it is not text that the updater can add to',
+  fence: 'the file ends inside a code fence, where the block would be taken for an example',
+  'invalid-block': 'the block of the release is not one begin marker, text and one end marker',
+  'not-a-file': `${AGENTS_PATH} is not a regular file`,
+  'too-large': `${AGENTS_PATH} is larger than the updater reads (1 MiB)`,
+};
+const BLOCK_ACTION = {
+  create: `${AGENTS_PATH} is created, with the Record Keeper block in it`,
+  append: `the Record Keeper block is added at the end of ${AGENTS_PATH}, and nothing else in the file changes`,
+  replace: `the Record Keeper block in ${AGENTS_PATH} is replaced, and nothing outside the two markers changes`,
+};
+
 /** The body of the pull request from a plan and the notes of the release. */
 export function renderBody(update, notes) {
   const lines = [`Updates Record Keeper ${update.from === null ? 'to' : update.from === update.to ? 'again to' : `from **${update.from}** to`} **${update.to}** (\`${update.source}\`, channel \`${update.channel}\`).`, ''];
   lines.push('## Release notes', '', fenceNotes(notes), '');
   lines.push('## Changes in this repository', '');
-  const rows = [...listOf('Added', update.added), ...listOf('Changed', update.changed), ...listOf('Removed', update.remove), ...listOf('Templates installed', update.templates)];
+  const rows = [...listOf('Added', update.added), ...listOf('Changed', update.changed), ...listOf('Removed', update.remove), ...listOf('Templates installed', update.templates),
+    ...(update.block !== null && Object.hasOwn(BLOCK_ACTION, update.block.action) ? ['**Block**', '', `- ${BLOCK_ACTION[update.block.action]}`, ''] : [])];
   lines.push(...(rows.length === 0 ? ['Only the pin changes.', ''] : rows));
   if (update.pinChanged) lines.push(`The pin \`${PIN_PATH}\` is rewritten: version \`${update.to}\`, commit \`${update.commit}\`.`, '');
   if (update.overwritten.length > 0) {
-    lines.push('## Local changes this update overwrites', '', 'These managed files differ from what the pinned release installed, or were not installed by it. Merging replaces or removes them. A change that should stay belongs in the settings file, which an update never touches, or in a release of the kit:', '', ...update.overwritten.map((item) => `- \`${item}\``), '');
+    lines.push('## Local changes this update overwrites', '', 'These managed files differ from what the pinned release installed, or were not installed by it. Merging replaces or removes them. A change that should stay belongs in the settings file, which an update never touches, or in a release of the kit:', '', ...update.overwritten.map((item) => `- \`${item}\`${item === AGENTS_PATH ? ' (the text between the two markers)' : ''}`), '');
   }
   const { secrets, settings, rulesets } = update.requires;
   lines.push('## What this release requires', '', 'The updater cannot see secrets, settings or rulesets. Check that these are in place:', '');
@@ -476,7 +635,8 @@ export function renderBody(update, notes) {
   if (update.warnings.length > 0) {
     lines.push('## Warnings', '');
     for (const { code, detail } of update.warnings) {
-      lines.push(code === 'previous-missing' ? `- The pinned release ${printable(detail)} has no manifest that the updater could read, so the local changes this update overwrites, and the files it removes, are not listed.`
+      if (code === 'block-refused') lines.push(`- **Problem: the block in ${AGENTS_PATH} was not written** (${BLOCK_WHY[detail]}). The rest of this update is not affected. Until ${AGENTS_PATH} is repaired by hand and the updater has run again, the agents read the block of the older release, or none (docs/agent-files.md of the kit).`);
+      else lines.push(code === 'previous-missing' ? `- The pinned release ${printable(detail)} has no manifest that the updater could read, so the local changes this update overwrites, and the files it removes, are not listed.`
         : `- The manifest of the pinned release is not one the updater reads (${printable(detail)}), so the local changes this update overwrites, and the files it removes, are not listed.`);
     }
     lines.push('');
@@ -727,6 +887,15 @@ export function inspect(root, relative) {
   return { kind: 'absent' };
 }
 
+/** What AGENTS.md is in the working tree: as `inspect` says it, and for a file its bytes. A file larger than the updater reads is `large` and is not read. */
+export function inspectAgents(root) {
+  const here = inspect(root, AGENTS_PATH);
+  if (here.kind !== 'file') return here;
+  const target = path.join(root, AGENTS_PATH);
+  if (fs.statSync(target).size > LIMITS.agents) return { kind: 'large' };
+  return { ...here, bytes: fs.readFileSync(target) };
+}
+
 /** The text of the pin of a working tree, or null when there is none. Throws Refused when it is there and is not a small file of text. */
 export function readPin(root) {
   const here = inspect(root, PIN_PATH);
@@ -739,12 +908,14 @@ export function readPin(root) {
   }
 }
 
-/** Writes a file whole and in one step: a file of its own beside it, then a rename. */
+/** Writes a file whole and in one step: a file of its own beside it, then a rename. AGENTS.md is the repository's, so it keeps the mode it has. */
 function writeFile(root, relative, bytes) {
   const target = path.join(root, relative);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   const temporary = `${target}.updating-${process.pid}`;
-  fs.writeFileSync(temporary, bytes, { flag: 'wx', mode: 0o644 });
+  const mode = relative === AGENTS_PATH && fs.existsSync(target) ? fs.statSync(target).mode & 0o777 : 0o644;
+  fs.writeFileSync(temporary, bytes, { flag: 'wx', mode });
+  fs.chmodSync(temporary, mode);
   fs.renameSync(temporary, target);
 }
 
@@ -871,6 +1042,7 @@ async function gather(context, { source, release, pin, releases, pinText, node }
   const contents = new Map();
   const downloaded = Object.create(null);
   const held = new Map();
+  const blocks = Object.create(null);
   for (const entry of manifest.files) {
     if (!Object.hasOwn(downloaded, entry.source)) {
       const got = await downloadFile(context, source, manifest.commit, entry.source, entry.size);
@@ -878,6 +1050,7 @@ async function gather(context, { source, release, pin, releases, pinText, node }
       held.set(entry.source, got.bytes);
     }
     contents.set(entry.path, held.get(entry.source));
+    if (entry.kind === 'block') blocks[entry.source] = held.get(entry.source);
   }
   let previous = null;
   if (pin !== null) {
@@ -885,12 +1058,15 @@ async function gather(context, { source, release, pin, releases, pinText, node }
     if (was !== undefined) previous = tag === pin.version ? manifestBytes : await downloadManifest(context, source, was);
   }
   const paths = new Set([PIN_PATH, ...manifest.files.map((entry) => entry.path), ...(previous === null ? [] : managedPaths(previous))]);
-  const tree = Object.fromEntries([...paths].map((destination) => [destination, inspect(context.root, destination)]));
-  return { tag, commit, manifestBytes, previous, contents, downloaded, tree, pinText, node };
+  const tree = Object.fromEntries([...paths].map((destination) => [destination, destination === AGENTS_PATH ? inspectAgents(context.root) : inspect(context.root, destination)]));
+  return { tag, commit, manifestBytes, previous, contents, downloaded, tree, blocks, pinText, node };
 }
 
 /** The words of a warning of the plan. */
-const warningText = ({ code, detail }) => (code === 'previous-missing' ? `the pinned release ${printable(detail)} has no manifest to read` : `the manifest of the pinned release is not one the updater reads (${printable(detail)})`);
+const warningText = ({ code, detail }) => {
+  if (code === 'block-refused') return `the block in ${AGENTS_PATH} was not written: ${BLOCK_WHY[detail]}`;
+  return `${code === 'previous-missing' ? `the pinned release ${printable(detail)} has no manifest to read` : `the manifest of the pinned release is not one the updater reads (${printable(detail)})`}; local changes and removals are not listed`;
+};
 
 /** One run: says what it does with `say`, returns the exit status, throws Refused or Failed. */
 async function execute(opts, env, options, say) {
@@ -922,13 +1098,14 @@ async function execute(opts, env, options, say) {
     return 0;
   }
   const found = await gather(context, { source, release: chosen.release, pin, releases, pinText, node: options.node ?? process.versions.node });
-  const update = planUpdate({ pin, source, channel, tag: found.tag, tagCommit: found.commit, manifest: found.manifestBytes, previous: found.previous, node: found.node, downloaded: found.downloaded, tree: found.tree, pinText });
+  const update = planUpdate({ pin, source, channel, tag: found.tag, tagCommit: found.commit, manifest: found.manifestBytes, previous: found.previous, node: found.node, downloaded: found.downloaded, tree: found.tree, blocks: found.blocks, pinText });
 
   say(update.status === 'unchanged' ? `unchanged: ${update.to} is installed and nothing differs` : `update ${update.from === null ? '(nothing installed)' : update.from} to ${update.to} (${channel})`);
   for (const [verb, list] of [['add', update.added], ['change', update.changed], ['remove', update.remove], ['install template', update.templates], ['local change overwritten', update.overwritten]]) for (const item of list) say(`  ${verb} ${item}`);
+  if (update.block !== null && WRITES.includes(update.block.action)) say(`  ${update.block.action} the block of ${AGENTS_PATH}`);
   if (update.status === 'update' && update.pinChanged) say(`  write ${PIN_PATH}`);
-  for (const warning of update.warnings) say(`warning: ${warningText(warning)}; local changes and removals are not listed`);
-  if (update.status === 'update') say(`${count(update.added.length, 'file', 'files')} to add, ${update.changed.length} to change, ${update.remove.length} to remove, ${count(update.templates.length, 'template', 'templates')} to install, ${count(update.overwritten.length, 'local change', 'local changes')} overwritten`);
+  for (const warning of update.warnings) say(`warning: ${warningText(warning)}`);
+  if (update.status === 'update') say(`${count(update.added.length, 'file', 'files')} to add, ${update.changed.length} to change, ${update.remove.length} to remove, ${count(update.templates.length, 'template', 'templates')} to install, ${count(update.overwritten.length, 'local change', 'local changes')} overwritten${update.block !== null && WRITES.includes(update.block.action) ? `, the block of ${AGENTS_PATH} to ${update.block.action}` : ''}`);
   if (mode === 'dry') {
     say('dry run: nothing was written');
     return 0;
@@ -938,6 +1115,12 @@ async function execute(opts, env, options, say) {
     return 0;
   }
   const written = new Map([...found.contents].filter(([destination]) => [...update.added, ...update.changed, ...update.templates].includes(destination)));
+  if (update.block !== null && WRITES.includes(update.block.action)) {
+    // The plan has said that the splice works: it is made again here from the same bytes, and nothing else of AGENTS.md is read or written.
+    const entry = parseManifest(found.manifestBytes).files.find((item) => item.kind === 'block');
+    const here = found.tree[AGENTS_PATH];
+    written.set(AGENTS_PATH, spliceBlock(here.kind === 'file' ? here.bytes : null, found.blocks[entry.source]).output);
+  }
   if (mode === 'local') {
     writeAll(root, update, written);
     say(`wrote ${count(written.size, 'file', 'files')}, removed ${update.remove.length} and wrote the pin ${PIN_PATH}`);

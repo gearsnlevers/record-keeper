@@ -3,15 +3,25 @@ code with updater.mjs: it reads a pin, chooses a release, judges a manifest as u
 
   plan(input) -> {'status': 'refused', 'code', 'detail'} | {'status': 'current', 'latest'} | {'status': 'update' | 'unchanged', ...}
 
-The input is the one that updater.mjs `plan` takes, as JSON: pinText, source, channel, target, releases, tagCommit, manifest, previous, node, downloaded, tree.
-`manifest` and `previous` are text, or {"hex": ...} for bytes that are not text."""
+The input is the one that updater.mjs `plan` takes, as JSON: pinText, source, channel, target, releases, tagCommit, manifest, previous, node, downloaded, tree, blocks.
+`manifest` and `previous` are text, or {"hex": ...} for bytes that are not text. `blocks` maps the source of an entry of the kind `block` to its text (or {"hex": ...}), and
+the tree entry of AGENTS.md may carry the bytes of the file as `hex`."""
 import json
 import math
+import os
 import re
+import sys
 import hashlib
 
+sys.path.insert(0, os.path.dirname(__file__))
+import agent_ref
+
 PIN_PATH = '.github/record-keeper.yml'
-TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md']
+TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md', 'CLAUDE.md']
+KINDS = ('managed', 'template', 'block')
+SKILL_PATH = '.claude/skills/record-a-decision/SKILL.md'
+AGENTS_PATH = 'AGENTS.md'
+WRITES = ('create', 'append', 'replace')
 CHANNELS = ['stable', 'prerelease']
 MAX_FILES = 100
 MAX_FILE = 4 * 1024 * 1024
@@ -218,7 +228,9 @@ def path_problem(value):
 
 def may_install(kind, value):
     if kind == 'managed':
-        return isinstance(value, str) and (PROGRAM.fullmatch(value) is not None or WORKFLOW.fullmatch(value) is not None)
+        return isinstance(value, str) and (PROGRAM.fullmatch(value) is not None or WORKFLOW.fullmatch(value) is not None or value == SKILL_PATH)
+    if kind == 'block':
+        return value == AGENTS_PATH
     return value in TEMPLATES
 
 
@@ -292,7 +304,7 @@ def check_manifest(m, tag, commit):
     for number, entry in enumerate(files, 1):
         if not is_object(entry) or sorted(entry.keys()) != ENTRY_KEYS:
             raise Refused('manifest-entry', number)
-        if entry['kind'] not in ('managed', 'template'):
+        if entry['kind'] not in KINDS:
             raise Refused('manifest-kind', number)
         if not may_install(entry['kind'], entry['path']):
             raise Refused('manifest-path', entry['path'])
@@ -313,7 +325,30 @@ def check_manifest(m, tag, commit):
 
 # ------------------------------------------------------------------ the plan
 
-def plan_update(pin, source, channel, tag, tag_commit, manifest, previous, node, downloaded, tree, pin_text):
+def raw(value):
+    """The bytes of a text that a fixture gives as text or as {"hex": ...}."""
+    return value.encode('utf-8') if isinstance(value, str) else bytes.fromhex(value['hex'])
+
+
+def plan_block(entry, here, text):
+    """What the update does with the block of AGENTS.md: {'path', 'action', 'why', 'digest'}; `text` is the bytes of the block of the release."""
+    if text is None:
+        raise Refused('download-missing', entry['source'])
+    if sha256_hex(text) != entry['sha256']:
+        raise Refused('digest-mismatch', entry['path'])
+    said = lambda action, why=None, digest=None: {'path': entry['path'], 'action': action, 'why': why, 'digest': digest}
+    if here['kind'] == 'large':
+        return said('refused', 'too-large')
+    if here['kind'] not in ('absent', 'file'):
+        return said('refused', 'not-a-file')
+    current = None if here['kind'] == 'absent' else bytes.fromhex(here['hex'])
+    result = agent_ref.splice_block(current, text)
+    if not result['ok']:
+        return said('refused', result['why'])
+    return said(result['action'], None, sha256_hex(agent_ref.block_of(current)) if result['action'] == 'replace' else None)
+
+
+def plan_update(pin, source, channel, tag, tag_commit, manifest, previous, node, downloaded, tree, pin_text, blocks=None):
     m = parse_manifest(manifest)
     check_manifest(m, tag, tag_commit)
     if not satisfies(node, parse_range(m['node'])):
@@ -348,15 +383,24 @@ def plan_update(pin, source, channel, tag, tag_commit, manifest, previous, node,
             warnings.append({'code': 'previous-unusable', 'detail': refusal.code})
     was = {}
     was_templates = set()
+    was_block = {}
     if old is not None:
         for entry in old['files']:
             if entry['kind'] == 'managed':
                 was[entry['path']] = entry
+            elif entry['kind'] == 'block':
+                was_block[entry['path']] = entry
             else:
                 was_templates.add(entry['path'])
     added, changed, unchanged, templates, kept, overwritten = [], [], [], [], [], []
+    block = None
     for entry in files:
         here = state(entry['path'])
+        if entry['kind'] == 'block':
+            block = plan_block(entry, here, (blocks or {}).get(entry['source']))
+            if block['action'] == 'replace' and old is not None and (entry['path'] not in was_block or was_block[entry['path']]['sha256'] != block['digest']):
+                overwritten.append(entry['path'])
+            continue
         if entry['kind'] == 'template':
             if here['kind'] == 'absent' and (pin is None or (old is not None and entry['path'] not in was_templates)):
                 templates.append(entry['path'])
@@ -380,8 +424,10 @@ def plan_update(pin, source, channel, tag, tag_commit, manifest, previous, node,
             overwritten.append(path)
     text = render_pin(source, m['tag'], m['commit'], channel)
     changed_pin = pin_text != text
+    if block is not None and block['action'] == 'refused':
+        warnings.append({'code': 'block-refused', 'detail': block['why']})
     return {
-        'status': 'update' if (added or changed or templates or remove or changed_pin) else 'unchanged',
+        'status': 'update' if (added or changed or templates or remove or changed_pin or (block is not None and block['action'] in WRITES)) else 'unchanged',
         'source': source,
         'channel': channel,
         'from': None if pin is None else pin['version'],
@@ -393,6 +439,7 @@ def plan_update(pin, source, channel, tag, tag_commit, manifest, previous, node,
         'templates': templates,
         'kept': kept,
         'remove': remove,
+        'block': None if block is None else {'path': block['path'], 'action': block['action'], 'why': block['why']},
         'overwritten': sorted(overwritten, key=bytes_key),
         'pin': text,
         'pinChanged': changed_pin,
@@ -415,7 +462,7 @@ def plan(inp):
         if kind == 'current':
             return {'status': 'current', 'latest': chosen}
         return plan_update(pin, source, channel, chosen['tag_name'], inp.get('tagCommit'), inp.get('manifest'), inp.get('previous'), inp['node'],
-                           inp.get('downloaded') or {}, inp.get('tree') or {}, inp.get('pinText'))
+                           inp.get('downloaded') or {}, inp.get('tree') or {}, inp.get('pinText'), {k: raw(v) for k, v in (inp.get('blocks') or {}).items()})
     except Refused as refusal:
         return {'status': 'refused', 'code': refusal.code, 'detail': refusal.detail}
 

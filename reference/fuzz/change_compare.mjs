@@ -27,7 +27,7 @@ for (const s of scenarios) {
   for (const p of got.problems) rules[p.rule] = (rules[p.rule] ?? 0) + 1;
   for (const p of got.settings) rules[p.rule] = (rules[p.rule] ?? 0) + 1;
   for (const a of got.acts) acts[a.kind] = (acts[a.kind] ?? 0) + 1;
-  for (const key of new Set(want.acts.filter(([kind]) => kind === 'workflow' || kind === 'code').map(([kind, where]) => `${kind} ${where}`))) guarded[key] = (guarded[key] ?? 0) + 1;
+  for (const key of new Set(want.acts.filter(([kind]) => kind === 'workflow' || kind === 'code' || kind === 'instructions').map(([kind, where]) => `${kind} ${where}`))) guarded[key] = (guarded[key] ?? 0) + 1;
   kinds[s.kind] = (kinds[s.kind] ?? 0) + 1;
   if (JSON.stringify(shown) !== JSON.stringify(want)) {
     different++;
