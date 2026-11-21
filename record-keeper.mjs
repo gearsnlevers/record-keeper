@@ -477,8 +477,9 @@ function checkBody(name, body, fenced, report) {
  * which grow after acceptance), not counting the empty line after a final line feed of what is left. For a record that parse() accepted.
  */
 function lengthAsAccepted(lines, end, fenced) {
-  const cut = excludedLines(lines.slice(end + 1), fenced);
-  const kept = lines.filter((_, i) => i <= end || !cut[i - end - 1]);
+  const body = lines.slice(end + 1);
+  const cut = excludedLines(body, fenced);
+  const kept = [...lines.slice(0, end + 1), ...body.filter((_, i) => !cut[i])];
   return kept.length - (kept.at(-1) === '' ? 1 : 0);
 }
 

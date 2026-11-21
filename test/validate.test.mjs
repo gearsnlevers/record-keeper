@@ -171,6 +171,18 @@ describe('the validate command', () => {
     ].join('\n') + '\n');
   });
 
+  test('exits 0 for a record of exactly 60 lines with a Known deviations and an Errata section, and 1 for one of 61, and says what V-10 does not count', () => {
+    const folder = materialize(caseNamed('ok50-sixty-lines-and-both-sections'));
+    assert.ok(fs.readFileSync(path.join(folder, '0002-second-decision.md'), 'utf8').split('\n').length > 70, 'the record is long with its sections');
+    assert.deepEqual(run(['validate', folder]), { code: 0, stdout: `${folder}: 0 problems\n`, stderr: '' });
+    const longer = materialize(caseNamed('bad10e-sixty-one-lines-and-both-sections'));
+    assert.deepEqual(run(['validate', longer]), {
+      code: 1,
+      stdout: '',
+      stderr: `${path.join(longer, '0002-second-decision.md')}: [V-10] is longer than 60 lines, not counting its Known deviations and Errata sections\n${longer}: 1 problem\n`,
+    });
+  });
+
   test('writes "1 problem" in the singular, and names the folder for a problem of the folder itself', () => {
     const folder = materialize(caseNamed('bad08a-gap'));
     const result = run(['validate', folder]);

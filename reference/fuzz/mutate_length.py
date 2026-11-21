@@ -11,7 +11,7 @@ LIB = 'record-keeper.mjs'
 REF1 = 'reference/validate_ref.py'
 REF2 = 'reference/validate_ref2.mjs'
 
-LIB_COUNT = "  const kept = lines.filter((_, i) => i <= end || !cut[i - end - 1]);\n  return kept.length - (kept.at(-1) === '' ? 1 : 0);"
+LIB_COUNT = "  const kept = [...lines.slice(0, end + 1), ...body.filter((_, i) => !cut[i])];\n  return kept.length - (kept.at(-1) === '' ? 1 : 0);"
 LIB_CUT = "    if (!fenced[i] && SECTION_HEADING.test(line)) cutting = EXCLUDED_HEADINGS.includes(line);\n    return cutting;"
 LIB_CALL = "if (lengthAsAccepted(lines, end, fenced) > MAX_LINES) report(name, 'V-10');"
 LIB_CANON = "    if (cut[i]) return;"
@@ -23,18 +23,21 @@ REF1_HEADS = "    heads = [i for i, l in enumerate(body) if not fl[i] and SECTIO
 REF2_COUNT = "  const kept = pieces.filter((piece) => !['## Known deviations', '## Errata'].includes(piece.opens)).flatMap((piece) => piece.lines);\n  return kept.length - (kept.at(-1) === '' ? 1 : 0);"
 REF2_PIECES = "    if (!fenced[i] && /^ {0,3}#{1,2}([ \\t]|$)/.test(line)) pieces.push({ opens: line, lines: [] });"
 
+LIB_WAIVER = "const applies = kind === 'erratum' ? problem.rule !== 'V-10' : kind === 'deviation' && DEVIATION_RULES.has(problem.rule);"
+LIB_NOTE_RULES = "const DEVIATION_RULES = new Set(['V-11', 'V-12', 'V-27', 'V-28']);"
+CHECK_TESTS = ['test/change.test.mjs']
+
 MUTANTS = [
     # the library: the three breaks that the page names
-    (LIB, LIB_COUNT, LIB_COUNT.replace("lines.filter((_, i) => i <= end || !cut[i - end - 1])", "lines"), 'library: count the sections again'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("...body.filter((_, i) => !cut[i])", "...body"), 'library: count the sections again'),
     (LIB, LIB_COUNT, LIB_COUNT.replace(" - (kept.at(-1) === '' ? 1 : 0)", ''), 'library: drop the rule about the empty line after a final line feed'),
     (LIB, LIB_COUNT, LIB_COUNT.replace("? 1 : 0", "? 2 : 0"), 'library: off by one, two empty lines dropped'),
     (LIB, LIB_COUNT, LIB_COUNT.replace("kept.at(-1) === ''", "lines.at(-1) === ''"), 'library: the rule about the final empty line is asked of the whole record'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("!cut[i - end - 1]", "!(cut[i - end - 1] || cut[i - end])"), 'library: the empty line before a section is cut with it'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("(_, i) => i <= end || !cut[i - end - 1]", "(line, i) => i <= end || (!cut[i - end - 1] && line !== '')"), 'library: empty lines are never counted'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("!cut[i - end - 1]", "!cut[i - end - 2]"), 'library: the cut is one line late'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("i <= end ||", "i < end ||"), 'library: the closing line of the front matter is looked up in the cut (equivalent: cut[-1] is undefined)'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("i <= end ||", "i <= end + 1 ||"), 'library: the first line of the body is never cut (equivalent: a section never starts there)'),
-    (LIB, LIB_COUNT, LIB_COUNT.replace("i <= end ||", ""), 'library: the front matter is looked up in the cut too'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("!cut[i]", "!(cut[i] || cut[i + 1])"), 'library: the empty line before a section is cut with it'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("(_, i) => !cut[i]", "(line, i) => !cut[i] && line !== ''"), 'library: empty lines are never counted'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("!cut[i]", "!cut[i - 1]"), 'library: the cut is one line late'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("lines.slice(0, end + 1)", "lines.slice(0, end)"), 'library: the closing line of the front matter is not counted'),
+    (LIB, LIB_COUNT, LIB_COUNT.replace("lines.slice(0, end + 1)", "lines.slice(0, end + 2)"), 'library: the first line of the body is counted twice'),
     (LIB, LIB_COUNT, LIB_COUNT.replace("1 : 0", "0 : 1"), 'library: the empty line is dropped when there is none'),
     (LIB, LIB_CALL, LIB_CALL.replace('> MAX_LINES', '>= MAX_LINES'), 'library: 60 lines are too long'),
     (LIB, LIB_CALL, LIB_CALL.replace('> MAX_LINES', '> MAX_LINES + 1'), 'library: 61 lines are fine'),
@@ -50,6 +53,9 @@ MUTANTS = [
     (LIB, LIB_CUT, LIB_CUT.replace('    return cutting;', '    return cutting && !SECTION_HEADING.test(line);'), 'library: the heading line is counted'),
     (LIB, LIB_CANON, LIB_CANON.replace('cut[i]', '!cut[i]'), 'canonical form: the sections are kept and the rest is cut'),
     (LIB, LIB_CANON, '', 'canonical form: the sections are not cut'),
+    # the check of a change, which keeps the waiver of V-10 for an erratum (the sealed text may be lengthened) and does not ask V-10 of a note
+    (LIB, LIB_WAIVER, LIB_WAIVER.replace("problem.rule !== 'V-10'", 'true'), 'check-pr: V-10 is asked of an erratum', CHECK_TESTS),
+    (LIB, LIB_NOTE_RULES, LIB_NOTE_RULES.replace("'V-11'", "'V-10', 'V-11'"), 'check-pr: V-10 is asked of a deviation note (equivalent: a note changes no line that V-10 counts)', CHECK_TESTS),
     # reference 1
     (REF1, REF1_COUNT, REF1_COUNT.replace("[l for i, l in enumerate(body) if i not in cut]", "list(body)"), 'reference 1: count the sections again'),
     (REF1, REF1_COUNT, REF1_COUNT.replace(" - (1 if kept[-1] == '' else 0)", ''), 'reference 1: drop the rule about the empty line after a final line feed'),
@@ -73,14 +79,14 @@ LIB_TESTS = ['test/validate.test.mjs', 'test/vectors.test.mjs', 'test/records.te
 NODE = shutil.which('node')
 
 
-def command(file, work):
-    if file == LIB: return [NODE, '--test', *LIB_TESTS]
+def command(file, work, tests):
+    if file == LIB: return [NODE, '--test', *(tests or LIB_TESTS)]
     if file == REF1: return [sys.executable, 'reference/build_cases.py', os.path.join(work, 'built-cases')]
     return [NODE, 'reference/run_cases.mjs', 'test/fixtures/validate', 'reference/validate_ref2.mjs']
 
 
 def run(index, mutant):
-    file, old, new, label = mutant
+    file, old, new, label, *tests = mutant
     src = open(os.path.join(repo, file)).read()
     if src.count(old) != 1: return index, label, 'NOT APPLIED (count %d)' % src.count(old)
     if old == new: return index, label, 'NOT APPLIED (no change)'
@@ -90,7 +96,7 @@ def run(index, mutant):
             if entry in ('.git', 'node_modules'): continue
             (shutil.copytree if os.path.isdir(os.path.join(repo, entry)) else shutil.copy)(os.path.join(repo, entry), os.path.join(work, entry))
         open(os.path.join(work, file), 'w').write(src.replace(old, new, 1))
-        result = subprocess.run(command(file, work), cwd=work, capture_output=True, text=True, timeout=900)
+        result = subprocess.run(command(file, work, tests[0] if tests else None), cwd=work, capture_output=True, text=True, timeout=900)
         return index, label, 'killed' if result.returncode != 0 else 'SURVIVED'
     except subprocess.TimeoutExpired:
         return index, label, 'TIMEOUT'
