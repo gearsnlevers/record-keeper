@@ -363,7 +363,7 @@ export function decide(input) {
         // a block that differs (all of them `managed-differs`: the updater brings them back), or can have markers that cannot be used (`block-unusable`: the updater leaves such a file alone).
         const differing = [];
         const unusable = [];
-        const entries = [...release.files.map((file) => ({ ...file, block: false })), ...release.blocks.map((file) => ({ ...file, block: true }))].sort((a, b) => compare(a.path, b.path));
+        const entries = [...release.files, ...release.blocks].sort((a, b) => compare(a.path, b.path));
         for (const file of entries) {
           const here = Object.hasOwn(input.tree, file.path) ? input.tree[file.path] : { kind: 'absent' };
           if (here.kind === 'absent') differing.push(`${file.path} (missing)`);

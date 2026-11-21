@@ -597,6 +597,15 @@ P('q33-only-the-block-changes', 'Everything else is installed and the block is t
   with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
   lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].pop(AG), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),
   lambda s: s['tree'].__setitem__(AG, hexed(b'# Mine\n')), lambda s: s['tree'].__setitem__(CL, {'kind': 'file', 'sha256': digest('x')}))
+def all_installed_but_agents(agents):
+    mods = [with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
+            lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),
+            lambda s: s['tree'].__setitem__(CL, {'kind': 'file', 'sha256': digest('x')}), lambda s: s['tree'].pop(AG, None)]
+    return mods + ([lambda s: s['tree'].__setitem__(AG, hexed(agents))] if agents is not None else [])
+ONLY_BLOCK = dict(frm='v1.1.0', unchanged=[RK, UPD, WI, WU, SK], kept=[RD, RT, SET, CL], pin_changed=False)
+P('q43-only-the-block-is-created', 'Everything else is installed and AGENTS.md does not exist: creating it alone is an update', U(**ONLY_BLOCK, block={'path': AG, 'action': 'create', 'why': None}), *all_installed_but_agents(None))
+P('q44-only-the-block-is-replaced', 'Everything else is installed and the block is the old one: replacing it alone is an update, and the old block of the pinned release is no local change', U(**ONLY_BLOCK, block={'path': AG, 'action': 'replace', 'why': None}),
+  *all_installed_but_agents(b'x\n' + OLD_BLOCK + b'\n'), lambda s: edit_manifest(s, 'previous', lambda m: [e.update(sha256=hashlib.sha256(OLD_BLOCK).hexdigest(), size=len(OLD_BLOCK)) for e in m['files'] if e['kind'] == 'block']))
 P('q34-all-installed', 'Everything is installed, the block is current: nothing to do', U(status='unchanged', frm='v1.1.0', unchanged=[RK, UPD, WI, WU, SK], kept=[RD, RT, SET, CL], pin_changed=False, block={'path': AG, 'action': 'current', 'why': None}),
   with_agents(previous_block=None), lambda s: s.update(pinText=pin_text('v1.1.0', C2), target='v1.1.0', previous=s['manifest']), lambda s: s['tree'].clear(),
   lambda s: s['tree'].update(installed(json.loads(s['manifest'])['files'])), lambda s: s['tree'].__setitem__(PIN, {'kind': 'file', 'sha256': digest(pin_text('v1.1.0', C2))}),

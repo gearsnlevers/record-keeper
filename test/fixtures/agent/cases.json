@@ -344,6 +344,56 @@
     "state": "none",
     "fenced": false
    }
+  },
+  {
+   "id": "r38-two-backticks",
+   "note": "Two backticks are not a fence, so the block after them is read.",
+   "input": "``\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 3,
+    "end": 76
+   }
+  },
+  {
+   "id": "r39-two-tildes",
+   "note": "Two tildes are not a fence either.",
+   "input": "~~\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 3,
+    "end": 76
+   }
+  },
+  {
+   "id": "r40-closer-with-trailing-spaces",
+   "note": "A closing fence may be followed by spaces.",
+   "input": "```\nexample\n```   \n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 19,
+    "end": 92
+   }
+  },
+  {
+   "id": "r41-closer-with-a-trailing-tab",
+   "note": "A closing fence may be followed by a tab.",
+   "input": "```\nexample\n```\t\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 17,
+    "end": 90
+   }
+  },
+  {
+   "id": "r42-the-start-of-the-stem-is-not-the-stem",
+   "note": "The text of a marker that is cut short is not the text of a marker: nothing is refused for it.",
+   "input": "record-keeper:begi and record-keeper:en\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 40,
+    "end": 113
+   }
   }
  ],
  "splices": [
@@ -712,6 +762,16 @@
     "ok": true,
     "action": "replace",
     "output": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\r\n"
+   }
+  },
+  {
+   "id": "s35-a-block-with-text-before-the-begin-marker",
+   "note": "The block must start with the begin marker: a line before it makes it no block.",
+   "current": "a\n",
+   "block": "a heading\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "invalid-block"
    }
   }
  ],

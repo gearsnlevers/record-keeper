@@ -338,6 +338,36 @@ describe('what goes into a pull request', () => {
     for (const item of [...answer.added, ...answer.changed, ...answer.remove, ...answer.templates]) assert.equal(body.split(`\`${item}\``).length, 2, item);
   });
 
+  test('the block of AGENTS.md in the body: what happens to the file, in these words, under a heading of its own, and a refused block as a problem under Warnings', () => {
+    const bare = { ...answer, added: [], changed: [], remove: [], templates: [], pinChanged: false, from: 'v1.1.0' };
+    const section = (block, extra = {}) => renderBody({ ...bare, block, ...extra }, '').split('## Changes in this repository\n\n')[1].split('\n## ')[0];
+    assert.equal(section({ path: 'AGENTS.md', action: 'create', why: null }), '**Block**\n\n- AGENTS.md is created, with the Record Keeper block in it\n');
+    assert.equal(section({ path: 'AGENTS.md', action: 'append', why: null }), '**Block**\n\n- the Record Keeper block is added at the end of AGENTS.md, and nothing else in the file changes\n');
+    assert.equal(section({ path: 'AGENTS.md', action: 'replace', why: null }), '**Block**\n\n- the Record Keeper block in AGENTS.md is replaced, and nothing outside the two markers changes\n');
+    for (const block of [null, { path: 'AGENTS.md', action: 'current', why: null }, { path: 'AGENTS.md', action: 'refused', why: 'doubled' }]) assert.equal(section(block), 'Only the pin changes.\n', JSON.stringify(block));
+    const listed = renderBody({ ...bare, block: { path: 'AGENTS.md', action: 'replace', why: null }, overwritten: ['.github/record-keeper/run-audit.mjs', 'AGENTS.md'] }, '');
+    assert.ok(listed.includes('- `.github/record-keeper/run-audit.mjs`\n- `AGENTS.md` (the text between the two markers)\n'));
+    const refused = renderBody({ ...bare, block: { path: 'AGENTS.md', action: 'refused', why: 'doubled' }, warnings: [{ code: 'block-refused', detail: 'doubled' }] }, '');
+    assert.ok(refused.includes('## Warnings\n\n- **Problem: the block in AGENTS.md was not written** (there is more than one begin marker or more than one end marker). The rest of this update is not affected. Until AGENTS.md is repaired by hand and the updater has run again, the agents read the block of the older release, or none (docs/agent-files.md of the kit).\n\n## Approval'));
+  });
+
+  test('the reasons that a block is not written, in these words, and a reason for each that the page lists', () => {
+    assert.deepEqual(BLOCK_WHY, {
+      'partial-line': 'a line holds the text of a marker and more',
+      'begin-without-end': 'a begin marker has no end marker',
+      'end-without-begin': 'an end marker has no begin marker',
+      reversed: 'the end marker comes before the begin marker',
+      doubled: 'there is more than one begin marker or more than one end marker',
+      'not-text': 'the file holds a zero byte, so it is not text that the updater can add to',
+      fence: 'the file ends inside a code fence, where the block would be taken for an example',
+      'invalid-block': 'the block of the release is not one begin marker, text and one end marker',
+      'not-a-file': 'AGENTS.md is not a regular file',
+      'too-large': 'AGENTS.md is larger than the updater reads (1 MiB)',
+    });
+    const agents = fs.readFileSync(path.join(root, 'docs/agent-files.md'), 'utf8').replaceAll('`', '');
+    for (const [why, words] of Object.entries(BLOCK_WHY)) assert.ok(agents.includes(`| ${why} | ${words} |`), why);
+  });
+
   test('the body of a pull request, whole: with every part, and with the fewest', () => {
     const full = [
       'Updates Record Keeper from **v1.0.0** to **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`).', '',

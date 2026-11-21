@@ -1756,6 +1756,16 @@ describe('the files that agents read, at the first adoption by hand', () => {
     assert.equal(fs.statSync(path.join(large.work, 'AGENTS.md')).size, 1024 * 1024 + 1);
   });
 
+  test('a file of exactly 1 MiB is read: the limit is for what is larger', async () => {
+    const mine = Buffer.concat([Buffer.from(`top\n${BLOCK_1}\n`), Buffer.alloc(1024 * 1024 - Buffer.byteLength(`top\n${BLOCK_1}\n`), 0x61)]);
+    assert.equal(mine.length, 1024 * 1024);
+    const { state, work } = await bare({ 'AGENTS.md': mine });
+    const got = await adopt(state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  replace the block of AGENTS\.md\n/);
+    assert.deepEqual(fs.readFileSync(path.join(work, 'AGENTS.md')), Buffer.concat([Buffer.from(`top\n${BLOCK_2}\n`), mine.subarray(Buffer.byteLength(`top\n${BLOCK_1}\n`))]));
+  });
+
   test('a file in the way of the skill is a refusal that writes nothing, and the file AGENTS.md is not written either', async () => {
     const { state, work } = await bare({ '.claude/skills/record-a-decision/SKILL.md/x': 'x\n' });
     const got = await adopt(state, work);

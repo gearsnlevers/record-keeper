@@ -120,7 +120,7 @@ describe('what the splice guarantees', () => {
   });
 
   test('the block put in must be one begin marker, text and one end marker', () => {
-    const bad = ['', 'x', `${BLOCK_BEGIN}\nx`, `${BLOCK_END}\nx\n${BLOCK_BEGIN}`, `${BLOCK_BEGIN}\nx\n${BLOCK_END}\n`, ` ${BLOCK_BEGIN}\nx\n${BLOCK_END}`, `${BLOCK_BEGIN}\nx ${BLOCK_END}`, `${BLOCK_BEGIN}\n${BLOCK_BEGIN}\n${BLOCK_END}`];
+    const bad = ['', 'x', `a heading\n${BLOCK_BEGIN}\nx\n${BLOCK_END}`, `${BLOCK_BEGIN}\nx`, `${BLOCK_END}\nx\n${BLOCK_BEGIN}`, `${BLOCK_BEGIN}\nx\n${BLOCK_END}\n`, ` ${BLOCK_BEGIN}\nx\n${BLOCK_END}`, `${BLOCK_BEGIN}\nx ${BLOCK_END}`, `${BLOCK_BEGIN}\n${BLOCK_BEGIN}\n${BLOCK_END}`];
     for (const text of bad) assert.deepEqual(spliceBlock(Buffer.from('a\n'), Buffer.from(text)), { ok: false, why: 'invalid-block' }, JSON.stringify(text));
     assert.deepEqual(spliceBlock(null, Buffer.from('x')), { ok: false, why: 'invalid-block' });
   });

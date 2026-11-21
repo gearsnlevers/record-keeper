@@ -16389,6 +16389,72 @@
    "note": "A file with no block gets a fenced example of the markers."
   },
   {
+   "id": "m43-a-file-with-no-block-becomes-a-link",
+   "base": "agents-plain",
+   "changes": [
+    {
+     "symlink": "AGENTS.md",
+     "target": "docs/AGENTS.md"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "instructions",
+      "path": "AGENTS.md"
+     }
+    ]
+   },
+   "note": "AGENTS.md has no block and becomes a link: a link can lead anywhere, so it is an act whatever the old file said."
+  },
+  {
+   "id": "m44-a-link-becomes-a-file-with-no-block",
+   "base": "agents-link",
+   "changes": [
+    {
+     "write": "AGENTS.md",
+     "content": "# Notes\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "instructions",
+      "path": "AGENTS.md"
+     }
+    ]
+   },
+   "note": "A link becomes a file that has no block: the act is the link that is gone."
+  },
+  {
+   "id": "m45-a-file-with-no-block-becomes-a-folder",
+   "base": "agents-plain",
+   "changes": [
+    {
+     "remove": "AGENTS.md"
+    },
+    {
+     "write": "AGENTS.md/inner.md",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "instructions",
+      "path": "AGENTS.md"
+     }
+    ]
+   },
+   "note": "AGENTS.md has no block and becomes a folder."
+  },
+  {
    "id": "m42-first-adoption-commit",
    "base": "agents-none",
    "changes": [

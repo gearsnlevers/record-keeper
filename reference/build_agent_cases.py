@@ -86,6 +86,12 @@ read('r35-marker-then-eof-cr', 'The end marker followed by a carriage return at 
 read('r36-outside-is-not-text', 'Bytes that are not UTF-8 stand outside the markers and are not read.', b'\xff\xfe caf\xe9\n' + BLOCK + b'\n\x00', **one(b'\xff\xfe caf\xe9\n', BLOCK, b''))
 read('r37-a-line-of-the-fence-is-no-marker', 'The opening line of a fence is never read as a marker, even when it holds one.', b'```' + BEGIN + b'\n```\n', state='none')
 
+read('r38-two-backticks', 'Two backticks are not a fence, so the block after them is read.', b'``\n' + BLOCK + b'\n', **one(b'``\n', BLOCK, b''))
+read('r39-two-tildes', 'Two tildes are not a fence either.', b'~~\n' + BLOCK + b'\n', **one(b'~~\n', BLOCK, b''))
+read('r40-closer-with-trailing-spaces', 'A closing fence may be followed by spaces.', b'```\nexample\n```   \n' + BLOCK + b'\n', **one(b'```\nexample\n```   \n', BLOCK, b''))
+read('r41-closer-with-a-trailing-tab', 'A closing fence may be followed by a tab.', b'```\nexample\n```\t\n' + BLOCK + b'\n', **one(b'```\nexample\n```\t\n', BLOCK, b''))
+read('r42-the-start-of-the-stem-is-not-the-stem', 'The text of a marker that is cut short is not the text of a marker: nothing is refused for it.', b'record-keeper:begi and record-keeper:en\n' + BLOCK + b'\n', **one(b'record-keeper:begi and record-keeper:en\n', BLOCK, b''))
+
 # ------------------------------------------------------------------------------------------------------------------------------- splices
 splice('s01-no-file', 'No file: it is created with the block and a line feed.', None, BLOCK, ok=True, action='create', output=BLOCK + b'\n')
 splice('s02-empty-file', 'An empty file: the block is the whole of it, and there is no blank line before it.', b'', BLOCK, ok=True, action='append', output=BLOCK + b'\n')
@@ -121,6 +127,8 @@ splice('s31-lone-newline', 'A file that is one line feed.', b'\n', BLOCK, ok=Tru
 splice('s32-crlf-only', 'A file that is one CRLF.', b'\r\n', BLOCK, ok=True, action='append', output=b'\r\n\n' + BLOCK + b'\n')
 splice('s33-marker-text-in-a-fence-and-a-block', 'A fenced example next to the real block: the real block is replaced and the example stays.', b'```\n' + BEGIN + b'\n```\n' + OTHER + b'\n', BLOCK, ok=True, action='replace', output=b'```\n' + BEGIN + b'\n```\n' + BLOCK + b'\n')
 splice('s34-block-with-a-carriage-return-inside-is-replaced', 'A block whose lines end in CRLF is not the block of the release: it is replaced.', BEGIN + b'\r\nrule one\r\nrule two\r\n' + END + b'\r\n', BLOCK, ok=True, action='replace', output=BLOCK + b'\r\n')
+
+splice('s35-a-block-with-text-before-the-begin-marker', 'The block must start with the begin marker: a line before it makes it no block.', b'a\n', b'a heading\n' + BLOCK, ok=False, why='invalid-block')
 
 # --------------------------------------------------------------------------------------------------------------------------------- diffs
 diff('d01-no-file-no-file', 'Neither side has a file.', None, None, False)

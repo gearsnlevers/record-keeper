@@ -65,7 +65,7 @@ The function that does it takes the current bytes of the file (or none) and the 
 | `replace` | one block, and it is not the block of the release | the bytes before the begin marker, the block of the release, the bytes after the end marker |
 | `current` | one block, and it is the block of the release byte for byte | the file as it was: **nothing is written** |
 
-- **Outside the two markers not a byte changes.** That is the property that matters, because the updater writes into a file that the maintainers own. The tests prove it with fixtures, with tests of the function on files made of every sort of text, and with a fuzz of 40,000 files against the second implementation ([the tests](#the-tests)).
+- **Outside the two markers not a byte changes.** That is the property that matters, because the updater writes into a file that the maintainers own. The tests prove it with fixtures, with tests of the function on files made of every sort of text, and with a fuzz of 50,000 files against the second implementation ([the tests](#the-tests)).
 - **The block is written as the release holds it,** with line feeds. A file that has CRLF line ends gets a block with line feeds in it, and the line ends outside the markers stay CRLF. The text after the end marker on its line (a carriage return, a line feed) is outside the block and stays.
 - **An empty file** gets the block and a line feed (action `append`, no blank line before it).
 - **The block that was put in is found again, and put in again changes nothing.** The tests state both for every outcome of the function.
@@ -189,7 +189,7 @@ The skill is a managed file, so [the setup check](setup-check.md) compares it wi
 
 ## What is verified and what is not
 
-**Tried:** the pure functions, with the fixtures of [test/fixtures/agent](../test/fixtures/agent/README.md), with a Python second implementation on random files (40,000 scenarios, no difference, every branch of the functions reached) and by mutation testing of the lines that decide ([reference](../reference/README.md)); the plan of the updater with the new kind, the new templates and the skill, with the fixtures of [test/fixtures/update](../test/fixtures/update/README.md); the runner against a local server that plays GitHub and temporary repositories (the first adoption in each of its starting states, an update, a block that is refused, a block that is current, a file that keeps its mode); the act of the check on temporary repositories ([test/fixtures/change](../test/fixtures/change/README.md)); the setup check's reading of the block; the announcement of the new act.
+**Tried:** the pure functions, with the fixtures of [test/fixtures/agent](../test/fixtures/agent/README.md), with a Python second implementation on random files (50,000 scenarios, no difference, every branch and every line of the functions reached) and by mutation testing of the lines that decide ([reference](../reference/README.md)); the plan of the updater with the new kind, the new templates and the skill, with the fixtures of [test/fixtures/update](../test/fixtures/update/README.md); the runner against a local server that plays GitHub and temporary repositories (the first adoption in each of its starting states, an update, a block that is refused, a block that is current, a file that keeps its mode); the act of the check on temporary repositories ([test/fixtures/change](../test/fixtures/change/README.md)); the setup check's reading of the block; the announcement of the new act.
 
 **Not tried, because it needs the products or GitHub:**
 

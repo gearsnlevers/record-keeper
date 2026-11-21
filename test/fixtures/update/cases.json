@@ -35504,6 +35504,367 @@
    }
   },
   {
+   "id": "q43-only-the-block-is-created",
+   "note": "Everything else is installed and AGENTS.md does not exist: creating it alone is an update",
+   "input": {
+    "pinText": "# Written by the Record Keeper updater. Do not edit it by hand, except the channel, in a pull request.\nsource: gearsnlevers/record-keeper\nversion: v1.1.0\ncommit: b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\nchannel: stable\n",
+    "source": null,
+    "channel": null,
+    "target": "v1.1.0",
+    "releases": [
+     {
+      "tag_name": "v1.0.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v1.0.0"
+     },
+     {
+      "tag_name": "v1.1.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v1.1.0"
+     },
+     {
+      "tag_name": "v1.2.0-1",
+      "draft": false,
+      "prerelease": true,
+      "body": "notes of v1.2.0-1"
+     },
+     {
+      "tag_name": "v0.9.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v0.9.0"
+     }
+    ],
+    "tagCommit": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "manifest": "{\n  \"commit\": \"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\n  \"files\": [\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/record-keeper.mjs\",\n      \"sha256\": \"139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2\",\n      \"size\": 4,\n      \"source\": \"record-keeper.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/updater.mjs\",\n      \"sha256\": \"7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7\",\n      \"size\": 5,\n      \"source\": \"updater.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-integrity.yml\",\n      \"sha256\": \"eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-integrity.yml\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-updater.yml\",\n      \"sha256\": \"62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-updater.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \".github/record-keeper/settings.yml\",\n      \"sha256\": \"ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806\",\n      \"size\": 10,\n      \"source\": \"templates/settings.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/README.md\",\n      \"sha256\": \"ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/README.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/template.md\",\n      \"sha256\": \"5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/template.md\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".claude/skills/record-a-decision/SKILL.md\",\n      \"sha256\": \"e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6\",\n      \"size\": 7,\n      \"source\": \"templates/skills/record-a-decision/SKILL.md\"\n    },\n    {\n      \"kind\": \"block\",\n      \"path\": \"AGENTS.md\",\n      \"sha256\": \"7f3a33f45158a9b4d3ae2eb9f5df99cdf6edf898a487d15662a3475587bee273\",\n      \"size\": 73,\n      \"source\": \"templates/agents-block.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"CLAUDE.md\",\n      \"sha256\": \"336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49\",\n      \"size\": 11,\n      \"source\": \"templates/CLAUDE.md\"\n    }\n  ],\n  \"generations\": [\n    \"g1\"\n  ],\n  \"node\": \">=22\",\n  \"requires\": {\n    \"rulesets\": [\n      {\n        \"branch\": \"default\",\n        \"checks\": [\n          \"Records integrity\"\n        ],\n        \"up-to-date\": true\n      }\n    ],\n    \"secrets\": [\n      \"RECORD_KEEPER_TOKEN\"\n    ],\n    \"settings\": [\n      \"owners\"\n    ]\n  },\n  \"schema\": 1,\n  \"tag\": \"v1.1.0\",\n  \"version\": \"1.1.0\"\n}\n",
+    "previous": "{\n  \"commit\": \"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\n  \"files\": [\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/record-keeper.mjs\",\n      \"sha256\": \"139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2\",\n      \"size\": 4,\n      \"source\": \"record-keeper.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/updater.mjs\",\n      \"sha256\": \"7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7\",\n      \"size\": 5,\n      \"source\": \"updater.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-integrity.yml\",\n      \"sha256\": \"eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-integrity.yml\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-updater.yml\",\n      \"sha256\": \"62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-updater.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \".github/record-keeper/settings.yml\",\n      \"sha256\": \"ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806\",\n      \"size\": 10,\n      \"source\": \"templates/settings.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/README.md\",\n      \"sha256\": \"ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/README.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/template.md\",\n      \"sha256\": \"5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/template.md\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".claude/skills/record-a-decision/SKILL.md\",\n      \"sha256\": \"e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6\",\n      \"size\": 7,\n      \"source\": \"templates/skills/record-a-decision/SKILL.md\"\n    },\n    {\n      \"kind\": \"block\",\n      \"path\": \"AGENTS.md\",\n      \"sha256\": \"7f3a33f45158a9b4d3ae2eb9f5df99cdf6edf898a487d15662a3475587bee273\",\n      \"size\": 73,\n      \"source\": \"templates/agents-block.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"CLAUDE.md\",\n      \"sha256\": \"336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49\",\n      \"size\": 11,\n      \"source\": \"templates/CLAUDE.md\"\n    }\n  ],\n  \"generations\": [\n    \"g1\"\n  ],\n  \"node\": \">=22\",\n  \"requires\": {\n    \"rulesets\": [\n      {\n        \"branch\": \"default\",\n        \"checks\": [\n          \"Records integrity\"\n        ],\n        \"up-to-date\": true\n      }\n    ],\n    \"secrets\": [\n      \"RECORD_KEEPER_TOKEN\"\n    ],\n    \"settings\": [\n      \"owners\"\n    ]\n  },\n  \"schema\": 1,\n  \"tag\": \"v1.1.0\",\n  \"version\": \"1.1.0\"\n}\n",
+    "node": "24.13.0",
+    "downloaded": {
+     "record-keeper.mjs": {
+      "sha256": "139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2",
+      "size": 4
+     },
+     "updater.mjs": {
+      "sha256": "7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7",
+      "size": 5
+     },
+     "templates/workflows/records-integrity.yml": {
+      "sha256": "eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8",
+      "size": 4
+     },
+     "templates/workflows/records-updater.yml": {
+      "sha256": "62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13",
+      "size": 4
+     },
+     "templates/settings.yml": {
+      "sha256": "ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806",
+      "size": 10
+     },
+     "templates/decisions/README.md": {
+      "sha256": "ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4",
+      "size": 8
+     },
+     "templates/decisions/template.md": {
+      "sha256": "5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40",
+      "size": 8
+     },
+     "templates/skills/record-a-decision/SKILL.md": {
+      "sha256": "e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6",
+      "size": 7
+     },
+     "templates/agents-block.md": {
+      "sha256": "7f3a33f45158a9b4d3ae2eb9f5df99cdf6edf898a487d15662a3475587bee273",
+      "size": 73
+     },
+     "templates/CLAUDE.md": {
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "size": 11
+     }
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2"
+     },
+     ".github/record-keeper/updater.mjs": {
+      "kind": "file",
+      "sha256": "7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7"
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8"
+     },
+     ".github/workflows/records-updater.yml": {
+      "kind": "file",
+      "sha256": "62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13"
+     },
+     ".github/record-keeper/settings.yml": {
+      "kind": "file",
+      "sha256": "ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806"
+     },
+     "docs/decisions/README.md": {
+      "kind": "file",
+      "sha256": "ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4"
+     },
+     "docs/decisions/template.md": {
+      "kind": "file",
+      "sha256": "5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40"
+     },
+     ".claude/skills/record-a-decision/SKILL.md": {
+      "kind": "file",
+      "sha256": "e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6"
+     },
+     "CLAUDE.md": {
+      "kind": "file",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+     },
+     ".github/record-keeper.yml": {
+      "kind": "file",
+      "sha256": "2f4aeaa397b80ea1c6066b760c5571d83cb8fcb70d2b97c6dc9a2f22241589e4"
+     }
+    },
+    "blocks": {
+     "templates/agents-block.md": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->"
+    }
+   },
+   "expect": {
+    "status": "update",
+    "source": "gearsnlevers/record-keeper",
+    "channel": "stable",
+    "from": "v1.1.0",
+    "to": "v1.1.0",
+    "commit": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "added": [],
+    "changed": [],
+    "unchanged": [
+     ".claude/skills/record-a-decision/SKILL.md",
+     ".github/record-keeper/record-keeper.mjs",
+     ".github/record-keeper/updater.mjs",
+     ".github/workflows/records-integrity.yml",
+     ".github/workflows/records-updater.yml"
+    ],
+    "templates": [],
+    "kept": [
+     ".github/record-keeper/settings.yml",
+     "CLAUDE.md",
+     "docs/decisions/README.md",
+     "docs/decisions/template.md"
+    ],
+    "remove": [],
+    "block": {
+     "path": "AGENTS.md",
+     "action": "create",
+     "why": null
+    },
+    "overwritten": [],
+    "pin": "# Written by the Record Keeper updater. Do not edit it by hand, except the channel, in a pull request.\nsource: gearsnlevers/record-keeper\nversion: v1.1.0\ncommit: b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\nchannel: stable\n",
+    "pinChanged": false,
+    "requires": {
+     "rulesets": [
+      {
+       "branch": "default",
+       "checks": [
+        "Records integrity"
+       ],
+       "up-to-date": true
+      }
+     ],
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "settings": [
+      "owners"
+     ]
+    },
+    "warnings": []
+   }
+  },
+  {
+   "id": "q44-only-the-block-is-replaced",
+   "note": "Everything else is installed and the block is the old one: replacing it alone is an update, and the old block of the pinned release is no local change",
+   "input": {
+    "pinText": "# Written by the Record Keeper updater. Do not edit it by hand, except the channel, in a pull request.\nsource: gearsnlevers/record-keeper\nversion: v1.1.0\ncommit: b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\nchannel: stable\n",
+    "source": null,
+    "channel": null,
+    "target": "v1.1.0",
+    "releases": [
+     {
+      "tag_name": "v1.0.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v1.0.0"
+     },
+     {
+      "tag_name": "v1.1.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v1.1.0"
+     },
+     {
+      "tag_name": "v1.2.0-1",
+      "draft": false,
+      "prerelease": true,
+      "body": "notes of v1.2.0-1"
+     },
+     {
+      "tag_name": "v0.9.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "notes of v0.9.0"
+     }
+    ],
+    "tagCommit": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "manifest": "{\n  \"commit\": \"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\n  \"files\": [\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/record-keeper.mjs\",\n      \"sha256\": \"139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2\",\n      \"size\": 4,\n      \"source\": \"record-keeper.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/updater.mjs\",\n      \"sha256\": \"7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7\",\n      \"size\": 5,\n      \"source\": \"updater.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-integrity.yml\",\n      \"sha256\": \"eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-integrity.yml\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-updater.yml\",\n      \"sha256\": \"62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-updater.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \".github/record-keeper/settings.yml\",\n      \"sha256\": \"ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806\",\n      \"size\": 10,\n      \"source\": \"templates/settings.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/README.md\",\n      \"sha256\": \"ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/README.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/template.md\",\n      \"sha256\": \"5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/template.md\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".claude/skills/record-a-decision/SKILL.md\",\n      \"sha256\": \"e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6\",\n      \"size\": 7,\n      \"source\": \"templates/skills/record-a-decision/SKILL.md\"\n    },\n    {\n      \"kind\": \"block\",\n      \"path\": \"AGENTS.md\",\n      \"sha256\": \"7f3a33f45158a9b4d3ae2eb9f5df99cdf6edf898a487d15662a3475587bee273\",\n      \"size\": 73,\n      \"source\": \"templates/agents-block.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"CLAUDE.md\",\n      \"sha256\": \"336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49\",\n      \"size\": 11,\n      \"source\": \"templates/CLAUDE.md\"\n    }\n  ],\n  \"generations\": [\n    \"g1\"\n  ],\n  \"node\": \">=22\",\n  \"requires\": {\n    \"rulesets\": [\n      {\n        \"branch\": \"default\",\n        \"checks\": [\n          \"Records integrity\"\n        ],\n        \"up-to-date\": true\n      }\n    ],\n    \"secrets\": [\n      \"RECORD_KEEPER_TOKEN\"\n    ],\n    \"settings\": [\n      \"owners\"\n    ]\n  },\n  \"schema\": 1,\n  \"tag\": \"v1.1.0\",\n  \"version\": \"1.1.0\"\n}\n",
+    "previous": "{\n  \"commit\": \"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\n  \"files\": [\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/record-keeper.mjs\",\n      \"sha256\": \"139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2\",\n      \"size\": 4,\n      \"source\": \"record-keeper.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/record-keeper/updater.mjs\",\n      \"sha256\": \"7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7\",\n      \"size\": 5,\n      \"source\": \"updater.mjs\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-integrity.yml\",\n      \"sha256\": \"eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-integrity.yml\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".github/workflows/records-updater.yml\",\n      \"sha256\": \"62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13\",\n      \"size\": 4,\n      \"source\": \"templates/workflows/records-updater.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \".github/record-keeper/settings.yml\",\n      \"sha256\": \"ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806\",\n      \"size\": 10,\n      \"source\": \"templates/settings.yml\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/README.md\",\n      \"sha256\": \"ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/README.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"docs/decisions/template.md\",\n      \"sha256\": \"5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40\",\n      \"size\": 8,\n      \"source\": \"templates/decisions/template.md\"\n    },\n    {\n      \"kind\": \"managed\",\n      \"path\": \".claude/skills/record-a-decision/SKILL.md\",\n      \"sha256\": \"e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6\",\n      \"size\": 7,\n      \"source\": \"templates/skills/record-a-decision/SKILL.md\"\n    },\n    {\n      \"kind\": \"block\",\n      \"path\": \"AGENTS.md\",\n      \"sha256\": \"e1d9ecffa4d59cdfe3b143636d5fdc151d14499fe0522c38a6b4dc0bf2df0775\",\n      \"size\": 64,\n      \"source\": \"templates/agents-block.md\"\n    },\n    {\n      \"kind\": \"template\",\n      \"path\": \"CLAUDE.md\",\n      \"sha256\": \"336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49\",\n      \"size\": 11,\n      \"source\": \"templates/CLAUDE.md\"\n    }\n  ],\n  \"generations\": [\n    \"g1\"\n  ],\n  \"node\": \">=22\",\n  \"requires\": {\n    \"rulesets\": [\n      {\n        \"branch\": \"default\",\n        \"checks\": [\n          \"Records integrity\"\n        ],\n        \"up-to-date\": true\n      }\n    ],\n    \"secrets\": [\n      \"RECORD_KEEPER_TOKEN\"\n    ],\n    \"settings\": [\n      \"owners\"\n    ]\n  },\n  \"schema\": 1,\n  \"tag\": \"v1.1.0\",\n  \"version\": \"1.1.0\"\n}\n",
+    "node": "24.13.0",
+    "downloaded": {
+     "record-keeper.mjs": {
+      "sha256": "139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2",
+      "size": 4
+     },
+     "updater.mjs": {
+      "sha256": "7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7",
+      "size": 5
+     },
+     "templates/workflows/records-integrity.yml": {
+      "sha256": "eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8",
+      "size": 4
+     },
+     "templates/workflows/records-updater.yml": {
+      "sha256": "62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13",
+      "size": 4
+     },
+     "templates/settings.yml": {
+      "sha256": "ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806",
+      "size": 10
+     },
+     "templates/decisions/README.md": {
+      "sha256": "ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4",
+      "size": 8
+     },
+     "templates/decisions/template.md": {
+      "sha256": "5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40",
+      "size": 8
+     },
+     "templates/skills/record-a-decision/SKILL.md": {
+      "sha256": "e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6",
+      "size": 7
+     },
+     "templates/agents-block.md": {
+      "sha256": "7f3a33f45158a9b4d3ae2eb9f5df99cdf6edf898a487d15662a3475587bee273",
+      "size": 73
+     },
+     "templates/CLAUDE.md": {
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "size": 11
+     }
+    },
+    "tree": {
+     ".github/record-keeper/record-keeper.mjs": {
+      "kind": "file",
+      "sha256": "139a52d2ecd9f8cb6de94a5fdf63480a7ffb156bbe81dc32f5d196d899865bc2"
+     },
+     ".github/record-keeper/updater.mjs": {
+      "kind": "file",
+      "sha256": "7bb9e668c23bc47583ee3dacf127d2ff4250ee4600baa3f4a6e8de86b5dc0dc7"
+     },
+     ".github/workflows/records-integrity.yml": {
+      "kind": "file",
+      "sha256": "eb893fc8fc5da6ff4f94fce5b15b84b6e29f475d4d273fb413110a5fd7761ed8"
+     },
+     ".github/workflows/records-updater.yml": {
+      "kind": "file",
+      "sha256": "62a6c62fe148cfcc261be5f522de7c119677cd389cf1c067669e76d552d56e13"
+     },
+     ".github/record-keeper/settings.yml": {
+      "kind": "file",
+      "sha256": "ab716d66699c9dc624ef3e429802b1eab0eb0a0108e5543737e016b273b1c806"
+     },
+     "docs/decisions/README.md": {
+      "kind": "file",
+      "sha256": "ee252d877172039ba61858cac1f67e5c241fc770162d9dcab2bbd36859b8e9e4"
+     },
+     "docs/decisions/template.md": {
+      "kind": "file",
+      "sha256": "5cde0f1298f41f7d1c8b907a36992a7a513225a2615bd6e307bf1a9149b06b40"
+     },
+     ".claude/skills/record-a-decision/SKILL.md": {
+      "kind": "file",
+      "sha256": "e9a4cd59d3651112011acdb0403970c379b1942c2a02dd983cdc31b32f3026a6"
+     },
+     "CLAUDE.md": {
+      "kind": "file",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+     },
+     ".github/record-keeper.yml": {
+      "kind": "file",
+      "sha256": "2f4aeaa397b80ea1c6066b760c5571d83cb8fcb70d2b97c6dc9a2f22241589e4"
+     },
+     "AGENTS.md": {
+      "kind": "file",
+      "sha256": "f1ccded2f125dab35aeaf63b8fbcfc89f02d54271d3307e11ab88157363ce809",
+      "hex": "780a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a72756c65206f6e650a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0a"
+     }
+    },
+    "blocks": {
+     "templates/agents-block.md": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->"
+    }
+   },
+   "expect": {
+    "status": "update",
+    "source": "gearsnlevers/record-keeper",
+    "channel": "stable",
+    "from": "v1.1.0",
+    "to": "v1.1.0",
+    "commit": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "added": [],
+    "changed": [],
+    "unchanged": [
+     ".claude/skills/record-a-decision/SKILL.md",
+     ".github/record-keeper/record-keeper.mjs",
+     ".github/record-keeper/updater.mjs",
+     ".github/workflows/records-integrity.yml",
+     ".github/workflows/records-updater.yml"
+    ],
+    "templates": [],
+    "kept": [
+     ".github/record-keeper/settings.yml",
+     "CLAUDE.md",
+     "docs/decisions/README.md",
+     "docs/decisions/template.md"
+    ],
+    "remove": [],
+    "block": {
+     "path": "AGENTS.md",
+     "action": "replace",
+     "why": null
+    },
+    "overwritten": [],
+    "pin": "# Written by the Record Keeper updater. Do not edit it by hand, except the channel, in a pull request.\nsource: gearsnlevers/record-keeper\nversion: v1.1.0\ncommit: b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\nchannel: stable\n",
+    "pinChanged": false,
+    "requires": {
+     "rulesets": [
+      {
+       "branch": "default",
+       "checks": [
+        "Records integrity"
+       ],
+       "up-to-date": true
+      }
+     ],
+     "secrets": [
+      "RECORD_KEEPER_TOKEN"
+     ],
+     "settings": [
+      "owners"
+     ]
+    },
+    "warnings": []
+   }
+  },
+  {
    "id": "q34-all-installed",
    "note": "Everything is installed, the block is current: nothing to do",
    "input": {

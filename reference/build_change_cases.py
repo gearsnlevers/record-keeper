@@ -1053,6 +1053,9 @@ case('m38-block-and-text-outside-together', 'The block and the text outside it c
 case('m39-the-text-of-a-marker-in-prose', 'Prose that holds the stem of a marker is a line that holds more than a marker: the markers are refused, and that is a change.', base='agents', changes=[put(AG, AGENTS + '\nThe block starts at record-keeper:begin.\n')], acts=[INS(AG)])
 case('m40-unclosed-fence-added-after-the-block', 'A fence that is never closed is added after the block: the block is still the block.', base='agents', changes=[put(AG, AGENTS + '\n```\nopen\n')])
 case('m41-no-block-to-no-block-with-a-fence', 'A file with no block gets a fenced example of the markers.', base='agents-plain', changes=[put(AG, '# Notes for agents\n\n```\n' + BLK + '\n```\n')])
+case('m43-a-file-with-no-block-becomes-a-link', 'AGENTS.md has no block and becomes a link: a link can lead anywhere, so it is an act whatever the old file said.', base='agents-plain', changes=[{'symlink': AG, 'target': 'docs/AGENTS.md'}], acts=[INS(AG)])
+case('m44-a-link-becomes-a-file-with-no-block', 'A link becomes a file that has no block: the act is the link that is gone.', base='agents-link', changes=[put(AG, '# Notes\n')], acts=[INS(AG)])
+case('m45-a-file-with-no-block-becomes-a-folder', 'AGENTS.md has no block and becomes a folder.', base='agents-plain', changes=[drop(AG), put(AG + '/inner.md', 'x\n')], acts=[INS(AG)])
 case('m42-first-adoption-commit', 'The adoption: the skill, the block and CLAUDE.md are added to a repository that has none of them. Acts of the skill and of AGENTS.md; CLAUDE.md is no act.', base='agents-none',
      changes=[put(SK, 'a skill\n'), put(AG, BLK + '\n'), put(CL, '@AGENTS.md\n')], acts=[INS(SK), INS(AG)])
 
