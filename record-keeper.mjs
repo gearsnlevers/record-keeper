@@ -217,16 +217,27 @@ export function parse(bytes) {
   return { lines, end, entries, fenced };
 }
 
+/**
+ * Which lines of a body lie in an excluded section: the heading line, and every line up to, not including, the next section heading.
+ * For a record that parse() accepted, so that a line that is exactly an excluded heading and not fenced is one.
+ */
+function excludedLines(body, fenced) {
+  let cutting = false;
+  return body.map((line, i) => {
+    if (!fenced[i] && SECTION_HEADING.test(line)) cutting = EXCLUDED_HEADINGS.includes(line);
+    return cutting;
+  });
+}
+
 /** Steps 2 to 5 of the canonical form, for a record that parse() accepted. Returns the canonical text. */
 export function canonicalize({ lines, end, entries, fenced }) {
   const cutKeys = new Set(entries.filter(({ key }) => EXCLUDED_KEYS.includes(key)).map(({ at }) => at));
   const head = lines.slice(0, end + 1).filter((_, i) => !cutKeys.has(i));
+  const cut = excludedLines(lines.slice(end + 1), fenced);
   const body = [];
-  let cutting = false;
   let afterEmpty = false;
   lines.slice(end + 1).forEach((line, i) => {
-    if (!fenced[i] && SECTION_HEADING.test(line)) cutting = EXCLUDED_HEADINGS.includes(line);
-    if (cutting) return;
+    if (cut[i]) return;
     const empty = line === '' && !fenced[i];
     if (empty && afterEmpty) return;
     afterEmpty = empty;
@@ -277,7 +288,7 @@ export const FORMAT_RULES = {
   'V-07': 'has the number of an earlier record',
   'V-08': 'has record numbers that are not 0001, 0002, 0003 and so on without a gap',
   'V-09': 'breaks a rule of generation g1',
-  'V-10': 'is longer than 60 lines',
+  'V-10': 'is longer than 60 lines, not counting its Known deviations and Errata sections',
   'V-11': 'looks like it contains a credential',
   'V-12': 'contains an e-mail address; records are public',
   'V-13': 'has a key that is not a standard key and not an extra key',
@@ -461,6 +472,16 @@ function checkBody(name, body, fenced, report) {
   return titled ? first.slice(2) : undefined;
 }
 
+/**
+ * The length that V-10 counts: the lines of the record without the lines of its excluded sections (`## Known deviations` and `## Errata`,
+ * which grow after acceptance), not counting the empty line after a final line feed of what is left. For a record that parse() accepted.
+ */
+function lengthAsAccepted(lines, end, fenced) {
+  const cut = excludedLines(lines.slice(end + 1), fenced);
+  const kept = lines.filter((_, i) => i <= end || !cut[i - end - 1]);
+  return kept.length - (kept.at(-1) === '' ? 1 : 0);
+}
+
 /** V-09 to V-28 for one record. Returns what the index can judge: { status, title }. */
 function checkRecord(source, { name, number }, numbers, extraKeys, report) {
   let record;
@@ -473,7 +494,7 @@ function checkRecord(source, { name, number }, numbers, extraKeys, report) {
   }
   const { lines, end, entries, fenced } = record;
   const text = lines.join('\n');
-  if (lines.length - (lines.at(-1) === '' ? 1 : 0) > MAX_LINES) report(name, 'V-10');
+  if (lengthAsAccepted(lines, end, fenced) > MAX_LINES) report(name, 'V-10');
   if (CREDENTIAL.test(text)) report(name, 'V-11');
   if (EMAIL.test(text)) report(name, 'V-12');
   const status = checkFrontMatter(name, number, entries, numbers, extraKeys, report);

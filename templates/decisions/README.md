@@ -18,7 +18,7 @@ The records of this folder are kept trustworthy by [Record Keeper](https://githu
 
 ## Writing one
 
-Copy `template.md` to `NNNN-short-title.md` (the next number, starting at 0001), fill it in (60 lines at most) and add a row to the index. Besides the three required sections, a record may have `## Known deviations`, `## Alternatives considered` and `## Errata`. To accept it, set `status: accepted` and write its seal, which `node .github/record-keeper/record-keeper.mjs seal <file>` prints, as `seal:` in the front matter. `node .github/record-keeper/record-keeper.mjs validate` checks the format of the folder and the index.
+Copy `template.md` to `NNNN-short-title.md` (the next number, starting at 0001), fill it in (60 lines at most, not counting its `## Known deviations` and `## Errata` sections, which grow after acceptance) and add a row to the index. Besides the three required sections, a record may have `## Known deviations`, `## Alternatives considered` and `## Errata`. To accept it, set `status: accepted` and write its seal, which `node .github/record-keeper/record-keeper.mjs seal <file>` prints, as `seal:` in the front matter. `node .github/record-keeper/record-keeper.mjs validate` checks the format of the folder and the index.
 
 ## Index
 
