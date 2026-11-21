@@ -3,7 +3,7 @@ status: accepted
 date: 2026-11-14
 decision-makers:
   - maintainers
-seal: sha256-g1:26c4df0a1a2b0506dbb8451c35fa16a72f67f2e2bb92babec957843b8ee59371
+seal: sha256-g1:ceb35b097924387cf7b2af09314f03eef30e54c7724bae75f2817f829a3f16c8
 ---
 
 # Accepted records are sealed and change only by supersession or an approved erratum
@@ -21,7 +21,7 @@ A decision record binds people and agents once it is accepted, and the rule that
 - A changed decision is a new record that names the records it replaces, one or several. Numbers are never reused, and a record is never deleted or renamed.
 - `Known deviations` and `Errata` are append-only. A deviation entry cites an issue, pull request or commit of this repository that the check can resolve, and excuses exactly the violation that case caused: never a later change, never the record in general. An erratum entry carries the hash of the entry before it.
 - An erratum is the only way to correct sealed text, such as a typo or a broken link. It changes the text and the seal, which stays under the record's own generation, and adds an entry with the previous seal, the new seal and the reason. The chain from the first seal to the current one must be unbroken. An erratum cannot change `applies-to`, `repos`, `window` or `supersedes`: that is a new record. One that changes more than whitespace stays open at least 48 hours, and the check posts its diff as a comment.
-- An acceptance, an erratum, a deviation entry and a change to the kit's settings, pin or workflow files need the approval of **owners**: those who authored the pull request or approved its current head commit, each counted once. How many is the `approvals` setting: two by default, or one in a single-owner mode that a deployment with one maintainer chooses knowingly. Lowering it meets the amendment bar, and the setup check says on every run that the mode is on.
+- An acceptance, an erratum, a deviation entry and a change to the kit's settings, pin or workflow files need the approval of **owners**: those who authored the pull request or approved its current head commit, each counted once. How many is the `approvals` setting: two by default, or one in a single-owner mode that a deployment with one maintainer chooses knowingly. Lowering it meets the amendment bar, and the setup check says that the mode is on once, in the pull request that puts it on or changes the owners.
 - The protocol has a **generation**. A generation fixes how a region is cut out and normalised before it is hashed, and the rules a record must meet to be accepted. A record is verified by the rules of the generation of its seal, forever. A seal is created only under the generation that the base branch names; an older or unknown generation fails closed. A new generation never invalidates an earlier seal, and format rules bind a record when it is accepted.
 - The protocol is **amended** by a new record that supersedes it in full, and by the code that implements it in a release of the kit. It needs the approval of **all owners**, and the pull request must have been open for at least seven days before the last approval. The waiting period may be waived only when every owner approves and the record says why. A change to the list of owners, and an update that brings a new generation or new check code, meet the same bar. Changing this rule must meet the rule it replaces.
 - The checks decide whether the sealed region changed and whether the change is allowed. They never judge what a record says.
@@ -48,3 +48,13 @@ A decision record binds people and agents once it is accepted, and the rule that
 - A fixed rule of two owners: a project with one maintainer would work around it, so the number is a setting and the risk of one is stated.
 - Re-sealing every record at each amendment: one rule everywhere, but a migration of every record in every repository each time.
 - Signed commits or tags per record: strong, but heavy for the repositories that adopt the kit, and a check still has to say what changed.
+
+## Errata
+
+### Erratum 1
+
+- date: 2026-11-20
+- previous entry: none
+- previous seal: sha256-g1:26c4df0a1a2b0506dbb8451c35fa16a72f67f2e2bb92babec957843b8ee59371
+- seal: sha256-g1:ceb35b097924387cf7b2af09314f03eef30e54c7724bae75f2817f829a3f16c8
+- reason: The setup check does not say on every run that the single-owner mode is on. The maintainers decided on 2026-11-18, for the pull request that adds the setup check (pull 63), that it says so once, in the pull request that puts the mode on or changes the owners, because a notice that nobody can act on every day is worse than none.

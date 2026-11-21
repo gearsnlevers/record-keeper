@@ -16,9 +16,6 @@ import { COMMIT, NOW, cleanUp as cleanUpWorld, healthy, releaseOf, serve as serv
 const root = fileURLToPath(new URL('..', import.meta.url));
 const install = JSON.parse(fs.readFileSync(path.join(root, 'install.json'), 'utf8'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'record-keeper-install-'));
-// The record of the audit that the world of the tests holds was written at a time near NOW, so a program that is run for real is told the time: it reads the clock of the machine otherwise, and the audit
-// is "more than two days old" two days after the day that the world was written.
-const NOW_TEXT = new Date(NOW).toISOString().replace('.000Z', 'Z');
 const servers = [];
 after(cleanUpWorld);
 after(() => {
@@ -65,6 +62,8 @@ function installKit(dir, kinds = ['managed', 'block', 'template']) {
   for (const entry of install.files.filter(({ kind }) => kinds.includes(kind))) write(dir, entry.path, fs.readFileSync(path.join(root, entry.source)));
 }
 
+// The time that the world of the setup check lives in: the record of its audit is hours old at NOW, so a program that read the clock of the day would say that the audit is dead.
+const AT = ['--now', new Date(NOW).toISOString().replace('.000Z', 'Z')];
 const exec = (args, { cwd, env = {} }) => new Promise((resolve) => {
   const child = spawn(process.execPath, args, { cwd, env: { ...CLEAN, ...env } });
   const out = [];
@@ -464,7 +463,7 @@ describe('a repository with the layout of a consumer', () => {
       const state = healthy();
       state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
-      const got = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      const got = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr + got.stdout);
       assert.equal(got.stderr, '');
       assert.equal(got.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
@@ -481,12 +480,12 @@ describe('a repository with the layout of a consumer', () => {
       state.settingsAt.set('main', 'owners: [alice/1001, bob/1002]\napprovals: 2\n');
       await serveGithub(state);
       const env = { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
-      const got = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env });
+      const got = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env });
       assert.equal(got.code, 0, got.stderr + got.stdout);
       assert.match(got.stdout, /^::notice title=single-owner::this pull request puts the single-owner mode on/);
       assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
       state.settingsAt.set('main', OWNERS);
-      const again = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env });
+      const again = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env });
       assert.equal(again.stdout, 'setup check: 0 errors, 0 warnings, 0 notices\n');
     });
 
@@ -500,7 +499,7 @@ describe('a repository with the layout of a consumer', () => {
       const state = healthy();
       state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
-      const got = await exec([program, '--repo', 'example/repo', '--now', NOW_TEXT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
+      const got = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr);
       assert.match(got.stdout, /^warning: \[managed-differs\] files that the kit installed differ from the pinned release: \.github\/record-keeper\/setup-check\.mjs \(differs\)\./m);
     });
