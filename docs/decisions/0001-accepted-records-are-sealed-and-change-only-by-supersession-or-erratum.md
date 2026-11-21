@@ -40,6 +40,14 @@ A decision record binds people and agents once it is accepted, and the rule that
 - The checks guarantee that a record is what was accepted, not that it is right, and not that the code follows it. A person with administrator rights can still change the repository and its checks; the audit finds it afterwards.
 - The kit's own records are sealed by the kit, from the first one accepted.
 
+## Known deviations
+
+### Deviation 1
+
+- date: 2026-11-20
+- case: commit 2e48120963dc1060001c1a42116515f61113abc7
+- reason: Erratum 1 was merged by the owner's bypass of the ruleset after one of the 48 hours of rule P-13, because the repository has one maintainer and the corrected sentence was needed for the next milestone of the kit (pull 65).
+
 ## Alternatives considered
 
 - Seals in a separate file, or git history alone: a separate file does not travel with a copied record, and history can be rewritten.
