@@ -12,7 +12,7 @@ This folder is how the kit is checked against something other than itself. It is
 | Page | Reference | Builder | Fixtures | Fuzz |
 | ---- | --------- | ------- | -------- | ---- |
 | [generation-g1](../docs/generation-g1.md) | `g1.py`, `g1.mjs` | `build_vectors.py` | `test/vectors/g1` | `fuzz/g1_mutants.py`, `g1_run_py.py`, `g1_run_node.mjs`, `g1_compare.py`; `mutate_g1.py` |
-| [record-format](../docs/record-format.md) | `validate_ref.py`, `validate_ref2.mjs` | `build_cases.py` | `test/fixtures/validate` | `fuzz/validate_fuzz.py`, `validate_compare_ref2.mjs`, `validate_compare.mjs`; `run_cases.mjs` |
+| [record-format](../docs/record-format.md) | `validate_ref.py`, `validate_ref2.mjs` | `build_cases.py` | `test/fixtures/validate` | `fuzz/validate_fuzz.py`, `validate_compare_ref2.mjs`, `validate_compare.mjs`; `run_cases.mjs`; `fuzz/length_fuzz.py`, `length_batch.sh` (V-10); `fuzz/mutate_length.py` |
 | [reading-a-commit](../docs/reading-a-commit.md) | `commit_ref.py` (repositories built with `commit_lib.py`) | `build_commit_cases.py` | `test/fixtures/commit` | `fuzz/commit_fuzz.py`, `commit_compare.mjs`, `commit_equiv.mjs` |
 | [settings](../docs/settings.md) | `config_ref.py` | `build_config_cases.py` | `test/fixtures/config` | `fuzz/config_fuzz.py`, `config_compare.mjs`, `config_tree_fuzz.py`, `config_tree_compare.mjs`, `config_oracle.*` |
 | [applies-to](../docs/applies-to.md) | `check_ref.glob_regex` | `build_applies_vectors.py` | `test/fixtures/applies` | |
