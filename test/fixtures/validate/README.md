@@ -23,7 +23,7 @@ An entry has these fields:
 
 | Name | What the case is |
 | ---- | ---------------- |
-| `ok…` | A valid folder that a rule could be mistaken to reject: another layout of the index, CRLF, an extra key, a folder that must not be looked at, a record of exactly 60 lines. |
+| `ok…` | A valid folder that a rule could be mistaken to reject: another layout of the index, CRLF, an extra key, a folder that must not be looked at, a record of exactly 60 lines, with or without its Known deviations and Errata sections, which are not counted. |
 | `badNN…` | A folder that breaks rule `V-NN`, and only that one unless the note says otherwise; the letter after the number tells the cases of one rule apart. |
 | `multi…` | A folder with problems of several rules. `multi01-value-and-deprecated` has the two problems that records in the field have today. |
 

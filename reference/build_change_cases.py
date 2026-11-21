@@ -135,6 +135,11 @@ case('b03-new-bad-front-matter', 'A new record with a decision-makers that is a 
 case('b04-new-duplicate-number', 'A new record with the number of an existing one (name order puts it after).', [rput(3, rec(3)), put(f'{D}/0003-zeta.md', rec(3)), index(ROWS + [(3, 'proposed', 'zeta')])],
      problems=[p('0003-zeta.md', 'V-07')])
 case('b05-new-too-long', 'A new record over sixty lines.', [rput(7, rec(7, body_lines=60)), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-10')])
+# rec() has 24 lines outside its sections and the body_lines that are asked for, and one more with a seal: so 36 make exactly 60 (35 with a seal) and 37 make 61 (36).
+case('b05b-new-sixty-lines-and-two-sections', 'A new record of exactly sixty lines outside its sections, with a Known deviations and an Errata section: the length is judged without the two sections.',
+     [rput(7, rec(7, body_lines=36, deviations='- Noted.', errata='- Fixed.')), index(ROWS + [(7, 'proposed')])])
+case('b05c-new-sixty-one-lines-and-two-sections', 'A new record of sixty-one lines outside its sections, with the two sections: the sections do not make it fit.',
+     [rput(7, rec(7, body_lines=37, deviations='- Noted.', errata='- Fixed.')), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-10')])
 case('b06-new-email', 'A new record with an e-mail address.', [rput(7, rec(7, mail=True)), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-12')])
 case('b07-new-unknown-key', 'A new record with a key that is not a standard key.', [rput(7, rec(7, keys='repos: a')), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-13')])
 case('b08-new-extra-key-allowed', 'The same key is fine when the settings of the base name it.', base='clean-settings', changes=[rput(7, rec(7, keys='repos: a')), index(ROWS + [(7, 'proposed')])])
@@ -160,6 +165,8 @@ case('c07-seal-then-edit', 'A seal made for the record before a last edit of the
      problems=[p(name(3), 'P-06', 'seal does not match')])
 case('c08-seal-on-proposed', 'A seal on a record that is still proposed.', [rput(3, rec(3, 'proposed', True))], problems=[p(name(3), 'P-07')])
 case('c09-seal-on-rejected', 'A seal on a rejected record.', [rput(4, rec(4, 'rejected', True))], problems=[p(name(4), 'P-07')])
+case('c09b-accepted-sixty-lines-and-a-section', 'A record is accepted with exactly sixty lines outside a Known deviations section: an acceptance, and the section is not counted.',
+     [rput(3, rec(3, 'accepted', True, body_lines=35, deviations='- Noted.')), index(rows_with(r3='accepted'))], acts=[acc(3)])
 case('c10-accepted-with-format-problem', 'An acceptance of a record that has a format problem: both are reported.', [rput(3, rec(3, 'accepted', True, makers='single')), index(rows_with(r3='accepted'))],
      problems=[p(name(3), 'V-14')], acts=[acc(3)])
 case('c11-new-superseded-record', 'A record can arrive already superseded when its successor is sealed and lists it.',
@@ -528,6 +535,13 @@ M26 = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=60).encode())
 case('r26-erratum-longer-than-sixty-lines', 'An erratum may make a record longer than sixty lines: the length is judged at acceptance.', [rput(2, rec(2, 'accepted', M26, consequences=C1, body_lines=60, errata=txt([ent(1, 'none', S0, M26)])))],
      acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
 
+M26B = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=36).encode())
+case('r26b-erratum-to-sixty-one-lines', 'An erratum makes the text of a record sixty-one lines outside the sections: the length is judged at acceptance, so V-10 is not reported for it (an erratum does not have to fit the cap again).',
+     [rput(2, rec(2, 'accepted', M26B, consequences=C1, body_lines=36, errata=txt([ent(1, 'none', S0, M26B)])))], acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
+M26C = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=35).encode())
+case('r26c-erratum-to-sixty-lines', 'An erratum makes the text of a record exactly sixty lines: nothing to waive, and the entry of the erratum is not counted.',
+     [rput(2, rec(2, 'accepted', M26C, consequences=C1, body_lines=35, errata=txt([ent(1, 'none', S0, M26C)])))], acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
+
 T28 = rec(2, 'accepted', consequences=C1).replace('# The second decision', '# The 2nd decision')
 M28 = g1.seal_g1(T28.encode())
 case('r28-erratum-title-without-index', 'The title of the record is corrected and the index shows the old one.',
@@ -627,7 +641,10 @@ case('x29-deviation-section-after-alternatives', 'The section is added after Alt
 case('x30-deviation-mail', 'The reason of the note contains an e-mail address.', [rput(2, rec(2, 'accepted', True, deviations=txt([dev(1, 'pull 5', 'Ask someone@example.com.')])))], problems=[p(name(2), 'V-12')], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x31-deviation-credential', 'The reason of the note contains a key.', [rput(2, rec(2, 'accepted', True, deviations=txt([dev(1, 'pull 5', 'Used AKIA' + 'A' * 16 + ' once.')])))], problems=[p(name(2), 'V-11')], acts=[DV()], cases=CASES5, needs=NEED_P5)
 TREES['long'] = {**TREES['world'], f'{D}/{name(2)}': rec(2, 'accepted', True, body_lines=60)}
-case('x32-deviation-past-sixty-lines', 'A note may take a record past sixty lines.', base='long', changes=[rput(2, rec(2, 'accepted', True, body_lines=60, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
+case('x32-deviation-past-sixty-lines', 'A record that is past sixty lines without its sections can take a note: V-10 is not one of the rules of a note.', base='long', changes=[rput(2, rec(2, 'accepted', True, body_lines=60, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
+TREES['sixty'] = {**TREES['world'], f'{D}/{name(2)}': rec(2, 'accepted', True, body_lines=35)}
+case('x32b-deviation-on-a-record-of-sixty-lines', 'A record of exactly sixty lines takes a note: the section is not counted, so the record stays at sixty.',
+     base='sixty', changes=[rput(2, rec(2, 'accepted', True, body_lines=35, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x33-deviation-on-a-record-with-a-mail', 'The record had an e-mail address at the base: the note does not bring it.', base='legacy-mail', changes=[rput(2, rec(2, 'accepted', True, mail=True, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x34-deviation-heading-only', 'The section is added with a heading and no entry.', [rput(2, rec(2, 'accepted', True, deviations=' '))], problems=[p(name(2), 'P-14', 'no new entry'), p(name(2), 'V-28')], acts=[DV()])
 case('x35-deviation-on-a-proposed-record', 'A proposed record gets a Known deviations section: free editing, no act.', [rput(3, rec(3, deviations='Nothing yet.'))])

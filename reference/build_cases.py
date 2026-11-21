@@ -421,6 +421,76 @@ case('bad36d-supersedes-zero', edit(F3, DM, DM + sup(['0000'])), [(F3, 'V-36')],
 case('bad36e-supersedes-each-item', edit(F3, DM, DM + sup(['0001', '0009', '0003', '0002'])), [(F3, 'V-36'), (F3, 'V-36')], 'Each item that fails is reported: 0009 does not exist and 0003 is the record itself.')
 case('bad36f-supersedes-two-rules', edit(F3, DM, DM + sup(['12', '0009', '0001'])), [(F3, 'V-35'), (F3, 'V-36')], 'An item that is not four digits is reported by V-35 only; V-36 judges the others.')
 
+# ---- V-10 counts the record as it was accepted: the two excluded sections are left out --------------------------------
+# long_record(n) is record 0002 with exactly n lines outside the two sections, and a final line feed. The sections are appended as a record
+# gets them after acceptance, with the one empty line before them that g1 asks for.
+KD_LINES = ['## Known deviations', '', '### Deviation 1', '', '- date: 2026-11-07', '- case: pull 28', '- reason: The check did not run while the ruleset was being set up.']
+ER_LINES = ['## Errata', '', '### Erratum 1', '', '- date: 2026-11-08', '- previous entry: none', '- previous seal: sha256-g1:' + SEAL64, '- seal: sha256-g1:' + SEAL64, '- reason: A link in the Decision pointed to a page that was renamed.']
+ALT_LINES = ['', '## Alternatives considered', '', '- Nothing else.']
+
+def long_record(n, alternatives=False):
+    head = R2.rstrip('\n').split('\n')
+    tail = ALT_LINES if alternatives else []
+    lines = head + ['- filler line %d.' % i for i in range(n - len(head) - len(tail))] + tail
+    assert len(lines) == n
+    return lines
+
+def with_sections(lines, kd=False, er=False, final_newline=True, empty_before=1, empty_after=0, kd_before_alternatives=False):
+    """The text of lines plus the sections, `empty_before` empty lines in front of each, and `empty_after` more at the very end."""
+    lines = list(lines)
+    if kd and kd_before_alternatives:
+        k = lines.index('## Alternatives considered') - 1
+        lines[k:k] = [''] + KD_LINES
+        kd = False
+    for flag, block in ((kd, KD_LINES), (er, ER_LINES)):
+        if flag: lines += [''] * empty_before + block
+    lines += [''] * empty_after
+    return '\n'.join(lines) + ('\n' if final_newline else '')
+
+BOTH = {'kd': True, 'er': True}
+case('ok48-sixty-lines-and-known-deviations', edit(F2, R2, with_sections(long_record(60), kd=True)), [], 'A record of 60 lines outside its sections, and a Known deviations section: 68 lines in all, and the length is 60.')
+case('ok49-sixty-lines-and-errata', edit(F2, R2, with_sections(long_record(60), er=True)), [], 'A record of 60 lines outside its sections, and an Errata section.')
+case('ok50-sixty-lines-and-both-sections', edit(F2, R2, with_sections(long_record(60), **BOTH)), [], 'Both excluded sections after 60 lines: 79 lines in all. A record that ends in a section ends, once the section is cut, in the empty line before its heading, which is the empty line after a final line feed: not counted.')
+case('ok51-sixty-lines-and-both-sections-no-final-newline', edit(F2, R2, with_sections(long_record(60), final_newline=False, **BOTH)), [], 'The same with no line feed at the end of the file.')
+case('ok52-sixty-lines-sections-and-empty-lines-at-the-end', edit(F2, R2, with_sections(long_record(60), empty_after=3, **BOTH)), [], 'Empty lines after the last section are part of it.')
+case('ok53-sixty-lines-and-known-deviations-before-alternatives', edit(F2, R2, with_sections(long_record(60, True), kd=True, kd_before_alternatives=True)), [], 'Known deviations in the middle, before Alternatives considered: the lines of the section go, the empty line before it stays and separates the two sections around it.')
+case('ok54-sixty-lines-and-both-sections-around-alternatives', edit(F2, R2, with_sections(long_record(60, True), kd=True, er=True, kd_before_alternatives=True)), [], 'Known deviations in the middle and Errata at the end.')
+case('ok55-sixty-lines-and-the-sections-with-crlf', {**base(), F2: edit(F2, R2, with_sections(long_record(60), **BOTH))[F2].replace('\n', '\r\n')}, [], 'The same with CRLF line endings: the lines are the ones g1 reads.')
+case('ok56-fifty-nine-lines-and-both-sections', edit(F2, R2, with_sections(long_record(59), **BOTH)), [], 'A record of 59 lines and the sections.')
+case('bad10c-sixty-one-lines-and-known-deviations', edit(F2, R2, with_sections(long_record(61), kd=True)), [(F2, 'V-10')], 'A record of 61 lines outside its sections, and a Known deviations section: the section does not make it shorter.')
+case('bad10d-sixty-one-lines-and-errata', edit(F2, R2, with_sections(long_record(61), er=True)), [(F2, 'V-10')], 'A record of 61 lines outside its sections, and an Errata section.')
+case('bad10e-sixty-one-lines-and-both-sections', edit(F2, R2, with_sections(long_record(61), **BOTH)), [(F2, 'V-10')], 'Both sections after 61 lines.')
+case('bad10f-sixty-one-lines-and-both-sections-no-final-newline', edit(F2, R2, with_sections(long_record(61), final_newline=False, **BOTH)), [(F2, 'V-10')], 'The same with no line feed at the end of the file.')
+case('bad10g-sixty-one-lines-known-deviations-before-alternatives', edit(F2, R2, with_sections(long_record(61, True), kd=True, kd_before_alternatives=True)), [(F2, 'V-10')], 'Known deviations in the middle of a record of 61 lines: it does not take the record under the cap.')
+case('bad10h-an-extra-empty-line-before-the-section-is-counted', edit(F2, R2, with_sections(long_record(60), empty_before=2, **BOTH)), [(F2, 'V-10')], 'Two empty lines before a section: the second is a line of the record (as the same record with two empty lines at its end would count 61), only the one that g1 asks for goes with the section.')
+case('bad10i-sixty-lines-and-an-empty-line-at-the-end-is-counted', edit(F2, R2, '\n'.join(long_record(60)) + '\n\n'), [(F2, 'V-10')], 'A record of 60 lines and one empty line more at the end: 61 lines, as before this rule.')
+
+# What ends an excluded section: the next section heading of g1, a line of level 1 or 2 outside a fence (up to three spaces in front, a space, a tab or nothing after it). Everything else in the section is cut.
+def after_known_deviations(n, lines_after, name, note, bad):
+    """n lines outside the sections, in which `lines_after` come right after a Known deviations section (as the end of the record, with nothing behind)."""
+    head = long_record(n - len(lines_after) - 1)
+    text = '\n'.join(head + [''] + KD_LINES + [''] + lines_after) + '\n'
+    case(name, edit(F2, R2, text), [(F2, 'V-10')] if bad else [], note)
+
+ENDERS = [('level-one', '# Appendix'), ('level-one-bare', '#'), ('level-one-tab', '#\tAppendix'), ('level-two-indented', '   ## Notes'), ('level-two-tab', '##\tNotes'), ('level-two-bare', '##')]
+for tag, heading in ENDERS:
+    after_known_deviations(60, [heading, 'Text after it.'], f'ok58-{tag}-heading-ends-the-section', f'The line {heading!r} is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all.', False)
+    after_known_deviations(61, [heading, 'Text after it.'], f'bad10j-{tag}-heading-ends-the-section', f'The same with one line more: 61.', True)
+NOT_ENDERS = [('level-three', '### Remediation'), ('four-spaces', '    ## Not a heading'), ('no-space', '##Notes'), ('level-three-bare', '###'), ('a-sentence', 'A line of text.')]
+for tag, line in NOT_ENDERS:
+    after_known_deviations(61, [line, 'Text after it.'], f'ok59-{tag}-line-stays-in-the-section', f'The line {line!r} is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted.', False)
+
+# A heading in a fence is no heading: it ends nothing, and what follows it in the section is cut. A fence that holds the heading of an excluded section is refused by g1.
+FENCE = ['```md', '## Alternatives considered', '# Appendix', '```', 'Still in the section.']
+case('ok60-headings-in-a-fence-do-not-end-an-excluded-section', edit(F2, R2, '\n'.join(long_record(60) + [''] + KD_LINES + [''] + FENCE + [''] + ER_LINES) + '\n'), [], 'The headings in a fence inside Known deviations end nothing: the fence, the line behind it and the empty line before Errata are cut with the section. 60 lines.')
+case('bad10k-headings-in-a-fence-do-not-end-an-excluded-section', edit(F2, R2, '\n'.join(long_record(61) + [''] + KD_LINES + [''] + FENCE + [''] + ER_LINES) + '\n'), [(F2, 'V-10')], 'The same with 61 lines outside the sections.')
+for cid, lines, rule, note in [
+    ('bad09f-g1-known-deviations-heading-in-a-fence', ['```md', '## Known deviations', '```'], 'G1-18', 'The heading of an excluded section in a fence is not that section (it cuts nothing: the lines stay counted), and g1 refuses the record, so V-10 is not applied although the record is longer than 60 lines.'),
+    ('bad09g-g1-errata-heading-of-level-three', ['### Errata'], 'G1-18', 'A heading that only looks like an excluded section (another level): g1 refuses the record, and V-10 is not applied.'),
+    ('bad09h-g1-errata-heading-lower-case', ['## errata'], 'G1-18', 'Another spelling: g1 refuses the record, and V-10 is not applied.'),
+]:
+    case(cid, edit(F2, R2, '\n'.join(long_record(61) + [''] + lines + ['', 'Text.']) + '\n'), [(F2, 'V-09', rule)], note)
+
 # ---- compute, check the intent, write -----------------------------------------------------------------------------
 CASES = [c for c in CASES if c is not None]
 ids = [c[0] for c in CASES]

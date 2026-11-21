@@ -1857,6 +1857,322 @@
         }
       ],
       "note": "An item that is not four digits is reported by V-35 only; V-36 judges the others."
+    },
+    {
+      "id": "ok48-sixty-lines-and-known-deviations",
+      "folder": "ok48-sixty-lines-and-known-deviations",
+      "expect": [],
+      "note": "A record of 60 lines outside its sections, and a Known deviations section: 68 lines in all, and the length is 60."
+    },
+    {
+      "id": "ok49-sixty-lines-and-errata",
+      "folder": "ok49-sixty-lines-and-errata",
+      "expect": [],
+      "note": "A record of 60 lines outside its sections, and an Errata section."
+    },
+    {
+      "id": "ok50-sixty-lines-and-both-sections",
+      "folder": "ok50-sixty-lines-and-both-sections",
+      "expect": [],
+      "note": "Both excluded sections after 60 lines: 79 lines in all. A record that ends in a section ends, once the section is cut, in the empty line before its heading, which is the empty line after a final line feed: not counted."
+    },
+    {
+      "id": "ok51-sixty-lines-and-both-sections-no-final-newline",
+      "folder": "ok51-sixty-lines-and-both-sections-no-final-newline",
+      "expect": [],
+      "note": "The same with no line feed at the end of the file."
+    },
+    {
+      "id": "ok52-sixty-lines-sections-and-empty-lines-at-the-end",
+      "folder": "ok52-sixty-lines-sections-and-empty-lines-at-the-end",
+      "expect": [],
+      "note": "Empty lines after the last section are part of it."
+    },
+    {
+      "id": "ok53-sixty-lines-and-known-deviations-before-alternatives",
+      "folder": "ok53-sixty-lines-and-known-deviations-before-alternatives",
+      "expect": [],
+      "note": "Known deviations in the middle, before Alternatives considered: the lines of the section go, the empty line before it stays and separates the two sections around it."
+    },
+    {
+      "id": "ok54-sixty-lines-and-both-sections-around-alternatives",
+      "folder": "ok54-sixty-lines-and-both-sections-around-alternatives",
+      "expect": [],
+      "note": "Known deviations in the middle and Errata at the end."
+    },
+    {
+      "id": "ok55-sixty-lines-and-the-sections-with-crlf",
+      "folder": "ok55-sixty-lines-and-the-sections-with-crlf",
+      "expect": [],
+      "note": "The same with CRLF line endings: the lines are the ones g1 reads."
+    },
+    {
+      "id": "ok56-fifty-nine-lines-and-both-sections",
+      "folder": "ok56-fifty-nine-lines-and-both-sections",
+      "expect": [],
+      "note": "A record of 59 lines and the sections."
+    },
+    {
+      "id": "bad10c-sixty-one-lines-and-known-deviations",
+      "folder": "bad10c-sixty-one-lines-and-known-deviations",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "A record of 61 lines outside its sections, and a Known deviations section: the section does not make it shorter."
+    },
+    {
+      "id": "bad10d-sixty-one-lines-and-errata",
+      "folder": "bad10d-sixty-one-lines-and-errata",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "A record of 61 lines outside its sections, and an Errata section."
+    },
+    {
+      "id": "bad10e-sixty-one-lines-and-both-sections",
+      "folder": "bad10e-sixty-one-lines-and-both-sections",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "Both sections after 61 lines."
+    },
+    {
+      "id": "bad10f-sixty-one-lines-and-both-sections-no-final-newline",
+      "folder": "bad10f-sixty-one-lines-and-both-sections-no-final-newline",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with no line feed at the end of the file."
+    },
+    {
+      "id": "bad10g-sixty-one-lines-known-deviations-before-alternatives",
+      "folder": "bad10g-sixty-one-lines-known-deviations-before-alternatives",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "Known deviations in the middle of a record of 61 lines: it does not take the record under the cap."
+    },
+    {
+      "id": "bad10h-an-extra-empty-line-before-the-section-is-counted",
+      "folder": "bad10h-an-extra-empty-line-before-the-section-is-counted",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "Two empty lines before a section: the second is a line of the record (as the same record with two empty lines at its end would count 61), only the one that g1 asks for goes with the section."
+    },
+    {
+      "id": "bad10i-sixty-lines-and-an-empty-line-at-the-end-is-counted",
+      "folder": "bad10i-sixty-lines-and-an-empty-line-at-the-end-is-counted",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "A record of 60 lines and one empty line more at the end: 61 lines, as before this rule."
+    },
+    {
+      "id": "ok58-level-one-heading-ends-the-section",
+      "folder": "ok58-level-one-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '# Appendix' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-one-heading-ends-the-section",
+      "folder": "bad10j-level-one-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok58-level-one-bare-heading-ends-the-section",
+      "folder": "ok58-level-one-bare-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '#' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-one-bare-heading-ends-the-section",
+      "folder": "bad10j-level-one-bare-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok58-level-one-tab-heading-ends-the-section",
+      "folder": "ok58-level-one-tab-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '#\\tAppendix' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-one-tab-heading-ends-the-section",
+      "folder": "bad10j-level-one-tab-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok58-level-two-indented-heading-ends-the-section",
+      "folder": "ok58-level-two-indented-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '   ## Notes' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-two-indented-heading-ends-the-section",
+      "folder": "bad10j-level-two-indented-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok58-level-two-tab-heading-ends-the-section",
+      "folder": "ok58-level-two-tab-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '##\\tNotes' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-two-tab-heading-ends-the-section",
+      "folder": "bad10j-level-two-tab-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok58-level-two-bare-heading-ends-the-section",
+      "folder": "ok58-level-two-bare-heading-ends-the-section",
+      "expect": [],
+      "note": "The line '##' is a section heading of g1 (level 1 or 2): it ends Known deviations, and it and the line behind it are counted. 60 lines in all."
+    },
+    {
+      "id": "bad10j-level-two-bare-heading-ends-the-section",
+      "folder": "bad10j-level-two-bare-heading-ends-the-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with one line more: 61."
+    },
+    {
+      "id": "ok59-level-three-line-stays-in-the-section",
+      "folder": "ok59-level-three-line-stays-in-the-section",
+      "expect": [],
+      "note": "The line '### Remediation' is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted."
+    },
+    {
+      "id": "ok59-four-spaces-line-stays-in-the-section",
+      "folder": "ok59-four-spaces-line-stays-in-the-section",
+      "expect": [],
+      "note": "The line '    ## Not a heading' is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted."
+    },
+    {
+      "id": "ok59-no-space-line-stays-in-the-section",
+      "folder": "ok59-no-space-line-stays-in-the-section",
+      "expect": [],
+      "note": "The line '##Notes' is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted."
+    },
+    {
+      "id": "ok59-level-three-bare-line-stays-in-the-section",
+      "folder": "ok59-level-three-bare-line-stays-in-the-section",
+      "expect": [],
+      "note": "The line '###' is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted."
+    },
+    {
+      "id": "ok59-a-sentence-line-stays-in-the-section",
+      "folder": "ok59-a-sentence-line-stays-in-the-section",
+      "expect": [],
+      "note": "The line 'A line of text.' is not a section heading of g1: it stays in Known deviations with the line behind it, and both are cut. 59 lines are counted."
+    },
+    {
+      "id": "ok60-headings-in-a-fence-do-not-end-an-excluded-section",
+      "folder": "ok60-headings-in-a-fence-do-not-end-an-excluded-section",
+      "expect": [],
+      "note": "The headings in a fence inside Known deviations end nothing: the fence, the line behind it and the empty line before Errata are cut with the section. 60 lines."
+    },
+    {
+      "id": "bad10k-headings-in-a-fence-do-not-end-an-excluded-section",
+      "folder": "bad10k-headings-in-a-fence-do-not-end-an-excluded-section",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-10"
+        }
+      ],
+      "note": "The same with 61 lines outside the sections."
+    },
+    {
+      "id": "bad09f-g1-known-deviations-heading-in-a-fence",
+      "folder": "bad09f-g1-known-deviations-heading-in-a-fence",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-18"
+        }
+      ],
+      "note": "The heading of an excluded section in a fence is not that section (it cuts nothing: the lines stay counted), and g1 refuses the record, so V-10 is not applied although the record is longer than 60 lines."
+    },
+    {
+      "id": "bad09g-g1-errata-heading-of-level-three",
+      "folder": "bad09g-g1-errata-heading-of-level-three",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-18"
+        }
+      ],
+      "note": "A heading that only looks like an excluded section (another level): g1 refuses the record, and V-10 is not applied."
+    },
+    {
+      "id": "bad09h-g1-errata-heading-lower-case",
+      "folder": "bad09h-g1-errata-heading-lower-case",
+      "expect": [
+        {
+          "file": "0002-second-decision.md",
+          "rule": "V-09",
+          "g1": "G1-18"
+        }
+      ],
+      "note": "Another spelling: g1 refuses the record, and V-10 is not applied."
     }
   ]
 }
