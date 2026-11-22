@@ -238,7 +238,7 @@ It trusts the **tag of a release, its manifest and the files at the commit of th
 
 It **never runs** what it downloads, never writes a file that is not a path of the table above, never follows a link in the working tree (a link, or a link on the way, is a `path-blocked`), never pushes a branch other than `record-keeper/update`, never merges or approves anything, never changes a setting or a ruleset, and never prints the token.
 
-**Release immutability protects the rest.** A manifest is an asset of the release it describes, so the digests protect against a download that went wrong, not against a release that was made to be wrong; the immutable release and its attestation make a swap after publication visible ([releases](releases.md#immutable-releases)), which is why they are switched on after the first real release. What stands against a bad release is the owners' approval of the pull request, which shows every changed file. An update brings new code that judges later pull requests, and that is an act that deserves to be read.
+**Release immutability protects the rest.** A manifest is an asset of the release it describes, so the digests protect against a download that went wrong, not against a release that was made to be wrong; the immutable release and its attestation make a swap after publication visible ([releases](releases.md#immutable-releases)), which is why they are switched on before the first real release. What stands against a bad release is the owners' approval of the pull request, which shows every changed file. An update brings new code that judges later pull requests, and that is an act that deserves to be read.
 
 ## What an update looks like to the check and to the owners
 
