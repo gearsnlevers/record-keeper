@@ -9,6 +9,8 @@ import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { FORMAT_RULES, run, validate } from '../record-keeper.mjs';
 
+const MAX_LINES = 60;
+
 const root = fileURLToPath(new URL('..', import.meta.url));
 const script = path.join(root, 'record-keeper.mjs');
 const fixtures = path.join(root, 'test/fixtures/validate');
@@ -80,6 +82,75 @@ describe('validate', () => {
   });
 });
 
+describe('the length that V-10 counts: the record without its Known deviations and Errata sections', () => {
+  // A seeded generator, so that the draw is the same on every run.
+  function generator(seed) {
+    let state = seed >>> 0;
+    const next = () => {
+      state = (state + 0x6d2b79f5) >>> 0;
+      let t = state;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const below = (n) => Math.floor(next() * n);
+    return { next, below, pick: (list) => list[below(list.length)] };
+  }
+  const HEAD = ['---', 'status: proposed', 'date: 2026-11-01', 'decision-makers:', '  - maintainers', '---', '', '# Title', '', '## Context and problem statement', '', 'Why.', '', '## Decision', '', '- Do.', '',
+    '## Consequences', '', '- Done.'];
+  const ALTERNATIVES = ['', '## Alternatives considered', '', '- Nothing else.'];
+  const FENCED = ['```md', '## Alternatives considered', '# Appendix', '```'];
+  const ENDS_A_SECTION = ['# Appendix', '#', '#\tAppendix', '   ## Notes', '##\tNotes', '##'];
+  const QUIET = ['text.', '', '### Deviation 1', '    ## four spaces', '##Notes', '#hashtag', '- date: 2026-11-07'];
+
+  const section = (g, name) => [`## ${name}`, '', ...Array.from({ length: g.below(3) }, (_, k) => [`### Entry ${k + 1}`, '', '- date: 2026-11-07', '- reason: A reason.', '']).flat(), ...Array.from({ length: g.below(5) }, () => g.pick(QUIET)), ...(g.below(3) === 0 ? FENCED : [])];
+
+  /** [name, text, expected] of a record of `n` lines outside its sections, and the same record with sections, as a record gets them after acceptance. */
+  function pair(g, n) {
+    const alternatives = g.below(2) === 0 ? ALTERNATIVES : [];
+    const noise = g.pick([[], [], ENDS_A_SECTION.slice(0, 1 + g.below(ENDS_A_SECTION.length)), FENCED]);
+    const room = Math.max(0, n - HEAD.length - alternatives.length);
+    const lines = [...HEAD, ...Array.from({ length: Math.max(0, room - noise.length) }, (_, i) => `- filler line ${i + 1}.`), ...noise.slice(0, room), ...alternatives];
+    const final = g.pick(['', '\n', '\n', '\n', '\n\n']);
+    const base = lines.join('\n') + final;
+    const kd = g.below(4) > 0;
+    const middle = kd && alternatives.length > 0 && g.below(2) === 0;
+    let withLines = lines;
+    if (middle) {
+      const at = lines.lastIndexOf('## Alternatives considered'); // the last one: a fence may hold a line that looks like it
+      withLines = [...lines.slice(0, at), ...section(g, 'Known deviations'), '', ...lines.slice(at)];
+    }
+    const atEnd = [kd && !middle ? section(g, 'Known deviations') : null, !kd || g.below(2) === 0 ? section(g, 'Errata') : null].filter(Boolean);
+    let text = withLines.join('\n') + final;
+    if (atEnd.length) text += (text.endsWith('\n') ? '' : '\n') + '\n' + atEnd.map((lines_) => lines_.join('\n')).join('\n\n') + g.pick(['', '\n', '\n', '\n\n']);
+    return { base, text, outside: lines.length + (final === '\n\n' ? 1 : 0) };
+  }
+
+  test('a section added to a record, or an entry added to one, never changes whether V-10 is reported: the length is the one of the record without it', () => {
+    const g = generator(10);
+    const folder = path.join(scratch, 'length-pairs');
+    fs.mkdirSync(folder);
+    fs.writeFileSync(path.join(folder, 'README.md'), '# Decision records\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n');
+    fs.writeFileSync(path.join(folder, 'template.md'), '# Template\n');
+    const expected = new Map();
+    for (let i = 0; i < 300; i++) {
+      const n = g.pick([58, 59, 60, 60, 60, 61, 61, 62, 40 + g.below(41)]);
+      const { base, text, outside } = pair(g, n);
+      const eol = g.below(4) === 0 ? '\r\n' : '\n';
+      const names = [`${String(2 * i + 1).padStart(4, '0')}-base.md`, `${String(2 * i + 2).padStart(4, '0')}-with.md`];
+      fs.writeFileSync(path.join(folder, names[0]), base.replaceAll('\n', eol));
+      fs.writeFileSync(path.join(folder, names[1]), text.replaceAll('\n', eol));
+      for (const name of names) expected.set(name, outside > MAX_LINES);
+    }
+    const problems = validate(folder);
+    assert.deepEqual(problems.filter((p) => p.rule === 'V-09'), [], 'the generated records are all accepted by g1');
+    const reported = new Set(problems.filter((p) => p.rule === 'V-10').map((p) => p.file));
+    const wrong = [...expected].filter(([name, over]) => reported.has(name) !== over).map(([name]) => name);
+    assert.deepEqual(wrong, []);
+    assert.ok([...expected.values()].filter(Boolean).length > 60 && [...expected.values()].filter((over) => !over).length > 60, 'the draw has records on both sides of the cap');
+  });
+});
+
 describe('the validate command', () => {
   const caseNamed = (id) => cases.find((c) => c.id === id);
 
@@ -98,6 +169,18 @@ describe('the validate command', () => {
       `${path.join(folder, '0003-third-decision.md')}: [V-19] ${FORMAT_RULES['V-19']}`,
       `${folder}: 2 problems`,
     ].join('\n') + '\n');
+  });
+
+  test('exits 0 for a record of exactly 60 lines with a Known deviations and an Errata section, and 1 for one of 61, and says what V-10 does not count', () => {
+    const folder = materialize(caseNamed('ok50-sixty-lines-and-both-sections'));
+    assert.ok(fs.readFileSync(path.join(folder, '0002-second-decision.md'), 'utf8').split('\n').length > 70, 'the record is long with its sections');
+    assert.deepEqual(run(['validate', folder]), { code: 0, stdout: `${folder}: 0 problems\n`, stderr: '' });
+    const longer = materialize(caseNamed('bad10e-sixty-one-lines-and-both-sections'));
+    assert.deepEqual(run(['validate', longer]), {
+      code: 1,
+      stdout: '',
+      stderr: `${path.join(longer, '0002-second-decision.md')}: [V-10] is longer than 60 lines, not counting its Known deviations and Errata sections\n${longer}: 1 problem\n`,
+    });
   });
 
   test('writes "1 problem" in the singular, and names the folder for a problem of the folder itself', () => {

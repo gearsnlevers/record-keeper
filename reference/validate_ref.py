@@ -11,6 +11,8 @@ REQUIRED_KEYS = ['status', 'date', 'decision-makers']
 SECTIONS = ['Context and problem statement', 'Decision', 'Consequences', 'Known deviations', 'Alternatives considered', 'Errata']
 REQUIRED_SECTIONS = SECTIONS[:3]
 MAX_LINES = 60
+EXCLUDED_HEADINGS = ('## Known deviations', '## Errata')
+SECTION_HEADING = re.compile(r'^ {0,3}#{1,2}(?:[ \t]|$)')   # g1: a heading of level 1 or 2 ends a section
 RECORD_FILE = re.compile(r'^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$')
 SECRET = re.compile(r'(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})')
 EMAIL = re.compile(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}')
@@ -42,6 +44,20 @@ def fenced_flags(lines):
             m = re.match(r'^(`+)$', l)
             if m and len(m.group(1)) >= need: need = 0
     return flags
+
+
+def length_as_accepted(lines, end):
+    """The lines V-10 counts: the record without its excluded sections (docs/record-format.md), not counting the empty line after a final
+    line feed of what is left. A section runs from its heading line, not in a fence, to the line before the next section heading, or to the end."""
+    body = lines[end + 1:]
+    fl = fenced_flags(body)
+    heads = [i for i, l in enumerate(body) if not fl[i] and SECTION_HEADING.match(l)]
+    cut = set()
+    for k, i in enumerate(heads):
+        if body[i] in EXCLUDED_HEADINGS:
+            cut.update(range(i, heads[k + 1] if k + 1 < len(heads) else len(body)))
+    kept = lines[:end + 1] + [l for i, l in enumerate(body) if i not in cut]
+    return len(kept) - (1 if kept[-1] == '' else 0)
 
 
 def validate(d, extra_keys=(), shared_folder='shared'):
@@ -82,7 +98,7 @@ def validate(d, extra_keys=(), shared_folder='shared'):
         except g1.Reject as e:
             add(n, 'V-09', e.rule); info[n] = (None, None); continue
         text = '\n'.join(lines)
-        if len(lines) - (1 if lines[-1] == '' else 0) > MAX_LINES: add(n, 'V-10')
+        if length_as_accepted(lines, end) > MAX_LINES: add(n, 'V-10')
         if SECRET.search(text): add(n, 'V-11')
         if EMAIL.search(text): add(n, 'V-12')
         # front matter

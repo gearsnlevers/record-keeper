@@ -30,6 +30,22 @@ function fencedLines(lines) {
   return flags;
 }
 
+// V-10 counts the record without its excluded sections (docs/record-format.md). The record is cut into pieces at every section heading (a line of
+// level 1 or 2 that is not in a fence): the front matter with what follows it up to the first heading, then each heading with the lines up to
+// the next one. The pieces that open with an excluded heading are dropped, the rest is joined again and counted, without the empty line after a
+// final line feed.
+function lengthAsAccepted(lines, end) {
+  const body = lines.slice(end + 1);
+  const fenced = fencedLines(body);
+  const pieces = [{ opens: null, lines: lines.slice(0, end + 1) }];
+  body.forEach((line, i) => {
+    if (!fenced[i] && /^ {0,3}#{1,2}([ \t]|$)/.test(line)) pieces.push({ opens: line, lines: [] });
+    pieces.at(-1).lines.push(line);
+  });
+  const kept = pieces.filter((piece) => !['## Known deviations', '## Errata'].includes(piece.opens)).flatMap((piece) => piece.lines);
+  return kept.length - (kept.at(-1) === '' ? 1 : 0);
+}
+
 function realDate(text) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
   if (!m) return false;
@@ -83,8 +99,7 @@ export function validate(dir, { extraKeys = [], sharedFolder = 'shared' } = {}) 
     }
     const { lines, end } = parsed;
     const text = lines.join('\n');
-    const count = lines.length - (lines.at(-1) === '' ? 1 : 0);
-    if (count > 60) report(name, 'V-10');
+    if (lengthAsAccepted(lines, end) > 60) report(name, 'V-10');
     if (CREDENTIAL.test(text)) report(name, 'V-11');
     if (EMAIL.test(text)) report(name, 'V-12');
 
