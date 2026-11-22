@@ -12,6 +12,9 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import update_ref as ref
+import agent_ref
+sys.path.insert(0, os.path.dirname(__file__))
+import agent_fuzz
 
 COMMITS = ['a1' * 20, 'b2' * 20, 'c3' * 32, 'd4' * 20]
 TAGS = ['v1.0.0-1', 'v1.0.0-2', 'v1.0.0', 'v1.0.1', 'v1.1.0-rc.1', 'v1.1.0-rc.2', 'v1.1.0', 'v1.2.0', 'v2.0.0-1', 'v2.0.0', 'v10.0.0', 'v1.0.0-alpha', 'v1.0.0-alpha.1', 'v1.0.0-beta']
@@ -19,9 +22,11 @@ ODD_TAGS = ['nightly', 'v1.0', '1.0.0', 'v01.0.0', 'v1.0.0+build', 'v1.0.0-', 'l
 PROGRAMS = ['.github/record-keeper/record-keeper.mjs', '.github/record-keeper/check-pull-request.mjs', '.github/record-keeper/run-audit.mjs', '.github/record-keeper/updater.mjs',
             '.github/record-keeper/setup-check.mjs', '.github/record-keeper/x-1.mjs']
 WORKFLOWS = ['.github/workflows/records-integrity.yml', '.github/workflows/records-audit.yml', '.github/workflows/records-updater.yml', '.github/workflows/records-setup-check.yml']
-MANAGED = PROGRAMS + WORKFLOWS
+SKILL = '.claude/skills/record-a-decision/SKILL.md'
+AGENTS = 'AGENTS.md'
+MANAGED = PROGRAMS + WORKFLOWS + [SKILL]
 TEMPLATES = ref.TEMPLATES
-HOSTILE_PATHS = ['../x', '/etc/passwd', '.github/record-keeper/../../x.mjs', '.github/record-keeper/Record-Keeper.mjs', '.github/record-keeper/a.mjs/b', '.github/record-keeper/settings.yml',
+HOSTILE_PATHS = ['AGENTS.md', 'CLAUDE.md', '.claude/settings.json', '.claude/skills/other/SKILL.md', '.claude/skills/record-a-decision/other.md', '.claude/skills/record-a-decision/skill.md', 'docs/AGENTS.md', 'agents.md', '../x', '/etc/passwd', '.github/record-keeper/../../x.mjs', '.github/record-keeper/Record-Keeper.mjs', '.github/record-keeper/a.mjs/b', '.github/record-keeper/settings.yml',
                  '.github/workflows/other.yml', '.github/workflows/records-.yml', 'docs/decisions/0001-x.md', 'docs/decisions/README.md', '.github/record-keeper/x y.mjs', '',
                  '.github/record-keeper/a--b.mjs', '.github/record-keeper/1a.mjs', '.github\\record-keeper\\a.mjs', '.git/config', '.github/workflows/records-a.yaml', None, 7, ['a']]
 HOSTILE_SOURCES = ['../x', '/abs', 'a//b', 'a/./b', 'a/ b', 'a/b.', 'a/.GIT/x', 'a\\b', 'a:b', '', 'café.mjs', 'a\tb', None, 9]
@@ -30,6 +35,12 @@ RUNNING = ['22.0.0', '22.6.0', '22.6.1', '24.13.0', '26.5.0', '20.19.5', '21.9.9
 SOURCES = ['gearsnlevers/record-keeper', 'o/k', 'a.b/c-d_e', '../x', 'a/..', 'a/b/c', 'x', '', 'o/k ']
 SHAS = [hashlib.sha256(('content %d' % i).encode()).hexdigest() for i in range(12)]
 BAD_HEX = ['', 'abc', 'A' * 64, 'g' * 64, SHAS[0][:63], SHAS[0] + '0', 5, None]
+
+
+# The texts of the block that a release may have: right ones, and one that is not a block (its digest is the one the manifest names, so the plan reaches the splice).
+BLOCK_TEXTS = [agent_ref.BEGIN + b'\n' + body + b'\n' + agent_ref.END for body in (b'rule one', b'rule one\nrule two', b'## Records\n- a rule', b'', b'caf\xc3\xa9')] + [
+    agent_ref.BEGIN + b'\r\nwith CRLF\r\n' + agent_ref.END, b'no markers in this one', agent_ref.BEGIN + b'\n```\nopen fence\n' + agent_ref.END]
+BLOCK_BY_SHA = {hashlib.sha256(text).hexdigest(): text for text in BLOCK_TEXTS}
 
 
 def pick(r, items):
@@ -42,6 +53,10 @@ def chance(r, p):
 
 def source_of(path):
     """Where a destination is kept in the kit: the part of the name that tells it apart."""
+    if path == SKILL:
+        return 'templates/skills/record-a-decision/SKILL.md'
+    if path == 'CLAUDE.md':
+        return 'templates/CLAUDE.md'
     return {'.github/record-keeper/': '', '.github/workflows/': 'templates/workflows/', 'docs/decisions/': 'templates/decisions/'}.get(next((p for p in ['.github/record-keeper/', '.github/workflows/', 'docs/decisions/'] if path.startswith(p)), ''), '') + path.split('/')[-1]
 
 
@@ -51,6 +66,9 @@ def make_files(r, count_managed, count_templates):
         files.append({'kind': 'managed', 'path': path, 'sha256': pick(r, SHAS), 'size': r.randrange(0, 5000), 'source': source_of(path)})
     for path in r.sample(TEMPLATES, count_templates):
         files.append({'kind': 'template', 'path': path, 'sha256': pick(r, SHAS), 'size': r.randrange(0, 5000), 'source': source_of(path) if path != TEMPLATES[0] else 'templates/settings.yml'})
+    if chance(r, 0.45):
+        text = pick(r, BLOCK_TEXTS)
+        files.append({'kind': 'block', 'path': AGENTS, 'sha256': hashlib.sha256(text).hexdigest(), 'size': len(text), 'source': 'templates/agents-block.md'})
     r.shuffle(files)
     return files
 
@@ -110,6 +128,10 @@ def damage(r, m):
     for value in HOSTILE_PATHS:
         add('path', lambda m, value=value: pick(r, m['files']).__setitem__('path', value))
     add('template as managed', lambda m: pick(r, m['files']).update(kind='managed', path=pick(r, TEMPLATES)))
+    add('block at another path', lambda m: pick(r, m['files']).update(kind='block', path=pick(r, MANAGED + TEMPLATES + ['docs/decisions/x.md', 'CLAUDE.md'])))
+    add('block as managed', lambda m: pick(r, m['files']).update(kind='managed', path=AGENTS))
+    add('block as template', lambda m: pick(r, m['files']).update(kind='template', path=AGENTS))
+    add('claude as block', lambda m: pick(r, m['files']).update(kind='block', path='CLAUDE.md'))
     add('managed as template', lambda m: pick(r, m['files']).update(kind='template', path=pick(r, MANAGED)))
     for value in HOSTILE_SOURCES:
         add('source', lambda m, value=value: pick(r, m['files']).__setitem__('source', value))
@@ -149,6 +171,21 @@ def text_of(r, manifest):
         # a key written twice: the second wins in both readers
         return text.replace('"schema": 1', '"schema": 2, "schema": 1', 1) if '"schema": 1' in text else text
     return text
+
+
+def agents_state(r, block_texts):
+    """What AGENTS.md is in the working tree: nothing, a file made of random surroundings and, now and then, a block of one of the releases, or something that is not a file."""
+    roll = r.random()
+    if roll < 0.18:
+        return None
+    if roll < 0.28:
+        return {'kind': pick(r, ['dir', 'link', 'other', 'blocked', 'large'])}
+    data = agent_fuzz.make_file(r)
+    if block_texts and chance(r, 0.5):
+        found = agent_ref.read_block(data)
+        text = pick(r, block_texts)
+        data = data[:found['start']] + text + data[found['end']:] if found['state'] == 'one' else (data + b'\n' + text + b'\n' if found['state'] == 'none' else data)
+    return {'kind': 'file', 'sha256': hashlib.sha256(data).hexdigest(), 'hex': data.hex()}
 
 
 def releases_of(r, pin_tag, clean=False):
@@ -310,6 +347,17 @@ def scenario(r, hits):
         elif roll < 0.10:
             got = pick(r, [None, 5, 'x', []])
         inp['downloaded'][entry['source']] = got
+    # the text of the block of each entry of that kind: the one the manifest names, mostly; another one now and then; and none
+    inp['blocks'] = {}
+    for entry in files:
+        if isinstance(entry, dict) and entry.get('kind') == 'block' and isinstance(entry.get('source'), str):
+            text = BLOCK_BY_SHA.get(entry.get('sha256'))
+            roll = r.random()
+            if text is None or roll < 0.04:
+                text = pick(r, BLOCK_TEXTS)
+            if roll > 0.95:
+                continue
+            inp['blocks'][entry['source']] = {'hex': text.hex()}
     # the working tree
     paths = set(e.get('path') for e in files if isinstance(e, dict) and isinstance(e.get('path'), str))
     if previous is not None:
@@ -327,7 +375,13 @@ def scenario(r, hits):
         except (ValueError, KeyError, TypeError, UnicodeDecodeError):
             pass
     new_digest = {e['path']: e.get('sha256') for e in files if isinstance(e, dict) and isinstance(e.get('path'), str)}
+    block_texts = [BLOCK_BY_SHA[d] for d in [old_digest.get(AGENTS), new_digest.get(AGENTS)] if d in BLOCK_BY_SHA]
     for path in paths:
+        if path == AGENTS:
+            state = agents_state(r, block_texts)
+            if state is not None:
+                inp['tree'][path] = state
+            continue
         roll = r.random()
         if roll < 0.28:
             continue
@@ -365,7 +419,16 @@ def count_hits(hits, expect, inp):
             if len(expect[key]) >= size:
                 hit('plan has %d or more in %s' % (size, key))
         for w in expect['warnings']:
-            hit('warning ' + w['code'] + (' ' + w['detail'] if w['code'] == 'previous-unusable' else ''))
+            hit('warning ' + w['code'] + (' ' + w['detail'] if w['code'] in ('previous-unusable', 'block-refused') else ''))
+        block = expect['block']
+        if block is None:
+            hit('plan with no block')
+        else:
+            hit('plan block ' + block['action'])
+            if block['action'] == 'refused':
+                hit('plan block refused ' + block['why'])
+            if block['action'] == 'replace':
+                hit('plan block replace ' + ('overwritten' if block['path'] in expect['overwritten'] else 'kept'))
         hit('plan ' + ('first adoption' if expect['from'] is None else 'repair' if expect['from'] == expect['to'] else 'update'))
         hit('plan channel ' + expect['channel'])
         if not expect['warnings'] and expect['from'] is not None:

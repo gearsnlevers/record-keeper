@@ -10,7 +10,7 @@ import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { buildManifest, canonical } from '../tools/build-release-manifest.mjs';
-import { BRANCH, PIN_PATH, runCli } from '../updater.mjs';
+import { BLOCK_BEGIN, BLOCK_END, BRANCH, PIN_PATH, SKILL_PATH, runCli } from '../updater.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const program = path.join(root, 'updater.mjs');
@@ -65,7 +65,7 @@ const TOKEN = 'ghp_RecordKeeperTestToken0123456789abcdef';
 
 // ---- the server that plays GitHub ---------------------------------------------------------------------------------------------------------
 
-const TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md'];
+const TEMPLATES = ['.github/record-keeper/settings.yml', 'docs/decisions/README.md', 'docs/decisions/template.md', 'CLAUDE.md'];
 const REQUIRES = { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: ['RECORD_KEEPER_TOKEN'], settings: ['owners'] };
 
 /** The state of the server: releases with the files at their commits, the pull requests of the consumer, and a log of every request. */
@@ -172,7 +172,7 @@ function route(state, entry, pageSize, origin) {
 
 /** Publishes a release: the files at its commit, the manifest as an asset, and the tag. `files` maps a destination to its content. */
 function release(state, tag, files, { prerelease = tag.includes('-'), draft = false, body = `Notes of ${tag}.`, node = '>=22', commit = commitOf(tag), annotated = false, requires = REQUIRES, mutate } = {}) {
-  const entries = Object.entries(files).map(([destination, content]) => ({ kind: TEMPLATES.includes(destination) ? 'template' : 'managed', path: destination, sha256: sha(content), size: Buffer.byteLength(content), source: `kit/${destination}` }));
+  const entries = Object.entries(files).map(([destination, content]) => ({ kind: destination === 'AGENTS.md' ? 'block' : TEMPLATES.includes(destination) ? 'template' : 'managed', path: destination, sha256: sha(content), size: Buffer.byteLength(content), source: `kit/${destination}` }));
   const manifest = { commit, files: entries, generations: ['g1'], node, requires, schema: 1, tag, version: tag.slice(1) };
   if (mutate) mutate(manifest);
   const record = { tag, draft, prerelease, body, commit, manifest: canonical(manifest), assetId: (state.nextAsset += 1), served: new Map(Object.entries(files).map(([destination, content]) => [`kit/${destination}`, Buffer.from(content)])) };
@@ -1408,7 +1408,11 @@ describe('the first adoption, with --local', () => {
     assert.ok(fs.readFileSync(path.join(work, 'docs/decisions/README.md')).equals(fs.readFileSync(path.join(root, 'templates/decisions/README.md'))));
     assert.ok(fs.readFileSync(path.join(work, 'docs/decisions/template.md')).equals(fs.readFileSync(path.join(root, 'templates/decisions/template.md'))));
     assert.equal(fs.readFileSync(path.join(work, PIN_PATH), 'utf8'), pinOf('v1.0.0', commitOf('v1.0.0')));
-    assert.match(ran.stdout, new RegExp(`^update \\(nothing installed\\) to v1\\.0\\.0 \\(stable\\)\\n(?:  [^\\n]+\\n)+${managed.length} files to add, 0 to change, 0 to remove, 2 templates to install, 0 local changes overwritten\\nwrote ${managed.length + 2} files, removed 0 and wrote the pin \\.github/record-keeper\\.yml\\n$`));
+    assert.match(ran.stdout, new RegExp(`^update \\(nothing installed\\) to v1\\.0\\.0 \\(stable\\)\\n(?:  [^\\n]+\\n)+${managed.length} files to add, 0 to change, 0 to remove, 3 templates to install, 0 local changes overwritten, the block of AGENTS\\.md to create\\nwrote ${managed.length + 4} files, removed 0 and wrote the pin \\.github/record-keeper\\.yml\\n$`));
+    // the files that agents read: the skill is the kit's, AGENTS.md is the block and a line feed, CLAUDE.md is the one line
+    assert.ok(fs.readFileSync(path.join(work, SKILL_PATH)).equals(fs.readFileSync(path.join(root, 'templates/skills/record-a-decision/SKILL.md'))));
+    assert.equal(fs.readFileSync(path.join(work, 'AGENTS.md'), 'utf8'), `${fs.readFileSync(path.join(root, 'templates/agents-block.md'), 'utf8')}\n`);
+    assert.equal(fs.readFileSync(path.join(work, 'CLAUDE.md'), 'utf8'), '@AGENTS.md\n');
     assert.deepEqual(fs.readdirSync(path.join(work, '.github')).sort(), ['record-keeper', 'record-keeper.yml', 'workflows']);
     assert.deepEqual(fs.readdirSync(path.join(work, '.github/record-keeper')).filter((name) => name.includes('updating')), [], 'no temporary file is left');
     assert.ok(!fs.existsSync(path.join(work, 'record-keeper.mjs')), 'nothing at the root');
@@ -1566,5 +1570,207 @@ describe('the program as a file', () => {
     const entry = install.files.find((file) => file.source === 'updater.mjs');
     assert.deepEqual(entry, { source: 'updater.mjs', path: '.github/record-keeper/updater.mjs', kind: 'managed' });
     assert.equal(sha(fs.readFileSync(program)), sha(fs.readFileSync(path.join(root, entry.source))));
+  });
+});
+
+// ---- the files that agents read (docs/agent-files.md): the block of AGENTS.md, the skill and CLAUDE.md -------------------------------------------------------
+
+const BLOCK_1 = `${BLOCK_BEGIN}\nrule one\n${BLOCK_END}`;
+const BLOCK_2 = `${BLOCK_BEGIN}\nrule one\nrule two\n${BLOCK_END}`;
+const SKILL_2 = '---\nname: record-a-decision\n---\nthe skill, 2\n';
+const WITH_BLOCK_1 = { ...V1, 'AGENTS.md': BLOCK_1 };
+const WITH_AGENTS_2 = { ...V2, [SKILL_PATH]: SKILL_2, 'AGENTS.md': BLOCK_2, 'CLAUDE.md': '@AGENTS.md\n' };
+/** The exact bytes of a file at a ref (`git()` trims its output). */
+const bytesAt = (bare, ref, relative) => {
+  const result = spawnSync('git', ['show', `${ref}:${relative}`], { cwd: bare, env: { ...GIT_ENV, ...IDENTITY } });
+  assert.equal(result.status, 0, result.stderr.toString());
+  return result.stdout;
+};
+/** A world whose pinned release v1.0.0 has a block, and whose next release v1.1.0 has the block of the agents, the skill and CLAUDE.md. */
+async function agentsWorld() {
+  const state = await github();
+  release(state, 'v1.0.0', WITH_BLOCK_1);
+  release(state, 'v1.1.0', WITH_AGENTS_2);
+  return state;
+}
+/** A repository that has adopted v1.0.0, with the files `extra` at its root. */
+const adoptedWith = (extra, installed = WITH_BLOCK_1) => adopted({ installed: Object.fromEntries(Object.entries(installed).filter(([name]) => name !== 'AGENTS.md')), extra });
+
+describe('the files that agents read, in an update', () => {
+  test('replaces the text between the markers and not a byte of the rest of the file, and the block that the pinned release installed is no local change', async () => {
+    const state = await agentsWorld();
+    const original = Buffer.from(`# Ours\r\ncafé ☃  \r\n\r\n${BLOCK_1}\r\n\ttrailing \r\n  last line, no end of line`);
+    const { bare, work } = await adoptedWith({ 'AGENTS.md': original });
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  replace the block of AGENTS\.md\n/);
+    assert.match(got.stdout, /, the block of AGENTS\.md to replace\n/);
+    const after = bytesAt(bare, `refs/heads/${BRANCH}`, 'AGENTS.md');
+    assert.deepEqual(after, Buffer.from(`# Ours\r\ncafé ☃  \r\n\r\n${BLOCK_2}\r\n\ttrailing \r\n  last line, no end of line`));
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, SKILL_PATH).toString(), SKILL_2);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, 'CLAUDE.md').toString(), '@AGENTS.md\n', 'CLAUDE.md was missing and the release brings it');
+    const [pull] = state.pulls;
+    assert.ok(pull.body.includes('**Block**\n\n- the Record Keeper block in AGENTS.md is replaced, and nothing outside the two markers changes'));
+    assert.ok(!pull.body.includes('Local changes this update overwrites'), 'the block of the pinned release is not a local change');
+    assert.ok(pull.body.includes('- `.claude/skills/record-a-decision/SKILL.md`'));
+    assert.ok(pull.body.includes('- `CLAUDE.md`'));
+    assert.equal(statusOf(work), '');
+  });
+
+  test('a block that someone edited is replaced, and the pull request lists it as a local change', async () => {
+    const state = await agentsWorld();
+    const { bare, work } = await adoptedWith({ 'AGENTS.md': `top\n${BLOCK_BEGIN}\nmy own rule\n${BLOCK_END}\nbottom\n` });
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  local change overwritten AGENTS\.md\n/);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, 'AGENTS.md').toString(), `top\n${BLOCK_2}\nbottom\n`);
+    assert.ok(state.pulls[0].body.includes('## Local changes this update overwrites'));
+    assert.ok(state.pulls[0].body.includes('- `AGENTS.md` (the text between the two markers)'));
+  });
+
+  test('a file with no markers gets the block at its end, an existing CLAUDE.md is not touched, and nothing else of AGENTS.md changes', async () => {
+    const state = await github();
+    release(state, 'v1.0.0', V1);
+    release(state, 'v1.1.0', WITH_AGENTS_2);
+    const { bare, work } = await adopted({ extra: { 'AGENTS.md': '# Ours\n\nText.\n', 'CLAUDE.md': 'my own notes\n' } });
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  append the block of AGENTS\.md\n/);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, 'AGENTS.md').toString(), `# Ours\n\nText.\n\n${BLOCK_2}\n`);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, 'CLAUDE.md').toString(), 'my own notes\n');
+    assert.ok(state.pulls[0].body.includes('- the Record Keeper block is added at the end of AGENTS.md, and nothing else in the file changes'));
+    assert.ok(!state.pulls[0].body.includes('- `CLAUDE.md`'));
+  });
+
+  test('broken markers do not stop the update: the block is not written, the output and the pull request say so, and the file stays as it was', async () => {
+    const state = await agentsWorld();
+    const broken = `# Ours\n${BLOCK_BEGIN}\nrule one\n`;
+    const { bare, work } = await adoptedWith({ 'AGENTS.md': broken });
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /^warning: the block in AGENTS\.md was not written: a begin marker has no end marker$/m);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, 'AGENTS.md').toString(), broken);
+    assert.equal(bytesAt(bare, `refs/heads/${BRANCH}`, SKILL_PATH).toString(), SKILL_2, 'the rest of the update is written');
+    const [pull] = state.pulls;
+    assert.ok(pull.body.includes('## Warnings'));
+    assert.ok(pull.body.includes('**Problem: the block in AGENTS.md was not written** (a begin marker has no end marker).'));
+    assert.ok(!pull.body.includes('**Block**'));
+    assert.equal(statusOf(work), '');
+  });
+
+  test('keeps the mode that the file has, so that the update does not change it', async () => {
+    const state = await agentsWorld();
+    const { dev, bare, work } = await adoptedWith({ 'AGENTS.md': `top\n${BLOCK_1}\n` });
+    git(dev, 'update-index', '--chmod=+x', 'AGENTS.md');
+    gitWith(dev, { GIT_AUTHOR_DATE: BASE_DATE, GIT_COMMITTER_DATE: BASE_DATE }, 'commit', '-q', '-m', 'Make it executable');
+    git(dev, 'push', '-q', bare, 'main');
+    git(work, 'pull', '-q');
+    assert.equal(fs.statSync(path.join(work, 'AGENTS.md')).mode & 0o111, 0o111);
+    const got = await call([], state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(git(bare, 'ls-tree', `refs/heads/${BRANCH}`, 'AGENTS.md'), /^100755 /);
+    assert.doesNotMatch(git(bare, 'diff', '--summary', 'main', BRANCH), /mode change/);
+  });
+
+  test('a dry run says what it would do with the block and writes nothing, and a block that is current is no update', async () => {
+    const state = await agentsWorld();
+    const { work } = await adoptedWith({ 'AGENTS.md': `top\n${BLOCK_1}\n` });
+    const dry = await call(['--dry-run'], state, work, { token: null });
+    assert.equal(dry.code, 0, dry.stderr);
+    assert.match(dry.stdout, /  replace the block of AGENTS\.md\n/);
+    assert.equal(fs.readFileSync(path.join(work, 'AGENTS.md'), 'utf8'), `top\n${BLOCK_1}\n`);
+    assert.equal(writes(state).length, 0);
+    // the whole release by hand into the working tree, and then nothing differs: the block is current and the run says so
+    const local = await call(['--local'], state, work, { token: null });
+    assert.equal(local.code, 0, local.stderr);
+    assert.equal(fs.readFileSync(path.join(work, 'AGENTS.md'), 'utf8'), `top\n${BLOCK_2}\n`);
+    git(work, 'add', '-A');
+    gitWith(work, { GIT_AUTHOR_DATE: BASE_DATE, GIT_COMMITTER_DATE: BASE_DATE }, 'commit', '-q', '-m', 'Update');
+    const again = await call(['--dry-run', '--target', 'v1.1.0'], state, work, { token: null });
+    assert.equal(again.stdout, 'unchanged: v1.1.0 is installed and nothing differs\ndry run: nothing was written\n');
+  });
+});
+
+describe('the files that agents read, at the first adoption by hand', () => {
+  /** A repository that has the owners and nothing of the kit, and a server with the release v1.1.0 (the files of the agents among them). */
+  async function bare(files = {}) {
+    const state = await github();
+    release(state, 'v1.1.0', WITH_AGENTS_2);
+    const work = folder('adopt');
+    git(work, 'init', '-q', '-b', 'main');
+    write(work, 'README.md', '# A repository\n');
+    for (const [relative, content] of Object.entries(files)) write(work, relative, content);
+    return { state, work };
+  }
+  const adopt = (state, work) => call(['--local', '--source', 'gearsnlevers/record-keeper', '--target', 'v1.1.0'], state, work, { token: null });
+
+  test('no AGENTS.md and no CLAUDE.md: the block is the whole of the new file, and CLAUDE.md is the one line', async () => {
+    const { state, work } = await bare();
+    const got = await adopt(state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  create the block of AGENTS\.md\n/);
+    assert.equal(fs.readFileSync(path.join(work, 'AGENTS.md'), 'utf8'), `${BLOCK_2}\n`);
+    assert.equal(fs.readFileSync(path.join(work, 'CLAUDE.md'), 'utf8'), '@AGENTS.md\n');
+    assert.equal(fs.readFileSync(path.join(work, SKILL_PATH), 'utf8'), SKILL_2);
+    assert.deepEqual(fs.readdirSync(work).filter((name) => name.includes('updating')), [], 'no temporary file is left');
+  });
+
+  test('an AGENTS.md with other content and a CLAUDE.md of the repository: the block is added after one blank line, CLAUDE.md is not touched, not even rewritten', async () => {
+    const mine = Buffer.from('# Our agents\r\n\r\nUse tabs.\t\r\nnaïve ☃\r\n');
+    const { state, work } = await bare({ 'AGENTS.md': mine, 'CLAUDE.md': 'ours, and not the line of the kit\n' });
+    const claude = fs.statSync(path.join(work, 'CLAUDE.md'));
+    const got = await adopt(state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  append the block of AGENTS\.md\n/);
+    assert.deepEqual(fs.readFileSync(path.join(work, 'AGENTS.md')), Buffer.concat([mine, Buffer.from(`\n${BLOCK_2}\n`)]));
+    assert.equal(fs.readFileSync(path.join(work, 'CLAUDE.md'), 'utf8'), 'ours, and not the line of the kit\n');
+    assert.equal(fs.statSync(path.join(work, 'CLAUDE.md')).ino, claude.ino, 'the file was not replaced');
+    assert.ok(!got.stdout.includes('CLAUDE.md'), 'a template that exists is not even listed');
+  });
+
+  test('an AGENTS.md with a broken marker: not a byte of it changes, the output says why, and the rest of the adoption is written', async () => {
+    const broken = Buffer.from(`# Our agents\n\n${BLOCK_BEGIN}\nrule one\n\n${BLOCK_BEGIN}\nrule two\n${BLOCK_END}\n`);
+    const { state, work } = await bare({ 'AGENTS.md': broken });
+    const got = await adopt(state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /^warning: the block in AGENTS\.md was not written: there is more than one begin marker or more than one end marker$/m);
+    assert.deepEqual(fs.readFileSync(path.join(work, 'AGENTS.md')), broken);
+    assert.equal(fs.readFileSync(path.join(work, SKILL_PATH), 'utf8'), SKILL_2);
+    assert.equal(fs.readFileSync(path.join(work, PIN_PATH), 'utf8'), pinOf('v1.1.0', commitOf('v1.1.0')));
+    assert.doesNotMatch(got.stdout, /the block of AGENTS\.md to /);
+  });
+
+  test('a link at AGENTS.md is not followed and is not replaced, and a file larger than 1 MiB is not read', async () => {
+    const linked = await bare();
+    fs.writeFileSync(path.join(linked.work, 'notes.md'), 'notes\n');
+    fs.symlinkSync('notes.md', path.join(linked.work, 'AGENTS.md'));
+    const first = await adopt(linked.state, linked.work);
+    assert.equal(first.code, 0, first.stderr);
+    assert.match(first.stdout, /^warning: the block in AGENTS\.md was not written: AGENTS\.md is not a regular file$/m);
+    assert.equal(fs.lstatSync(path.join(linked.work, 'AGENTS.md')).isSymbolicLink(), true);
+    assert.equal(fs.readFileSync(path.join(linked.work, 'notes.md'), 'utf8'), 'notes\n');
+    const large = await bare({ 'AGENTS.md': Buffer.alloc(1024 * 1024 + 1, 0x61) });
+    const second = await adopt(large.state, large.work);
+    assert.equal(second.code, 0, second.stderr);
+    assert.match(second.stdout, /^warning: the block in AGENTS\.md was not written: AGENTS\.md is larger than the updater reads \(1 MiB\)$/m);
+    assert.equal(fs.statSync(path.join(large.work, 'AGENTS.md')).size, 1024 * 1024 + 1);
+  });
+
+  test('a file of exactly 1 MiB is read: the limit is for what is larger', async () => {
+    const mine = Buffer.concat([Buffer.from(`top\n${BLOCK_1}\n`), Buffer.alloc(1024 * 1024 - Buffer.byteLength(`top\n${BLOCK_1}\n`), 0x61)]);
+    assert.equal(mine.length, 1024 * 1024);
+    const { state, work } = await bare({ 'AGENTS.md': mine });
+    const got = await adopt(state, work);
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /  replace the block of AGENTS\.md\n/);
+    assert.deepEqual(fs.readFileSync(path.join(work, 'AGENTS.md')), Buffer.concat([Buffer.from(`top\n${BLOCK_2}\n`), mine.subarray(Buffer.byteLength(`top\n${BLOCK_1}\n`))]));
+  });
+
+  test('a file in the way of the skill is a refusal that writes nothing, and the file AGENTS.md is not written either', async () => {
+    const { state, work } = await bare({ '.claude/skills/record-a-decision/SKILL.md/x': 'x\n' });
+    const got = await adopt(state, work);
+    assert.equal(got.code, 1);
+    assert.match(got.stderr, /^updater: refused: something other than a file is in the way of \.claude\/skills\/record-a-decision\/SKILL\.md\n$/);
+    assert.ok(!fs.existsSync(path.join(work, 'AGENTS.md')));
   });
 });

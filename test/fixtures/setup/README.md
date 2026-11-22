@@ -21,8 +21,8 @@ The input:
 | `settings` | `{ state: "absent" }`, `{ state: "unreadable" }` or `{ state: "read", problems: [{ rule, line }], owners: [{ login, id }], approvals }`. |
 | `codeowners` | `{ state: "absent" }`, `{ state: "unreadable", path }` or `{ state: "read", path, text }`: the place of the file that was found, and its text. |
 | `pin` | `{ state: "absent" }`, `{ state: "refused", code }` or `{ state: "read", source, version, commit, channel }`. |
-| `release` | The manifest of the pinned release: `{ state: "not-checked", why }`, `{ state: "unlisted" }`, `{ state: "no-asset" }`, `{ state: "refused", code }` or `{ state: "read", secrets, upToDate, files: [{ path, sha256, size }] }` (`upToDate` is `null` when the release does not say). |
-| `tree` | What the working tree holds at each managed path of the manifest: `{ kind: "absent" }`, `{ kind: "other" }` or `{ kind: "file", sha256, size }`. A path that is not there is absent. |
+| `release` | The manifest of the pinned release: `{ state: "not-checked", why }`, `{ state: "unlisted" }`, `{ state: "no-asset" }`, `{ state: "refused", code }` or `{ state: "read", secrets, upToDate, files: [{ path, sha256, size }], blocks: [{ path, sha256, size }] }` (`upToDate` is `null` when the release does not say; `files` are the managed files and `blocks` the entries of the kind `block`, which is `AGENTS.md`, with the digest and size of the text between the markers). |
+| `tree` | What the working tree holds at each managed path of the manifest: `{ kind: "absent" }`, `{ kind: "other" }` or `{ kind: "file", sha256, size }`; for the path of a block `{ kind: "large" }` (the file is larger than the check reads) or `{ kind: "block", state }` with `state` `none` (no markers), `refused` (with `why`, one of `partial-line`, `begin-without-end`, `end-without-begin`, `reversed` and `doubled`) or `one` (with the `sha256` and `size` of the block). A path that is not there is absent. |
 | `auditWorkflow` | `"file"`, `"absent"` or `"other"`: what is at `.github/workflows/records-audit.yml`. |
 | `github.repo` | `{ ok: true, branch }` or `{ ok: false, why }`. |
 | `github.rules` | `{ ok: true, rules: [{ id, checks, strict }] }` (the rules of the type `required_status_checks`, with the ruleset of each) or `{ ok: false, why }`. |
@@ -32,7 +32,7 @@ The input:
 | `github.lastRun` | `{ ok: true, state: "absent" }`, `{ ok: true, state: "unreadable", why }`, `{ ok: true, state: "record", at }` (`at` is the text, or `null`) or `{ ok: false, why }`. |
 | `github.age` | `{ ok: true, at }` (the date of the oldest commit that touches the audit workflow, or `null` when none does) or `{ ok: false, why }`; it is there only when there is no record. |
 
-The ids tell the part of the page: `h` the healthy repository and the age of the audit, `s` the settings and the owners, `a` the accounts, `c` `CODEOWNERS`, `r` the rules of the default branch, `l` `--local` and the kit's own repository, `p` the pin, the release, the installed files and the secret, `u` the audit, `z` everything at once.
+The ids tell the part of the page: `h` the healthy repository and the age of the audit, `s` the settings and the owners, `a` the accounts, `c` `CODEOWNERS`, `r` the rules of the default branch, `l` `--local` and the kit's own repository, `p` the pin, the release, the installed files and the secret, `b` the files of the agents (the skill and the block of `AGENTS.md`), `u` the audit, `z` everything at once.
 
 ## `codeowners`: the syntax that is read
 

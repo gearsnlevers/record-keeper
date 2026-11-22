@@ -102,7 +102,7 @@ describe('the cases of the page', () => {
     const rules = new Set(cases.flatMap((c) => c.expect.problems.map((e) => e.rule)));
     for (const rule of Object.keys(CHANGE_RULES)) assert.ok(rules.has(rule), `${rule} has no case`);
     const acts = new Set(cases.flatMap((c) => c.expect.acts.map((e) => e.kind)));
-    assert.deepEqual([...acts].sort(), ['accept', 'amendment', 'code', 'deviation', 'erratum', 'owners', 'pin', 'settings', 'workflow']);
+    assert.deepEqual([...acts].sort(), ['accept', 'amendment', 'code', 'deviation', 'erratum', 'instructions', 'owners', 'pin', 'settings', 'workflow']);
     const settings = new Set(cases.flatMap((c) => c.expect.settings.map((e) => e.rule)));
     assert.ok(settings.size >= 3);
   });

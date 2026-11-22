@@ -35,6 +35,9 @@ WANTED += ['warning previous-unusable ' + code for code in ['manifest-json', 'ma
                                                           'manifest-node', 'manifest-requires', 'manifest-files', 'manifest-entry', 'manifest-kind', 'manifest-path', 'manifest-source', 'manifest-digest', 'manifest-size',
                                                           'manifest-duplicate']]
 WANTED += ['path-blocked at the pin that is ' + kind for kind in ['dir', 'link']] + ['path-blocked at a managed path that is ' + kind for kind in ['dir', 'link', 'other', 'blocked']]
+WANTED += ['plan block ' + action for action in ['create', 'append', 'replace', 'current', 'refused']] + ['plan with no block', 'plan block replace overwritten', 'plan block replace kept']
+WANTED += ['warning block-refused ' + why for why in ['begin-without-end', 'end-without-begin', 'reversed', 'doubled', 'partial-line', 'not-text', 'fence', 'invalid-block', 'not-a-file', 'too-large']]
+WANTED += ['plan block refused ' + why for why in ['begin-without-end', 'end-without-begin', 'reversed', 'doubled', 'partial-line', 'not-text', 'fence', 'invalid-block', 'not-a-file', 'too-large']]
 missing = [key for key in WANTED if hits.get(key, 0) == 0]
 print(inputs, 'inputs generated,', compared, 'compared,', differences, 'differences')
 width = max(len(key) for key in hits)

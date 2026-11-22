@@ -996,6 +996,70 @@ case('v32-superseding-and-a-note', 'The status changes together with a deviation
 case('v33-superseding-a-record-with-an-old-format-problem', 'The record is past sixty lines (V-10 at the base) and does not verify: the supersession does not bring the old V-10 or the old P-06 back.',
      base='broken-long', changes=[SUP7(2, seal=S0, body_lines=60), SUCC7(2), IDX7(r2='superseded by 0007')], acts=[acc(7)])
 
+# ---- the files that agents read (M3d): docs/agent-files.md --------------------------------------------------------------------------
+SK = '.claude/skills/record-a-decision/SKILL.md'
+AG, CL = 'AGENTS.md', 'CLAUDE.md'
+BEGIN, END = '<!-- record-keeper:begin -->', '<!-- record-keeper:end -->'
+BLK = f'{BEGIN}\nrule one\nrule two\n{END}'
+AGENTS = f'# Notes for agents\n\nBuild with care.\n\n{BLK}\n\n- our own list\n'
+TREES['agents'] = {**TREES['kit-installed'], SK: 'a skill\n', AG: AGENTS, CL: '@AGENTS.md\n'}
+TREES['agents-plain'] = {**TREES['kit-installed'], SK: 'a skill\n', AG: '# Notes for agents\n\nBuild with care.\n', CL: '@AGENTS.md\n'}
+TREES['agents-none'] = {**TREES['kit-installed']}
+TREES['agents-broken'] = {**TREES['kit-installed'], AG: f'# Notes\n\n{BEGIN}\nrule one\n'}
+TREES['agents-link'] = {**TREES['kit-installed'], AG: ('link', 'docs/AGENTS.md'), 'docs/AGENTS.md': AGENTS}
+TREES['agents-folder'] = {**TREES['kit-installed'], f'{AG}/inner.md': 'x\n'}
+INS = lambda path: a('instructions', path)
+case('m01-skill-edited', 'The skill is edited: an act of the kind instructions.', base='agents', changes=[put(SK, 'a skill, changed\n')], acts=[INS(SK)])
+case('m02-skill-deleted', 'The skill is deleted.', base='agents', changes=[drop(SK)], acts=[INS(SK)])
+case('m03-skill-added', 'The skill is added where there was none: guarded before it exists, as the workflows are.', base='agents-none', changes=[put(SK, 'a skill\n')], acts=[INS(SK)])
+case('m04-skill-mode', 'The skill gets the executable mode and nothing else.', base='agents', changes=[put(SK, 'a skill\n', '100755')], acts=[INS(SK)])
+case('m05-skill-becomes-a-link', 'The skill becomes a symbolic link.', base='agents', changes=[{'symlink': SK, 'target': 'elsewhere.md'}], acts=[INS(SK)])
+case('m06-folder-in-front-of-the-skill', 'The folder .claude is replaced by a file: the skill is gone.', base='agents', changes=[drop(SK), put('.claude', 'x\n')], acts=[INS(SK)])
+case('m07-below-the-skill', 'A folder stands where the skill file was.', base='agents', changes=[drop(SK), put(SK + '/x', 'x\n')], acts=[INS(SK)])
+case('m08-other-files-of-the-folder-are-not-guarded', 'Files beside the skill, another skill and another file of .claude are not guarded: nothing is installed there.', base='agents',
+     changes=[put('.claude/skills/record-a-decision/other.md', 'x\n'), put('.claude/skills/other/SKILL.md', 'x\n'), put('.claude/settings.json', '{}\n'), put('.claude/skills/record-a-decision/SKILL.md.bak', 'x\n')])
+case('m09-text-outside-the-block', 'Text before and after the block changes: nothing that agents read from the kit.', base='agents', changes=[put(AG, AGENTS.replace('Build with care.', 'Build with great care.').replace('our own list', 'our other list'))])
+case('m10-inside-the-block', 'A word of the block changes.', base='agents', changes=[put(AG, AGENTS.replace('rule one', 'rule uno'))], acts=[INS(AG)])
+case('m11-begin-marker-changed', 'The begin marker is changed: the markers are refused, and that is a change.', base='agents', changes=[put(AG, AGENTS.replace(BEGIN, BEGIN.replace('begin', 'start')))], acts=[INS(AG)])
+case('m12-begin-marker-damaged', 'A space is added after the begin marker.', base='agents', changes=[put(AG, AGENTS.replace(BEGIN, BEGIN + ' '))], acts=[INS(AG)])
+case('m13-end-marker-removed', 'The end marker is taken away.', base='agents', changes=[put(AG, AGENTS.replace(END, ''))], acts=[INS(AG)])
+case('m14-block-removed', 'The block is taken out and the rest stays.', base='agents', changes=[put(AG, AGENTS.replace(BLK + '\n\n', ''))], acts=[INS(AG)])
+case('m15-block-added', 'A block is added to an AGENTS.md that had none.', base='agents-plain', changes=[put(AG, AGENTS)], acts=[INS(AG)])
+case('m16-file-deleted-with-a-block', 'AGENTS.md is deleted, and it had the block.', base='agents', changes=[drop(AG)], acts=[INS(AG)])
+case('m17-file-deleted-without-a-block', 'AGENTS.md is deleted, and it had no block.', base='agents-plain', changes=[drop(AG)])
+case('m18-file-created-without-a-block', 'AGENTS.md is created with no block.', base='agents-none', changes=[put(AG, '# Notes\n')])
+case('m19-file-created-with-a-block', 'AGENTS.md is created with the block.', base='agents-none', changes=[put(AG, BLK + '\n')], acts=[INS(AG)])
+case('m20-mode-only', 'AGENTS.md gets the executable mode and nothing else: the bytes are the same.', base='agents', changes=[put(AG, AGENTS, '100755')])
+case('m21-file-becomes-a-link', 'AGENTS.md becomes a link that can lead anywhere.', base='agents', changes=[{'symlink': AG, 'target': 'docs/AGENTS.md'}], acts=[INS(AG)])
+case('m22-link-becomes-a-file', 'A link becomes the file.', base='agents-link', changes=[put(AG, AGENTS)], acts=[INS(AG)])
+case('m23-link-target-changes', 'The file that the link leads to changes and the link does not: the check sees a change of docs/AGENTS.md, which is not guarded.', base='agents-link', changes=[put('docs/AGENTS.md', 'x\n')])
+case('m24-file-becomes-a-folder', 'A folder stands where AGENTS.md was.', base='agents', changes=[drop(AG), put(AG + '/inner.md', 'x\n')], acts=[INS(AG)])
+case('m25-folder-becomes-a-file', 'A file stands where the folder AGENTS.md was.', base='agents-folder', changes=[drop(AG + '/inner.md'), put(AG, '# Notes\n')], acts=[INS(AG)])
+case('m26-line-ends-outside', 'Line ends outside the block change from LF to CRLF.', base='agents', changes=[put(AG, AGENTS.replace(BLK, 'BLK').replace('\n', '\r\n').replace('BLK', BLK))], acts=[])
+case('m27-line-ends-inside', 'The lines of the block get CRLF line ends: another text.', base='agents', changes=[put(AG, AGENTS.replace(BLK, BLK.replace('\n', '\r\n')))], acts=[INS(AG)])
+case('m28-markers-in-a-fence-added', 'An example of the markers in a fence is added above the block: it is no block.', base='agents', changes=[put(AG, f'```\n{BEGIN}\n{END}\n```\n' + AGENTS)])
+case('m29-block-moves', 'The block moves to the top of the file: the same bytes.', base='agents', changes=[put(AG, BLK + '\n\n# Notes for agents\n\nBuild with care.\n\n- our own list\n')])
+case('m30-block-wrapped-in-a-fence', 'The block is wrapped in a fence: no block any more.', base='agents', changes=[put(AG, AGENTS.replace(BLK, f'```\n{BLK}\n```'))], acts=[INS(AG)])
+case('m31-broken-markers-unchanged', 'A file whose markers are broken is the same at both ends: no act.', base='agents-broken', changes=[put('README.md', 'x\n')])
+case('m32-broken-markers-edited-anywhere', 'A file whose markers are broken is edited outside any marker: the check cannot tell what is inside, so it counts.', base='agents-broken', changes=[put(AG, f'# Other notes\n\n{BEGIN}\nrule one\n')], acts=[INS(AG)])
+case('m33-broken-markers-mended', 'The broken markers are mended.', base='agents-broken', changes=[put(AG, f'# Notes\n\n{BLK}\n')], acts=[INS(AG)])
+case('m34-claude-md-is-not-guarded', 'CLAUDE.md is a template: the repository owns it, and a change to it is no act.', base='agents', changes=[put(CL, 'something else\n')])
+case('m35-claude-md-deleted', 'CLAUDE.md is deleted: no act.', base='agents', changes=[drop(CL)])
+case('m36-lookalikes', 'Files that only look like the files of the agents: no act.', base='agents', changes=[put('docs/AGENTS.md', 'x\n'), put('agents-notes.md', 'x\n'), put('AGENTS.md.bak', 'x\n'), put('sub/AGENTS.md', f'{BLK}\n'), put('CLAUDE.local.md', 'x\n')])
+case('m37-all-together', 'The skill, the block, a program, the pin and the settings in one change: the acts come in their order, the skill before AGENTS.md by their bytes.', base='agents',
+     changes=[put(SK, 'new skill\n'), put(AG, AGENTS.replace('rule two', 'rule 2')), put(RKI, '// changed\n'), put('.github/record-keeper.yml', 'x\n'), put(SET, 'owners: [alice/1001]\nextra-keys: [repos]\n')],
+     acts=[a('settings', SET), a('pin', '.github/record-keeper.yml'), CI(RKI), INS(SK), INS(AG)])
+case('m38-block-and-text-outside-together', 'The block and the text outside it change together: the block alone makes the act.', base='agents', changes=[put(AG, AGENTS.replace('rule one', 'rule uno').replace('our own list', 'our new list'))], acts=[INS(AG)])
+case('m39-the-text-of-a-marker-in-prose', 'Prose that holds the stem of a marker is a line that holds more than a marker: the markers are refused, and that is a change.', base='agents', changes=[put(AG, AGENTS + '\nThe block starts at record-keeper:begin.\n')], acts=[INS(AG)])
+case('m40-unclosed-fence-added-after-the-block', 'A fence that is never closed is added after the block: the block is still the block.', base='agents', changes=[put(AG, AGENTS + '\n```\nopen\n')])
+case('m41-no-block-to-no-block-with-a-fence', 'A file with no block gets a fenced example of the markers.', base='agents-plain', changes=[put(AG, '# Notes for agents\n\n```\n' + BLK + '\n```\n')])
+case('m43-a-file-with-no-block-becomes-a-link', 'AGENTS.md has no block and becomes a link: a link can lead anywhere, so it is an act whatever the old file said.', base='agents-plain', changes=[{'symlink': AG, 'target': 'docs/AGENTS.md'}], acts=[INS(AG)])
+case('m44-a-link-becomes-a-file-with-no-block', 'A link becomes a file that has no block: the act is the link that is gone.', base='agents-link', changes=[put(AG, '# Notes\n')], acts=[INS(AG)])
+case('m45-a-file-with-no-block-becomes-a-folder', 'AGENTS.md has no block and becomes a folder.', base='agents-plain', changes=[drop(AG), put(AG + '/inner.md', 'x\n')], acts=[INS(AG)])
+case('m42-first-adoption-commit', 'The adoption: the skill, the block and CLAUDE.md are added to a repository that has none of them. Acts of the skill and of AGENTS.md; CLAUDE.md is no act.', base='agents-none',
+     changes=[put(SK, 'a skill\n'), put(AG, BLK + '\n'), put(CL, '@AGENTS.md\n')], acts=[INS(SK), INS(AG)])
+
+
 def main():
     work = tempfile.mkdtemp(prefix='change-cases-')
     repo = os.path.join(work, 'r.git')

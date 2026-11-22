@@ -23,7 +23,7 @@ for path in sorted(glob.glob(os.path.join(dir_, 'cmp-*.txt'))):
         print(text)
 
 # What a run must have reached: every finding, every topic that is checked and every topic that is not, every state of every part of the input, both sides of every limit.
-CODES = ['audit-dead', 'check-not-required', 'check-not-strict', 'bypass-always', 'codeowners-missing', 'codeowners-uncovered', 'owners-few', 'owner-mismatch', 'managed-differs', 'manifest-unreadable', 'pin-missing', 'pin-unusable',
+CODES = ['audit-dead', 'check-not-required', 'check-not-strict', 'bypass-always', 'codeowners-missing', 'codeowners-uncovered', 'owners-few', 'owner-mismatch', 'managed-differs', 'block-unusable', 'manifest-unreadable', 'pin-missing', 'pin-unusable',
          'settings-missing', 'settings-unusable', 'secret-not-set', 'audit-workflow-missing', 'audit-record-unreadable', 'audit-record-future', 'single-owner', 'audit-not-yet', 'not-checked']
 TOPICS = ['github', 'repository', 'rules', 'branch protection', 'strict', 'bypass', 'accounts', 'codeowners', 'release', 'secret', 'audit', 'age']
 PASSED = ['settings', 'owners', 'owner-accounts', 'codeowners', 'check-required', 'check-strict', 'bypass', 'pin', 'manifest', 'managed-files', 'secret', 'audit-workflow', 'audit']
@@ -37,6 +37,8 @@ WANTED += ['codeowners read', 'codeowners absent', 'codeowners unreadable', 'dec
 WANTED += ['pin read', 'pin absent', 'pin refused'] + ['pin refused ' + code for code in ['pin-text', 'pin-line', 'pin-key', 'pin-duplicate', 'pin-value', 'pin-missing']]
 WANTED += ['release read', 'release not-checked', 'release unlisted', 'release no-asset', 'release refused', 'release upToDate True', 'release upToDate False', 'release upToDate None', 'release secrets names the secret', 'release secrets does not']
 WANTED += ['file not in the tree', 'file absent', 'file not a file', 'file with no digest', 'file with another digest', 'file with another size', 'file as released', 'files differing 0', 'files differing 1', 'files differing 2 to 8', 'files differing more than 8']
+WANTED += ['block not in the tree', 'block file absent', 'block file other', 'block file large', 'block no markers', 'block with another digest', 'block with another size', 'block as released', 'release has a block', 'release has no block']
+WANTED += ['block refused ' + why for why in ['partial-line', 'begin-without-end', 'end-without-begin', 'reversed', 'doubled']]
 WANTED += ['auditWorkflow file', 'auditWorkflow absent', 'auditWorkflow other', 'repo ok', 'repo not ok', 'rules ok', 'rules not ok', 'rules requiring 0', 'rules requiring 1', 'rules requiring 2 or more', 'rules entries 0', 'rules entries some']
 WANTED += ['not looked at bypass', 'not looked at own', 'not looked at secret', 'approvals 1, not a pull request: silent', 'approvals 1, pull request, base absent: said', 'approvals 1, pull request, base not-read: silent',
            'approvals 1, pull request, base other approvals: said', 'approvals 1, pull request, base same owners: silent', 'approvals 1, pull request, base other owners: said']
