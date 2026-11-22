@@ -9,8 +9,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CODE_FILES, SETTINGS_PATH, WORKFLOW_FILES, checkChange } from '../record-keeper.mjs';
-import { renderPin } from '../updater.mjs';
+import { CODE_FILES, INSTRUCTION_FILES, SETTINGS_PATH, WORKFLOW_FILES, checkChange } from '../record-keeper.mjs';
+import { AGENTS_PATH, SKILL_PATH, renderPin } from '../updater.mjs';
 import { COMMIT, NOW, cleanUp as cleanUpWorld, healthy, releaseOf, serve as serveGithub } from './setup-check-world.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -58,7 +58,7 @@ function repository() {
 }
 
 /** What the updater does on the first adoption (docs/updater.md), in its simplest form: every file of the install set, from its source to its destination, byte for byte. */
-function installKit(dir, kinds = ['managed', 'template']) {
+function installKit(dir, kinds = ['managed', 'block', 'template']) {
   for (const entry of install.files.filter(({ kind }) => kinds.includes(kind))) write(dir, entry.path, fs.readFileSync(path.join(root, entry.source)));
 }
 
@@ -144,7 +144,7 @@ describe('the templates', () => {
 
   test('install.json installs them once: the records README, the template of a record and the settings, where the page says', () => {
     const templates = install.files.filter(({ kind }) => kind === 'template').map(({ source, path: destination }) => [source, destination]);
-    assert.deepEqual(templates, [['templates/decisions/README.md', 'docs/decisions/README.md'], ['templates/decisions/template.md', 'docs/decisions/template.md'], ['templates/settings.yml', '.github/record-keeper/settings.yml']]);
+    assert.deepEqual(templates, [['templates/decisions/README.md', 'docs/decisions/README.md'], ['templates/decisions/template.md', 'docs/decisions/template.md'], ['templates/settings.yml', '.github/record-keeper/settings.yml'], ['templates/CLAUDE.md', 'CLAUDE.md']]);
     assert.equal(destinationOfSettings(), SETTINGS_PATH);
   });
 
@@ -216,9 +216,9 @@ describe('the templates', () => {
 // ---- the guard: every managed file is guarded, and what is guarded and installed is managed ---------------------------------------------
 
 describe('the files that install.json installs, and the files that the check guards', () => {
-  const GUARDED = [...WORKFLOW_FILES, ...CODE_FILES];
+  const GUARDED = [...WORKFLOW_FILES, ...CODE_FILES, SKILL_PATH];
   const managed = install.files.filter(({ kind }) => kind === 'managed');
-  const kindOf = (destination) => (WORKFLOW_FILES.includes(destination) ? 'workflow' : CODE_FILES.includes(destination) ? 'code' : null);
+  const kindOf = (destination) => (WORKFLOW_FILES.includes(destination) ? 'workflow' : CODE_FILES.includes(destination) ? 'code' : destination === SKILL_PATH ? 'instructions' : null);
 
   test('no managed file is unguarded', () => {
     assert.ok(managed.length >= 5);
@@ -226,11 +226,20 @@ describe('the files that install.json installs, and the files that the check gua
   });
 
   test('every guarded path of a repository that is in install.json is managed, and the guarded paths at the root are not installed anywhere', () => {
-    for (const destination of GUARDED.filter((file) => file.startsWith('.github/'))) {
+    for (const destination of GUARDED.filter((file) => file.startsWith('.github/') || file === SKILL_PATH)) {
       const entry = install.files.find((file) => file.path === destination);
       if (entry !== undefined) assert.equal(entry.kind, 'managed', destination);
     }
-    for (const destination of GUARDED.filter((file) => !file.startsWith('.github/'))) assert.equal(install.files.find((file) => file.path === destination), undefined, destination);
+    for (const destination of GUARDED.filter((file) => !file.startsWith('.github/') && file !== SKILL_PATH)) assert.equal(install.files.find((file) => file.path === destination), undefined, destination);
+  });
+
+  test('the files of the agents: the skill is a managed file guarded as instructions, AGENTS.md is a block guarded where its block is, and CLAUDE.md is a template that is not guarded', () => {
+    assert.deepEqual(INSTRUCTION_FILES, [SKILL_PATH, AGENTS_PATH]);
+    assert.deepEqual(install.files.find(({ path: destination }) => destination === SKILL_PATH), { source: 'templates/skills/record-a-decision/SKILL.md', path: SKILL_PATH, kind: 'managed' });
+    assert.deepEqual(install.files.filter(({ kind }) => kind === 'block'), [{ source: 'templates/agents-block.md', path: AGENTS_PATH, kind: 'block' }]);
+    assert.deepEqual(install.files.find(({ path: destination }) => destination === 'CLAUDE.md'), { source: 'templates/CLAUDE.md', path: 'CLAUDE.md', kind: 'template' });
+    assert.equal(read('templates/CLAUDE.md'), '@AGENTS.md\n');
+    for (const file of ['AGENTS.md', 'CLAUDE.md', SKILL_PATH]) assert.equal(fs.existsSync(path.join(root, file)), false, `the kit has no ${file} of its own: it does not install itself`);
   });
 
   test('a template is never guarded as a workflow or as code: the repository owns it, and the settings are an act of their own kind', () => {
@@ -448,10 +457,11 @@ describe('a repository with the layout of a consumer', () => {
     test('with the files of the release, a pin, CODEOWNERS and a GitHub that has what it needs, it finds nothing, though the owner is in the single-owner mode', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files)];
+      state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
       const got = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr + got.stdout);
@@ -462,10 +472,11 @@ describe('a repository with the layout of a consumer', () => {
     test('a pull request that puts the single-owner mode on is told so once, by the installed program, from the settings at its base', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files, { requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
+      state.releases = [releaseOf('v1.0.0', files, { blocks, requires: { rulesets: [{ branch: 'default', checks: ['Records integrity'], 'up-to-date': true }], secrets: [], settings: ['owners'] } })];
       state.settingsAt.set('main', 'owners: [alice/1001, bob/1002]\napprovals: 2\n');
       await serveGithub(state);
       const env = { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
@@ -481,11 +492,12 @@ describe('a repository with the layout of a consumer', () => {
     test('a file of the folder that is not the release\'s is found', async () => {
       const dir = adopted();
       const files = Object.fromEntries(install.files.filter(({ kind }) => kind === 'managed').map((entry) => [entry.path, read(entry.source)]));
+      const blocks = Object.fromEntries(install.files.filter(({ kind }) => kind === 'block').map((entry) => [entry.path, read(entry.source)]));
       write(dir, '.github/record-keeper.yml', renderPin({ source: 'example/kit', version: 'v1.0.0', commit: COMMIT, channel: 'stable' }));
       write(dir, '.github/CODEOWNERS', '/.github/ @alice @bob\n');
       fs.appendFileSync(path.join(dir, program), '// edited\n');
       const state = healthy();
-      state.releases = [releaseOf('v1.0.0', files)];
+      state.releases = [releaseOf('v1.0.0', files, { blocks })];
       await serveGithub(state);
       const got = await exec([program, '--repo', 'example/repo', ...AT], { cwd: dir, env: { GITHUB_TOKEN: TOKEN, GITHUB_API_URL: state.url, HAS_RECORD_KEEPER_TOKEN: 'true' } });
       assert.equal(got.code, 0, got.stderr);

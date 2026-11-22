@@ -181,7 +181,8 @@ def gen_release(r, paths):
     if state != 'read':
         return {'state': state}
     files = [{'path': p, 'sha256': sha(r), 'size': r.randint(0, 5000)} for p in paths]
-    return {'state': 'read', 'secrets': r.choice([['RECORD_KEEPER_TOKEN'], ['RECORD_KEEPER_TOKEN'], [], ['OTHER'], ['OTHER', 'RECORD_KEEPER_TOKEN']]), 'upToDate': r.choice([True, True, False, None]), 'files': files}
+    blocks = [{'path': 'AGENTS.md', 'sha256': sha(r), 'size': r.randint(60, 900)}] if maybe(r, 0.5) else []
+    return {'state': 'read', 'secrets': r.choice([['RECORD_KEEPER_TOKEN'], ['RECORD_KEEPER_TOKEN'], [], ['OTHER'], ['OTHER', 'RECORD_KEEPER_TOKEN']]), 'upToDate': r.choice([True, True, False, None]), 'files': files, 'blocks': blocks}
 
 
 def gen_tree(r, release):
@@ -206,6 +207,23 @@ def gen_tree(r, release):
             # 'unlisted': the path is not in the tree at all, and so it is missing
         else:
             tree[f['path']] = {'kind': 'file', 'sha256': f['sha256'], 'size': f['size']}
+    for f in release['blocks']:
+        # the file that holds a block is not a file of the release: its states are the ones of the runner (absent, a folder, too large, no markers, markers that are refused, a block)
+        wrong = mode == 'many' or (mode == 'some' and maybe(r, 0.5))
+        if wrong:
+            kind = r.choice(['absent', 'other', 'large', 'none', 'refused', 'sha', 'size', 'unlisted'])
+            if kind in ('absent', 'other', 'large'):
+                tree[f['path']] = {'kind': kind}
+            elif kind == 'none':
+                tree[f['path']] = {'kind': 'block', 'state': 'none'}
+            elif kind == 'refused':
+                tree[f['path']] = {'kind': 'block', 'state': 'refused', 'why': r.choice(['partial-line', 'begin-without-end', 'end-without-begin', 'reversed', 'doubled'])}
+            elif kind == 'sha':
+                tree[f['path']] = {'kind': 'block', 'state': 'one', 'sha256': sha(r), 'size': f['size']}
+            elif kind == 'size':
+                tree[f['path']] = {'kind': 'block', 'state': 'one', 'sha256': f['sha256'], 'size': f['size'] + r.choice([-1, 1, 100])}
+        else:
+            tree[f['path']] = {'kind': 'block', 'state': 'one', 'sha256': f['sha256'], 'size': f['size']}
     return tree
 
 
@@ -304,14 +322,15 @@ def gen_healthy(r):
     owners = [{'login': LOGINS[i], 'id': 2000 + i} for i in range(r.choice([2, 2, 3, 4]))]
     paths = ['.github/record-keeper/record-keeper.mjs', '.github/workflows/records-audit.yml'][:r.choice([1, 2])]
     files = [{'path': p, 'sha256': sha(r), 'size': r.randint(1, 900)} for p in paths]
+    blocks = [{'path': 'AGENTS.md', 'sha256': sha(r), 'size': r.randint(60, 900)}] if maybe(r, 0.5) else []
     identity = r.choice([11, 4101])
     return {
         'now': NOW, 'local': False, 'own': False, 'event': r.choice(['schedule', 'workflow_dispatch', None]), 'secretSet': True,
         'settings': {'state': 'read', 'problems': [], 'owners': owners, 'approvals': 2}, 'baseSettings': {'state': 'not-read'},
         'codeowners': {'state': 'read', 'path': '.github/CODEOWNERS', 'text': r.choice(['/.github/ @a\n', '* @a @b\n', '.github/ @org/team # all\n', '/.github/**  @a\n'])},
         'pin': {'state': 'read', 'source': 'example/kit', 'version': 'v1.0.0', 'commit': 'a1' * 20, 'channel': 'stable'},
-        'release': {'state': 'read', 'secrets': ['RECORD_KEEPER_TOKEN'], 'upToDate': r.choice([True, None]), 'files': files},
-        'tree': {f['path']: {'kind': 'file', 'sha256': f['sha256'], 'size': f['size']} for f in files},
+        'release': {'state': 'read', 'secrets': ['RECORD_KEEPER_TOKEN'], 'upToDate': r.choice([True, None]), 'files': files, 'blocks': blocks},
+        'tree': {**{f['path']: {'kind': 'file', 'sha256': f['sha256'], 'size': f['size']} for f in files}, **{f['path']: {'kind': 'block', 'state': 'one', 'sha256': f['sha256'], 'size': f['size']} for f in blocks}},
         'auditWorkflow': 'file',
         'github': {
             'repo': {'ok': True, 'branch': r.choice(['main', 'trunk'])},
@@ -482,6 +501,23 @@ def classify(item, expect):
                 differing += 1
             else:
                 hits.add('file as released')
+        for f in rel['blocks']:
+            t = inp['tree'].get(f['path'])
+            if t is None:
+                hits.add('block not in the tree')
+            elif t['kind'] in ('absent', 'other', 'large'):
+                hits.add('block file ' + t['kind'])
+            elif t['state'] == 'none':
+                hits.add('block no markers')
+            elif t['state'] == 'refused':
+                hits.add('block refused ' + t['why'])
+            elif t['sha256'] != f['sha256']:
+                hits.add('block with another digest')
+            elif t['size'] != f['size']:
+                hits.add('block with another size')
+            else:
+                hits.add('block as released')
+        hits.add('release has %s' % ('a block' if rel['blocks'] else 'no block'))
         hits.add('files differing %s' % ('0' if differing == 0 else '1' if differing == 1 else '2 to 8' if differing <= 8 else 'more than 8'))
     g = inp['github']
     if g is not None:

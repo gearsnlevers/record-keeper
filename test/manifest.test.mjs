@@ -9,7 +9,7 @@ import path from 'node:path';
 import test, { after, describe } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { GENERATION } from '../record-keeper.mjs';
-import { DESTINATIONS, KINDS, ManifestError, SCHEMA, buildManifest, canonical, pathProblem, readInstall, run, verifyManifest } from '../tools/build-release-manifest.mjs';
+import { BLOCK_PATH, DESTINATIONS, DESTINATION_FILES, KINDS, ManifestError, SCHEMA, buildManifest, canonical, pathProblem, readInstall, run, verifyManifest } from '../tools/build-release-manifest.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const tool = path.join(root, 'tools/build-release-manifest.mjs');
@@ -158,9 +158,22 @@ describe('what is refused', () => {
     refused(folder({ 'a.txt': 'A', 'b.txt': 'B' }, [entry('a.txt', '.github/x/y'), entry('b.txt', '.GITHUB/X')]), /outside/);
   });
 
-  test('a destination outside .github/ and docs/decisions/, in any way of writing it', () => {
-    for (const destination of ['README.md', 'docs/README.md', 'docs/decisions', 'docs/decisions-extra/x.md', '.github', '.githubx/a.txt', 'src/.github/a.txt', '.Github/a.txt', 'DOCS/decisions/a.md', 'docs/Decisions/a.md']) {
+  test('a destination outside .github/ and docs/decisions/ and the three files of the agents, in any way of writing it', () => {
+    for (const destination of ['README.md', 'docs/README.md', 'docs/decisions', 'docs/decisions-extra/x.md', '.github', '.githubx/a.txt', 'src/.github/a.txt', '.Github/a.txt', 'DOCS/decisions/a.md', 'docs/Decisions/a.md',
+      '.claude', '.claude/settings.json', '.claude/skills/record-a-decision/other.md', '.claude/skills/other/SKILL.md', '.claude/skills/record-a-decision/SKILL.md/x', '.claude/skills/Record-a-decision/SKILL.md', 'agents.md', 'docs/AGENTS.md', 'claude.md', 'CLAUDE.local.md']) {
       refused(folder(ok, one('a.txt', destination)), /entry 1: path .* (is outside|has a)/, undefined);
+    }
+  });
+
+  test('the files of the agents: the skill and CLAUDE.md are installed anywhere a kind allows, AGENTS.md only as a block, and a block only in AGENTS.md', () => {
+    assert.deepEqual(DESTINATION_FILES, ['.claude/skills/record-a-decision/SKILL.md', 'AGENTS.md', 'CLAUDE.md']);
+    assert.equal(BLOCK_PATH, 'AGENTS.md');
+    const files = { 'a.txt': 'A\n', 'b.txt': 'B\n' };
+    const built = build(folder(files, [entry('a.txt', '.claude/skills/record-a-decision/SKILL.md'), entry('b.txt', 'AGENTS.md', 'block'), entry('a.txt', 'CLAUDE.md', 'template')]));
+    assert.deepEqual(built.files.map((f) => [f.path, f.kind]), [['.claude/skills/record-a-decision/SKILL.md', 'managed'], ['AGENTS.md', 'block'], ['CLAUDE.md', 'template']]);
+    for (const kind of ['managed', 'template']) refused(folder(files, one('a.txt', 'AGENTS.md', kind)), 'install.json: entry 1: AGENTS.md is installed only as a block');
+    for (const destination of ['CLAUDE.md', '.github/x.txt', 'docs/decisions/x.md', '.claude/skills/record-a-decision/SKILL.md']) {
+      refused(folder(files, one('a.txt', destination, 'block')), 'install.json: entry 1: a block is installed only in AGENTS.md');
     }
   });
 
@@ -190,8 +203,8 @@ describe('what is refused', () => {
   });
 
   test('an entry that is not what install.json allows', () => {
-    refused(folder(ok, one('a.txt', '.github/a.txt', 'other')), 'install.json: entry 1: kind must be managed or template');
-    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: null }]), 'install.json: entry 1: kind must be managed or template');
+    refused(folder(ok, one('a.txt', '.github/a.txt', 'other')), 'install.json: entry 1: kind must be managed, template or block');
+    refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: null }]), 'install.json: entry 1: kind must be managed, template or block');
     refused(folder(ok, [{ source: 'a.txt', path: '.github/a.txt', kind: 'managed', extra: 1 }]), 'install.json: entry 1: unknown key extra');
     refused(folder(ok, [{ source: 'a.txt', kind: 'managed' }]), 'install.json: entry 1: missing key path');
     refused(folder(ok, ['a.txt']), 'install.json: entry 1: must be an object');
@@ -457,7 +470,7 @@ describe('this repository', () => {
     assert.ok(read.files.length > 0);
     for (const file of read.files) {
       assert.ok(KINDS.includes(file.kind));
-      assert.ok(DESTINATIONS.some((start) => file.path.startsWith(start)), file.path);
+      assert.ok(DESTINATIONS.some((start) => file.path.startsWith(start)) || DESTINATION_FILES.includes(file.path), file.path);
       assert.ok(fs.statSync(path.join(root, file.source)).isFile(), file.source);
     }
     const manifest = build(root);
@@ -467,8 +480,9 @@ describe('this repository', () => {
   });
 
   test('install.json is written in the order of its destinations, so that a change to it reads as a list', () => {
-    const sections = ['managed', 'template'].map((kind) => install.files.filter((f) => f.kind === kind));
-    assert.deepEqual(install.files, [...sections[0], ...sections[1]], 'the managed files come first');
+    const sections = ['managed', 'block', 'template'].map((kind) => install.files.filter((f) => f.kind === kind));
+    assert.deepEqual(install.files, [...sections[0], ...sections[1], ...sections[2]], 'the managed files come first, then the block, then the templates');
+    assert.deepEqual(sections[1].map((f) => f.path), [BLOCK_PATH]);
   });
 
   test('no file of the install set has a carriage return, and git is told to keep it so', () => {
@@ -563,6 +577,12 @@ describe('the second implementation, reference/verify_manifest.py', () => {
       ['a folder and a file', install([entry('crlf.txt', '.github/x'), entry('empty.txt', '.github/x/y')])],
       ['a kind that is not one', install([entry('crlf.txt', '.github/x', 'other')])],
       ['no files', install([])],
+      ['AGENTS.md as a managed file', install([entry('crlf.txt', 'AGENTS.md')])],
+      ['AGENTS.md as a template', install([entry('crlf.txt', 'AGENTS.md', 'template')])],
+      ['a block that is not AGENTS.md', install([entry('crlf.txt', 'CLAUDE.md', 'block')])],
+      ['a block below .github', install([entry('crlf.txt', '.github/x', 'block')])],
+      ['another file under .claude', install([entry('crlf.txt', '.claude/settings.json')])],
+      ['another skill', install([entry('crlf.txt', '.claude/skills/other/SKILL.md')])],
     ];
     for (const [name, change] of cases) {
       const copy = folder(files, entries);

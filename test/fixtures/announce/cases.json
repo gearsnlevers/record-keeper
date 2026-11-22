@@ -1076,6 +1076,476 @@
    }
   },
   {
+   "id": "a10-instructions-skill",
+   "note": "The skill is added: an act of the kind instructions, announced with the diff of the new file.",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": ".github/record-keeper/settings.yml",
+       "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+      },
+      {
+       "write": ".github/record-keeper.yml",
+       "content": "version: 1\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": ".claude/skills/record-a-decision/SKILL.md",
+       "content": "a skill\n"
+      }
+     ]
+    }
+   ],
+   "evidence": {
+    "@c1@": {
+     "pull": {
+      "number": 7,
+      "user": {
+       "id": 1001
+      },
+      "head": {
+       "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "merged_at": "2026-11-09T12:00:00Z"
+     },
+     "started": "2026-11-09T09:00:00Z",
+     "reviews": []
+    }
+   },
+   "logins": {
+    "1001": "alice",
+    "1002": "bob",
+    "1003": "carol",
+    "1004": "dave"
+   },
+   "now": "2026-11-10T03:00:00Z",
+   "expect": {
+    "code": 0,
+    "plan": {
+     "announcements": [
+      {
+       "key": "@c1@",
+       "title": "Act: instructions (#7)",
+       "body": "<!-- record-keeper:announcement @c1@ -->\nThe owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. Close it when you have seen it.\n\n- Commit: @c1@\n- Pull request: #7\n- Acts: instructions .claude/skills/record-a-decision/SKILL.md\n- Told: @alice and @bob (owners)\n\n### instructions .claude/skills/record-a-decision/SKILL.md\n\n```diff\ndiff --git a/.claude/skills/record-a-decision/SKILL.md b/.claude/skills/record-a-decision/SKILL.md\nnew file mode 100644\nindex 0000000000000000000000000000000000000000..ec7ddf032d9b796128d5299b96fe689ea567ed7d\n--- /dev/null\n+++ b/.claude/skills/record-a-decision/SKILL.md\n@@ -0,0 +1 @@\n+a skill\n```\n"
+      }
+     ],
+     "log": [
+      {
+       "at": "2026-11-10T03:00:00Z",
+       "event": "announced",
+       "key": "@c1@",
+       "acts": [
+        {
+         "kind": "instructions",
+         "path": ".claude/skills/record-a-decision/SKILL.md"
+        }
+       ],
+       "told": [
+        1001,
+        1002
+       ]
+      }
+     ],
+     "lookups": []
+    }
+   }
+  },
+  {
+   "id": "a11-instructions-block",
+   "note": "A word of the block of AGENTS.md changes: an act of the kind instructions, announced with the diff of the whole file.",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": ".github/record-keeper/settings.yml",
+       "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+      },
+      {
+       "write": ".github/record-keeper.yml",
+       "content": "version: 1\n"
+      },
+      {
+       "write": "AGENTS.md",
+       "content": "# Notes\n\n<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->\n\n- ours\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": "AGENTS.md",
+       "content": "# Notes\n\n<!-- record-keeper:begin -->\nrule uno\n<!-- record-keeper:end -->\n\n- ours\n"
+      }
+     ]
+    }
+   ],
+   "evidence": {
+    "@c1@": {
+     "pull": {
+      "number": 7,
+      "user": {
+       "id": 1001
+      },
+      "head": {
+       "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "merged_at": "2026-11-09T12:00:00Z"
+     },
+     "started": "2026-11-09T09:00:00Z",
+     "reviews": []
+    }
+   },
+   "logins": {
+    "1001": "alice",
+    "1002": "bob",
+    "1003": "carol",
+    "1004": "dave"
+   },
+   "now": "2026-11-10T03:00:00Z",
+   "expect": {
+    "code": 0,
+    "plan": {
+     "announcements": [
+      {
+       "key": "@c1@",
+       "title": "Act: instructions (#7)",
+       "body": "<!-- record-keeper:announcement @c1@ -->\nThe owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. Close it when you have seen it.\n\n- Commit: @c1@\n- Pull request: #7\n- Acts: instructions AGENTS.md\n- Told: @alice and @bob (owners)\n\n### instructions AGENTS.md\n\n```diff\ndiff --git a/AGENTS.md b/AGENTS.md\nindex 45aa70e649505618ab0255d96ee0e3614c5c015e..ff095ce1308d2d3f2c0f39d517b72a60fd6fa08d 100644\n--- a/AGENTS.md\n+++ b/AGENTS.md\n@@ -1,7 +1,7 @@\n # Notes\n \n <!-- record-keeper:begin -->\n-rule one\n+rule uno\n <!-- record-keeper:end -->\n \n - ours\n```\n"
+      }
+     ],
+     "log": [
+      {
+       "at": "2026-11-10T03:00:00Z",
+       "event": "announced",
+       "key": "@c1@",
+       "acts": [
+        {
+         "kind": "instructions",
+         "path": "AGENTS.md"
+        }
+       ],
+       "told": [
+        1001,
+        1002
+       ]
+      }
+     ],
+     "lookups": []
+    }
+   }
+  },
+  {
+   "id": "a12-agents-outside-the-block",
+   "note": "Text outside the block of AGENTS.md changes: no act, so no announcement.",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": ".github/record-keeper/settings.yml",
+       "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+      },
+      {
+       "write": ".github/record-keeper.yml",
+       "content": "version: 1\n"
+      },
+      {
+       "write": "AGENTS.md",
+       "content": "# Notes\n\n<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->\n\n- ours\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": "AGENTS.md",
+       "content": "# Notes\n\n<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->\n\n- ours, and more\n"
+      }
+     ]
+    }
+   ],
+   "evidence": {
+    "@c1@": {
+     "pull": {
+      "number": 7,
+      "user": {
+       "id": 1001
+      },
+      "head": {
+       "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "merged_at": "2026-11-09T12:00:00Z"
+     },
+     "started": "2026-11-09T09:00:00Z",
+     "reviews": []
+    }
+   },
+   "logins": {
+    "1001": "alice",
+    "1002": "bob",
+    "1003": "carol",
+    "1004": "dave"
+   },
+   "now": "2026-11-10T03:00:00Z",
+   "expect": {
+    "code": 0,
+    "plan": {
+     "announcements": [],
+     "log": [],
+     "lookups": []
+    }
+   }
+  },
+  {
+   "id": "a13-instructions-after-code",
+   "note": "A program and the skill in one commit: the acts come in the order of the audit, the skill after the program, and the title names the kinds in that order.",
+   "commits": [
+    {
+     "id": "c0",
+     "parents": [],
+     "message": "commit c0",
+     "changes": [
+      {
+       "write": "docs/decisions/README.md",
+       "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+      },
+      {
+       "write": "docs/decisions/template.md",
+       "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+      },
+      {
+       "write": "docs/decisions/0001-first.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+      },
+      {
+       "write": "docs/decisions/0002-second.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+      },
+      {
+       "write": "docs/decisions/0003-third.md",
+       "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+      },
+      {
+       "write": "docs/decisions/0004-fourth.md",
+       "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+      },
+      {
+       "write": "docs/decisions/0005-fifth.md",
+       "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+      },
+      {
+       "write": "docs/decisions/0006-sixth.md",
+       "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+      },
+      {
+       "write": ".github/record-keeper/settings.yml",
+       "content": "owners: [alice/1001, bob/1002]\napprovals: 1\n"
+      },
+      {
+       "write": ".github/record-keeper.yml",
+       "content": "version: 1\n"
+      }
+     ]
+    },
+    {
+     "id": "c1",
+     "parents": [
+      "c0"
+     ],
+     "message": "Merge pull request #7 from a/b",
+     "changes": [
+      {
+       "write": "record-keeper.mjs",
+       "content": "export const x = 1;\n"
+      },
+      {
+       "write": ".claude/skills/record-a-decision/SKILL.md",
+       "content": "a skill\n"
+      }
+     ]
+    }
+   ],
+   "evidence": {
+    "@c1@": {
+     "pull": {
+      "number": 7,
+      "user": {
+       "id": 1001
+      },
+      "head": {
+       "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "merged_at": "2026-11-09T12:00:00Z"
+     },
+     "started": "2026-11-09T09:00:00Z",
+     "reviews": []
+    }
+   },
+   "logins": {
+    "1001": "alice",
+    "1002": "bob",
+    "1003": "carol",
+    "1004": "dave"
+   },
+   "now": "2026-11-10T03:00:00Z",
+   "expect": {
+    "code": 0,
+    "plan": {
+     "announcements": [
+      {
+       "key": "@c1@",
+       "title": "Act: code, instructions (#7)",
+       "body": "<!-- record-keeper:announcement @c1@ -->\nThe owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. Close it when you have seen it.\n\n- Commit: @c1@\n- Pull request: #7\n- Acts: code record-keeper.mjs, instructions .claude/skills/record-a-decision/SKILL.md\n- Told: @alice and @bob (owners)\n\n### code record-keeper.mjs\n\n```diff\ndiff --git a/record-keeper.mjs b/record-keeper.mjs\nnew file mode 100644\nindex 0000000000000000000000000000000000000000..ad1d380d6cc4dfe69119852d461b7ccd89a19228\n--- /dev/null\n+++ b/record-keeper.mjs\n@@ -0,0 +1 @@\n+export const x = 1;\n```\n\n### instructions .claude/skills/record-a-decision/SKILL.md\n\n```diff\ndiff --git a/.claude/skills/record-a-decision/SKILL.md b/.claude/skills/record-a-decision/SKILL.md\nnew file mode 100644\nindex 0000000000000000000000000000000000000000..ec7ddf032d9b796128d5299b96fe689ea567ed7d\n--- /dev/null\n+++ b/.claude/skills/record-a-decision/SKILL.md\n@@ -0,0 +1 @@\n+a skill\n```\n"
+      }
+     ],
+     "log": [
+      {
+       "at": "2026-11-10T03:00:00Z",
+       "event": "announced",
+       "key": "@c1@",
+       "acts": [
+        {
+         "kind": "code",
+         "path": "record-keeper.mjs"
+        },
+        {
+         "kind": "instructions",
+         "path": ".claude/skills/record-a-decision/SKILL.md"
+        }
+       ],
+       "told": [
+        1001,
+        1002
+       ]
+      }
+     ],
+     "lookups": []
+    }
+   }
+  },
+  {
    "id": "a10-amendment",
    "note": "A record replaces the protocol record: every owner approved and seven days passed. The act is that of the new record; the changed index row is not an act of its own.",
    "commits": [

@@ -14,9 +14,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const SCHEMA = 1;
-export const KINDS = ['managed', 'template'];
-/** Where a file of the install set may go in a repository that installs the kit. */
+export const KINDS = ['managed', 'template', 'block'];
+/** Where a file of the install set may go in a repository that installs the kit: below these folders, or at one of these paths (docs/agent-files.md). */
 export const DESTINATIONS = ['.github/', 'docs/decisions/'];
+export const DESTINATION_FILES = ['.claude/skills/record-a-decision/SKILL.md', 'AGENTS.md', 'CLAUDE.md'];
+/** The one file that a block is put into: the text between two markers of a file that the repository owns. Nothing else is a block, and AGENTS.md is nothing else. */
+export const BLOCK_PATH = 'AGENTS.md';
 
 const USAGE = `Usage:
   build-release-manifest.mjs --version <semver> --tag <tag> --commit <id> --out <file> [--root <folder>]
@@ -125,12 +128,13 @@ export function readInstall(root) {
     const where = `install.json: entry ${i + 1}`;
     if (!isObject(entry)) throw new ManifestError(`${where}: must be an object`);
     onlyKeys(entry, ['source', 'path', 'kind'], where);
-    if (!KINDS.includes(entry.kind)) throw new ManifestError(`${where}: kind must be ${KINDS.join(' or ')}`);
+    if (!KINDS.includes(entry.kind)) throw new ManifestError(`${where}: kind must be ${KINDS.slice(0, -1).join(', ')} or ${KINDS.at(-1)}`);
     for (const key of ['source', 'path']) {
       const problem = pathProblem(entry[key]);
       if (problem !== null) throw new ManifestError(`${where}: ${key} ${problem}`);
     }
-    if (!DESTINATIONS.some((start) => entry.path.startsWith(start))) throw new ManifestError(`${where}: path ${entry.path} is outside ${DESTINATIONS.join(' and ')}`);
+    if (!DESTINATIONS.some((start) => entry.path.startsWith(start)) && !DESTINATION_FILES.includes(entry.path)) throw new ManifestError(`${where}: path ${entry.path} is outside ${DESTINATIONS.join(' and ')} and is none of ${DESTINATION_FILES.join(', ')}`);
+    if ((entry.kind === 'block') !== (entry.path === BLOCK_PATH)) throw new ManifestError(`${where}: ${entry.path === BLOCK_PATH ? `${BLOCK_PATH} is installed only as a block` : `a block is installed only in ${BLOCK_PATH}`}`);
     const key = entry.path.toLowerCase();
     if (destinations.has(key)) throw new ManifestError(`${where}: path ${entry.path} is already the destination of ${destinations.get(key)}`);
     destinations.set(key, entry.path);

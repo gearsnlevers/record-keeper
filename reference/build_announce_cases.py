@@ -18,7 +18,7 @@ SET, PIN, WF = '.github/record-keeper/settings.yml', '.github/record-keeper.yml'
 HEAD, OLD = 'e' * 40, 'd' * 40
 INTRO = ('The owners approved an act that is now on the default branch. The audit opens this issue once for each commit and does not change it. '
          'Close it when you have seen it.')
-ORDER = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code']
+ORDER = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code', 'instructions']
 
 
 # ---- building histories (as in build_audit_effects_cases.py) ----------------------------------------------------------------------------
@@ -210,6 +210,19 @@ one('a07-deviation', 'A deviation note on a sealed record: an act of the deviati
 ACC7 = [rput(7, rec(7, 'accepted', True)), index(ROWS + [(7, 'accepted')])]
 one('a08-acceptance-is-not-announced', 'A record is accepted and approved: the act is an acceptance, which is not announced.', ACC7, APPROVED, None)
 one('a09-acceptance-and-pin', 'An acceptance and a change of the pin in one commit: only the pin is in the issue.', ACC7 + [PIN2], APPROVED, [('pin', PIN)], [block(PIN_DIFF())])
+SKILL_PATH, AGENTS_PATH = '.claude/skills/record-a-decision/SKILL.md', 'AGENTS.md'
+BLK = '<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->'
+AGENTS0 = '# Notes\n\n' + BLK + '\n\n- ours\n'
+T_AGENTS = owned(extra={AGENTS_PATH: AGENTS0})
+SKILL_T = 'a skill\n'
+one('a10-instructions-skill', 'The skill is added: an act of the kind instructions, announced with the diff of the new file.', [put(SKILL_PATH, SKILL_T)], APPROVED, [('instructions', SKILL_PATH)], [block(gdiff(SKILL_PATH, None, SKILL_T))])
+AGENTS1 = AGENTS0.replace('rule one', 'rule uno')
+one('a11-instructions-block', 'A word of the block of AGENTS.md changes: an act of the kind instructions, announced with the diff of the whole file.', [put(AGENTS_PATH, AGENTS1)], APPROVED, [('instructions', AGENTS_PATH)],
+    [block(gdiff(AGENTS_PATH, AGENTS0, AGENTS1))], tree=T_AGENTS)
+one('a12-agents-outside-the-block', 'Text outside the block of AGENTS.md changes: no act, so no announcement.', [put(AGENTS_PATH, AGENTS0.replace('- ours', '- ours, and more'))], APPROVED, None, tree=T_AGENTS)
+one('a13-instructions-after-code', 'A program and the skill in one commit: the acts come in the order of the audit, the skill after the program, and the title names the kinds in that order.',
+    [put('record-keeper.mjs', CODE_TEXT), put(SKILL_PATH, SKILL_T)], APPROVED, [('code', 'record-keeper.mjs'), ('instructions', SKILL_PATH)],
+    [block(gdiff('record-keeper.mjs', None, CODE_TEXT)), block(gdiff(SKILL_PATH, None, SKILL_T))])
 
 
 def readme_gens(rows, gens):

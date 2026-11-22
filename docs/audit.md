@@ -57,7 +57,7 @@ The command prints one line for each violation, `<12 hex digits of the commit>: 
 
 - **It does not know whether an act was approved**, unless it is given the evidence for it ([the effects of the audit](audit-effects.md#evidence---evidence-file)). Without it the acts are listed.
 - **It does not check the 48 hours** of an erratum, or that a cited issue or pull request exists. Both need GitHub.
-- **It does not read the installed text that agents read, or hash the workflow files against a manifest.** The design lists both; they need the pin and the installed files of M3 and M4.
+- **It does not hash the workflow files, the skill or the block of `AGENTS.md` against a manifest.** The design lists that; it needs the pin and the installed files, and [the setup check](setup-check.md) does it, by their hashes, every day. What the audit does is find a change to them as an act ([the files that agents read](agent-files.md#the-check-and-the-audit)) and ask whether the owners approved it, as for the other files of the check.
 - **It does not judge a history that is not on the first-parent line.** What a pull request did inside its branch is not on the default branch; its net change is.
 - **It is not fast on a long history.** Every commit is read and judged. A repository with thousands of commits takes minutes; a push can use `--since`, the nightly run does not.
 - **It does not repair anything.** It writes nothing, anywhere.

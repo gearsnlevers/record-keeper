@@ -43,6 +43,7 @@ SEVERITY = {
     'owners-few': 'warning',
     'owner-mismatch': 'warning',
     'managed-differs': 'warning',
+    'block-unusable': 'warning',
     'manifest-unreadable': 'warning',
     'pin-missing': 'warning',
     'pin-unusable': 'warning',
@@ -338,21 +339,33 @@ def decide(input):
             else:
                 passed.append('manifest')
                 differing = []
-                for file in sorted(release['files'], key=lambda item: item['path'].encode('utf-8')):
+                unusable = []
+                for file in sorted(release['files'] + release['blocks'], key=lambda item: item['path'].encode('utf-8')):
                     here = input['tree'].get(file['path'], {'kind': 'absent'})
                     if here['kind'] == 'absent':
                         differing.append('%s (missing)' % file['path'])
+                    elif here['kind'] == 'large':
+                        unusable.append('too-large')
+                    elif here['kind'] == 'block':
+                        if here['state'] == 'none':
+                            differing.append('%s (block missing)' % file['path'])
+                        elif here['state'] == 'refused':
+                            unusable.append(here['why'])
+                        elif here.get('sha256') != file['sha256'] or here.get('size') != file['size']:
+                            differing.append('%s (block differs)' % file['path'])
                     elif here['kind'] != 'file':
                         differing.append('%s (not a file)' % file['path'])
                     elif here.get('sha256') != file['sha256'] or here.get('size') != file['size']:
                         differing.append('%s (differs)' % file['path'])
-                if not differing:
+                if not differing and not unusable:
                     passed.append('managed-files')
-                else:
+                if differing:
                     detail = ', '.join(differing[:MAX_LIST])
                     if len(differing) > MAX_LIST:
                         detail += ', and %d more' % (len(differing) - MAX_LIST)
                     add('managed-differs', detail)
+                for why in unusable:
+                    add('block-unusable', why)
                 if SECRET in release['secrets']:
                     if input['event'] == 'pull_request':
                         not_looked_at.append({'topic': 'secret', 'why': 'a run for a pull request is not given the secrets'})

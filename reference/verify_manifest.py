@@ -12,6 +12,7 @@ import hashlib, json, os, re, stat, sys
 SEMVER = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?')
 COMMIT = re.compile(r'([0-9a-f]{40}|[0-9a-f]{64})')
 GENERATION = re.compile(r'g[1-9][0-9]{0,8}')
+DESTINATION_FILES = ['.claude/skills/record-a-decision/SKILL.md', 'AGENTS.md', 'CLAUDE.md']
 
 
 class Refused(Exception):
@@ -132,14 +133,16 @@ def read_install(root):
         if not isinstance(entry, dict):
             raise Refused(f'{where}: must be an object')
         keys_are(entry, ['source', 'path', 'kind'], where)
-        if entry['kind'] not in ('managed', 'template'):
-            raise Refused(f'{where}: kind must be managed or template')
+        if entry['kind'] not in ('managed', 'template', 'block'):
+            raise Refused(f'{where}: kind must be managed, template or block')
         for key in ('source', 'path'):
             problem = path_problem(entry[key])
             if problem:
                 raise Refused(f'{where}: {key} {problem}')
-        if not (entry['path'].startswith('.github/') or entry['path'].startswith('docs/decisions/')):
-            raise Refused(f'{where}: path {entry["path"]} is outside .github/ and docs/decisions/')
+        if not (entry['path'].startswith('.github/') or entry['path'].startswith('docs/decisions/') or entry['path'] in DESTINATION_FILES):
+            raise Refused(f'{where}: path {entry["path"]} is outside .github/ and docs/decisions/ and is none of {", ".join(DESTINATION_FILES)}')
+        if (entry['kind'] == 'block') != (entry['path'] == 'AGENTS.md'):
+            raise Refused(f'{where}: ' + ('AGENTS.md is installed only as a block' if entry['path'] == 'AGENTS.md' else 'a block is installed only in AGENTS.md'))
         folded = entry['path'].lower()
         if folded in seen:
             raise Refused(f'{where}: path {entry["path"]} is already the destination of {seen[folded]}')

@@ -20,10 +20,14 @@ GUARDED = ['.github/workflows/records-integrity.yml', '.github/workflows/records
            'record-keeper.mjs', 'check-pull-request.mjs', 'run-audit.mjs', 'setup-check.mjs', 'updater.mjs',
            '.github/record-keeper/record-keeper.mjs', '.github/record-keeper/check-pull-request.mjs', '.github/record-keeper/run-audit.mjs',
            '.github/record-keeper/setup-check.mjs', '.github/record-keeper/updater.mjs']
+# The files that agents read (docs/agent-files.md): the skill is guarded like a workflow, AGENTS.md only where its block is.
+SKILL = '.claude/skills/record-a-decision/SKILL.md'
+BLK = '<!-- record-keeper:begin -->\nrule one\n<!-- record-keeper:end -->'
 KIT_FILES = GUARDED + ['.github/workflows/test.yml']
 # What a mutation may touch: a guarded file, a folder or a file in front of one, something below one, and lookalikes.
 KIT_PATHS = GUARDED + ['.github/workflows', '.github/record-keeper', '.github', 'record-keeper.mjs/x', '.github/record-keeper/updater.mjs/x', '.github/workflows/records-updater.yml/x',
-                       '.github/record-keeper/sub/run-audit.mjs', '.github/record-keeper/run-audit.mjs.bak', '.github/updater.mjs', 'scripts/updater.mjs']
+                       '.github/record-keeper/sub/run-audit.mjs', '.github/record-keeper/run-audit.mjs.bak', '.github/updater.mjs', 'scripts/updater.mjs',
+                       SKILL, SKILL + '/x', '.claude', '.claude/skills', '.claude/skills/record-a-decision/other.md', '.claude/settings.json', 'CLAUDE.md']
 
 APPLIES = ['src/**', 'src/**/*.ts', 'README.md', 'lib/*.js', 'missing/**', 'src/x/*', 'my file.txt', 'src/a.t?', 'src/', 'src/***', 'lib/**/c.js', 'src/a.ts', 'old.txt', 'docs/*.md', 'src/**/b.ts', 'l**/c.js']
 
@@ -112,6 +116,9 @@ def world(rng):
     if rng.random() < 0.05: files['docs/adr/README.md'] = '# adr\n'
     if rng.random() < 0.1: files['.github/record-keeper.yml'] = 'source: a/b\nversion: v1\n'
     if rng.random() < 0.5: files['src/a.js'] = 'x\n'
+    if rng.random() < 0.5: files[SKILL] = 'a skill\n'
+    if rng.random() < 0.6: files['AGENTS.md'] = rng.choice(['# Notes\n', BLK + '\n', '# Notes\n\n' + BLK + '\n\nours\n', '# Notes\r\n\r\n' + BLK.replace('\n', '\r\n') + '\r\n', '<!-- record-keeper:begin -->\nhalf\n', ''])
+    if rng.random() < 0.4: files['CLAUDE.md'] = '@AGENTS.md\n'
     for tree_file in ['src/a.ts', 'src/x/b.ts', 'lib/c.js', 'README.md', 'my file.txt', 'docs/guide.md']:
         if rng.random() < 0.7: files[tree_file] = 'x\n'
     if rng.random() < 0.5:
@@ -181,7 +188,7 @@ def mutate(rng, folder, files):
     f = dict(files)
     menu = ['edit', 'edit', 'edit', 'status', 'status', 'delete', 'rename', 'add', 'add', 'supersede', 'supersede', 'index', 'index', 'mode', 'link', 'shared', 'settings', 'pin',
             'attributes', 'other-folder', 'unrelated', 'seal', 'readme-prose', 'template', 'accept', 'kit-file', 'kit-file', 'workflow', 'workflow', 'gens', 'gens', 'amend', 'amend', 'amend', 'tree-file', 'tree-file', 'tree-file',
-            'note', 'note', 'note', 'note', 'note', 'note']
+            'note', 'note', 'note', 'note', 'note', 'note', 'agents', 'agents', 'agents', 'agents', 'agents', 'agents', 'agents', 'agents']
     for _ in range(rng.choice([1, 1, 2, 2, 3, 4])):
         what = rng.choice(menu)
         recs = sorted(p for p in f if isinstance(f[p], str) and p.startswith(folder + '/') and '/' not in p[len(folder) + 1:] and p[len(folder) + 1:][:4].isdigit() and p.endswith('.md'))
@@ -235,6 +242,26 @@ def mutate(rng, folder, files):
             elif act == 'mode': f[path] = ('100755', 'x')
             elif act == 'link': f[path] = ('120000', 'elsewhere')
             else: f[path] = rng.choice(['x\n', 'name: Records integrity\n', '// code\n'])
+        elif what == 'agents':
+            path = 'AGENTS.md'
+            act = rng.choice(['inside', 'outside', 'outside', 'append', 'break', 'break', 'delete', 'mode', 'link', 'fence', 'moved', 'fresh', 'folder', 'crlf', 'skill', 'skill', 'claude'])
+            cur = f.get(path) if isinstance(f.get(path), str) else None
+            if act == 'skill': f[SKILL] = rng.choice(['a skill\n', 'another skill\n'])
+            elif act == 'claude': f['CLAUDE.md'] = rng.choice(['@AGENTS.md\n', 'ours\n'])
+            elif act == 'delete': f.pop(path, None)
+            elif act == 'mode': f[path] = ('100755', cur if cur is not None else '# Notes\n')
+            elif act == 'link': f[path] = ('120000', 'docs/AGENTS.md')
+            elif act == 'folder': f.pop(path, None); f[path + '/x'] = 'x\n'
+            elif act == 'fresh': f[path] = rng.choice(['# New\n', BLK + '\n', '# New\n\n' + BLK, ''])
+            else:
+                cur = cur if cur is not None else '# Notes\n\n' + BLK + '\n'
+                if act == 'inside': f[path] = cur.replace('rule one', rng.choice(['rule uno', 'rule one ', 'rule 1', 'rule one\nrule two']))
+                elif act == 'outside': f[path] = rng.choice(['Other text.\n', '\n\n', '- ours\n']) + cur + rng.choice(['', 'tail\n', '\n'])
+                elif act == 'append': f[path] = cur + '\n' + BLK + '\n'
+                elif act == 'break': f[path] = cur.replace('<!-- record-keeper:end -->', rng.choice(['', 'record-keeper:end', ' <!-- record-keeper:end -->', '<!-- record-keeper:end --> x']), 1).replace('<!-- record-keeper:begin -->', rng.choice(['<!-- record-keeper:begin -->', '<!-- record-keeper:begin -->', '']), 1)
+                elif act == 'fence': f[path] = '```\n' + cur + '\n```\n'
+                elif act == 'moved': f[path] = BLK + '\n' + cur.replace(BLK, '')
+                else: f[path] = cur.replace('\r\n', '\n') if '\r\n' in cur else cur.replace('\n', '\r\n')
         elif what == 'workflow':
             wfname = rng.choice(['a.yml', 'b.yaml', 'c.YML', 'records-integrity.yaml', 'Records_Integrity.yml', 'records integrity.yml', 'sub/d.yml', 'e.txt', 'test.yml', 'recordſ-integrity.yml',
                                  'records-updater.yml', 'records-setup-check.yml', 'records-updater.yaml', 'records-audit.yml', 'records-integrity.yml'])
