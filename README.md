@@ -44,8 +44,6 @@ node tools/build-release-manifest.mjs --version <semver> --tag <tag> --commit <i
                                                # write the manifest of a release: the digest of every file of install.json
 node tools/build-release-manifest.mjs --verify <manifest>
                                                # check a manifest against the files of the working tree
-node tools/update-changelog.mjs --tag <tag> --notes <file>
-                                               # add a section for a release to CHANGELOG.md (what the release workflow runs)
 npm test                                       # the library, the command line, the test vectors and the fixtures
 ```
 

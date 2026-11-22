@@ -305,6 +305,7 @@ The three existing validators differ only in such extras (frodo-lib has a `repos
 ## Delivery and versions
 
 - Releases are semantic, immutable and attested, with a manifest of content hashes, produced by the same release actions the Concierge uses.
+- A release writes nothing to the default branch: the tag goes on the commit that is released, the notes of the release are the changelog, and `package.json` stays at `0.0.0` because the version comes from the tags ([the release workflow](releases.md#the-release-workflow)). The ruleset of the default branch requires a pull request and the workflow token has no bypass, so a release that committed there would be refused.
 - The updater is a copy of the Concierge's updater, adapted to this kit's pin file. This duplicates code on purpose for the first release. Extracting one updater that serves any kit is worth doing once two kits exist, not before.
 - A change to a rule is a new record in the kit and a new release, never a patch in a consumer. The updater rebuilds one branch and one pull request in each repository; a maintainer merges it.
 - The updater and the reaction layer open pull requests, so they need a token that can, not the workflow token: the organisation policy planned for the Actions token disables pull request creation by Actions.

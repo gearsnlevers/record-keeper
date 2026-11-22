@@ -208,7 +208,7 @@ describe('the templates', () => {
 
   test('the files that a release installs name no deployment, and no product that uses the kit', () => {
     const names = new RegExp([['concier', 'ge'], ['fro', 'do'], ['rock', 'carver'], ['ping', 'identity']].map((parts) => parts.join('')).join('|'), 'i');
-    const files = [...install.files.map(({ source }) => source), 'install.json', 'tools/build-release-manifest.mjs', 'tools/update-changelog.mjs', '.github/workflows/release.yml', 'reference/verify_manifest.py'];
+    const files = [...install.files.map(({ source }) => source), 'install.json', 'tools/build-release-manifest.mjs', '.github/workflows/release.yml', 'reference/verify_manifest.py'];
     for (const file of files) assert.doesNotMatch(read(file), names, file);
   });
 });
@@ -539,12 +539,14 @@ describe('a repository with the layout of a consumer', () => {
       assert.match(git(bare, 'show', 'refs/heads/record-keeper/log:last-run.json'), /"violations":0/);
     });
 
-    test('the commit that the release workflow pushes, the changelog and the version, is no act and no breach', async () => {
+    // The release workflow no longer commits the changelog and the version, but a commit of a person that changes only files that the check does not guard
+    // (a changelog, a package file) must stay no act and no breach when the installed copy audits it.
+    test('a commit that changes only files that the check does not guard, a changelog and a package file, is no act and no breach', async () => {
       const dev = adopted();
       write(dev, 'CHANGELOG.md', '# Changelog\n\n## [v1.0.0] - 2026-11-17\n\n- a change\n');
       write(dev, 'package.json', '{\n  "name": "record-keeper",\n  "version": "1.0.0",\n  "private": true\n}\n');
       git(dev, 'add', '-A');
-      git(dev, 'commit', '-q', '-m', 'chore: release v1.0.0');
+      git(dev, 'commit', '-q', '-m', 'docs: note the changelog and the package version');
       const { work } = origin(dev);
       const server = await github(dev);
       const got = await run(work, server, '--dry-run');
