@@ -1,1 +1,2 @@
 {"at":"2026-11-21T00:53:01Z","event":"opened","key":"0001:P-13","violations":[{"commit":"2e48120963dc1060001c1a42116515f61113abc7","kind":"commit","file":"0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md","rule":"P-13","detail":"1h of 48h"}]}
+{"at":"2026-11-22T04:04:49Z","event":"closed","key":"0001:P-13","violations":[]}
