@@ -1,7 +1,12 @@
 name: Release
 
-# Cuts a Record Keeper release: the tests, the next version, a preflight, the changelog, the release manifest, the tag and the GitHub release (docs/releases.md).
-# It is modelled on the release workflows of the action repositories of this organisation and uses the same actions.
+# Cuts a Record Keeper release: the tests, the next version, a preflight, the release notes, the release manifest, the tag and the GitHub release (docs/releases.md).
+# It is modelled on the release workflows of the action repositories of this organisation and uses their release actions.
+#
+# It writes NOTHING to the default branch: no commit and no push of a branch. The ruleset of the default branch requires a pull request and the token of
+# this workflow cannot bypass it, so a bot that wrote there would be refused at the first release. The tag goes on the commit that the run started from,
+# which is the commit that the manifest names; the notes of the release are the changelog; `package.json` stays at 0.0.0, because the version comes from
+# the tags. The only thing this workflow writes to the repository is the tag, and the release.
 #
 # It runs by hand only. A real release runs from the default branch; a dry run runs from any branch, writes nothing to the repository and publishes
 # nothing, and uploads the manifest and the notes as an artifact. The first time, choose `major` with the dry run switched on, read the summary, and then
@@ -24,7 +29,7 @@ on:
         default: 'prerelease'
         required: true
       dry-run:
-        description: 'Compute everything and upload the manifest and the notes as an artifact, but do not commit, tag or publish'
+        description: 'Compute everything and upload the manifest and the notes as an artifact, but do not tag or publish'
         type: boolean
         default: false
 
@@ -81,19 +86,12 @@ jobs:
         with:
           candidate-version: ${{ steps.version.outputs.newVersion }}
           candidate-tag: ${{ steps.version.outputs.newTag }}
-          package-name: 'record-keeper'
-          current-version: ${{ steps.version.outputs.base }}
           check-remote-tag: true
           check-npm-version: false
-          check-version-drift: true
 
-      - name: Update package.json
-        uses: gearsnlevers/manifest-version-update-action@b12e72175cf5af138e466c11fe5148277c137cec # v1.0.5
-        with:
-          version: ${{ steps.version.outputs.newVersion }}
-          update-package-lock: false
-
-      - name: Release notes and changelog (AI)
+      # The notes are the changelog: they are the body of the release, and nothing is committed. The action works on a file of its own and not on
+      # CHANGELOG.md, so that no file of the commit is changed (the step after the notes checks it).
+      - name: Release notes (AI)
         if: env.HAS_LLM_KEY == 'true'
         uses: gearsnlevers/ai-changelog-action@088269a817c890a026e6fdf4826e24130607a59e # v1.1.13
         with:
@@ -105,9 +103,10 @@ jobs:
           promote-release: true
           release-tag: ${{ steps.version.outputs.newTag }}
           release-notes-path: RELEASE_NOTES.md
+          changelog-path: release-changelog-work.md
           commit: false
 
-      - name: Release notes and changelog (GitHub generated)
+      - name: Release notes (GitHub generated)
         if: env.HAS_LLM_KEY != 'true'
         env:
           TAG: ${{ steps.version.outputs.newTag }}
@@ -118,9 +117,18 @@ jobs:
           if [ -n "${PREVIOUS}" ]; then args+=(-f "previous_tag_name=${PREVIOUS}"); fi
           gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" "${args[@]}" --jq .body > RELEASE_NOTES.md
           if ! grep -q '[^[:space:]]' RELEASE_NOTES.md; then printf 'Release %s.\n' "${TAG}" > RELEASE_NOTES.md; fi
-          node tools/update-changelog.mjs --tag "${TAG}" --notes RELEASE_NOTES.md
 
-      # What the install set refuses (a source that is gone, a link, a path that is not allowed) stops the run here, before anything is written.
+      # The manifest is of the commit that is tagged, so no step may have changed a file of that commit: the files are what the commit holds.
+      - name: The files are the files of the commit
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet HEAD; then
+            git status --short
+            echo "::error::A step has changed a file of the commit that is released. This workflow writes nothing to the repository but the tag."
+            exit 1
+          fi
+
+      # What the install set refuses (a source that is gone, a link, a path that is not allowed) stops the run here, before the tag and the release are written.
       - name: Check the install set
         env:
           VERSION: ${{ steps.version.outputs.newVersion }}
@@ -130,23 +138,7 @@ jobs:
           node tools/build-release-manifest.mjs --version "${VERSION}" --tag "${TAG}" --commit "$(git rev-parse HEAD)" --out "${RUNNER_TEMP}/install-set-check.json"
           node tools/build-release-manifest.mjs --verify "${RUNNER_TEMP}/install-set-check.json"
 
-      - name: Commit the changelog and the version
-        if: env.DRY_RUN != 'true'
-        env:
-          TAG: ${{ steps.version.outputs.newTag }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md package.json
-          if git diff --cached --quiet; then
-            echo "No changelog or version changes to commit"
-          else
-            git commit -m "chore: release ${TAG}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
-          fi
-
-      # The manifest is of the commit that is tagged: after the commit above, so that it names the commit the release is made from.
+      # The manifest is of the commit that the run started from, which is the commit that is tagged (and the commit that a dry run was started from).
       - name: Build and verify the release manifest
         env:
           VERSION: ${{ steps.version.outputs.newVersion }}
@@ -163,10 +155,18 @@ jobs:
           TAG: ${{ steps.version.outputs.newTag }}
         run: |
           set -euo pipefail
+          # The tag is the one thing that this workflow writes to the repository. It goes on the commit that the run started from, which is the commit
+          # that the manifest names, and it needs a name for the tagger because nothing has set one (the commit that did is gone).
+          current="$(git rev-parse HEAD)"
+          if ! grep -qxF "  \"commit\": \"${current}\"," release-manifest.json; then
+            echo "::error::The manifest does not name the commit that is to be tagged (${current})"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch --tags
           if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
             existing="$(git rev-list -n 1 "${TAG}")"
-            current="$(git rev-parse HEAD)"
             if [ "${existing}" = "${current}" ]; then
               echo "Tag ${TAG} already exists on the current commit; skipping"
               exit 0
@@ -174,8 +174,8 @@ jobs:
             echo "::error::Tag ${TAG} already exists on a different commit"
             exit 1
           fi
-          git tag -a "${TAG}" -m "Release ${TAG}"
-          git push origin "${TAG}"
+          git tag -a "${TAG}" -m "Release ${TAG}" "${current}"
+          git push origin "refs/tags/${TAG}"
 
       - name: Create the draft release
         if: env.DRY_RUN != 'true'
@@ -220,7 +220,6 @@ jobs:
           path: |
             release-manifest.json
             RELEASE_NOTES.md
-            CHANGELOG.md
 
       - name: Summary
         if: always()
