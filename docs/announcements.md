@@ -11,7 +11,7 @@ An announcement is made for every repository and cannot be switched off. Deletin
 | `erratum`, `deviation` | yes |
 | `amendment` | yes |
 | `owners`, `settings` | yes (a change of the owners is also a change of the settings) |
-| `pin`, `workflow`, `code` | yes |
+| `pin`, `workflow`, `code`, `instructions` | yes |
 | `accept` | no: it needs the owners' approvals, and it shows in the pull request like any new record |
 
 An act of a commit is **announced** when its kind is in the table and the audit found no violation of [A-03](audit-effects.md#a-03-an-act-that-was-not-approved) for it, standing or excused by a note. A violation of A-03 has its own issue, the incident; an announcement says that the owners approved. A commit with no announced act has no announcement.
@@ -65,7 +65,7 @@ The text writes `@<login>` with the **current login** from `--logins` for an acc
 
 ## The text of the issue
 
-The title is `Act: <kinds> (#<number>)`, where the kinds are those of the announced acts, each once, in the order `erratum`, `deviation`, `settings`, `owners`, `amendment`, `pin`, `workflow`, `code`, separated by a comma and a space, and `<number>` is the number of the pull request that the evidence names for the commit.
+The title is `Act: <kinds> (#<number>)`, where the kinds are those of the announced acts, each once, in the order `erratum`, `deviation`, `settings`, `owners`, `amendment`, `pin`, `workflow`, `code`, `instructions`, separated by a comma and a space, and `<number>` is the number of the pull request that the evidence names for the commit.
 
 The body is, with `<` and `>` standing for what is filled in:
 
@@ -109,7 +109,7 @@ The announcement is not a reason for the job to fail, and does not change `faile
 
 ## Choices in this draft for you to decide
 
-1. **The acts of the design plus `settings` and `code`.** The design names the erratum, the deviation, the amendment, and changes to the owners, `approvals`, the pin and the workflow files. The kit also guards its own program files (`code`) and every other change of the settings. Both can weaken the check as much as a workflow can, so they are announced. The acceptance of a record is not. Decided on 2026-11-13.
+1. **The acts of the design plus `settings`, `code` and `instructions`.** The design names the erratum, the deviation, the amendment, and changes to the owners, `approvals`, the pin and the workflow files. The kit also guards its own program files (`code`) and every other change of the settings. Both can weaken the check as much as a workflow can, so they are announced. The acceptance of a record is not. Decided on 2026-11-13. M3d adds `instructions`, the skill and the block of `AGENTS.md` ([the files that agents read](agent-files.md)): text that an agent obeys is as good a way round a record as a workflow, so a change that the owners approved is announced too, with the diff of the whole file.
 2. **One issue for each commit.** Decided on 2026-11-13.
 3. **No state: the issues are the memory,** and the first run opens every announcement that is missing since the adoption. Decided on 2026-11-13. The cost is a run of issues once in a repository that has acts already; the benefit is that a deleted announcement comes back, and that nobody can start the announcements later than they began.
 4. **A mention follows the account, not the name.** The login is looked up by the id in the settings. Decided on 2026-11-13.

@@ -135,6 +135,11 @@ case('b03-new-bad-front-matter', 'A new record with a decision-makers that is a 
 case('b04-new-duplicate-number', 'A new record with the number of an existing one (name order puts it after).', [rput(3, rec(3)), put(f'{D}/0003-zeta.md', rec(3)), index(ROWS + [(3, 'proposed', 'zeta')])],
      problems=[p('0003-zeta.md', 'V-07')])
 case('b05-new-too-long', 'A new record over sixty lines.', [rput(7, rec(7, body_lines=60)), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-10')])
+# rec() has 24 lines outside its sections and the body_lines that are asked for, and one more with a seal: so 36 make exactly 60 (35 with a seal) and 37 make 61 (36).
+case('b05b-new-sixty-lines-and-two-sections', 'A new record of exactly sixty lines outside its sections, with a Known deviations and an Errata section: the length is judged without the two sections.',
+     [rput(7, rec(7, body_lines=36, deviations='- Noted.', errata='- Fixed.')), index(ROWS + [(7, 'proposed')])])
+case('b05c-new-sixty-one-lines-and-two-sections', 'A new record of sixty-one lines outside its sections, with the two sections: the sections do not make it fit.',
+     [rput(7, rec(7, body_lines=37, deviations='- Noted.', errata='- Fixed.')), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-10')])
 case('b06-new-email', 'A new record with an e-mail address.', [rput(7, rec(7, mail=True)), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-12')])
 case('b07-new-unknown-key', 'A new record with a key that is not a standard key.', [rput(7, rec(7, keys='repos: a')), index(ROWS + [(7, 'proposed')])], problems=[p(name(7), 'V-13')])
 case('b08-new-extra-key-allowed', 'The same key is fine when the settings of the base name it.', base='clean-settings', changes=[rput(7, rec(7, keys='repos: a')), index(ROWS + [(7, 'proposed')])])
@@ -160,6 +165,8 @@ case('c07-seal-then-edit', 'A seal made for the record before a last edit of the
      problems=[p(name(3), 'P-06', 'seal does not match')])
 case('c08-seal-on-proposed', 'A seal on a record that is still proposed.', [rput(3, rec(3, 'proposed', True))], problems=[p(name(3), 'P-07')])
 case('c09-seal-on-rejected', 'A seal on a rejected record.', [rput(4, rec(4, 'rejected', True))], problems=[p(name(4), 'P-07')])
+case('c09b-accepted-sixty-lines-and-a-section', 'A record is accepted with exactly sixty lines outside a Known deviations section: an acceptance, and the section is not counted.',
+     [rput(3, rec(3, 'accepted', True, body_lines=35, deviations='- Noted.')), index(rows_with(r3='accepted'))], acts=[acc(3)])
 case('c10-accepted-with-format-problem', 'An acceptance of a record that has a format problem: both are reported.', [rput(3, rec(3, 'accepted', True, makers='single')), index(rows_with(r3='accepted'))],
      problems=[p(name(3), 'V-14')], acts=[acc(3)])
 case('c11-new-superseded-record', 'A record can arrive already superseded when its successor is sealed and lists it.',
@@ -528,6 +535,13 @@ M26 = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=60).encode())
 case('r26-erratum-longer-than-sixty-lines', 'An erratum may make a record longer than sixty lines: the length is judged at acceptance.', [rput(2, rec(2, 'accepted', M26, consequences=C1, body_lines=60, errata=txt([ent(1, 'none', S0, M26)])))],
      acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
 
+M26B = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=36).encode())
+case('r26b-erratum-to-sixty-one-lines', 'An erratum makes the text of a record sixty-one lines outside the sections: the length is judged at acceptance, so V-10 is not reported for it (an erratum does not have to fit the cap again).',
+     [rput(2, rec(2, 'accepted', M26B, consequences=C1, body_lines=36, errata=txt([ent(1, 'none', S0, M26B)])))], acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
+M26C = g1.seal_g1(rec(2, 'accepted', consequences=C1, body_lines=35).encode())
+case('r26c-erratum-to-sixty-lines', 'An erratum makes the text of a record exactly sixty lines: nothing to waive, and the entry of the erratum is not counted.',
+     [rput(2, rec(2, 'accepted', M26C, consequences=C1, body_lines=35, errata=txt([ent(1, 'none', S0, M26C)])))], acts=[ER()], since=SINCE_OK, needs=dict(cases=[], clock=True))
+
 T28 = rec(2, 'accepted', consequences=C1).replace('# The second decision', '# The 2nd decision')
 M28 = g1.seal_g1(T28.encode())
 case('r28-erratum-title-without-index', 'The title of the record is corrected and the index shows the old one.',
@@ -627,7 +641,10 @@ case('x29-deviation-section-after-alternatives', 'The section is added after Alt
 case('x30-deviation-mail', 'The reason of the note contains an e-mail address.', [rput(2, rec(2, 'accepted', True, deviations=txt([dev(1, 'pull 5', 'Ask someone@example.com.')])))], problems=[p(name(2), 'V-12')], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x31-deviation-credential', 'The reason of the note contains a key.', [rput(2, rec(2, 'accepted', True, deviations=txt([dev(1, 'pull 5', 'Used AKIA' + 'A' * 16 + ' once.')])))], problems=[p(name(2), 'V-11')], acts=[DV()], cases=CASES5, needs=NEED_P5)
 TREES['long'] = {**TREES['world'], f'{D}/{name(2)}': rec(2, 'accepted', True, body_lines=60)}
-case('x32-deviation-past-sixty-lines', 'A note may take a record past sixty lines.', base='long', changes=[rput(2, rec(2, 'accepted', True, body_lines=60, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
+case('x32-deviation-past-sixty-lines', 'A record that is past sixty lines without its sections can take a note: V-10 is not one of the rules of a note.', base='long', changes=[rput(2, rec(2, 'accepted', True, body_lines=60, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
+TREES['sixty'] = {**TREES['world'], f'{D}/{name(2)}': rec(2, 'accepted', True, body_lines=35)}
+case('x32b-deviation-on-a-record-of-sixty-lines', 'A record of exactly sixty lines takes a note: the section is not counted, so the record stays at sixty.',
+     base='sixty', changes=[rput(2, rec(2, 'accepted', True, body_lines=35, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x33-deviation-on-a-record-with-a-mail', 'The record had an e-mail address at the base: the note does not bring it.', base='legacy-mail', changes=[rput(2, rec(2, 'accepted', True, mail=True, deviations=txt([dev(1, 'pull 5')])))], acts=[DV()], cases=CASES5, needs=NEED_P5)
 case('x34-deviation-heading-only', 'The section is added with a heading and no entry.', [rput(2, rec(2, 'accepted', True, deviations=' '))], problems=[p(name(2), 'P-14', 'no new entry'), p(name(2), 'V-28')], acts=[DV()])
 case('x35-deviation-on-a-proposed-record', 'A proposed record gets a Known deviations section: free editing, no act.', [rput(3, rec(3, deviations='Nothing yet.'))])
@@ -995,6 +1012,70 @@ case('v32-superseding-and-a-note', 'The status changes together with a deviation
      base='broken-text', changes=[SUP7(2, seal=S0, deviations=NOTE1, **BROKEN), SUCC7(2), IDX7(r2='superseded by 0007')], problems=[P06()], acts=[acc(7)], cases=CASES5)
 case('v33-superseding-a-record-with-an-old-format-problem', 'The record is past sixty lines (V-10 at the base) and does not verify: the supersession does not bring the old V-10 or the old P-06 back.',
      base='broken-long', changes=[SUP7(2, seal=S0, body_lines=60), SUCC7(2), IDX7(r2='superseded by 0007')], acts=[acc(7)])
+
+# ---- the files that agents read (M3d): docs/agent-files.md --------------------------------------------------------------------------
+SK = '.claude/skills/record-a-decision/SKILL.md'
+AG, CL = 'AGENTS.md', 'CLAUDE.md'
+BEGIN, END = '<!-- record-keeper:begin -->', '<!-- record-keeper:end -->'
+BLK = f'{BEGIN}\nrule one\nrule two\n{END}'
+AGENTS = f'# Notes for agents\n\nBuild with care.\n\n{BLK}\n\n- our own list\n'
+TREES['agents'] = {**TREES['kit-installed'], SK: 'a skill\n', AG: AGENTS, CL: '@AGENTS.md\n'}
+TREES['agents-plain'] = {**TREES['kit-installed'], SK: 'a skill\n', AG: '# Notes for agents\n\nBuild with care.\n', CL: '@AGENTS.md\n'}
+TREES['agents-none'] = {**TREES['kit-installed']}
+TREES['agents-broken'] = {**TREES['kit-installed'], AG: f'# Notes\n\n{BEGIN}\nrule one\n'}
+TREES['agents-link'] = {**TREES['kit-installed'], AG: ('link', 'docs/AGENTS.md'), 'docs/AGENTS.md': AGENTS}
+TREES['agents-folder'] = {**TREES['kit-installed'], f'{AG}/inner.md': 'x\n'}
+INS = lambda path: a('instructions', path)
+case('m01-skill-edited', 'The skill is edited: an act of the kind instructions.', base='agents', changes=[put(SK, 'a skill, changed\n')], acts=[INS(SK)])
+case('m02-skill-deleted', 'The skill is deleted.', base='agents', changes=[drop(SK)], acts=[INS(SK)])
+case('m03-skill-added', 'The skill is added where there was none: guarded before it exists, as the workflows are.', base='agents-none', changes=[put(SK, 'a skill\n')], acts=[INS(SK)])
+case('m04-skill-mode', 'The skill gets the executable mode and nothing else.', base='agents', changes=[put(SK, 'a skill\n', '100755')], acts=[INS(SK)])
+case('m05-skill-becomes-a-link', 'The skill becomes a symbolic link.', base='agents', changes=[{'symlink': SK, 'target': 'elsewhere.md'}], acts=[INS(SK)])
+case('m06-folder-in-front-of-the-skill', 'The folder .claude is replaced by a file: the skill is gone.', base='agents', changes=[drop(SK), put('.claude', 'x\n')], acts=[INS(SK)])
+case('m07-below-the-skill', 'A folder stands where the skill file was.', base='agents', changes=[drop(SK), put(SK + '/x', 'x\n')], acts=[INS(SK)])
+case('m08-other-files-of-the-folder-are-not-guarded', 'Files beside the skill, another skill and another file of .claude are not guarded: nothing is installed there.', base='agents',
+     changes=[put('.claude/skills/record-a-decision/other.md', 'x\n'), put('.claude/skills/other/SKILL.md', 'x\n'), put('.claude/settings.json', '{}\n'), put('.claude/skills/record-a-decision/SKILL.md.bak', 'x\n')])
+case('m09-text-outside-the-block', 'Text before and after the block changes: nothing that agents read from the kit.', base='agents', changes=[put(AG, AGENTS.replace('Build with care.', 'Build with great care.').replace('our own list', 'our other list'))])
+case('m10-inside-the-block', 'A word of the block changes.', base='agents', changes=[put(AG, AGENTS.replace('rule one', 'rule uno'))], acts=[INS(AG)])
+case('m11-begin-marker-changed', 'The begin marker is changed: the markers are refused, and that is a change.', base='agents', changes=[put(AG, AGENTS.replace(BEGIN, BEGIN.replace('begin', 'start')))], acts=[INS(AG)])
+case('m12-begin-marker-damaged', 'A space is added after the begin marker.', base='agents', changes=[put(AG, AGENTS.replace(BEGIN, BEGIN + ' '))], acts=[INS(AG)])
+case('m13-end-marker-removed', 'The end marker is taken away.', base='agents', changes=[put(AG, AGENTS.replace(END, ''))], acts=[INS(AG)])
+case('m14-block-removed', 'The block is taken out and the rest stays.', base='agents', changes=[put(AG, AGENTS.replace(BLK + '\n\n', ''))], acts=[INS(AG)])
+case('m15-block-added', 'A block is added to an AGENTS.md that had none.', base='agents-plain', changes=[put(AG, AGENTS)], acts=[INS(AG)])
+case('m16-file-deleted-with-a-block', 'AGENTS.md is deleted, and it had the block.', base='agents', changes=[drop(AG)], acts=[INS(AG)])
+case('m17-file-deleted-without-a-block', 'AGENTS.md is deleted, and it had no block.', base='agents-plain', changes=[drop(AG)])
+case('m18-file-created-without-a-block', 'AGENTS.md is created with no block.', base='agents-none', changes=[put(AG, '# Notes\n')])
+case('m19-file-created-with-a-block', 'AGENTS.md is created with the block.', base='agents-none', changes=[put(AG, BLK + '\n')], acts=[INS(AG)])
+case('m20-mode-only', 'AGENTS.md gets the executable mode and nothing else: the bytes are the same.', base='agents', changes=[put(AG, AGENTS, '100755')])
+case('m21-file-becomes-a-link', 'AGENTS.md becomes a link that can lead anywhere.', base='agents', changes=[{'symlink': AG, 'target': 'docs/AGENTS.md'}], acts=[INS(AG)])
+case('m22-link-becomes-a-file', 'A link becomes the file.', base='agents-link', changes=[put(AG, AGENTS)], acts=[INS(AG)])
+case('m23-link-target-changes', 'The file that the link leads to changes and the link does not: the check sees a change of docs/AGENTS.md, which is not guarded.', base='agents-link', changes=[put('docs/AGENTS.md', 'x\n')])
+case('m24-file-becomes-a-folder', 'A folder stands where AGENTS.md was.', base='agents', changes=[drop(AG), put(AG + '/inner.md', 'x\n')], acts=[INS(AG)])
+case('m25-folder-becomes-a-file', 'A file stands where the folder AGENTS.md was.', base='agents-folder', changes=[drop(AG + '/inner.md'), put(AG, '# Notes\n')], acts=[INS(AG)])
+case('m26-line-ends-outside', 'Line ends outside the block change from LF to CRLF.', base='agents', changes=[put(AG, AGENTS.replace(BLK, 'BLK').replace('\n', '\r\n').replace('BLK', BLK))], acts=[])
+case('m27-line-ends-inside', 'The lines of the block get CRLF line ends: another text.', base='agents', changes=[put(AG, AGENTS.replace(BLK, BLK.replace('\n', '\r\n')))], acts=[INS(AG)])
+case('m28-markers-in-a-fence-added', 'An example of the markers in a fence is added above the block: it is no block.', base='agents', changes=[put(AG, f'```\n{BEGIN}\n{END}\n```\n' + AGENTS)])
+case('m29-block-moves', 'The block moves to the top of the file: the same bytes.', base='agents', changes=[put(AG, BLK + '\n\n# Notes for agents\n\nBuild with care.\n\n- our own list\n')])
+case('m30-block-wrapped-in-a-fence', 'The block is wrapped in a fence: no block any more.', base='agents', changes=[put(AG, AGENTS.replace(BLK, f'```\n{BLK}\n```'))], acts=[INS(AG)])
+case('m31-broken-markers-unchanged', 'A file whose markers are broken is the same at both ends: no act.', base='agents-broken', changes=[put('README.md', 'x\n')])
+case('m32-broken-markers-edited-anywhere', 'A file whose markers are broken is edited outside any marker: the check cannot tell what is inside, so it counts.', base='agents-broken', changes=[put(AG, f'# Other notes\n\n{BEGIN}\nrule one\n')], acts=[INS(AG)])
+case('m33-broken-markers-mended', 'The broken markers are mended.', base='agents-broken', changes=[put(AG, f'# Notes\n\n{BLK}\n')], acts=[INS(AG)])
+case('m34-claude-md-is-not-guarded', 'CLAUDE.md is a template: the repository owns it, and a change to it is no act.', base='agents', changes=[put(CL, 'something else\n')])
+case('m35-claude-md-deleted', 'CLAUDE.md is deleted: no act.', base='agents', changes=[drop(CL)])
+case('m36-lookalikes', 'Files that only look like the files of the agents: no act.', base='agents', changes=[put('docs/AGENTS.md', 'x\n'), put('agents-notes.md', 'x\n'), put('AGENTS.md.bak', 'x\n'), put('sub/AGENTS.md', f'{BLK}\n'), put('CLAUDE.local.md', 'x\n')])
+case('m37-all-together', 'The skill, the block, a program, the pin and the settings in one change: the acts come in their order, the skill before AGENTS.md by their bytes.', base='agents',
+     changes=[put(SK, 'new skill\n'), put(AG, AGENTS.replace('rule two', 'rule 2')), put(RKI, '// changed\n'), put('.github/record-keeper.yml', 'x\n'), put(SET, 'owners: [alice/1001]\nextra-keys: [repos]\n')],
+     acts=[a('settings', SET), a('pin', '.github/record-keeper.yml'), CI(RKI), INS(SK), INS(AG)])
+case('m38-block-and-text-outside-together', 'The block and the text outside it change together: the block alone makes the act.', base='agents', changes=[put(AG, AGENTS.replace('rule one', 'rule uno').replace('our own list', 'our new list'))], acts=[INS(AG)])
+case('m39-the-text-of-a-marker-in-prose', 'Prose that holds the stem of a marker is a line that holds more than a marker: the markers are refused, and that is a change.', base='agents', changes=[put(AG, AGENTS + '\nThe block starts at record-keeper:begin.\n')], acts=[INS(AG)])
+case('m40-unclosed-fence-added-after-the-block', 'A fence that is never closed is added after the block: the block is still the block.', base='agents', changes=[put(AG, AGENTS + '\n```\nopen\n')])
+case('m41-no-block-to-no-block-with-a-fence', 'A file with no block gets a fenced example of the markers.', base='agents-plain', changes=[put(AG, '# Notes for agents\n\n```\n' + BLK + '\n```\n')])
+case('m43-a-file-with-no-block-becomes-a-link', 'AGENTS.md has no block and becomes a link: a link can lead anywhere, so it is an act whatever the old file said.', base='agents-plain', changes=[{'symlink': AG, 'target': 'docs/AGENTS.md'}], acts=[INS(AG)])
+case('m44-a-link-becomes-a-file-with-no-block', 'A link becomes a file that has no block: the act is the link that is gone.', base='agents-link', changes=[put(AG, '# Notes\n')], acts=[INS(AG)])
+case('m45-a-file-with-no-block-becomes-a-folder', 'AGENTS.md has no block and becomes a folder.', base='agents-plain', changes=[drop(AG), put(AG + '/inner.md', 'x\n')], acts=[INS(AG)])
+case('m42-first-adoption-commit', 'The adoption: the skill, the block and CLAUDE.md are added to a repository that has none of them. Acts of the skill and of AGENTS.md; CLAUDE.md is no act.', base='agents-none',
+     changes=[put(SK, 'a skill\n'), put(AG, BLK + '\n'), put(CL, '@AGENTS.md\n')], acts=[INS(SK), INS(AG)])
+
 
 def main():
     work = tempfile.mkdtemp(prefix='change-cases-')

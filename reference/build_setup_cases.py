@@ -13,7 +13,9 @@ import setup_ref as ref
 HOUR = 3600 * 1000
 NOW = calendar.timegm((2026, 11, 18, 12, 0, 0)) * 1000
 COMMIT = 'a1' * 20
-H1, H2, H3 = '1' * 64, '2' * 64, '3' * 64
+H1, H2, H3, H4, H5 = '1' * 64, '2' * 64, '3' * 64, '4' * 64, '5' * 64
+SKILL = '.claude/skills/record-a-decision/SKILL.md'
+AGENTS = 'AGENTS.md'
 RK = '.github/record-keeper/record-keeper.mjs'
 AUDIT = '.github/workflows/records-audit.yml'
 INTEGRITY = '.github/workflows/records-integrity.yml'
@@ -23,7 +25,7 @@ CHECK = 'Records integrity'
 SEVERITY = {  # written out again on purpose: the reference and the fixture must agree on it
     'audit-dead': 'error', 'check-not-required': 'error',
     'check-not-strict': 'warning', 'bypass-always': 'warning', 'codeowners-missing': 'warning', 'codeowners-uncovered': 'warning', 'owners-few': 'warning', 'owner-mismatch': 'warning',
-    'managed-differs': 'warning', 'manifest-unreadable': 'warning', 'pin-missing': 'warning', 'pin-unusable': 'warning', 'settings-missing': 'warning', 'settings-unusable': 'warning',
+    'managed-differs': 'warning', 'block-unusable': 'warning', 'manifest-unreadable': 'warning', 'pin-missing': 'warning', 'pin-unusable': 'warning', 'settings-missing': 'warning', 'settings-unusable': 'warning',
     'secret-not-set': 'warning', 'audit-workflow-missing': 'warning', 'audit-record-unreadable': 'warning', 'audit-record-future': 'warning',
     'single-owner': 'notice', 'audit-not-yet': 'notice', 'not-checked': 'notice',
 }
@@ -50,8 +52,10 @@ def healthy():
         'codeowners': {'state': 'read', 'path': '.github/CODEOWNERS', 'text': '# the kit\n/.github/ @alice @bob\n'},
         'pin': {'state': 'read', 'source': 'example/kit', 'version': 'v1.0.0', 'commit': COMMIT, 'channel': 'stable'},
         'release': {'state': 'read', 'secrets': ['RECORD_KEEPER_TOKEN'], 'upToDate': True, 'files': [
-            {'path': RK, 'sha256': H1, 'size': 100}, {'path': AUDIT, 'sha256': H2, 'size': 200}, {'path': INTEGRITY, 'sha256': H3, 'size': 300}]},
-        'tree': {RK: {'kind': 'file', 'sha256': H1, 'size': 100}, AUDIT: {'kind': 'file', 'sha256': H2, 'size': 200}, INTEGRITY: {'kind': 'file', 'sha256': H3, 'size': 300}},
+            {'path': RK, 'sha256': H1, 'size': 100}, {'path': AUDIT, 'sha256': H2, 'size': 200}, {'path': INTEGRITY, 'sha256': H3, 'size': 300}, {'path': SKILL, 'sha256': H4, 'size': 400}],
+            'blocks': [{'path': AGENTS, 'sha256': H5, 'size': 500}]},
+        'tree': {RK: {'kind': 'file', 'sha256': H1, 'size': 100}, AUDIT: {'kind': 'file', 'sha256': H2, 'size': 200}, INTEGRITY: {'kind': 'file', 'sha256': H3, 'size': 300}, SKILL: {'kind': 'file', 'sha256': H4, 'size': 400},
+                 AGENTS: {'kind': 'block', 'state': 'one', 'sha256': H5, 'size': 500}},
         'auditWorkflow': 'file',
         'github': {
             'repo': {'ok': True, 'branch': 'main'},
@@ -335,10 +339,35 @@ case('p-8', 'a file that differs, a file that is missing and a folder in its pla
      [('managed-differs', '%s (differs), %s (missing), %s (not a file)' % (RK, AUDIT, INTEGRITY))], without('managed-files'))
 case('p-9', 'a path that is not in the tree is missing', lambda s: s['tree'].pop(INTEGRITY), [('managed-differs', INTEGRITY + ' (missing)')], without('managed-files'))
 many_files = [{'path': '.github/record-keeper/p%02d.mjs' % n, 'sha256': H1, 'size': 1} for n in range(11)]
-case('p-10', 'more files than are listed: the first eight, and how many more', lambda s: (s['release'].update({'files': many_files}), s['tree'].clear()),
+case('p-10', 'more files than are listed: the first eight, and how many more', lambda s: (s['release'].update({'files': many_files, 'blocks': []}), s['tree'].clear()),
      [('managed-differs', ', '.join('.github/record-keeper/p%02d.mjs (missing)' % n for n in range(8)) + ', and 3 more')], without('managed-files'))
-case('p-11', 'exactly eight files that differ', lambda s: (s['release'].update({'files': many_files[:8]}), s['tree'].clear()),
+case('p-11', 'exactly eight files that differ', lambda s: (s['release'].update({'files': many_files[:8], 'blocks': []}), s['tree'].clear()),
      [('managed-differs', ', '.join('.github/record-keeper/p%02d.mjs (missing)' % n for n in range(8)))], without('managed-files'))
+# ---- the files of the agents: the skill is a managed file, the block of AGENTS.md is compared by its digest ------------------------------------------------------
+case('b-1', 'the skill is a managed file: a skill that differs is found like any other', lambda s: s['tree'].update({SKILL: {'kind': 'file', 'sha256': H5, 'size': 400}}), [('managed-differs', SKILL + ' (differs)')], without('managed-files'))
+case('b-2', 'the skill is missing', lambda s: s['tree'].pop(SKILL), [('managed-differs', SKILL + ' (missing)')], without('managed-files'))
+case('b-3', 'AGENTS.md has no block: the block is missing, and the updater puts it back', lambda s: s['tree'].update({AGENTS: {'kind': 'block', 'state': 'none'}}), [('managed-differs', AGENTS + ' (block missing)')], without('managed-files'))
+case('b-4', 'AGENTS.md is not there', lambda s: s['tree'].pop(AGENTS), [('managed-differs', AGENTS + ' (missing)')], without('managed-files'))
+case('b-5', 'AGENTS.md is a folder or a link', lambda s: s['tree'].update({AGENTS: {'kind': 'other'}}), [('managed-differs', AGENTS + ' (not a file)')], without('managed-files'))
+case('b-6', 'the block is not the release\'s: another digest', lambda s: s['tree'].update({AGENTS: {'kind': 'block', 'state': 'one', 'sha256': H1, 'size': 500}}), [('managed-differs', AGENTS + ' (block differs)')], without('managed-files'))
+case('b-7', 'the block is not the release\'s: another size', lambda s: s['tree'].update({AGENTS: {'kind': 'block', 'state': 'one', 'sha256': H5, 'size': 501}}), [('managed-differs', AGENTS + ' (block differs)')], without('managed-files'))
+for n, why in enumerate(['partial-line', 'begin-without-end', 'end-without-begin', 'reversed', 'doubled'], 8):
+    case('b-%d' % n, 'the markers of AGENTS.md are refused (%s): the block cannot be used, and the updater leaves the file alone' % why, lambda s, why=why: s['tree'].update({AGENTS: {'kind': 'block', 'state': 'refused', 'why': why}}),
+         [('block-unusable', why)], without('managed-files'))
+case('b-13', 'AGENTS.md is larger than the check reads', lambda s: s['tree'].update({AGENTS: {'kind': 'large'}}), [('block-unusable', 'too-large')], without('managed-files'))
+case('b-14', 'a file that differs and markers that are refused: two findings, the files first', lambda s: s['tree'].update({RK: {'kind': 'file', 'sha256': H2, 'size': 100}, AGENTS: {'kind': 'block', 'state': 'refused', 'why': 'doubled'}}),
+     [('managed-differs', RK + ' (differs)'), ('block-unusable', 'doubled')], without('managed-files'))
+case('b-15', 'every file differs, the skill and the block too: in the order of the bytes of the paths, and the block is one of the first eight',
+     lambda s: s['tree'].update({RK: {'kind': 'absent'}, AUDIT: {'kind': 'absent'}, INTEGRITY: {'kind': 'absent'}, SKILL: {'kind': 'absent'}, AGENTS: {'kind': 'block', 'state': 'none'}}),
+     [('managed-differs', ', '.join([SKILL + ' (missing)', RK + ' (missing)', AUDIT + ' (missing)', INTEGRITY + ' (missing)', AGENTS + ' (block missing)']))], without('managed-files'))
+case('b-16', 'a release that has no block: AGENTS.md is not looked at', lambda s: (s['release'].update({'blocks': []}), s['tree'].update({AGENTS: {'kind': 'block', 'state': 'refused', 'why': 'doubled'}})), [])
+case('b-17', 'with --local the files that the release installs are not compared, the block neither', lambda s: (local(s), s['tree'].update({AGENTS: {'kind': 'absent'}}), s['codeowners'].update({'state': 'absent', 'path': ''})),
+     [('codeowners-missing', ''), ('not-checked', 'github: the command line says --local')], ['settings', 'owners', 'pin'])
+case('b-18', 'the pinned release cannot be read: nothing is compared', lambda s: (s['release'].clear(), s['release'].update({'state': 'unlisted'}), s['tree'].update({AGENTS: {'kind': 'absent'}})),
+     [('manifest-unreadable', 'v1.0.0 is not in the list of releases of example/kit')], without('manifest', 'managed-files', 'secret'))
+case('b-19', 'the repository of the kit has no block to look at', lambda s: (s.update({'own': True}), s['pin'].clear(), s['pin'].update({'state': 'absent'}), s['tree'].clear()), [],
+     without('pin', 'manifest', 'managed-files', 'secret'), [('own', 'this is the repository of the kit: install.json is at its root')])
+
 case('p-12', 'the release does not name the secret: it is not asked for', lambda s: (s['release'].update({'secrets': []}), s.update({'secretSet': False})), [], without('secret'))
 case('p-13', 'the secret is not set', lambda s: s.update({'secretSet': False}), [('secret-not-set', '')], without('secret'))
 SECRET_PR = ('secret', 'a run for a pull request is not given the secrets')

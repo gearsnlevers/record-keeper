@@ -11,9 +11,12 @@
     { "source": "templates/workflows/records-audit.yml", "path": ".github/workflows/records-audit.yml", "kind": "managed" },
     { "source": "templates/workflows/records-setup-check.yml", "path": ".github/workflows/records-setup-check.yml", "kind": "managed" },
     { "source": "templates/workflows/records-updater.yml","path": ".github/workflows/records-updater.yml", "kind": "managed" },
+    { "source": "templates/skills/record-a-decision/SKILL.md", "path": ".claude/skills/record-a-decision/SKILL.md", "kind": "managed" },
+    { "source": "templates/agents-block.md", "path": "AGENTS.md", "kind": "block" },
     { "source": "templates/decisions/README.md", "path": "docs/decisions/README.md", "kind": "template" },
     { "source": "templates/decisions/template.md", "path": "docs/decisions/template.md", "kind": "template" },
-    { "source": "templates/settings.yml", "path": ".github/record-keeper/settings.yml", "kind": "template" }
+    { "source": "templates/settings.yml", "path": ".github/record-keeper/settings.yml", "kind": "template" },
+    { "source": "templates/CLAUDE.md", "path": "CLAUDE.md", "kind": "template" }
   ],
   "requires": {
     "secrets": ["RECORD_KEEPER_TOKEN"],

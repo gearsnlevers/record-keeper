@@ -1,0 +1,994 @@
+{
+ "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+ "reads": [
+  {
+   "id": "r01-empty",
+   "note": "An empty file has no block.",
+   "input": "",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r02-prose",
+   "note": "Prose and no marker: none.",
+   "input": "# Notes\n\nSome text.\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r03-block-alone",
+   "note": "A file that is the block and nothing else.",
+   "input": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "state": "one",
+    "start": 0,
+    "end": 73
+   }
+  },
+  {
+   "id": "r04-around",
+   "note": "A block between a heading and a list: the region is from the first byte of the begin line to the last byte of the end marker.",
+   "input": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n\n- mine\n",
+   "expect": {
+    "state": "one",
+    "start": 8,
+    "end": 81
+   }
+  },
+  {
+   "id": "r05-crlf",
+   "note": "A file with CRLF line ends: the carriage return after a marker is not part of it, and the region ends before it.",
+   "input": "# Mine\r\n<!-- record-keeper:begin -->\r\nx\r\n<!-- record-keeper:end -->\r\nafter\r\n",
+   "expect": {
+    "state": "one",
+    "start": 8,
+    "end": 67
+   }
+  },
+  {
+   "id": "r06-no-final-newline",
+   "note": "The end marker is the last thing in the file.",
+   "input": "top\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "state": "one",
+    "start": 4,
+    "end": 77
+   }
+  },
+  {
+   "id": "r07-backtick-fence",
+   "note": "Both markers inside a fence of backticks are an example and not a block.",
+   "input": "```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n```\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r08-tilde-fence",
+   "note": "The same in a fence of tildes, with an info string.",
+   "input": "~~~markdown\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n~~~\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r09-longer-fence",
+   "note": "A fence of four backticks is not closed by three, so the markers stay inside it.",
+   "input": "````\n```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n```\n````\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r10-fence-closed-by-longer",
+   "note": "A fence of three is closed by one of five.",
+   "input": "```\nexample\n`````\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 18,
+    "end": 91
+   }
+  },
+  {
+   "id": "r11-fence-closer-with-info",
+   "note": "A line of backticks with text after it does not close a fence.",
+   "input": "```\n```not a closer\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n```\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r12-begin-in-fence-end-outside",
+   "note": "A begin marker inside a fence and an end marker outside it: the end has no begin.",
+   "input": "```\n<!-- record-keeper:begin -->\n```\nx\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "end-without-begin"
+   }
+  },
+  {
+   "id": "r13-unclosed-fence",
+   "note": "A fence that is never closed runs to the end of the file, and the file says so.",
+   "input": "text\n```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "none",
+    "fenced": true
+   }
+  },
+  {
+   "id": "r14-indented-fence",
+   "note": "A fence may be indented by three spaces.",
+   "input": "   ```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n   ```\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r15-fence-four-spaces",
+   "note": "Four spaces make it code that is indented, not a fence: the begin marker is then a line that holds more than the marker.",
+   "input": "    ```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 8,
+    "end": 81
+   }
+  },
+  {
+   "id": "r16-backtick-in-info",
+   "note": "An opener with a backtick in its info string is not an opener.",
+   "input": "``` a`b\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 8,
+    "end": 81
+   }
+  },
+  {
+   "id": "r17-tilde-info-with-backtick",
+   "note": "A tilde fence may have a backtick in its info string.",
+   "input": "~~~ a`b\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n~~~\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r18-mid-line",
+   "note": "A marker in the middle of a line is refused: the line holds more than a marker.",
+   "input": "see <!-- record-keeper:begin --> for more\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r19-trailing-space",
+   "note": "A marker with a space after it is not the marker.",
+   "input": "<!-- record-keeper:begin --> \nx\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r20-leading-space",
+   "note": "A marker with a space before it is not the marker.",
+   "input": " <!-- record-keeper:begin -->\nx\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r21-tab",
+   "note": "A marker with a tab before it is not the marker.",
+   "input": "\t<!-- record-keeper:begin -->\nx\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r22-byte-order-mark",
+   "note": "A byte order mark in front of the begin marker is a line that holds more than the marker.",
+   "input": "\ufeff<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r23-stem-in-prose",
+   "note": "The text of a marker in prose, with no comment around it, is refused too: it could be a marker that was damaged.",
+   "input": "The block starts at record-keeper:begin.\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r24-stem-inside-the-block",
+   "note": "A line that holds the stem of the end marker inside the block makes the file refused.",
+   "input": "<!-- record-keeper:begin -->\nrecord-keeper:end\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r25-doubled",
+   "note": "Two blocks.",
+   "input": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "r26-nested",
+   "note": "A begin marker inside a block.",
+   "input": "<!-- record-keeper:begin -->\n<!-- record-keeper:begin -->\nx\n<!-- record-keeper:end -->\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "r27-reversed",
+   "note": "The end marker before the begin marker.",
+   "input": "<!-- record-keeper:end -->\nx\n<!-- record-keeper:begin -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "reversed"
+   }
+  },
+  {
+   "id": "r28-begin-only",
+   "note": "A begin marker and no end.",
+   "input": "a\n<!-- record-keeper:begin -->\nb\n",
+   "expect": {
+    "state": "refused",
+    "why": "begin-without-end"
+   }
+  },
+  {
+   "id": "r29-end-only",
+   "note": "An end marker and no begin.",
+   "input": "a\n<!-- record-keeper:end -->\nb\n",
+   "expect": {
+    "state": "refused",
+    "why": "end-without-begin"
+   }
+  },
+  {
+   "id": "r30-two-ends",
+   "note": "A block and one more end marker.",
+   "input": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "r31-end-begin-end",
+   "note": "An end, a begin and an end.",
+   "input": "<!-- record-keeper:end -->\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "r32-two-begins",
+   "note": "Two begin markers and no end.",
+   "input": "<!-- record-keeper:begin -->\n<!-- record-keeper:begin -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "r33-marker-in-a-url",
+   "note": "A line of prose that holds the stem is refused, whatever it is for.",
+   "input": "https://example.com/record-keeper:endpoint\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r34-lone-carriage-return",
+   "note": "A carriage return that is not before a line feed does not end a line.",
+   "input": "a\r<!-- record-keeper:begin -->\nx\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "refused",
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "r35-marker-then-eof-cr",
+   "note": "The end marker followed by a carriage return at the end of the file.",
+   "input": "<!-- record-keeper:begin -->\nx\n<!-- record-keeper:end -->\r",
+   "expect": {
+    "state": "one",
+    "start": 0,
+    "end": 57
+   }
+  },
+  {
+   "id": "r36-outside-is-not-text",
+   "note": "Bytes that are not UTF-8 stand outside the markers and are not read.",
+   "input": {
+    "hex": "fffe20636166e90a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a72756c65206f6e650a72756c652074776f0a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0a00"
+   },
+   "expect": {
+    "state": "one",
+    "start": 8,
+    "end": 81
+   }
+  },
+  {
+   "id": "r37-a-line-of-the-fence-is-no-marker",
+   "note": "The opening line of a fence is never read as a marker, even when it holds one.",
+   "input": "```<!-- record-keeper:begin -->\n```\n",
+   "expect": {
+    "state": "none",
+    "fenced": false
+   }
+  },
+  {
+   "id": "r38-two-backticks",
+   "note": "Two backticks are not a fence, so the block after them is read.",
+   "input": "``\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 3,
+    "end": 76
+   }
+  },
+  {
+   "id": "r39-two-tildes",
+   "note": "Two tildes are not a fence either.",
+   "input": "~~\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 3,
+    "end": 76
+   }
+  },
+  {
+   "id": "r40-closer-with-trailing-spaces",
+   "note": "A closing fence may be followed by spaces.",
+   "input": "```\nexample\n```   \n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 19,
+    "end": 92
+   }
+  },
+  {
+   "id": "r41-closer-with-a-trailing-tab",
+   "note": "A closing fence may be followed by a tab.",
+   "input": "```\nexample\n```\t\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 17,
+    "end": 90
+   }
+  },
+  {
+   "id": "r42-the-start-of-the-stem-is-not-the-stem",
+   "note": "The text of a marker that is cut short is not the text of a marker: nothing is refused for it.",
+   "input": "record-keeper:begi and record-keeper:en\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "state": "one",
+    "start": 40,
+    "end": 113
+   }
+  }
+ ],
+ "splices": [
+  {
+   "id": "s01-no-file",
+   "note": "No file: it is created with the block and a line feed.",
+   "current": null,
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "create",
+    "output": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s02-empty-file",
+   "note": "An empty file: the block is the whole of it, and there is no blank line before it.",
+   "current": "",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s03-no-markers",
+   "note": "A file with no markers: the block goes at the end, after one blank line.",
+   "current": "# Mine\n\nText.\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\n\nText.\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s04-blank-line-already",
+   "note": "A file that ends in a blank line gets no more.",
+   "current": "# Mine\n\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s05-no-final-newline",
+   "note": "A file that does not end in a line feed gets two.",
+   "current": "# Mine",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s06-crlf-file-no-markers",
+   "note": "A file with CRLF line ends: the new lines are the block as it is, and the file is not touched.",
+   "current": "# Mine\r\nText\r\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\r\nText\r\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s07-crlf-blank-line",
+   "note": "A CRLF file that ends in a blank line gets no more.",
+   "current": "# Mine\r\n\r\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\r\n\r\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s08-one-block",
+   "note": "A block that differs is replaced, and nothing before or after it changes.",
+   "current": "# Mine\n\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n\n- after\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n\n- after\n"
+   }
+  },
+  {
+   "id": "s09-already-current",
+   "note": "A block that is the block already: nothing changes, byte for byte.",
+   "current": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n\n- after\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "current",
+    "output": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n\n- after\n"
+   }
+  },
+  {
+   "id": "s10-crlf-around-block",
+   "note": "A CRLF file with a block: the line ends outside the markers stay, and the block is put in as it is.",
+   "current": "# Mine\r\n<!-- record-keeper:begin -->\r\nold\r\n<!-- record-keeper:end -->\r\nafter\r\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "# Mine\r\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\r\nafter\r\n"
+   }
+  },
+  {
+   "id": "s11-block-at-end-no-newline",
+   "note": "A block at the end of a file with no final line feed: the file still has none.",
+   "current": "top\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "top\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->"
+   }
+  },
+  {
+   "id": "s12-in-a-fence",
+   "note": "Markers inside a fence are an example: the block is added after the fence.",
+   "current": "```\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n```\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "```\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n```\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s13-ends-in-a-fence",
+   "note": "A file that ends inside a fence is refused: the block would be part of the example.",
+   "current": "text\n```\ncode\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "fence"
+   }
+  },
+  {
+   "id": "s14-mid-line",
+   "note": "A marker in the middle of a line.",
+   "current": "see <!-- record-keeper:begin -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "partial-line"
+   }
+  },
+  {
+   "id": "s15-doubled",
+   "note": "Two blocks.",
+   "current": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "s16-nested",
+   "note": "Nested markers.",
+   "current": "<!-- record-keeper:begin -->\n<!-- record-keeper:begin -->\n<!-- record-keeper:end -->\n<!-- record-keeper:end -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "doubled"
+   }
+  },
+  {
+   "id": "s17-reversed",
+   "note": "The end marker before the begin marker.",
+   "current": "<!-- record-keeper:end -->\n<!-- record-keeper:begin -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "reversed"
+   }
+  },
+  {
+   "id": "s18-begin-only",
+   "note": "A begin marker and no end.",
+   "current": "a\n<!-- record-keeper:begin -->\nb\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "begin-without-end"
+   }
+  },
+  {
+   "id": "s19-end-only",
+   "note": "An end marker and no begin.",
+   "current": "a\n<!-- record-keeper:end -->\nb\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "end-without-begin"
+   }
+  },
+  {
+   "id": "s20-unicode-and-white-space",
+   "note": "Text outside the markers with non-ASCII letters, trailing white space and a tab is never touched.",
+   "current": "caf\u00e9 \u2603 \u00e9\u00e8  \n\t\t\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n  \n\u2028trailing \t\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "caf\u00e9 \u2603 \u00e9\u00e8  \n\t\t\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n  \n\u2028trailing \t\n"
+   }
+  },
+  {
+   "id": "s21-bytes-outside",
+   "note": "A file that is not UTF-8 is not decoded: bytes outside the markers stay as they are.",
+   "current": {
+    "hex": "fffe800a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a736f6d657468696e6720656c73650a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0ac3280a"
+   },
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": {
+     "hex": "fffe800a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a72756c65206f6e650a72756c652074776f0a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0ac3280a"
+    }
+   }
+  },
+  {
+   "id": "s22-zero-byte",
+   "note": "A file with a zero byte and no markers is not a text that can be added to.",
+   "current": "a\u0000b\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "not-text"
+   }
+  },
+  {
+   "id": "s23-zero-byte-with-block",
+   "note": "A zero byte in a file that has a block does not stop the replacement: only what is between the markers changes.",
+   "current": "a\u0000b\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "a\u0000b\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s24-whitespace-line-before",
+   "note": "A last line of spaces is a line like another: one more blank line follows it.",
+   "current": "# Mine\n  \n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "# Mine\n  \n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s25-a-block-that-is-not-one",
+   "note": "A block that is not one begin marker, text and one end marker is refused before the file is read.",
+   "current": "a\n",
+   "block": "no markers here",
+   "expect": {
+    "ok": false,
+    "why": "invalid-block"
+   }
+  },
+  {
+   "id": "s26-a-block-with-text-after-the-end",
+   "note": "The block must end with the end marker.",
+   "current": "a\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": {
+    "ok": false,
+    "why": "invalid-block"
+   }
+  },
+  {
+   "id": "s27-a-block-that-opens-a-fence",
+   "note": "A block that opens a fence it does not close would swallow its own end marker.",
+   "current": "a\n",
+   "block": "<!-- record-keeper:begin -->\n```\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "invalid-block"
+   }
+  },
+  {
+   "id": "s28-a-block-with-a-fence-that-closes",
+   "note": "A block with a fenced example that is closed is a block.",
+   "current": "a\n",
+   "block": "<!-- record-keeper:begin -->\n```\nx\n```\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "a\n\n<!-- record-keeper:begin -->\n```\nx\n```\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s29-the-block-twice-with-no-final-newline",
+   "note": "The block, put in again over its own output, is the same file.",
+   "current": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "current",
+    "output": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s30-the-first-line-only",
+   "note": "A file with one line and a line feed.",
+   "current": "x\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "x\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s31-lone-newline",
+   "note": "A file that is one line feed.",
+   "current": "\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s32-crlf-only",
+   "note": "A file that is one CRLF.",
+   "current": "\r\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "append",
+    "output": "\r\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s33-marker-text-in-a-fence-and-a-block",
+   "note": "A fenced example next to the real block: the real block is replaced and the example stays.",
+   "current": "```\n<!-- record-keeper:begin -->\n```\n<!-- record-keeper:begin -->\nsomething else\n<!-- record-keeper:end -->\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "```\n<!-- record-keeper:begin -->\n```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n"
+   }
+  },
+  {
+   "id": "s34-block-with-a-carriage-return-inside-is-replaced",
+   "note": "A block whose lines end in CRLF is not the block of the release: it is replaced.",
+   "current": "<!-- record-keeper:begin -->\r\nrule one\r\nrule two\r\n<!-- record-keeper:end -->\r\n",
+   "block": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": true,
+    "action": "replace",
+    "output": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\r\n"
+   }
+  },
+  {
+   "id": "s35-a-block-with-text-before-the-begin-marker",
+   "note": "The block must start with the begin marker: a line before it makes it no block.",
+   "current": "a\n",
+   "block": "a heading\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": {
+    "ok": false,
+    "why": "invalid-block"
+   }
+  }
+ ],
+ "diffs": [
+  {
+   "id": "d01-no-file-no-file",
+   "note": "Neither side has a file.",
+   "before": null,
+   "after": null,
+   "expect": false
+  },
+  {
+   "id": "d02-file-without-block-to-another",
+   "note": "Two files with no markers are the same, whatever they say.",
+   "before": "one\n",
+   "after": "two\n",
+   "expect": false
+  },
+  {
+   "id": "d03-file-appears-without-block",
+   "note": "A file that appears with no block is nothing.",
+   "before": null,
+   "after": "# A new file\n",
+   "expect": false
+  },
+  {
+   "id": "d04-file-appears-with-block",
+   "note": "A file that appears with a block is an act.",
+   "before": null,
+   "after": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d05-block-appears",
+   "note": "A block is added to a file that had none.",
+   "before": "# Mine\n",
+   "after": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d06-block-removed",
+   "note": "A block is removed.",
+   "before": "# Mine\n\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "# Mine\n",
+   "expect": true
+  },
+  {
+   "id": "d07-file-deleted-with-block",
+   "note": "A file with a block is deleted.",
+   "before": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": null,
+   "expect": true
+  },
+  {
+   "id": "d08-file-deleted-without-block",
+   "note": "A file with no block is deleted.",
+   "before": "x\n",
+   "after": null,
+   "expect": false
+  },
+  {
+   "id": "d09-outside-changes",
+   "note": "Text outside the markers changes: nothing.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\nb\n",
+   "after": "A\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\nB\nmore\n",
+   "expect": false
+  },
+  {
+   "id": "d10-block-changes",
+   "note": "A word in the block changes.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin -->\nrule uno\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d11-block-moves",
+   "note": "The block moves to the top: its bytes are the same, so nothing changed that agents read.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\na\n",
+   "expect": false
+  },
+  {
+   "id": "d12-begin-marker-changes",
+   "note": "The begin marker is damaged: the markers are refused, and that is a change.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin  -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d13-end-marker-removed",
+   "note": "The end marker is removed.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n",
+   "expect": true
+  },
+  {
+   "id": "d14-both-refused-and-equal",
+   "note": "A file whose markers are refused, unchanged.",
+   "before": "<!-- record-keeper:begin -->\nx\n",
+   "after": "<!-- record-keeper:begin -->\nx\n",
+   "expect": false
+  },
+  {
+   "id": "d15-both-refused-outside-changes",
+   "note": "A file whose markers are refused changes anywhere: the check cannot tell what is inside, so it counts.",
+   "before": "<!-- record-keeper:begin -->\nx\n",
+   "after": "top\n<!-- record-keeper:begin -->\nx\n",
+   "expect": true
+  },
+  {
+   "id": "d16-refused-to-block",
+   "note": "The markers are mended: a change.",
+   "before": "<!-- record-keeper:begin -->\nx\n",
+   "after": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d17-refused-to-none",
+   "note": "The stray marker is removed.",
+   "before": "<!-- record-keeper:begin -->\nx\n",
+   "after": "x\n",
+   "expect": true
+  },
+  {
+   "id": "d18-none-to-refused",
+   "note": "A stray marker is added to a file with no block.",
+   "before": "x\n",
+   "after": "x\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d19-block-in-fence-added",
+   "note": "A block is added inside a fence: it is an example, and nothing that agents read changed.",
+   "before": "x\n",
+   "after": "x\n```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n```\n",
+   "expect": false
+  },
+  {
+   "id": "d20-block-moved-into-fence",
+   "note": "The block is wrapped in a fence: it is no block now, and that is a change.",
+   "before": "x\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "x\n```\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n```\n",
+   "expect": true
+  },
+  {
+   "id": "d21-line-end-outside-changes",
+   "note": "Line ends outside the markers change from LF to CRLF: nothing.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\nb\n",
+   "after": "a\r\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\r\nb\r\n",
+   "expect": false
+  },
+  {
+   "id": "d22-line-end-after-the-block-only",
+   "note": "The block with a carriage return after the end marker: the same block.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\r\n",
+   "expect": false
+  },
+  {
+   "id": "d23-line-ends-inside-change",
+   "note": "Line ends inside the block change: the block is another text.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin -->\r\nrule one\r\nrule two\r\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d24-trailing-space-in-block",
+   "note": "A space at the end of a line inside the block.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "a\n<!-- record-keeper:begin -->\nrule one \nrule two\n<!-- record-keeper:end -->\n",
+   "expect": true
+  },
+  {
+   "id": "d25-unicode-outside",
+   "note": "Unicode outside the markers changes: nothing.",
+   "before": "caf\u00e9\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "caf\u00e8 \u2603\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": false
+  },
+  {
+   "id": "d26-empty-to-block",
+   "note": "An empty file gets a block.",
+   "before": "",
+   "after": "<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->",
+   "expect": true
+  },
+  {
+   "id": "d27-empty-to-none",
+   "note": "An empty file gets text.",
+   "before": "",
+   "after": "x",
+   "expect": false
+  },
+  {
+   "id": "d28-no-file-to-empty",
+   "note": "No file, then an empty file.",
+   "before": null,
+   "after": "",
+   "expect": false
+  },
+  {
+   "id": "d29-bytes-outside-not-utf8",
+   "note": "Bytes that are not UTF-8 outside the markers change: nothing.",
+   "before": {
+    "hex": "ff0a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a72756c65206f6e650a72756c652074776f0a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0a"
+   },
+   "after": {
+    "hex": "fe000a3c212d2d207265636f72642d6b65657065723a626567696e202d2d3e0a72756c65206f6e650a72756c652074776f0a3c212d2d207265636f72642d6b65657065723a656e64202d2d3e0a"
+   },
+   "expect": false
+  },
+  {
+   "id": "d30-block-with-fence-example-added-to-the-top",
+   "note": "An example of the markers in a fence is added above the real block: nothing.",
+   "before": "a\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "after": "```\n<!-- record-keeper:begin -->\n<!-- record-keeper:end -->\n```\na\n<!-- record-keeper:begin -->\nrule one\nrule two\n<!-- record-keeper:end -->\n",
+   "expect": false
+  }
+ ]
+}

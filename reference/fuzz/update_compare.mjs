@@ -10,12 +10,20 @@ function canonical(value) {
   return value;
 }
 const bytesOf = (value) => (value !== null && typeof value === 'object' ? Buffer.from(value.hex, 'hex') : value);
+/** The input as the core takes it: the bytes of AGENTS.md in its tree entry, and the texts of the blocks as bytes. */
+const prepared = (input) => ({
+  ...input,
+  manifest: bytesOf(input.manifest),
+  previous: bytesOf(input.previous),
+  tree: Object.fromEntries(Object.entries(input.tree).map(([name, state]) => [name, state.hex === undefined ? state : { ...state, bytes: Buffer.from(state.hex, 'hex') }])),
+  blocks: Object.fromEntries(Object.entries(input.blocks ?? {}).map(([source, text]) => [source, Buffer.from(text.hex, 'hex')])),
+});
 
 const lines = fs.readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean);
 let different = 0;
 for (const [index, text] of lines.entries()) {
   const { input, expect } = JSON.parse(text);
-  const got = plan({ ...input, manifest: bytesOf(input.manifest), previous: bytesOf(input.previous) });
+  const got = plan(prepared(input));
   if (JSON.stringify(canonical(got)) !== JSON.stringify(canonical(expect)) && different++ < 10) console.log('DIFFERENT', index, text.slice(0, 600), '\n  library', JSON.stringify(canonical(got)).slice(0, 600));
 }
 console.log(lines.length, 'inputs,', different, 'differences');

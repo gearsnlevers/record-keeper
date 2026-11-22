@@ -9,7 +9,7 @@ import audit_effects_ref as E
 import audit_ref, config_ref
 from commit_ref import git
 
-KINDS = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code']   # the order of the title
+KINDS = ['erratum', 'deviation', 'settings', 'owners', 'amendment', 'pin', 'workflow', 'code', 'instructions']   # the order of the title
 LIMIT = 20
 ROOM = 40000
 LOGIN = re.compile(r'[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}', re.ASCII)

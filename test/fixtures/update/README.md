@@ -15,10 +15,11 @@
 | `input.previous` | The manifest of the pinned release in the same forms, or `null` when it has none to read. |
 | `input.node` | The version of Node.js that runs the updater. |
 | `input.downloaded` | For each `source` of the manifest, the `sha256` and `size` of what was downloaded. |
-| `input.tree` | For each path the working tree is asked about, `{ kind, sha256? }` with `kind` one of `absent`, `file`, `dir`, `link`, `other` and `blocked`. A path that is not there is `absent`. |
-| `expect` | One of `{ status: "refused", code, detail }`, `{ status: "current", latest }`, and `{ status: "update" or "unchanged", source, channel, from, to, commit, added, changed, unchanged, templates, kept, remove, overwritten, pin, pinChanged, requires, warnings }`. The lists are paths in the order of their bytes. |
+| `input.tree` | For each path the working tree is asked about, `{ kind, sha256? }` with `kind` one of `absent`, `file`, `dir`, `link`, `other` and `blocked`; for `AGENTS.md` also `large` (more than the updater reads), and a `file` there has its bytes as `hex`. A path that is not there is `absent`. |
+| `input.blocks` | For each `source` of an entry of the kind `block`, the text of the block as `{ "hex": ... }` (or text): the bytes that the updater downloaded, which the core splices into `AGENTS.md`. |
+| `expect` | One of `{ status: "refused", code, detail }`, `{ status: "current", latest }`, and `{ status: "update" or "unchanged", source, channel, from, to, commit, added, changed, unchanged, templates, kept, remove, block, overwritten, pin, pinChanged, requires, warnings }` (`block` is `null`, or `{ path, action, why }` with the action `create`, `append`, `replace`, `current` or `refused`; a refused block is also a warning `block-refused`). The lists are paths in the order of their bytes. |
 
-The ids tell the part of the page: `p` is the choice of the release and the plan, `m` the manifest, `f` the files that were downloaded, `t` the working tree.
+The ids tell the part of the page: `p` is the choice of the release and the plan, `m` the manifest, `f` the files that were downloaded, `t` the working tree, `q` the files of the agents (the skill, the block of `AGENTS.md`, `CLAUDE.md`).
 
 ## `pins`: the text of a pin
 
