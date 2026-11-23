@@ -14,3 +14,4 @@
 {"at":"2026-11-22T03:18:14Z","event":"announced","key":"dc94edfcdf581eb5a47b25c0ebeefea89e0b7f9f","acts":[{"kind":"code","path":"record-keeper.mjs"},{"kind":"code","path":"setup-check.mjs"},{"kind":"code","path":"updater.mjs"}],"told":[28791378,348527658]}
 {"at":"2026-11-22T03:58:40Z","event":"announced","key":"9b3fdd561f920f60af25db9b4344dc14ed0ae37b","acts":[{"kind":"code","path":"record-keeper.mjs"}],"told":[28791378,348527658]}
 {"at":"2026-11-22T04:04:49Z","event":"announced","key":"5f7cfd49bd634f1542c7cb0c57b03be89f1c1b68","acts":[{"kind":"deviation","path":"docs/decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md"}],"told":[28791378,348527658]}
+{"at":"2026-11-23T02:49:33Z","event":"announced","key":"bee60d07ba175ad97fa3190e2d2200ed412d37f4","acts":[{"kind":"code","path":"record-keeper.mjs"},{"kind":"code","path":"updater.mjs"}],"told":[28791378,348527658]}
