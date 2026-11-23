@@ -128,17 +128,8 @@ jobs:
             exit 1
           fi
 
-      # What the install set refuses (a source that is gone, a link, a path that is not allowed) stops the run here, before the tag and the release are written.
-      - name: Check the install set
-        env:
-          VERSION: ${{ steps.version.outputs.newVersion }}
-          TAG: ${{ steps.version.outputs.newTag }}
-        run: |
-          set -euo pipefail
-          node tools/build-release-manifest.mjs --version "${VERSION}" --tag "${TAG}" --commit "$(git rev-parse HEAD)" --out "${RUNNER_TEMP}/install-set-check.json"
-          node tools/build-release-manifest.mjs --verify "${RUNNER_TEMP}/install-set-check.json"
-
-      # The manifest is of the commit that the run started from, which is the commit that is tagged (and the commit that a dry run was started from).
+      # The manifest is of the commit that the run started from, which is the commit that is tagged (and the commit that a dry run was started from). What the
+      # install set refuses (a source that is gone, a link, a path that is not allowed) stops the run here, before the tag and the release are written.
       - name: Build and verify the release manifest
         env:
           VERSION: ${{ steps.version.outputs.newVersion }}

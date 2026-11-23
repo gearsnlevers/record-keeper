@@ -480,6 +480,11 @@ describe('an update in Actions', () => {
     assert.equal(got.code, 0, got.stderr);
     assert.match(got.stdout, /^update v1\.0\.0 to v1\.0\.0 \(stable\)\n  change \.github\/record-keeper\/record-keeper\.mjs\n  local change overwritten \.github\/record-keeper\/record-keeper\.mjs\n0 files to add, 1 to change, 0 to remove, 0 templates to install, 1 local change overwritten\npushed record-keeper\/update \([0-9a-f]{7}\)\nopened pull request #1\n$/);
     assert.equal(state.pulls[0].title, 'chore: repair Record Keeper v1.0.0');
+    const body = state.pulls[0].body;
+    assert.ok(body.startsWith('Repairs Record Keeper **v1.0.0** (`gearsnlevers/record-keeper`, channel `stable`): it restores the files of this repository that differ from release **v1.0.0**, and installs nothing newer.\n\nThe notes of the release are on its page: https://github.com/gearsnlevers/record-keeper/releases/tag/v1.0.0\n'));
+    assert.ok(!body.includes('Release notes') && !body.includes('Notes of v1.0.0.'), 'the notes of the release are not repeated');
+    assert.ok(body.includes('## Local changes this update overwrites\n\n') && body.includes('- `.github/record-keeper/record-keeper.mjs`'), 'what it overwrites is listed');
+    assert.ok(body.includes('## What this release requires'), 'and what the release requires');
     assert.equal(show(bare, `refs/heads/${BRANCH}`, '.github/record-keeper/record-keeper.mjs'), '// rules 1');
     assert.equal(git(bare, 'diff', '--name-only', 'main', BRANCH), '.github/record-keeper/record-keeper.mjs', 'the pin is the same and is not in the change');
   });

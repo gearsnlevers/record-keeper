@@ -25,6 +25,7 @@ This folder is how the kit is checked against something other than itself. It is
 | [updater](../docs/updater.md) (the core: the pin, the choice of a release, the manifest as untrusted data, the plan) | `update_ref.py` | `build_update_cases.py` | `test/fixtures/update` | `fuzz/update_fuzz.py`, `update_compare.mjs`, `update_batch.sh`, `update_summary.py`, `update_coverage.mjs` |
 | [setup check](../docs/setup-check.md) (the core: what is wrong with an installation, the syntax of `CODEOWNERS` that is read, UTC times) | `setup_ref.py` | `build_setup_cases.py` | `test/fixtures/setup` | `fuzz/setup_fuzz.py`, `setup_compare.mjs`, `setup_batch.sh`, `setup_summary.py`, `setup_coverage.mjs` |
 | [the files that agents read](../docs/agent-files.md) (the block of AGENTS.md: where it is, what the file becomes when a block is put into it, whether what agents read changed) | `agent_ref.py` | `build_agent_cases.py` | `test/fixtures/agent` | `fuzz/agent_fuzz.py`, `agent_compare.mjs`, `agent_batch.sh`, `agent_summary.py`, `agent_coverage.mjs` |
+| [adopting records that already exist](../docs/install.md#adopting-with-records-that-already-exist) (`seal --adopt`: which records get a seal line, where it goes, what is listed and left as it is) | `adopt_ref.py` (on `g1.py` and `validate_ref.py`) | `build_adopt_cases.py` | `test/fixtures/adopt` | none yet |
 
 ## The rules for changing any of it
 

@@ -148,7 +148,7 @@ function lint(text) {
   const index = (name) => steps.findIndex((step) => step.name === name);
   const named = (name) => steps[index(name)];
   const order = ['Require the default branch for a real release', 'Tests', 'The records of the kit', 'Compute the next version', 'Release preflight checks', 'The files are the files of the commit',
-    'Check the install set', 'Build and verify the release manifest', 'Create and push the tag', 'Create the draft release', 'Upload the manifest to the draft release', 'Publish the release'];
+    'Build and verify the release manifest', 'Create and push the tag', 'Create the draft release', 'Upload the manifest to the draft release', 'Publish the release'];
   for (const name of order) if (index(name) < 0) found.push(`no step ${name}`);
   const at = order.map(index);
   if (at.every((i) => i >= 0) && at.some((i, k) => k > 0 && i <= at[k - 1])) found.push('the steps are not in the order of the page');
@@ -172,12 +172,13 @@ function lint(text) {
   };
   const guard = named('Require the default branch for a real release');
   if (guard !== undefined && guard.if !== "env.DRY_RUN != 'true' && github.ref_name != github.event.repository.default_branch") found.push('the default branch is not required for a real release');
-  for (const name of ['Tests', 'The records of the kit', 'Compute the next version', 'Release preflight checks', 'The files are the files of the commit', 'Check the install set', 'Build and verify the release manifest']) {
+  for (const name of ['Tests', 'The records of the kit', 'Compute the next version', 'Release preflight checks', 'The files are the files of the commit', 'Build and verify the release manifest']) {
     const step = named(name);
     if (step !== undefined && step.if !== undefined) found.push(`a step that must always run has a condition: ${name}`);
   }
   must('The files are the files of the commit', /^\s*if ! git diff --quiet HEAD; then$/m, 'the files are not checked against the commit');
-  must('Check the install set', /build-release-manifest\.mjs --version "\$\{VERSION\}" --tag "\$\{TAG\}" --commit "\$\(git rev-parse HEAD\)" --out "\$\{RUNNER_TEMP\}\/install-set-check\.json"\n\s*node tools\/build-release-manifest\.mjs --verify/, 'the install set is not checked before the tag');
+  // The install set is checked by the step that builds the manifest, once: a second step that built it again with the same arguments would stop for nothing that this one does not (docs/releases.md, choice 14).
+  if (steps.filter((step) => /build-release-manifest\.mjs/.test(step.run ?? '')).length !== 1) found.push('the manifest is not built by one step, which is also the check of the install set');
   must('Tests', /^\s*npm test$/, 'the tests are not npm test');
   must('The records of the kit', /^\s*node record-keeper\.mjs validate docs\/decisions$/, 'the records are not validated');
   must('Build and verify the release manifest', /build-release-manifest\.mjs --version "\$\{VERSION\}" --tag "\$\{TAG\}" --commit "\$\(git rev-parse HEAD\)" --out release-manifest\.json/, 'the manifest is not built for the commit that is released');
@@ -355,8 +356,7 @@ describe('the workflow writes nothing to the default branch', () => {
     const at = (name) => steps.findIndex((step) => step.name === name);
     assert.ok(at('Release notes (AI)') < at('The files are the files of the commit'));
     assert.ok(at('Release notes (GitHub generated)') < at('The files are the files of the commit'));
-    assert.ok(at('The files are the files of the commit') < at('Check the install set'));
-    assert.ok(at('Check the install set') < at('Build and verify the release manifest'));
+    assert.ok(at('The files are the files of the commit') < at('Build and verify the release manifest'));
     assert.ok(at('Build and verify the release manifest') < at('Create and push the tag'));
   });
 
@@ -413,9 +413,10 @@ describe('the rules of the page, tried on damaged copies', () => {
     ['a preflight that asks npm', damage('          check-npm-version: false\n', '          check-npm-version: true\n'), /asks npm/],
     ['a preflight that checks the version for drift', damage('          check-npm-version: false\n', '          check-npm-version: false\n          check-version-drift: true\n'), /for drift/],
     ['a preflight that is given the current version', damage('          check-npm-version: false\n', '          check-npm-version: false\n          current-version: ${{ steps.version.outputs.base }}\n'), /for drift/],
-    ['no check of the install set before the tag', withoutStep('Check the install set'), /no step Check the install set/],
-    ['a check of the install set that is skipped in a dry run', damage('      - name: Check the install set\n', "      - name: Check the install set\n        if: env.DRY_RUN != 'true'\n"), /must always run has a condition: Check the install set/],
-    ['a check of the install set that checks nothing', damage('--out "${RUNNER_TEMP}/install-set-check.json"\n          node tools/build-release-manifest.mjs --verify "${RUNNER_TEMP}/install-set-check.json"', '--out "${RUNNER_TEMP}/install-set-check.json"\n          true'), /install set is not checked before the tag/],
+    ['no step that builds the manifest', withoutStep('Build and verify the release manifest'), /no step Build and verify the release manifest/],
+    ['a manifest that is skipped in a dry run', damage('      - name: Build and verify the release manifest\n', "      - name: Build and verify the release manifest\n        if: env.DRY_RUN != 'true'\n"), /must always run has a condition: Build and verify/],
+    ['a second step that checks the install set', before('      - name: Check the install set\n        run: node tools/build-release-manifest.mjs --verify release-manifest.json\n'), /not built by one step/],
+    ['a second step that builds the manifest', before('      - name: Check the install set\n        run: node tools/build-release-manifest.mjs --version 1.2.3 --tag v1.2.3 --commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --out "${RUNNER_TEMP}/install-set-check.json"\n'), /not built by one step/],
     ['no check that the files are the files of the commit', withoutStep('The files are the files of the commit'), /no step The files are the files of the commit/],
     ['a check of the files that is skipped in a dry run', damage('      - name: The files are the files of the commit\n', "      - name: The files are the files of the commit\n        if: env.DRY_RUN != 'true'\n"), /must always run has a condition: The files/],
     ['a check of the files that checks nothing', damage('if ! git diff --quiet HEAD; then', 'if false; then'), /files are not checked against the commit/],
@@ -491,7 +492,7 @@ describe('the rules of the page, tried on damaged copies', () => {
     ['an AI changelog on the changelog of the repository', damage('          changelog-path: release-changelog-work.md\n', ''), /does not work on a file of its own/],
     ['an AI changelog on CHANGELOG.md by name', damage('changelog-path: release-changelog-work.md', 'changelog-path: CHANGELOG.md'), [/names CHANGELOG\.md/, /does not work on a file of its own/]],
     ['an AI changelog that does not write the notes of the release', damage('          release-notes-path: RELEASE_NOTES.md\n', ''), /does not write the notes of the release/],
-    ['notes after the check of the files', moved('Release notes (AI)', 'Check the install set'), /notes are not between/],
+    ['notes after the check of the files', moved('Release notes (AI)', 'Build and verify the release manifest'), /notes are not between/],
     ['notes before the preflight', moved('Release notes (GitHub generated)', 'Release preflight checks'), /notes are not between/],
   ];
   for (const [name, text, expected] of cases) {

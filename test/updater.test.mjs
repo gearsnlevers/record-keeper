@@ -385,12 +385,12 @@ describe('what goes into a pull request', () => {
       '---', 'This pull request is rebuilt from scratch on every run of the updater. Do not push to `record-keeper/update`; merge it or close it.',
     ];
     assert.equal(renderBody(answer, 'Fixed a thing.'), full.join('\n'));
-    const most = renderBody({ ...answer, from: 'v1.1.0', pinChanged: false, added: [], changed: [], remove: [], templates: [], overwritten: ['.github/record-keeper/run-audit.mjs', '.github/workflows/records-audit.yml'],
+    const most = renderBody({ ...answer, from: 'v1.0.9', pinChanged: false, added: [], changed: [], remove: [], templates: [], overwritten: ['.github/record-keeper/run-audit.mjs', '.github/workflows/records-audit.yml'],
       warnings: [{ code: 'previous-missing', detail: 'v1.0.0' }, { code: 'previous-unusable', detail: 'manifest-json' }],
       requires: { rulesets: [{ branch: 'default', checks: ['Records integrity', 'Records setup check', 'Test (Node 22)'], 'up-to-date': true }, { branch: 'release', checks: ['A'], 'up-to-date': false }, { branch: 'main', checks: [], 'up-to-date': true }, { branch: 'dev', checks: [], 'up-to-date': false }],
         secrets: ['RECORD_KEEPER_TOKEN', 'OTHER'], settings: ['owners', 'approvals'] } }, '');
     const expected = [
-      'Updates Record Keeper again to **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`).', '',
+      'Updates Record Keeper from **v1.0.9** to **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`).', '',
       '## Release notes', '', '```', '', '```', '',
       '## Changes in this repository', '', 'Only the pin changes.', '',
       '## Local changes this update overwrites', '',
@@ -410,6 +410,52 @@ describe('what goes into a pull request', () => {
     assert.equal(most, expected.join('\n'));
   });
 
+  test('the body of a repair says what a repair is, links to the release, and has no release notes: the whole of it, with every part', () => {
+    const repair = renderBody({ ...answer, from: 'v1.1.0', pinChanged: true, added: [], changed: ['.github/record-keeper/run-audit.mjs'], remove: [], templates: [], overwritten: ['.github/record-keeper/run-audit.mjs'],
+      warnings: [{ code: 'previous-missing', detail: 'v1.1.0' }] }, 'Fixed a thing.\nThanks @alice!');
+    const expected = [
+      'Repairs Record Keeper **v1.1.0** (`gearsnlevers/record-keeper`, channel `stable`): it restores the files of this repository that differ from release **v1.1.0**, and installs nothing newer.', '',
+      'The notes of the release are on its page: https://github.com/gearsnlevers/record-keeper/releases/tag/v1.1.0', '',
+      '## Changes in this repository', '',
+      '**Changed** (1)', '', '- `.github/record-keeper/run-audit.mjs`', '',
+      `The pin \`.github/record-keeper.yml\` is rewritten: version \`v1.1.0\`, commit \`${'b2'.repeat(20)}\`.`, '',
+      '## Local changes this update overwrites', '',
+      'These managed files differ from what the pinned release installed, or were not installed by it. Merging replaces or removes them. A change that should stay belongs in the settings file, which an update never touches, or in a release of the kit:', '',
+      '- `.github/record-keeper/run-audit.mjs`', '',
+      '## What this release requires', '', 'The updater cannot see secrets, settings or rulesets. Check that these are in place:', '',
+      '- the repository secret `RECORD_KEEPER_TOKEN`', '- the setting `owners` in the settings file', '- a ruleset on `default` that requires the check `Records integrity` and branches to be up to date', '',
+      '## Warnings', '',
+      '- The pinned release v1.1.0 has no manifest that the updater could read, so the local changes this update overwrites, and the files it removes, are not listed.', '',
+      '## Approval', '',
+      'This pull request changes the pin, the workflows and the programs that judge every later pull request, so merging it needs the approval of the owners, like any change of those files. Read the diff of every file in it.', '',
+      '---', 'This pull request is rebuilt from scratch on every run of the updater. Do not push to `record-keeper/update`; merge it or close it.',
+    ];
+    assert.equal(repair, expected.join('\n'));
+    assert.doesNotMatch(repair, /Release notes|Fixed a thing|alice|again to/);
+  });
+
+  test('only a target that is the pinned release is a repair: another release, and a first adoption, keep their notes', () => {
+    for (const from of ['v1.0.0', 'v1.2.0', 'v1.1.0-1', null]) {
+      const body = renderBody({ ...answer, from }, 'Fixed a thing.');
+      assert.ok(body.includes('## Release notes\n\n```\nFixed a thing.\n```\n'), String(from));
+      assert.ok(body.startsWith(from === null ? 'Updates Record Keeper to **v1.1.0**' : `Updates Record Keeper from **${from}** to **v1.1.0**`), String(from));
+      assert.doesNotMatch(body, /Repairs|releases\/tag/, String(from));
+    }
+    const repair = renderBody({ ...answer, from: 'v1.1.0' }, 'Fixed a thing.');
+    assert.ok(repair.startsWith('Repairs Record Keeper **v1.1.0**'));
+    assert.ok(!repair.includes('Fixed a thing.'));
+  });
+
+  test('the notes of a release that is hostile are not in the body of a repair at all, and the link is made of the source and the tag, which the rules checked', () => {
+    for (const notes of ['Thanks @alice and @org/team! cc @bob', '```\n</details>\n![x](http://evil.example/p.png)\n```\n@carol', 'x'.repeat(10000), '', null, undefined]) {
+      const body = renderBody({ ...answer, from: 'v1.1.0' }, notes);
+      assert.ok(!body.includes('@'));
+      assert.ok(!body.includes('evil.example'));
+      assert.ok(body.length < 3000);
+      assert.deepEqual(body.match(/https?:\/\/\S+/g), ['https://github.com/gearsnlevers/record-keeper/releases/tag/v1.1.0']);
+    }
+  });
+
   test('the body says what it overwrites, and what it could not compare', () => {
     const body = renderBody({ ...answer, overwritten: ['.github/record-keeper/run-audit.mjs'], warnings: [{ code: 'previous-missing', detail: 'v1.0.0' }, { code: 'previous-unusable', detail: 'manifest-json' }] }, '');
     assert.match(body, /## Local changes this update overwrites\n\n[^\n]+\n\n- `\.github\/record-keeper\/run-audit\.mjs`\n/);
@@ -424,7 +470,7 @@ describe('what goes into a pull request', () => {
     assert.ok(body.includes('- nothing\n'));
     assert.ok(!renderBody({ ...answer, pinChanged: false }, '').includes('is rewritten'));
     assert.ok(renderBody({ ...answer, from: null }, '').startsWith('Updates Record Keeper to **v1.1.0**'));
-    assert.ok(renderBody({ ...answer, from: 'v1.1.0' }, '').startsWith('Updates Record Keeper again to **v1.1.0**'));
+    assert.ok(renderBody({ ...answer, from: 'v1.1.0' }, '').startsWith('Repairs Record Keeper **v1.1.0**'));
     assert.equal(REQUIRES.secrets.length, 1);
   });
 

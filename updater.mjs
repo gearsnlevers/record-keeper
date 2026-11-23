@@ -610,10 +610,16 @@ const BLOCK_ACTION = {
   replace: `the Record Keeper block in ${AGENTS_PATH} is replaced, and nothing outside the two markers changes`,
 };
 
-/** The body of the pull request from a plan and the notes of the release. */
+/**
+ * The body of the pull request from a plan and the notes of the release. A repair (the target is the pinned release) installs nothing new, so its body says what a
+ * repair is and links to the page of the release, and leaves the notes out: a repair brings no change that they describe.
+ */
 export function renderBody(update, notes) {
-  const lines = [`Updates Record Keeper ${update.from === null ? 'to' : update.from === update.to ? 'again to' : `from **${update.from}** to`} **${update.to}** (\`${update.source}\`, channel \`${update.channel}\`).`, ''];
-  lines.push('## Release notes', '', fenceNotes(notes), '');
+  const repair = update.from !== null && update.from === update.to;
+  const lines = repair
+    ? [`Repairs Record Keeper **${update.to}** (\`${update.source}\`, channel \`${update.channel}\`): it restores the files of this repository that differ from release **${update.to}**, and installs nothing newer.`, '',
+      `The notes of the release are on its page: https://github.com/${update.source}/releases/tag/${update.to}`, '']
+    : [`Updates Record Keeper ${update.from === null ? 'to' : `from **${update.from}** to`} **${update.to}** (\`${update.source}\`, channel \`${update.channel}\`).`, '', '## Release notes', '', fenceNotes(notes), ''];
   lines.push('## Changes in this repository', '');
   const rows = [...listOf('Added', update.added), ...listOf('Changed', update.changed), ...listOf('Removed', update.remove), ...listOf('Templates installed', update.templates),
     ...(update.block !== null && Object.hasOwn(BLOCK_ACTION, update.block.action) ? ['**Block**', '', `- ${BLOCK_ACTION[update.block.action]}`, ''] : [])];
