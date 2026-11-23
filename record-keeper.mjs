@@ -4,15 +4,18 @@
 // One file, no dependencies, no network, except that it imports from `updater.mjs`, which stands beside it, the one function that says whether the block of AGENTS.md
 // changed (docs/agent-files.md): the updater is fetched alone for the first adoption and cannot import this file, so the function lives there. It implements generation g1 exactly as docs/generation-g1.md
 // describes it, and the format of a record and its folder as docs/record-format.md describes it; test/vectors/g1 and
-// test/fixtures/validate hold the answers it must give. It never writes a file: `seal` and `validate` only print.
+// test/fixtures/validate hold the answers it must give. It writes a file only for `seal --adopt --write`, which adds the seal line to records of a folder
+// (docs/install.md): every other command only prints.
 //
 //   node record-keeper.mjs seal <file>             print the seal of a record
 //   node record-keeper.mjs seal --verify <file>    check the `seal:` line of a record against its text
+//   node record-keeper.mjs seal --adopt [folder] [--write]
+//                                                  the first sealing of the records that existed before the kit: a dry run, unless --write
 //   node record-keeper.mjs validate [folder]       check the format of the records in a folder (default docs/decisions)
 //   node record-keeper.mjs validate --commit <rev> check the folder as it is in a commit (docs/reading-a-commit.md)
 //
-// Exit status: 0 success, 1 a record is rejected, a seal does not verify or a folder has problems, 2 wrong usage or
-// unreadable file. Only `validate --commit` runs another program (git); nothing else does, and nothing writes a file.
+// Exit status: 0 success, 1 a record is rejected, a seal does not verify, a folder has problems or a record cannot be sealed, 2 wrong usage or
+// unreadable file. Only `validate --commit` runs another program (git); nothing else does, and only `seal --adopt --write` writes a file.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -561,6 +564,80 @@ function validateSource(source, { extraKeys = [], sharedFolder = 'shared' } = {}
   const facts = new Map(records.map((record) => [record.name, checkRecord(source, record, numbers, extraKeys, report)]));
   if (readme) checkIndex(source, records, facts, report);
   return problems;
+}
+
+// ---- the first sealing of the records that existed before the kit: docs/install.md ---------------------------------------
+
+const SEALABLE_STATUS = /^(?:accepted|superseded by \d{4})$/;
+
+/**
+ * Puts the line `seal: <value>` into the bytes of a record as the last line of its front matter, directly before the closing delimiter, with the line
+ * ending of the line before it. Nothing else is touched: the bytes of the record are kept, and only the bytes of the new line are added. `end` is the index
+ * of the closing delimiter, which is also the number of the physical line, because a record that g1 accepts has no carriage return that is not part of a CRLF.
+ * Returns { bytes, at, added }: the new bytes, where the line starts and what was added.
+ */
+function insertSealLine(bytes, end, value) {
+  let at = 0;
+  for (let line = 0; line < end; line++) at = bytes.indexOf(0x0a, at) + 1;
+  const added = Buffer.from(`seal: ${value}${bytes[at - 2] === 0x0d ? '\r\n' : '\n'}`);
+  return { bytes: Buffer.concat([bytes.subarray(0, at), added, bytes.subarray(at)]), at, added };
+}
+
+/** A record that `seal --adopt` leaves as it is and lists: `rule` is the rule it is listed under (null for none) and `why` says it in words. */
+const cannot = (rule, why) => ({ state: 'cannot', rule, why });
+
+/**
+ * The first sealing of one record, as `seal --adopt` does it (docs/install.md). Never throws for a bad record, and never changes the bytes it is given. Returns
+ *   { state: 'cannot', rule, why }  g1 rejects the record (rule is the rule of g1), or the line cannot be added without a change that `validate` would see;
+ *   { state: 'skip', why }          its status is not `accepted` and not `superseded by NNNN`;
+ *   { state: 'has-seal' }           it has a `seal:` line already, valid or not: such a record is never rewritten;
+ *   { state: 'seal', bytes }        the bytes of the record with the line `seal: sha256-g1:<hex>` added, and every other byte as it was.
+ * `place` puts the line into the bytes (it is a parameter so that the checks after it can be tried with a placement that does not hold).
+ */
+export function adoptRecord(bytes, place = insertSealLine) {
+  let record;
+  try {
+    record = parse(bytes);
+  } catch (error) {
+    if (!(error instanceof Reject)) throw error;
+    return cannot(error.rule, RULES[error.rule]);
+  }
+  const status = record.entries.find(({ key }) => key === 'status')?.value;
+  if (status === undefined) return { state: 'skip', why: 'no status' };
+  if (!SEALABLE_STATUS.test(status)) return { state: 'skip', why: `status ${status}` };
+  if (record.entries.some(({ key }) => key === 'seal')) return { state: 'has-seal' };
+  const value = seal(bytes);
+  const { bytes: next, at, added } = place(bytes, record.end, value);
+  // Whatever the placement did, the new bytes must be the old ones with the new line in them, and the seal must verify.
+  const kept = Buffer.concat([next.subarray(0, at), next.subarray(at + added.length)]);
+  const result = verify(next);
+  if (!kept.equals(bytes) || !result.ok || result.seal !== value) return cannot(null, 'the seal line cannot be added without changing another byte of the record');
+  // The line is one line more, and a record of exactly the longest length that V-10 allows would be too long with it: `validate` would report a problem that it did not.
+  const grown = parse(next);
+  if (lengthAsAccepted(record.lines, record.end, record.fenced) <= MAX_LINES && lengthAsAccepted(grown.lines, grown.end, grown.fenced) > MAX_LINES) {
+    return cannot('V-10', `the seal line would make the record longer than ${MAX_LINES} lines`);
+  }
+  return { state: 'seal', bytes: next };
+}
+
+/**
+ * What `seal --adopt` does with the records of a folder, without writing: one entry for each file that is looked at, in name order, as { name, ...adoptRecord }.
+ * A subfolder, a name that starts with a dot, and `README.md` and `template.md` when they are files are not looked at. A file that is not a record file is `skip`ped,
+ * and an entry that is a symbolic link or neither a file nor a folder is a `cannot` (V-04), as in `validate`, whatever its name: it is never read and never written.
+ * Throws Unreadable.
+ */
+export function adopt(folder) {
+  const source = folderSource(folder);
+  if (!source.exists()) throw new Unreadable(`${printable(folder)} does not exist or is not a directory`);
+  const results = [];
+  for (const { name, type } of source.list().filter((entry) => !entry.name.startsWith('.')).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+    if (type === 'directory') continue;
+    if (type !== 'file') results.push({ name, ...cannot('V-04', `the entry ${FORMAT_RULES['V-04']}`) });
+    else if (name === 'README.md' || name === 'template.md') continue;
+    else if (!RECORD_FILE.test(name)) results.push({ name, state: 'skip', why: 'not a record file' });
+    else results.push({ name, ...adoptRecord(source.read(name)) });
+  }
+  return results;
 }
 
 /** Why a commit cannot be read: no git, not a repository, not a revision, not a folder of the tree. Wrong usage, not a problem of the records. */
@@ -2124,6 +2201,10 @@ function gitFacts(repo) {
 const USAGE = `Usage:
   record-keeper.mjs seal <file>             print the ${GENERATION} seal of a record
   record-keeper.mjs seal --verify <file>    check the seal: line of a record against its text
+  record-keeper.mjs seal --adopt [folder] [--write]
+                                            the first sealing of the records that existed before the kit (default docs/decisions):
+                                            say which accepted or superseded records have no seal line and would get one; a dry run
+                                            that writes nothing, unless --write adds the seal lines
   record-keeper.mjs validate [folder] [--extra-key <name>]... [--shared-folder <name>]
                                             check the format of the records in a folder (default docs/decisions)
   record-keeper.mjs validate --commit <revision> [--repo <path>] [folder] [--extra-key <name>]... [--shared-folder <name>]
@@ -2174,7 +2255,51 @@ function describeFailure(file, result) {
 
 const usageError = { code: 2, stdout: '', stderr: USAGE };
 
-function runSeal(args, readFile) {
+/** The clause that says what `seal --adopt` did or would do with a record. */
+function adoptClause(result, writing) {
+  switch (result.state) {
+    case 'seal': return writing ? 'sealed' : 'would seal';
+    case 'has-seal': return 'already has a seal';
+    case 'skip': return `skipped (${printable(result.why)})`;
+    default: return `cannot seal (${result.rule === null ? '' : `${result.rule}: `}${result.why})`;
+  }
+}
+
+function runAdopt(args, writeFile) {
+  const options = readOptions(args, [], ['--write']);
+  if (!options || options.rest.length > 1) return usageError;
+  const folder = options.rest[0] ?? 'docs/decisions';
+  const writing = options.flags.has('--write');
+  let results;
+  try {
+    results = adopt(folder);
+  } catch (error) {
+    if (error instanceof Unreadable) return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
+    if (error?.code === undefined) throw error;
+    return { code: 2, stdout: '', stderr: `record-keeper: cannot read ${printable(folder)}: ${printable(error.message)}\n` };
+  }
+  const lines = [];
+  for (const result of results) {
+    const where = printable(path.join(folder, result.name));
+    if (writing && result.state === 'seal') {
+      try {
+        writeFile(path.join(folder, result.name), result.bytes);
+      } catch (error) {
+        return { code: 2, stdout: '', stderr: `${lines.join('')}record-keeper: cannot write ${where}: ${printable(error.message)}\n` };
+      }
+    }
+    lines.push(`${where}: ${adoptClause(result, writing)}\n`);
+  }
+  const count = (state) => results.filter((result) => result.state === state).length;
+  const [sealable, sealed, skipped, left] = ['seal', 'has-seal', 'skip', 'cannot'].map(count);
+  const summary = `${printable(folder)}: ${sealable} ${writing ? 'sealed' : 'would be sealed'}, ${sealed} ${sealed === 1 ? 'has a seal' : 'have a seal'}, ${skipped} skipped, ${left} cannot be sealed\n`;
+  const hint = !writing && sealable > 0 ? 'dry run: nothing was written; run it again with --write to add the seal lines\n' : '';
+  return left === 0 ? { code: 0, stdout: lines.join('') + summary + hint, stderr: '' } : { code: 1, stdout: '', stderr: lines.join('') + summary + hint };
+}
+
+function runSeal(args, readFile, writeFile) {
+  const adopting = args.indexOf('--adopt');
+  if (adopting >= 0) return runAdopt(args.filter((_, at) => at !== adopting), writeFile);
   const verifying = args[0] === '--verify';
   if (verifying) args.shift();
   if (args.length !== 1 || args[0].startsWith('-')) return usageError;
@@ -2466,11 +2591,11 @@ function runAnnouncePlan(args, readFile) {
 }
 
 /** The command line, without the process around it. Returns { code, stdout, stderr }. */
-export function run(argv, { readFile = fs.readFileSync, now = Date.now } = {}) {
+export function run(argv, { readFile = fs.readFileSync, now = Date.now, writeFile = fs.writeFileSync } = {}) {
   const args = [...argv];
   if (args[0] === '--help' || args[0] === '-h') return { code: 0, stdout: USAGE, stderr: '' };
   const command = args.shift();
-  if (command === 'seal') return runSeal(args, readFile);
+  if (command === 'seal') return runSeal(args, readFile, writeFile);
   if (command === 'validate') return runValidate(args);
   if (command === 'config') return runConfig(args);
   if (command === 'check-pr') return runCheckPr(args, readFile, now());

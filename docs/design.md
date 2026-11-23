@@ -316,7 +316,7 @@ Today the Concierge validates its records with its own script and its own tests;
 
 ## Adoption
 
-1. **Issue Concierge first.** It seals its existing records in one pull request that adds only `seal:` keys, installs the kit, and deletes its own validator. It is the first consumer and the test of the migration.
+1. **Issue Concierge first.** It installs the kit in one pull request, and seals its existing records in a second one that adds only `seal:` keys (written by `seal --adopt`, [install](install.md#adopting-with-records-that-already-exist)) and deletes its own validator, which would reject the key. It is the first consumer and the test of the migration.
 2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
 3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and frodo-lib, which stays on `decisions/` for now, only gets the rename. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
 

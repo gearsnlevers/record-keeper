@@ -1,0 +1,1620 @@
+{
+ "cases": [
+  {
+   "id": "s01-template-order",
+   "note": "The keys in the order of the template: the line is the last of the front matter, after the last item of the last list.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s02-superseded",
+   "note": "A record that is superseded by a later one is sealed like an accepted one.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 0007\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 0007\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s03-crlf",
+   "note": "CRLF line endings: the line ends in CRLF as the line before it, and no other byte changes.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s04-crlf-no-final-newline",
+   "note": "CRLF and no line ending at the end of the file.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done."
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done."
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s05-no-final-newline",
+   "note": "No line feed at the end of the file.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done."
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done."
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s06-blank-lines-at-the-end",
+   "note": "Empty lines and lines of white space at the end are kept.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n  \n\t\n\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n  \n\t\n\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s07-trailing-white-space",
+   "note": "Trailing spaces and tabs after the delimiters, the keys and the values are kept, and the line is added after them.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "--- \nstatus: accepted \ndate: 2026-11-01\t\ndecision-makers:  \n  - a  \n--- \n\n# T\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "--- \nstatus: accepted \ndate: 2026-11-01\t\ndecision-makers:  \n  - a  \nseal: sha256-g1:d2e4bdcc759510306262818d2b9dd0ae75fb7a7e72c77519293ca9b3d93fbc03\n--- \n\n# T\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s08-front-matter-only",
+   "note": "A record with only a front matter, closed by the last line of the file.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\n---"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\nseal: sha256-g1:d487269d2de0655a9ed127c83b0d1006d724e600385b32f4f4b39893c1e0164b\n---"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s09-front-matter-and-one-newline",
+   "note": "The same with a line feed after the closing delimiter.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\n---\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\nseal: sha256-g1:d487269d2de0655a9ed127c83b0d1006d724e600385b32f4f4b39893c1e0164b\n---\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s10-another-order-of-keys",
+   "note": "The record has other keys in another order, an extra key and a list in the middle: the line goes last.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nrepos:\n  - a\nstatus: accepted\nemergency: no\ndate: 2026-11-01\ndecision-makers:\n  - a\n  - b\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nrepos:\n  - a\nstatus: accepted\nemergency: no\ndate: 2026-11-01\ndecision-makers:\n  - a\n  - b\nseal: sha256-g1:99b67017ec3a0edc2fbab433cf6b9146e17daf87e56b212c68697917b9017066\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s11-known-deviations-and-errata",
+   "note": "The sections that the seal does not cover are in the record: they stay, and the seal is the one of the record without them.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n## Known deviations\n\n- A note.\n\n## Errata\n\nNone yet.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n## Known deviations\n\n- A note.\n\n## Errata\n\nNone yet.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s12-non-ascii",
+   "note": "Non-ASCII text, a no-break space and an emoji are kept byte for byte.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndecision-makers:\n  - Zo\u00eb\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n\u00dcn\u00efc\u00f6d\u00e9 \u2603 \ud83d\ude00 and\u00a0a no-break space.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndecision-makers:\n  - Zo\u00eb\nseal: sha256-g1:53a1897f991fd84340be1701e4fb69eed9f7daff9623c5dc27a3f8da22786910\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n\u00dcn\u00efc\u00f6d\u00e9 \u2603 \ud83d\ude00 and\u00a0a no-break space.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s13-mixed-line-endings-crlf-before",
+   "note": "Mixed line endings: the new line ends like the line before it, which ends in CRLF.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\r\n---\n\n# T\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\r\nseal: sha256-g1:d2e4bdcc759510306262818d2b9dd0ae75fb7a7e72c77519293ca9b3d93fbc03\r\n---\n\n# T\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s14-mixed-line-endings-lf-before",
+   "note": "Mixed line endings: the line before ends in a line feed and the rest of the record in CRLF.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - a\n---\r\n\r\n# T\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - a\nseal: sha256-g1:d2e4bdcc759510306262818d2b9dd0ae75fb7a7e72c77519293ca9b3d93fbc03\n---\r\n\r\n# T\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s15-status-with-trailing-white-space",
+   "note": "A status followed by spaces or a tab is the status.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted \t\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted \t\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:bf7c2762cb252c8d36b0ad6ec053baffeee1e0135c698e518c32de9824dc07a4\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s16-status-after-spaces",
+   "note": "Spaces after the colon are not part of the value.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus:    accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus:    accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:bf7c2762cb252c8d36b0ad6ec053baffeee1e0135c698e518c32de9824dc07a4\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s17-a-fence-in-the-body",
+   "note": "A fenced block with lines that look like headings and keys is body text.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n```md\n## Another heading\nseal: not-a-seal\n```\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:d0e2244a2cb15a129537f01842d6759a0ddbd70204825eae9e1a684f086efd60\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\n```md\n## Another heading\nseal: not-a-seal\n```\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s18-one-line-short-of-the-length",
+   "note": "A record of 59 lines becomes one of 60, which V-10 allows.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:824a71748394b871e8d47edd43a20f907d39f345c086f6f17c586c3dea4892c1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s19-too-long-already",
+   "note": "A record of 61 lines has the problem V-10 already, and the line adds none: it is sealed.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n- More 40.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:eddd9ae6a013a162d05980026063f631cb874440b2bc910bba05f7f6fff2ccef\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n- More 40.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "s20-long-sections-do-not-count",
+   "note": "A record of 60 lines and a long Errata section after it: the section is not counted, so the record is at the length and the line would pass it.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n\n## Errata\n\n- entry 0\n- entry 1\n- entry 2\n- entry 3\n- entry 4\n- entry 5\n- entry 6\n- entry 7\n- entry 8\n- entry 9\n- entry 10\n- entry 11\n- entry 12\n- entry 13\n- entry 14\n- entry 15\n- entry 16\n- entry 17\n- entry 18\n- entry 19\n- entry 20\n- entry 21\n- entry 22\n- entry 23\n- entry 24\n- entry 25\n- entry 26\n- entry 27\n- entry 28\n- entry 29\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "s21-number-of-the-file-is-not-read",
+   "note": "The number and the name of the file do not matter to the line: 0099 is a record file like another.",
+   "files": {
+    "0099-some-late-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0099-some-late-rule.md: would seal"
+   ],
+   "write": [
+    "0099-some-late-rule.md: sealed"
+   ],
+   "after": {
+    "0099-some-late-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "l01-at-the-length",
+   "note": "A record of exactly 60 lines would be 61 with the seal line, and V-10 would report it: it is left as it is and listed under V-10.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "l02-at-the-length-superseded",
+   "note": "The same for a superseded record.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 0003\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "l03-an-empty-line-at-the-end-counts",
+   "note": "An empty line at the end of the file is a line: 59 lines and one empty line are 60.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "l05-the-line-feed-at-the-end-does-not-count",
+   "note": "The line feed that ends the last line is not a line: 59 lines and a line feed are 59.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\nseal: sha256-g1:824a71748394b871e8d47edd43a20f907d39f345c086f6f17c586c3dea4892c1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "l04-at-the-length-crlf",
+   "note": "CRLF does not change the count.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - a\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n- More 0.\r\n- More 1.\r\n- More 2.\r\n- More 3.\r\n- More 4.\r\n- More 5.\r\n- More 6.\r\n- More 7.\r\n- More 8.\r\n- More 9.\r\n- More 10.\r\n- More 11.\r\n- More 12.\r\n- More 13.\r\n- More 14.\r\n- More 15.\r\n- More 16.\r\n- More 17.\r\n- More 18.\r\n- More 19.\r\n- More 20.\r\n- More 21.\r\n- More 22.\r\n- More 23.\r\n- More 24.\r\n- More 25.\r\n- More 26.\r\n- More 27.\r\n- More 28.\r\n- More 29.\r\n- More 30.\r\n- More 31.\r\n- More 32.\r\n- More 33.\r\n- More 34.\r\n- More 35.\r\n- More 36.\r\n- More 37.\r\n- More 38.\r\n- More 39.\r\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "k01-status-proposed",
+   "note": "The status `proposed` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: proposed\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status proposed)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status proposed)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k02-status-rejected",
+   "note": "The status `rejected` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: rejected\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status rejected)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status rejected)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k03-status-deprecated",
+   "note": "The status `deprecated` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: deprecated\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status deprecated)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status deprecated)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k04-status-accepted",
+   "note": "The status `Accepted` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: Accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status Accepted)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status Accepted)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k05-status-accepted---note",
+   "note": "The status `accepted # note` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted # note\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status accepted # note)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status accepted # note)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k06-status-superseded-by-12",
+   "note": "The status `superseded by 12` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 12\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status superseded by 12)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status superseded by 12)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k07-status-superseded",
+   "note": "The status `superseded` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status superseded)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status superseded)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k08-status-superseded-by-0012-now",
+   "note": "The status `superseded by 0012 now` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 0012 now\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status superseded by 0012 now)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status superseded by 0012 now)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k09-status-wip",
+   "note": "The status `wip` is not accepted and not superseded by NNNN: the record is skipped and the status is said.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: wip\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status wip)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status wip)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k10-no-status",
+   "note": "A record with no status key is skipped.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (no status)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (no status)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k11-proposed-with-a-seal",
+   "note": "A proposed record that has a seal line is skipped for its status: the command does not say that it has a seal.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: proposed\nseal: sha256-g1:0000000000000000000000000000000000000000000000000000000000000000\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (status proposed)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (status proposed)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "k12-no-front-matter-key-but-status-in-body",
+   "note": "A line `status: accepted` in the body is not a key.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n\nstatus: accepted\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: skipped (no status)"
+   ],
+   "write": [
+    "0001-a-rule.md: skipped (no status)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h01-valid-seal",
+   "note": "A record with a seal that verifies is left alone.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h02-wrong-seal",
+   "note": "A seal that does not match the text is left alone, and not rewritten: the command cannot be used to hide a change.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:0000000000000000000000000000000000000000000000000000000000000000\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h03-malformed-seal",
+   "note": "A seal that is not a seal at all is left alone.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: trust me\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h04-other-generation",
+   "note": "A seal of a generation that this version does not know is left alone.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g2:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h05-seal-first",
+   "note": "The seal line stands first in the front matter.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h06-seal-uppercase-digits",
+   "note": "A seal in capitals is not valid and is left alone.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: SHA256-G1:C41B58F5AC95D8FEED01FE559EE992C0485CFF2B812268FD7FFCCFE849F48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "h07-superseded-with-a-seal",
+   "note": "A superseded record that has a seal line is left alone.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: superseded by 0004\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "write": [
+    "0001-a-rule.md: already has a seal"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "r01-comment",
+   "note": "An HTML comment: G1-06. The record is left as it is.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n<!-- note -->\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-06: the text contains <!--)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-06: the text contains <!--)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r02-byte-order-mark",
+   "note": "A byte order mark in front of the record: G1-02.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "\ufeff---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-02: the text contains U+FEFF (a byte order mark))"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-02: the text contains U+FEFF (a byte order mark))"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r03-no-front-matter",
+   "note": "No front matter: G1-07.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "# A rule\n\nText.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-07: line 1 is not ---)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-07: line 1 is not ---)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r04-front-matter-not-closed",
+   "note": "A front matter that is never closed: G1-08.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\n\n# A rule\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-08: the front matter is never closed by a line that is ---)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-08: the front matter is never closed by a line that is ---)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r05-invalid-utf8",
+   "note": "A byte that is not UTF-8: G1-01.",
+   "files": {
+    "0001-a-rule.md": {
+     "hex": "2d2d2d0a7374617475733a2061636365707465640a2d2d2d0aff0a"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-01: the bytes are not valid UTF-8)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-01: the bytes are not valid UTF-8)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r06-nul",
+   "note": "A control character: G1-03.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\na\u0000b\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-03: the text contains a control character other than tab, line feed and carriage return)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-03: the text contains a control character other than tab, line feed and carriage return)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r07-lone-carriage-return",
+   "note": "A carriage return that is not part of a CRLF: G1-05.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\na\rb\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-05: a carriage return is not directly followed by a line feed)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-05: a carriage return is not directly followed by a line feed)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r08-key-twice",
+   "note": "A key twice: G1-10.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\ndate: 2026-11-02\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-10: two front matter keys are the same apart from case)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-10: two front matter keys are the same apart from case)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r09-seal-with-a-capital",
+   "note": "The key written Seal: G1-11. It is not a seal line, and it is not rewritten.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nSeal: x\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-11: status, date or seal is written with a capital letter)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-11: status, date or seal is written with a capital letter)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r10-seal-without-a-value",
+   "note": "A seal key with no value: G1-12.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal:\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-12: status, date or seal has no value, or has continuation lines)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-12: status, date or seal has no value, or has continuation lines)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r11-unclosed-fence",
+   "note": "A code fence that is never closed: G1-15.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n```\ncode\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-15: a code fence is never closed)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-15: a code fence is never closed)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r12-html-block",
+   "note": "A line that starts a raw HTML block: G1-16.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n<div>x</div>\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-16: a line starts a raw HTML block)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-16: a line starts a raw HTML block)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r13-proposed-and-rejected",
+   "note": "A proposed record that g1 rejects is listed too: the rule is read before the status, because a record that g1 rejects has no status that can be read.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: proposed\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n<!-- note -->\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-06: the text contains <!--)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-06: the text contains <!--)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "r14-empty-file",
+   "note": "An empty file: G1-07.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": ""
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: cannot seal (G1-07: line 1 is not ---)"
+   ],
+   "write": [
+    "0001-a-rule.md: cannot seal (G1-07: line 1 is not ---)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "code": 1
+  },
+  {
+   "id": "f01-not-record-files",
+   "note": "Files that are not record files are skipped and said; README.md, template.md and a name that starts with a dot are not looked at.",
+   "files": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "notes.txt": {
+     "text": "x"
+    },
+    "0002-Capital.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "2-short.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0003-two_words.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    ".hidden.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "README.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "template.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a-rule.md: would seal",
+    "0002-Capital.md: skipped (not a record file)",
+    "0003-two_words.md: skipped (not a record file)",
+    "2-short.md: skipped (not a record file)",
+    "notes.txt: skipped (not a record file)"
+   ],
+   "write": [
+    "0001-a-rule.md: sealed",
+    "0002-Capital.md: skipped (not a record file)",
+    "0003-two_words.md: skipped (not a record file)",
+    "2-short.md: skipped (not a record file)",
+    "notes.txt: skipped (not a record file)"
+   ],
+   "after": {
+    "0001-a-rule.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "counts": [
+    1,
+    0,
+    4,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "m01-a-folder-of-everything",
+   "note": "A folder with a record of each kind, in the order of their names.",
+   "files": {
+    "0001-sealed-now.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0002-superseded-now.md": {
+     "text": "---\nstatus: superseded by 0006\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0003-sealed-already.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0004-proposed.md": {
+     "text": "---\nstatus: proposed\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0005-rejected-by-g1.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n<!-- x -->\n"
+    },
+    "0006-rejected.md": {
+     "text": "---\nstatus: rejected\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0007-crlf.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    },
+    "0008-no-final-newline.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done."
+    },
+    "0009-at-the-length.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - a\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n- More 0.\n- More 1.\n- More 2.\n- More 3.\n- More 4.\n- More 5.\n- More 6.\n- More 7.\n- More 8.\n- More 9.\n- More 10.\n- More 11.\n- More 12.\n- More 13.\n- More 14.\n- More 15.\n- More 16.\n- More 17.\n- More 18.\n- More 19.\n- More 20.\n- More 21.\n- More 22.\n- More 23.\n- More 24.\n- More 25.\n- More 26.\n- More 27.\n- More 28.\n- More 29.\n- More 30.\n- More 31.\n- More 32.\n- More 33.\n- More 34.\n- More 35.\n- More 36.\n- More 37.\n- More 38.\n- More 39.\n"
+    }
+   },
+   "dry": [
+    "0001-sealed-now.md: would seal",
+    "0002-superseded-now.md: would seal",
+    "0003-sealed-already.md: already has a seal",
+    "0004-proposed.md: skipped (status proposed)",
+    "0005-rejected-by-g1.md: cannot seal (G1-06: the text contains <!--)",
+    "0006-rejected.md: skipped (status rejected)",
+    "0007-crlf.md: would seal",
+    "0008-no-final-newline.md: would seal",
+    "0009-at-the-length.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "write": [
+    "0001-sealed-now.md: sealed",
+    "0002-superseded-now.md: sealed",
+    "0003-sealed-already.md: already has a seal",
+    "0004-proposed.md: skipped (status proposed)",
+    "0005-rejected-by-g1.md: cannot seal (G1-06: the text contains <!--)",
+    "0006-rejected.md: skipped (status rejected)",
+    "0007-crlf.md: sealed",
+    "0008-no-final-newline.md: sealed",
+    "0009-at-the-length.md: cannot seal (V-10: the seal line would make the record longer than 60 lines)"
+   ],
+   "after": {
+    "0001-sealed-now.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0002-superseded-now.md": {
+     "text": "---\nstatus: superseded by 0006\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0007-crlf.md": {
+     "text": "---\r\nstatus: accepted\r\ndate: 2026-11-01\r\ndecision-makers:\r\n  - maintainers\r\napplies-to:\r\n  - src/**\r\nissues:\r\n  - owner/repo#1\r\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\r\n---\r\n\r\n# A rule\r\n\r\n## Context and problem statement\r\n\r\nWhy.\r\n\r\n## Decision\r\n\r\n- Do it.\r\n\r\n## Consequences\r\n\r\n- Done.\r\n"
+    },
+    "0008-no-final-newline.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done."
+    }
+   },
+   "counts": [
+    4,
+    1,
+    2,
+    2
+   ],
+   "code": 1
+  },
+  {
+   "id": "m02-nothing-to-do",
+   "note": "A folder in which every accepted record has a seal and the others are proposed: nothing is written and the exit status is 0.",
+   "files": {
+    "0001-a.md": {
+     "text": "---\nstatus: accepted\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\nseal: sha256-g1:c41b58f5ac95d8feed01fe559ee992c0485cff2b812268fd7ffccfe849f48722\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    },
+    "0002-b.md": {
+     "text": "---\nstatus: proposed\ndate: 2026-11-01\ndecision-makers:\n  - maintainers\napplies-to:\n  - src/**\nissues:\n  - owner/repo#1\n---\n\n# A rule\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Do it.\n\n## Consequences\n\n- Done.\n"
+    }
+   },
+   "dry": [
+    "0001-a.md: already has a seal",
+    "0002-b.md: skipped (status proposed)"
+   ],
+   "write": [
+    "0001-a.md: already has a seal",
+    "0002-b.md: skipped (status proposed)"
+   ],
+   "after": {},
+   "counts": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "code": 0
+  },
+  {
+   "id": "m03-empty-folder",
+   "note": "A folder with README.md and template.md only: no line and a count of zero.",
+   "files": {},
+   "dry": [],
+   "write": [],
+   "after": {},
+   "counts": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "code": 0
+  }
+ ]
+}
