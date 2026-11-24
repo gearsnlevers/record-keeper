@@ -463,6 +463,15 @@ describe('what goes into a pull request', () => {
     assert.match(body, /\n- The manifest of the pinned release is not one the updater reads \(manifest-json\)/);
   });
 
+  test('the plan of a first adoption has no local change, whatever is there by hand, so no body of it has the section', () => {
+    const first = plans.find((c) => c.id === 'p042-first-adoption-over-hand-installed-files').expect;
+    assert.equal(first.from, null);
+    assert.deepEqual([first.changed.length > 0, first.overwritten], [true, []], 'a file by hand is replaced, and not counted');
+    for (const notes of ['', 'Fixed a thing.']) assert.doesNotMatch(renderBody(first, notes), /Local changes|overwrite/);
+    // the same plan with a pin is an update, and the one local change it overwrites is listed
+    assert.match(renderBody({ ...first, from: 'v1.0.0', overwritten: first.changed }, ''), /## Local changes this update overwrites\n/);
+  });
+
   test('a body of an update that changes only the pin, and one that has nothing required, say so', () => {
     const body = renderBody({ ...answer, added: [], changed: [], remove: [], templates: [], requires: { rulesets: [], secrets: [], settings: [] } }, '');
     assert.ok(body.includes('Only the pin changes.'));

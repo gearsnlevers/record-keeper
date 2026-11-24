@@ -134,6 +134,14 @@ A violation line is `- <place>: <where>: [<rule>] <what>`, and ` (<detail>)` whe
 
 The three ways to resolve it that the body names are those of the protocol. None of them is the answer for a repository that adopted the kit with records that already existed and has not sealed them yet: each such record gets an issue with the violation `P-06 ... (no seal)`, and what resolves them all is the pull request that seals the records. The next run then closes the issues ([the tip of the audit](audit.md#what-it-judges), [adopting with records that already exist](install.md#adopting-with-records-that-already-exist)).
 
+**The sentence for a record with no seal.** When **every** violation of a key is `P-06` with the detail `no seal` (a record that says `accepted` or `superseded by NNNN` and has no `seal:` line), the line that says what the issue is has one sentence more, after a space, so that the body keeps the shape above: the marker, that line, an empty line, the violations. It says where the answer is:
+
+```
+A record that has never been sealed gets its first seal from `seal --adopt` in a pull request instead ([adopting with records that already exist](https://github.com/gearsnlevers/record-keeper/blob/main/docs/install.md#adopting-with-records-that-already-exist)); the audit closes this issue when the seals are merged.
+```
+
+The three ways stay in the line, and the sentence says "instead" only of a record that never had a seal: the detail `no seal` is also what a record that **lost** its seal line in a change has, and the audit cannot tell the two apart, so that record is still reverted or corrected. A key that holds another detail of `P-06` among its violations (`seal does not match`, `unknown generation gN`) is a record that had a seal, and its body has no sentence; so has every key of another rule. The marker, which is how the audit finds its issues, is the same line as before. An issue that an earlier release wrote for such a key has the text without the sentence, so the first run after an update that brings this text updates it, once (the table above: an open issue whose body differs).
+
 A **resolved** issue has the marker, a line feed, and `No violation of this kind stands. Closed by the audit.` and a line feed. A **duplicate** has the marker, a line feed, and `Duplicate of #<number>.` and a line feed.
 
 An issue whose first line is the marker, read up to the first line feed with one carriage return before it taken off, belongs to the key; GitHub keeps the line endings that were written.

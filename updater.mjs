@@ -1111,7 +1111,9 @@ async function execute(opts, env, options, say) {
   if (update.block !== null && WRITES.includes(update.block.action)) say(`  ${update.block.action} the block of ${AGENTS_PATH}`);
   if (update.status === 'update' && update.pinChanged) say(`  write ${PIN_PATH}`);
   for (const warning of update.warnings) say(`warning: ${warningText(warning)}`);
-  if (update.status === 'update') say(`${count(update.added.length, 'file', 'files')} to add, ${update.changed.length} to change, ${update.remove.length} to remove, ${count(update.templates.length, 'template', 'templates')} to install, ${count(update.overwritten.length, 'local change', 'local changes')} overwritten${update.block !== null && WRITES.includes(update.block.action) ? `, the block of ${AGENTS_PATH} to ${update.block.action}` : ''}`);
+  // With no pin (the first adoption) there is no earlier release to compare with, so the plan cannot know a local change: the line leaves the count out, because a 0 would say that it looked.
+  const local = update.from === null ? '' : `, ${count(update.overwritten.length, 'local change', 'local changes')} overwritten`;
+  if (update.status === 'update') say(`${count(update.added.length, 'file', 'files')} to add, ${update.changed.length} to change, ${update.remove.length} to remove, ${count(update.templates.length, 'template', 'templates')} to install${local}${update.block !== null && WRITES.includes(update.block.action) ? `, the block of ${AGENTS_PATH} to ${update.block.action}` : ''}`);
   if (mode === 'dry') {
     say('dry run: nothing was written');
     return 0;

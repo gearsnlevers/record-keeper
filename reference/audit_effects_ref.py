@@ -18,6 +18,9 @@ BOT_LOGIN, BOT_TYPE = 'github-actions[bot]', 'Bot'
 MARKER_KEY = re.compile(r'(?:[0-9]{4}|other|-):[A-Z]-[0-9]{2}')
 INTRO = ('The audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. '
          'To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.')
+FIRST_SEAL = ('A record that has never been sealed gets its first seal from `seal --adopt` in a pull request instead '
+              '([adopting with records that already exist](https://github.com/gearsnlevers/record-keeper/blob/main/docs/install.md#adopting-with-records-that-already-exist)); '
+              'the audit closes this issue when the seals are merged.')
 RESOLVED = 'No violation of this kind stands. Closed by the audit.'
 ORDER = {'open': 0, 'reopen': 1, 'update': 2, 'close': 3}
 EVENT = {'open': 'opened', 'reopen': 'reopened', 'update': 'changed', 'close': 'closed'}
@@ -183,7 +186,8 @@ def plan(repo, head_rev, adopted, from_, since, evidence, issues, now, texts):
         if k in by_key:
             label = 'other files' if subject == 'other' else 'the repository' if subject == '-' else subject
             title = 'Records: %s: [%s] %s' % (label, rule, texts[rule])
-            body = marker(k) + '\n' + INTRO + '\n\n' + ''.join(line(v) for v in by_key[k])
+            sealless = all(v['rule'] == 'P-06' and v['detail'] == 'no seal' for v in by_key[k])
+            body = marker(k) + '\n' + INTRO + (' ' + FIRST_SEAL if sealless else '') + '\n\n' + ''.join(line(v) for v in by_key[k])
             if not found: actions.append({'action': 'open', 'key': k, 'title': title, 'body': body})
             elif opened:
                 if opened[0]['title'] != title or opened[0]['body'] != body: actions.append({'action': 'update', 'key': k, 'number': opened[0]['number'], 'title': title, 'body': body})

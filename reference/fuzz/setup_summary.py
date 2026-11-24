@@ -47,6 +47,9 @@ WANTED += ['secret, event %s, secretSet True: found fine' % event for event in (
 WANTED += ['secret, event %s, secretSet None: not checked' % event for event in ('schedule', 'workflow_dispatch', None)]
 WANTED += ['no ruleset requires, branch protection not read', 'no ruleset requires, branch protection requires', 'no ruleset requires, branch protection read and does not', 'a ruleset requires, branch protection not read', 'classic not ok', 'classic requires', 'classic does not require', 'requiring strict', 'requiring not strict', 'several rulesets', 'bypass not read', 'bypass ruleset not ok', 'bypass list hidden', 'bypass actors none', 'bypass actors some',
            'bypass mode pull_request', 'bypass mode other', 'bypass actor without id']
+WANTED += ['check-not-required notice, head pin read', 'check-not-required notice, head pin refused', 'check-not-required error, not a pull request, basePin absent', 'check-not-required error, not a pull request, basePin left out',
+           'check-not-required error, pull request, no pin of the head, basePin absent', 'check-not-required error, pull request with a pin, basePin present', 'check-not-required error, pull request with a pin, basePin not-read',
+           'check-not-required error, pull request with a pin, basePin left out']
 WANTED += ['lastRun not ok', 'lastRun unreadable', 'lastRun absent', 'lastRun record', 'record at not a time', 'record at in the future', 'record at exactly 5 minutes ahead', 'record at ahead within 5 minutes', 'record at dead',
            'record at exactly 48 hours', 'record at alive', 'age not read', 'age not ok', 'age none', 'age not a time', 'age dead', 'age exactly 48 hours', 'age young']
 WANTED += ['account not read', 'account not ok', 'account none', 'account same', 'account same but for the capitals', 'account another login', 'no finding', 'more than 5 findings', 'an error', 'two errors']

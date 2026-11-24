@@ -488,6 +488,17 @@ describe('an update in Actions', () => {
     assert.equal(show(bare, `refs/heads/${BRANCH}`, '.github/record-keeper/record-keeper.mjs'), '// rules 1');
     assert.equal(git(bare, 'diff', '--name-only', 'main', BRANCH), '.github/record-keeper/record-keeper.mjs', 'the pin is the same and is not in the change');
   });
+
+  test('a repair that has no local change to overwrite still counts them: the line says 0, as it says for an update', async () => {
+    const { state, dev, bare, work } = await world();
+    fs.rmSync(path.join(dev, '.github/record-keeper/record-keeper.mjs'));
+    git(dev, 'commit', '-qam', 'Lose a managed file (#2)');
+    git(dev, 'push', '-q', bare, 'main');
+    git(work, 'pull', '-q');
+    const got = await call(['--dry-run', '--target', 'v1.0.0'], state, work, { token: null });
+    assert.equal(got.code, 0, got.stderr);
+    assert.match(got.stdout, /^update v1\.0\.0 to v1\.0\.0 \(stable\)\n  add \.github\/record-keeper\/record-keeper\.mjs\n1 file to add, 0 to change, 0 to remove, 0 templates to install, 0 local changes overwritten\ndry run: nothing was written\n$/);
+  });
 });
 
 // ---- what is never written ---------------------------------------------------------------------------------------------------------------------
@@ -1407,13 +1418,14 @@ describe('the first adoption, with --local', () => {
     const ran = await exec([bootstrap, '--local', '--source', 'gearsnlevers/record-keeper', '--target', 'v1.0.0'], { cwd: work, env: { GITHUB_API_URL: state.url } });
     assert.equal(ran.code, 0, ran.stderr);
     assert.equal(ran.stderr, '');
+    assert.doesNotMatch(ran.stdout, /local change/, 'a first adoption has nothing to compare with, and says nothing about local changes');
     const managed = install.files.filter((file) => file.kind === 'managed');
     for (const file of managed) assert.ok(fs.readFileSync(path.join(work, file.path)).equals(fs.readFileSync(path.join(root, file.source))), file.path);
     assert.equal(fs.readFileSync(path.join(work, '.github/record-keeper/settings.yml'), 'utf8'), 'owners: [alice/1001]\napprovals: 1\n', 'the settings of the owners are kept');
     assert.ok(fs.readFileSync(path.join(work, 'docs/decisions/README.md')).equals(fs.readFileSync(path.join(root, 'templates/decisions/README.md'))));
     assert.ok(fs.readFileSync(path.join(work, 'docs/decisions/template.md')).equals(fs.readFileSync(path.join(root, 'templates/decisions/template.md'))));
     assert.equal(fs.readFileSync(path.join(work, PIN_PATH), 'utf8'), pinOf('v1.0.0', commitOf('v1.0.0')));
-    assert.match(ran.stdout, new RegExp(`^update \\(nothing installed\\) to v1\\.0\\.0 \\(stable\\)\\n(?:  [^\\n]+\\n)+${managed.length} files to add, 0 to change, 0 to remove, 3 templates to install, 0 local changes overwritten, the block of AGENTS\\.md to create\\nwrote ${managed.length + 4} files, removed 0 and wrote the pin \\.github/record-keeper\\.yml\\n$`));
+    assert.match(ran.stdout, new RegExp(`^update \\(nothing installed\\) to v1\\.0\\.0 \\(stable\\)\\n(?:  [^\\n]+\\n)+${managed.length} files to add, 0 to change, 0 to remove, 3 templates to install, the block of AGENTS\\.md to create\\nwrote ${managed.length + 4} files, removed 0 and wrote the pin \\.github/record-keeper\\.yml\\n$`));
     // the files that agents read: the skill is the kit's, AGENTS.md is the block and a line feed, CLAUDE.md is the one line
     assert.ok(fs.readFileSync(path.join(work, SKILL_PATH)).equals(fs.readFileSync(path.join(root, 'templates/skills/record-a-decision/SKILL.md'))));
     assert.equal(fs.readFileSync(path.join(work, 'AGENTS.md'), 'utf8'), `${fs.readFileSync(path.join(root, 'templates/agents-block.md'), 'utf8')}\n`);
@@ -1463,6 +1475,7 @@ describe('the first adoption, with --local', () => {
     const got = await call(['--local'], state, work, { token: null });
     assert.equal(got.code, 0, got.stderr);
     assert.match(got.stdout, /wrote 4 files, removed 1 and wrote the pin/);
+    assert.match(got.stdout, /\n1 file to add, 2 to change, 1 to remove, 1 template to install, 0 local changes overwritten\nwrote /, 'an update by hand, with a pin, still counts the local changes');
     assert.equal(fs.readFileSync(path.join(work, '.github/record-keeper/updater.mjs'), 'utf8'), '// updater 2\n');
     assert.ok(!fs.existsSync(path.join(work, '.github/record-keeper/check-pull-request.mjs')));
     assert.equal(fs.readFileSync(path.join(work, PIN_PATH), 'utf8'), pinOf('v1.1.0'));
@@ -1505,7 +1518,7 @@ describe('the first adoption, with --local', () => {
     assert.equal(fs.readlinkSync(path.join(work, '.github/record-keeper/settings.yml')), '/nonexistent');
   });
 
-  test('files of the kit that are there already, by hand, are replaced, and reported as nothing special', async () => {
+  test('files of the kit that are there already, by hand, are replaced, said as `change`, and not counted as local changes, which a first adoption cannot know', async () => {
     const state = await github();
     releaseOfTheKit(state, 'v1.0.0');
     const work = folder('adopt');
@@ -1513,8 +1526,23 @@ describe('the first adoption, with --local', () => {
     const got = await call(['--local', '--source', 'gearsnlevers/record-keeper'], state, work, { token: null });
     assert.equal(got.code, 0, got.stderr);
     assert.match(got.stdout, /  change \.github\/record-keeper\/record-keeper\.mjs\n/);
-    assert.match(got.stdout, /0 local changes overwritten/);
+    assert.match(got.stdout, /\n9 files to add, 1 to change, 0 to remove, 4 templates to install, the block of AGENTS\.md to create\nwrote /);
+    assert.doesNotMatch(got.stdout, /local change/, 'neither a line of its own nor a count');
     assert.ok(fs.readFileSync(path.join(work, '.github/record-keeper/record-keeper.mjs')).equals(fs.readFileSync(path.join(root, 'record-keeper.mjs'))));
+  });
+
+  test('a dry run of a first adoption says nothing about local changes, over files that are there by hand or over none', async () => {
+    const state = await github();
+    releaseOfTheKit(state, 'v1.0.0');
+    for (const hand of [false, true]) {
+      const work = folder('adopt');
+      if (hand) write(work, '.github/record-keeper/record-keeper.mjs', '// by hand\n');
+      const got = await call(['--local', '--dry-run', '--source', 'gearsnlevers/record-keeper'], state, work, { token: null });
+      assert.equal(got.code, 0, got.stderr);
+      assert.match(got.stdout, /^update \(nothing installed\) to v1\.0\.0 \(stable\)\n/);
+      assert.match(got.stdout, /\n\d+ files to add, \d+ to change, 0 to remove, \d+ templates to install, the block of AGENTS\.md to create\ndry run: nothing was written\n$/);
+      assert.doesNotMatch(got.stdout, /local change/, hand ? 'by hand' : 'empty');
+    }
   });
 
   test('without --source and without a pin it is refused, and a source that is not owner/name is wrong usage', async () => {

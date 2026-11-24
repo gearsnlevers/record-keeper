@@ -153,6 +153,39 @@ describe('the page and the code agree', () => {
     }
   });
 
+  test('the sentence for a record with no seal is on the page word for word, and is in the line of the body that says what the issue is', () => {
+    const plain = JSON.parse(run(planArguments(cases.find((c) => c.id === 'e03-two-violations-two-issues')).args).stdout).issues[0].body.split('\n');
+    const first = JSON.parse(run(planArguments(cases.find((c) => c.id === 'e31-a-record-without-a-seal-is-told-where-its-first-seal-comes-from')).args).stdout).issues[0].body.split('\n');
+    assert.equal(first[0], '<!-- record-keeper:incident 0003:P-06 -->', 'the marker is the line that the audit finds its issues by');
+    assert.equal(first.length, plain.length, 'one violation each, and the shape is the same: the marker, the line, an empty line, the violation, and the end');
+    assert.equal(first[2], '', 'the empty line stays after the line that says what the issue is');
+    assert.ok(first[1].startsWith(`${plain[1]} `), 'the text of every issue is whole, and the sentence follows after a space');
+    const sentence = first[1].slice(plain[1].length + 1);
+    assert.match(sentence, /^A record that has never been sealed gets its first seal from `seal --adopt` in a pull request instead \(\[adopting with records that already exist\]\(https:\/\/github\.com\/gearsnlevers\/record-keeper\/blob\/main\/docs\/install\.md#adopting-with-records-that-already-exist\)\); the audit closes this issue when the seals are merged\.$/);
+    assert.ok(page.includes(sentence), 'the page quotes it');
+    assert.match(fs.readFileSync(path.join(root, 'docs/install.md'), 'utf8'), /^## Adopting with records that already exist$/m, 'and the section it links to is there');
+  });
+
+  test('the sentence is in the body of an incident whose every violation is P-06 with no seal, and in no other body', () => {
+    let with_ = 0;
+    let without = 0;
+    for (const c of cases.filter((x) => x.expect.code === 0)) {
+      const { plan } = c.expect;
+      plan.issues.forEach((action, at) => {
+        if (action.action === 'close') return;
+        const { violations } = plan.log[at];
+        const unsealed = violations.length > 0 && violations.every((v) => v.rule === 'P-06' && v.detail === 'no seal');
+        assert.equal(action.body.includes('`seal --adopt`'), unsealed, `${c.id}: ${action.key}`);
+        if (unsealed) with_ += 1;
+        else without += 1;
+        // the line that says what the issue is starts with the same text in every body
+        assert.ok(action.body.split('\n')[1].startsWith('The audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.'), `${c.id}: ${action.key}`);
+      });
+    }
+    assert.ok(with_ >= 6, `${with_} bodies with the sentence`);
+    assert.ok(without >= 40, `${without} bodies without it`);
+  });
+
   test('every rule that the page names for acts, and the new rule, are in the table of the audit page', () => {
     const audit = fs.readFileSync(path.join(root, 'docs/audit.md'), 'utf8');
     for (const rule of Object.keys(AUDIT_RULES)) assert.ok(audit.includes(`| ${rule} |`), rule);

@@ -100,7 +100,9 @@ export const NOT_LOOKED_AT = {
 
 const TEXT = {
   'audit-dead': (d) => `the audit is not running: ${d}. Open the runs of the workflow "Records audit", run it by hand and read its log, and make sure the workflow is enabled.`,
-  'check-not-required': (d) => `the check "${CHECK}" is not required on the default branch (${d}): no rule that applies to it requires the check, so a pull request can be merged without it. Add the check to the ruleset of the default branch (Settings, Rules, Rulesets) and require branches to be up to date.`,
+  'check-not-required': (d, severity) => (severity === 'notice'
+    ? `the check "${CHECK}" is not required on the default branch (${d}), and that is expected on the pull request of a first adoption: this pull request installs the kit, and the ruleset that requires the check is set after it is merged, because a required check that the base branch cannot run would hold the pull request for ever. After the merge, add the check to the ruleset of the default branch (Settings, Rules, Rulesets) and require branches to be up to date (docs/install.md of the kit, first adoption).`
+    : `the check "${CHECK}" is not required on the default branch (${d}): no rule that applies to it requires the check, so a pull request can be merged without it. Add the check to the ruleset of the default branch (Settings, Rules, Rulesets) and require branches to be up to date.`),
   'check-not-strict': (d) => `the check "${CHECK}" is required on ${d}, but no rule that requires it also requires branches to be up to date. Turn on "Require branches to be up to date before merging" in that rule.`,
   'bypass-always': (d) => `an actor may skip the rule that requires "${CHECK}" and push to the default branch directly (${d}). Set its bypass mode to "For pull requests only", or remove it.`,
   'codeowners-missing': () => `there is no CODEOWNERS file (.github/CODEOWNERS, CODEOWNERS or docs/CODEOWNERS). Add one that gives an owner to the settings file, the pin and the workflow files of the kit.`,
@@ -123,8 +125,8 @@ const TEXT = {
 };
 
 /** The sentence that says a finding. A text that came from a remote place is written so that no control character can hide in it. */
-export function describe({ code, detail }) {
-  if (code !== 'not-checked') return TEXT[code](printable(detail));
+export function describe({ code, severity, detail }) {
+  if (code !== 'not-checked') return TEXT[code](printable(detail), severity);
   const at = detail.indexOf(': ');
   const topic = detail.slice(0, at);
   return `not checked: ${TOPICS[topic].what} (${printable(detail.slice(at + 2))}). ${TOPICS[topic].fix}`;
@@ -241,14 +243,15 @@ const ownerList = (owners) => owners.map((owner) => `${owner.login}/${owner.id}`
  * What the setup check says: the findings, errors first and each group in the order the checks are made, the topics that were checked and found fine, and what was not
  * looked at (a topic and why: no finding, and no annotation). `input` is
  * what the runner read, as plain data (the page and test/fixtures/setup/README.md say what each part is): `now` in milliseconds, `local`, `own` (the kit's own
- * repository), `event`, `secretSet` (true, false or null), `settings`, `baseSettings` (the settings of the base of a pull request), `codeowners`, `pin`, `release`, `tree`,
- * `auditWorkflow` and `github` (null with `local`).
+ * repository), `event`, `secretSet` (true, false or null), `settings`, `baseSettings` (the settings of the base of a pull request), `basePin` (whether the base of a pull
+ * request has a pin, as `{ state }` with `absent`, `present` or `not-read`; left out when it was not asked for, which is the same as `not-read`), `codeowners`, `pin`, `release`,
+ * `tree`, `auditWorkflow` and `github` (null with `local`).
  */
 export function decide(input) {
   const found = [];
   const passed = [];
   const notLookedAt = [];
-  const add = (code, detail = '') => found.push({ code, severity: SEVERITY[code], detail });
+  const add = (code, detail = '', severity = SEVERITY[code]) => found.push({ code, severity, detail });
   const unchecked = (topic, why) => add('not-checked', `${topic}: ${why}`);
   const { settings, github, local, now } = input;
 
@@ -318,7 +321,12 @@ export function decide(input) {
     // No ruleset requires the check. That is an error only when branch protection, the other way to require it, could be read and does not either: a read that failed is
     // a notice, never an error.
     if (requiring.length === 0 && !github.classic.ok) unchecked('branch protection', github.classic.why);
-    else if (requiring.length === 0 && !classic) add('check-not-required', branch);
+    else if (requiring.length === 0 && !classic) {
+      // On the pull request that installs the kit (the head has a pin and the base has none) the ruleset cannot be set yet: a required check that the base cannot run would hold
+      // the pull request for ever, so it is set after the merge, and the finding is expected there: a notice. A base that has a pin, or that could not be asked, leaves it an error.
+      const installing = input.event === 'pull_request' && input.pin.state !== 'absent' && input.basePin?.state === 'absent';
+      add('check-not-required', branch, installing ? 'notice' : SEVERITY['check-not-required']);
+    }
     else {
       passed.push('check-required');
       const strict = release.state === 'read' && release.upToDate !== null ? release.upToDate : true;
@@ -694,6 +702,20 @@ async function readBase(context, repo, base) {
   }
 }
 
+/**
+ * Whether the base branch of a pull request has a pin, for the one finding that is a notice on the pull request that installs the kit: { state: 'absent' } on a 404,
+ * { state: 'present' } when there is something at the path, and { state: 'not-read' } when the read failed (and then the finding stays an error).
+ */
+async function readBasePin(context, repo, base) {
+  try {
+    const answer = await request(context, 'GET', `/repos/${repo}/contents/${encoded(PIN_PATH)}?ref=${encodeURIComponent(base)}`, { accept: 'application/vnd.github.raw+json', ok: [200, 404], limit: BOUNDS.record });
+    return { state: answer.status === 404 ? 'absent' : 'present' };
+  } catch (error) {
+    if (!(error instanceof Failed)) throw error;
+    return { state: 'not-read' };
+  }
+}
+
 /** The manifest of the pinned release of the source, read as untrusted data: what the check needs of it, or why not. */
 async function readRelease(context, pin) {
   try {
@@ -775,7 +797,14 @@ async function execute(opts, env, options) {
     // The runner of GitHub names the branch that a pull request goes into in GITHUB_BASE_REF, and only for a pull request. It is asked for only when it can change the answer.
     if (input.event === 'pull_request' && input.settings.state === 'read' && input.settings.approvals === 1 && isBranch(env.GITHUB_BASE_REF)) input.baseSettings = await readBase(context, repo, env.GITHUB_BASE_REF);
   }
-  const result = decide(input);
+  let result = decide(input);
+  // The base of a pull request is asked for its pin only when the answer changes one finding: a pull request into the default branch that has a pin of its own, and
+  // for which `check-not-required` would be an error. The base that has none makes that finding a notice; any other answer, or none, leaves it an error.
+  if (input.event === 'pull_request' && !opts.local && input.pin.state !== 'absent' && isBranch(env.GITHUB_BASE_REF) && input.github.repo.ok && env.GITHUB_BASE_REF === input.github.repo.branch
+    && result.findings.some(({ code, severity }) => code === 'check-not-required' && severity === 'error')) {
+    input.basePin = await readBasePin(context, repo, env.GITHUB_BASE_REF);
+    result = decide(input);
+  }
   return { ...result, repo: opts.local ? null : repo, at: new Date(now).toISOString().replace(/\.\d{3}Z$/, 'Z') };
 }
 

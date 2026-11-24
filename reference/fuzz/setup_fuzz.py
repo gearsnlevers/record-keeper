@@ -357,7 +357,7 @@ def gen_decision(r):
     github = None if local else gen_github(r, owners)
     if local:
         release = {'state': 'not-checked', 'why': '--local'}
-    return {
+    decision = {
         'now': NOW, 'local': local, 'own': own,
         'event': r.choice([None, 'schedule', 'workflow_dispatch', 'pull_request']),
         'secretSet': r.choice([True, False, None]),
@@ -365,6 +365,10 @@ def gen_decision(r):
         'tree': gen_tree(r, release), 'auditWorkflow': r.choices(['file', 'absent', 'other'], [88, 8, 4])[0],
         'github': github,
     }
+    # the pin of the base of a pull request, which the runner reads only for one finding: left out when it was not asked for
+    if maybe(r, 0.75):
+        decision['basePin'] = {'state': r.choice(['not-read', 'absent', 'absent', 'present'])}
+    return decision
 
 
 def ownership(r):
@@ -531,6 +535,18 @@ def classify(item, expect):
                 hits.add('classic ' + ('not ok' if not g['classic']['ok'] else 'requires' if g['classic']['requires'] else 'does not require'))
                 if not req:
                     hits.add('no ruleset requires, branch protection ' + ('not read' if not g['classic']['ok'] else 'requires' if g['classic']['requires'] else 'read and does not'))
+                    if g['classic']['ok'] and not g['classic']['requires']:
+                        # the finding is a notice on the pull request that installs the kit (the head has a pin, the base has none), and the error in every other state
+                        severity = next(f['severity'] for f in answer['findings'] if f['code'] == 'check-not-required')
+                        base_pin = 'left out' if 'basePin' not in inp else inp['basePin']['state']
+                        if severity == 'notice':
+                            hits.add('check-not-required notice, head pin ' + inp['pin']['state'])
+                        elif inp['event'] != 'pull_request':
+                            hits.add('check-not-required error, not a pull request, basePin ' + base_pin)
+                        elif inp['pin']['state'] == 'absent':
+                            hits.add('check-not-required error, pull request, no pin of the head, basePin ' + base_pin)
+                        else:
+                            hits.add('check-not-required error, pull request with a pin, basePin ' + base_pin)
                 elif not g['classic']['ok']:
                     hits.add('a ruleset requires, branch protection not read')
                 if req:

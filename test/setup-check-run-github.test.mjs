@@ -2,9 +2,12 @@
 // a read to fail becomes, against a local server that plays GitHub with the shapes of the real answers. The working tree is the one of a repository that is as it
 // should be, so every finding here is made by what GitHub says. Nothing reaches the network.
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test, { after, describe } from 'node:test';
+import { runCli } from '../setup-check.mjs';
 import {
-  CHECK, COMMIT, FILES, NOW, REQUIRES, SECRET, TOKEN, branchByProtection, branchByRuleset, check, cleanUp, commitOf, hoursAgo, installed, lastRunText, others, reads, releaseOf, requiring, ruleset, serve, tree, healthy, write,
+  CHECK, COMMIT, FILES, NOW, REQUIRES, SECRET, TOKEN, actions, branchByProtection, branchByRuleset, check, cleanUp, commitOf, folder, guardedFetch, hoursAgo, installed, lastRunText, others, reads, releaseOf, requiring, ruleset, serve, tree, healthy, write,
 } from './setup-check-world.mjs';
 
 after(cleanUp);
@@ -326,6 +329,144 @@ describe('the rules that apply to the default branch', () => {
       assert.deepEqual(got.found.filter((line) => line.startsWith('not-checked rules')), ['not-checked rules: the answer about the rules is not what the check needs'], what);
       assert.equal(got.code, 0, what);
     }
+  });
+});
+
+describe('the pull request that installs the kit: the check that is not required yet is a notice there, and an error everywhere else', () => {
+  const PIN_READ = 'GET /repos/example/repo/contents/.github/record-keeper.yml?ref=main';
+  const PIN = installed()['.github/record-keeper.yml'];
+  const PULL = { GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' };
+  /** A repository whose rules do not require the check yet, and a run: `env` is the environment of the event, `change` changes the world, `files` the working tree. */
+  async function run(env, { change, files, argv } = {}) {
+    const { state, dir } = await world((s) => { s.rules = []; if (change) change(s); });
+    const got = await check(state, files ? tree({ ...installed(), ...files }) : dir, { env, ...(argv ? { argv } : {}) });
+    return { state, got, finding: got.report?.findings.find((item) => item.code === 'check-not-required'), pinReads: reads(state).filter((line) => line === PIN_READ) };
+  }
+
+  test('the base has no pin and the head has one: a notice that says it is expected, the status 0, and one read of the pin of the base', async () => {
+    const { state, got, finding, pinReads } = await run(PULL);
+    assert.equal(finding.severity, 'notice');
+    assert.equal(finding.detail, 'main');
+    assert.match(finding.text, /^the check "Records integrity" is not required on the default branch \(main\), and that is expected on the pull request of a first adoption: this pull request installs the kit, and the ruleset that requires the check is set after it is merged, because a required check that the base branch cannot run would hold the pull request for ever\. After the merge, /);
+    assert.equal(got.code, 0);
+    assert.equal(got.stderr, '');
+    assert.deepEqual(got.found, ['check-not-required main']);
+    assert.deepEqual(got.report.passed, without('check-required', 'check-strict', 'bypass', 'secret'));
+    assert.deepEqual(pinReads, [PIN_READ]);
+    const request = state.requests.find((item) => item.path.endsWith('/record-keeper.yml'));
+    assert.equal(request.method, 'GET');
+    assert.equal(request.accept, 'application/vnd.github.raw+json');
+    assert.equal(request.authorization, `Bearer ${TOKEN}`);
+    assert.equal(request.userAgent, 'record-keeper-setup-check');
+    assert.equal(state.requests.length, reads(state).length, 'every request is a read');
+  });
+
+  test('in Actions it is a notice annotation and no error: the line, the count and the summary say so', async () => {
+    const { state, dir } = await world((s) => { s.rules = []; });
+    const summary = path.join(folder('summary'), 'summary.md');
+    const got = await runCli(['--repo', state.repo, '--root', dir], actions(state, { ...PULL, GITHUB_STEP_SUMMARY: summary }), { fetch: guardedFetch([]), sleep: async () => {}, now: () => NOW });
+    assert.equal(got.code, 0);
+    const lines = got.stdout.split('\n').filter((line) => line.startsWith('::'));
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], /^::notice title=check-not-required::the check "Records integrity" is not required on the default branch \(main\), and that is expected on the pull request of a first adoption: /);
+    assert.match(got.stdout, /setup check: 0 errors, 0 warnings, 1 notice\n$/);
+    const text = fs.readFileSync(summary, 'utf8');
+    assert.match(text, /\| notice \| `check-not-required` \| the check "Records integrity" is not required/);
+    assert.match(text, /\*\*0 errors, 0 warnings, 1 notice\*\*/);
+  });
+
+  test('the base has a pin: the kit is installed there, and a check that is not required is the error', async () => {
+    const { got, finding, pinReads } = await run(PULL, { change: (s) => s.pinAt.set('main', PIN) });
+    assert.equal(finding.severity, 'error');
+    assert.match(finding.text, /^the check "Records integrity" is not required on the default branch \(main\): no rule that applies to it requires the check, so a pull request can be merged without it\./);
+    assert.equal(got.code, 1);
+    assert.deepEqual(pinReads, [PIN_READ]);
+  });
+
+  test('a pin of the base that is any file at all is a pin: the base is not the base of a first adoption', async () => {
+    for (const text of ['', 'nonsense\n', `${'#'.repeat(70 * 1024)}\n`]) {
+      const { got, finding } = await run(PULL, { change: (s) => s.pinAt.set('main', text) });
+      assert.equal(finding.severity, 'error', JSON.stringify(text.slice(0, 10)));
+      assert.equal(got.code, 1);
+    }
+  });
+
+  test('the read of the base fails, with a refusal, a limit, a gone resource or an error of the server: the error, and no failure of the run', async () => {
+    for (const fault of [{ status: 401 }, { status: 403 }, { status: 429 }, { status: 500 }, { status: 502 }, { status: 410 }]) {
+      const { got, finding, pinReads } = await run(PULL, { change: (s) => { s.fault = (entry) => (entry.path.endsWith('/record-keeper.yml') ? fault : undefined); } });
+      assert.equal(finding.severity, 'error', JSON.stringify(fault));
+      assert.equal(got.code, 1, JSON.stringify(fault));
+      assert.equal(got.stderr, '');
+      assert.ok(pinReads.length >= 1, JSON.stringify(fault));
+    }
+  });
+
+  test('a run on a schedule, a manual run and a run with no event are never the pull request of a first adoption, and do not read the base', async () => {
+    for (const event of ['schedule', 'workflow_dispatch', 'push', undefined]) {
+      const { got, finding, pinReads } = await run({ GITHUB_EVENT_NAME: event, GITHUB_BASE_REF: 'main' });
+      assert.equal(finding.severity, 'error', String(event));
+      assert.equal(got.code, 1, String(event));
+      assert.deepEqual(pinReads, [], String(event));
+    }
+  });
+
+  test('a pull request whose head has no pin does not install the kit: the error, and the base is not read', async () => {
+    const { got, finding, pinReads } = await run(PULL, { files: { '.github/record-keeper.yml': null } });
+    assert.equal(finding.severity, 'error');
+    assert.equal(got.code, 1);
+    assert.ok(got.found.includes('pin-missing'));
+    assert.deepEqual(pinReads, []);
+  });
+
+  test('a pull request into a branch that is not the default branch is not the first adoption of this repository: the error, and the base is not read', async () => {
+    for (const base of ['release/next', 'develop']) {
+      const { got, finding, pinReads, state } = await run({ ...PULL, GITHUB_BASE_REF: base });
+      assert.equal(finding.severity, 'error', base);
+      assert.equal(got.code, 1);
+      assert.deepEqual(pinReads, []);
+      assert.ok(!state.requests.some((request) => request.path.endsWith('/record-keeper.yml')), base);
+    }
+  });
+
+  test('a base that is not a name that the check puts into a request is not read, and the finding is the error', async () => {
+    for (const base of ['', ' ', 'a b', '../x', 'a/../b', '/a', 'a?x=1', 'a#b', '--local', 'main\nmain', undefined]) {
+      const { got, finding, state } = await run({ ...PULL, GITHUB_BASE_REF: base });
+      assert.equal(finding.severity, 'error', JSON.stringify(base));
+      assert.equal(got.code, 1);
+      assert.ok(!state.requests.some((request) => request.path.endsWith('/record-keeper.yml')), JSON.stringify(base));
+    }
+  });
+
+  test('the pin of the base is asked for only when it changes the answer: a pull request that finds the check required reads no pin, and neither does one that cannot read the rules', async () => {
+    const required = await world();
+    const got = await check(required.state, required.dir, { env: PULL });
+    assert.deepEqual(got.found, []);
+    assert.ok(!reads(required.state).includes(PIN_READ));
+    const unread = await world((s) => { s.fault = (entry) => (entry.path.includes('/rules/') ? { status: 403 } : undefined); });
+    const refused = await check(unread.state, unread.dir, { env: PULL });
+    assert.ok(refused.found.some((line) => line.startsWith('not-checked rules')));
+    assert.ok(!reads(unread.state).includes(PIN_READ));
+    const protectedBranch = await world((s) => { s.rules = []; s.branchBody = branchByProtection(); });
+    assert.deepEqual((await check(protectedBranch.state, protectedBranch.dir, { env: PULL })).found, ['not-checked strict: the check is required by branch protection, and not by a ruleset']);
+    assert.ok(!reads(protectedBranch.state).includes(PIN_READ));
+    const unreadable = await world((s) => { s.rules = []; s.fault = (entry) => (entry.path.endsWith('/branches/main') ? { status: 403 } : undefined); });
+    const notChecked = await check(unreadable.state, unreadable.dir, { env: PULL });
+    assert.deepEqual(notChecked.found.filter((line) => line.startsWith('check-not-required')), []);
+    assert.ok(!reads(unreadable.state).includes(PIN_READ));
+  });
+
+  test('with --local nothing that GitHub holds is read, the base included', async () => {
+    const { state, dir } = await world((s) => { s.rules = []; });
+    const got = await check(state, dir, { argv: ['--local'], env: PULL });
+    assert.equal(got.code, 0);
+    assert.deepEqual(state.requests, []);
+    assert.ok(!got.found.some((line) => line.startsWith('check-not-required')));
+  });
+
+  test('the secret of the updater is not sent in the read of the base either, and the token goes to the API only', async () => {
+    const { state } = await run(PULL);
+    assert.ok(state.requests.every((request) => request.authorization === `Bearer ${TOKEN}`));
+    assert.ok(state.requests.every((request) => !JSON.stringify(request).includes(SECRET)));
   });
 });
 

@@ -82,8 +82,22 @@ describe('the fixtures of the decision', () => {
   test('every finding that the check can make is shown by a case, with the severity that the page gives it', () => {
     const shown = new Set(decisions.flatMap((c) => c.expect.findings.map((f) => f.code)));
     assert.deepEqual(CODES.filter((code) => !shown.has(code)), []);
-    for (const f of decisions.flatMap((c) => c.expect.findings)) assert.equal(f.severity, SEVERITY[f.code], f.code);
+    // one finding has a second severity: `check-not-required` is a notice on the pull request that installs the kit, and in no other case (the next test)
+    for (const c of decisions) for (const f of c.expect.findings) assert.equal(f.severity, f.code === 'check-not-required' && c.input.basePin?.state === 'absent' && c.input.event === 'pull_request' && c.input.pin.state !== 'absent' ? 'notice' : SEVERITY[f.code], `${c.id}: ${f.code}`);
     assert.deepEqual(Object.entries(SEVERITY).filter(([, severity]) => severity === 'error').map(([code]) => code), ['audit-dead', 'check-not-required']);
+  });
+
+  test('check-not-required is a notice on the pull request that installs the kit and an error in every other case, and the cases show both', () => {
+    const missing = decisions.filter((c) => c.expect.findings.some((f) => f.code === 'check-not-required'));
+    const notices = missing.filter((c) => c.expect.findings.some((f) => f.code === 'check-not-required' && f.severity === 'notice'));
+    assert.ok(notices.length >= 3 && missing.length - notices.length >= 10, `${notices.length} notices, ${missing.length - notices.length} errors`);
+    for (const c of missing) {
+      const installing = c.input.event === 'pull_request' && c.input.pin.state !== 'absent' && c.input.basePin?.state === 'absent';
+      assert.equal(c.expect.findings.find((f) => f.code === 'check-not-required').severity, installing ? 'notice' : 'error', c.id);
+    }
+    // every other state of the pin of the base, and of the event, which is not the pull request that installs the kit, is shown as an error
+    assert.deepEqual([...new Set(missing.filter((c) => !notices.includes(c)).map((c) => c.input.basePin?.state ?? 'left out'))].sort(), ['absent', 'left out', 'not-read', 'present']);
+    assert.deepEqual([...new Set(missing.filter((c) => c.input.basePin?.state === 'absent' && !notices.includes(c)).map((c) => `${c.input.event} ${c.input.pin.state}`))].sort(), ['null read', 'push read', 'schedule read', 'workflow_dispatch read', 'pull_request absent'].sort());
   });
 
   test('every topic that can be checked is found fine by a case, and every topic that can be not checked is shown not checked', () => {
@@ -232,6 +246,16 @@ describe('the text of a finding', () => {
     assert.doesNotMatch(TOPICS.secret.fix, /pull request/);
     for (const topic of Object.keys(NOT_LOOKED_AT)) assert.ok(page.includes(`\`${topic}\``), topic);
     assert.match(describeLooked({ topic: 'bypass', why: 'a\nb::c' }), /\(a\\u\{a\}b::c\)/);
+  });
+
+  test('check-not-required says that it is expected on the pull request of a first adoption, when it is a notice, and is the text above in every other case', () => {
+    const notice = say({ code: 'check-not-required', severity: 'notice', detail: 'main' });
+    assert.equal(notice, 'the check "Records integrity" is not required on the default branch (main), and that is expected on the pull request of a first adoption: this pull request installs the kit, and the ruleset that requires the check is set after it is merged, because a required check that the base branch cannot run would hold the pull request for ever. After the merge, add the check to the ruleset of the default branch (Settings, Rules, Rulesets) and require branches to be up to date (docs/install.md of the kit, first adoption).');
+    const error = GOLDEN.find(([code]) => code === 'check-not-required')[2].replace('<DETAIL>', 'main');
+    for (const severity of ['error', 'warning', undefined]) assert.equal(say({ code: 'check-not-required', severity, detail: 'main' }), error, String(severity));
+    assert.notEqual(notice, error);
+    assert.match(annotation({ code: 'check-not-required', severity: 'notice', detail: 'main' }), /^::notice title=check-not-required::the check "Records integrity" is not required on the default branch \(main\), and that is expected on the pull request of a first adoption: /);
+    assert.match(say({ code: 'check-not-required', severity: 'notice', detail: 'a\nb' }), /\(a\\u\{a\}b\)/, 'a detail is written as text in the notice too');
   });
 
   test('every code has a text, and a text for every topic of a check that was not made', () => {
