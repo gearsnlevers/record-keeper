@@ -1,6 +1,6 @@
 # The bar for an amendment
 
-Status: draft for review (M2.7b). This page says which changes meet the bar that [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) and [the design](design.md#amending-the-protocol) set for amending the protocol, what the bar is, the front matter key `emergency:` that waives the waiting, and what `check-pr` prints. Until now the act `owners` could not be met by any approval; here it can. It is not part of the protocol. It is read with [checking a change](checking-a-change.md) and [approvals](approvals.md).
+Status: describes the released kit (v1.1.0 is the current release; written in M2.7b). This page says which changes meet the bar that [record 0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) and [the design](design.md#amending-the-protocol) set for amending the protocol, what the bar is, the front matter key `emergency:` that waives the waiting, and what `check-pr` prints. Until now the act `owners` could not be met by any approval; here it can. It is not part of the protocol. It is read with [checking a change](checking-a-change.md) and [approvals](approvals.md).
 
 The bar is higher than for any other act, because every other record is protected by the rules that an amendment changes:
 

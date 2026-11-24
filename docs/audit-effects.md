@@ -1,10 +1,10 @@
 # What the audit does with what it finds
 
-Status: draft for review (M2.9a). This page is the offline half of the audit's effects. [The audit](audit.md) reads the history and lists violations and acts. This page says how the acts are checked against the reviews of the pull requests that merged them, and how the violations become a **plan**: which incident issues to open, update, reopen or close, which lines to append to the incident log, and what to write as the record of the run. It is plain code that reads git and files and prints a plan. It reads nothing from GitHub and writes nothing anywhere. The program that asks GitHub for the evidence and carries the plan out, and the workflow that runs it every night, are M2.9b; the announcements are M2.9c. This page is not part of the protocol. It is read with [the audit](audit.md), whose rules it extends, and with [the owners' approval](approvals.md), whose counting it reuses.
+Status: describes the released kit (v1.1.0 is the current release; written in M2.9a). This page is the offline half of the audit's effects. [The audit](audit.md) reads the history and lists violations and acts. This page says how the acts are checked against the reviews of the pull requests that merged them, and how the violations become a **plan**: which incident issues to open, update, reopen or close, which lines to append to the incident log, and what to write as the record of the run. It is plain code that reads git and files and prints a plan. It reads nothing from GitHub and writes nothing anywhere. The program that asks GitHub for the evidence and carries the plan out, and the workflow that runs it every night, are M2.9b; the announcements are M2.9c. This page is not part of the protocol. It is read with [the audit](audit.md), whose rules it extends, and with [the owners' approval](approvals.md), whose counting it reuses.
 
 ## How the pieces fit
 
-M2.9b will run, in this order, in a full clone of the default branch:
+M2.9b runs, in this order, in a full clone of the default branch:
 
 1. `record-keeper audit --json --adopted --head HEAD`: the violations and **the acts**, with the commit that carries each.
 2. For each commit that carries an act, ask GitHub which merged pull request contains it, what its reviews are and when the check first ran on its head. Write that down as the **evidence file**.
@@ -131,6 +131,8 @@ The audit of the default branch found this. It is updated on every run and close
 ```
 
 A violation line is `- <place>: <where>: [<rule>] <what>`, and ` (<detail>)` when there is one, as `audit` prints it, except that `<place>` is the whole commit id, `the tip <id of the head>` for a violation of the state, and `the history` for a rewritten one. A violation of the settings has the settings path (and `:<line>` when it has one) as `<where>`, a violation with no file the records folder, and any other the path of the file in it. The full id is there so that GitHub links it.
+
+The three ways to resolve it that the body names are those of the protocol. None of them is the answer for a repository that adopted the kit with records that already existed and has not sealed them yet: each such record gets an issue with the violation `P-06 ... (no seal)`, and what resolves them all is the pull request that seals the records. The next run then closes the issues ([the tip of the audit](audit.md#what-it-judges), [adopting with records that already exist](install.md#adopting-with-records-that-already-exist)).
 
 A **resolved** issue has the marker, a line feed, and `No violation of this kind stands. Closed by the audit.` and a line feed. A **duplicate** has the marker, a line feed, and `Duplicate of #<number>.` and a line feed.
 
