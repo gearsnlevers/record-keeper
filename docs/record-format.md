@@ -1,6 +1,6 @@
 # The format of a record and its folder
 
-Status: draft for review (M1). This page says what `record-keeper validate` checks: the names and numbers of the files, the front matter, the sections, the length, and the index. It is not part of the protocol. Changing a rule here changes what the kit accepts from then on and never what a seal means, which is fixed by [generation g1](generation-g1.md); a repository takes a changed rule by taking the kit release that carries it.
+Status: describes the released kit (v1.1.0 is the current release; written in M1). This page says what `record-keeper validate` checks: the names and numbers of the files, the front matter, the sections, the length, and the index. It is not part of the protocol. Changing a rule here changes what the kit accepts from then on and never what a seal means, which is fixed by [generation g1](generation-g1.md); a repository takes a changed rule by taking the kit release that carries it.
 
 `validate` looks at the format and at nothing that changed. Whether a record may be accepted, whether its seal verifies, whether a status change is allowed and what a pull request edited are other checks (see "Not checked here"). The [fixtures](../test/fixtures/validate/README.md) fix the answer for every rule below.
 
