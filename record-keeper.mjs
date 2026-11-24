@@ -1977,6 +1977,9 @@ const INCIDENT_KEY = '(?:[0-9]{4}|other|-):[A-Z]-[0-9]{2}';
 const INCIDENT_MARKER = new RegExp(`^<!-- record-keeper:incident (${INCIDENT_KEY}) -->$`);
 const INCIDENT_INTRO = 'The audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. '
   + 'To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.';
+// For a record that says it is accepted and has no seal line at all: none of the three ways is its answer, its first seal is (docs/install.md, adopting with records that already exist).
+const INCIDENT_FIRST_SEAL = 'A record that has never been sealed gets its first seal from `seal --adopt` in a pull request instead '
+  + '([adopting with records that already exist](https://github.com/gearsnlevers/record-keeper/blob/main/docs/install.md#adopting-with-records-that-already-exist)); the audit closes this issue when the seals are merged.';
 const INCIDENT_RESOLVED = 'No violation of this kind stands. Closed by the audit.';
 const marker = (key) => `<!-- record-keeper:incident ${key} -->`;
 
@@ -2038,7 +2041,9 @@ export function planAudit(result, issues, now) {
     }
     const [subject, rule] = key.split(':');
     const title = `Records: ${subject === '-' ? 'the repository' : subject === 'other' ? 'other files' : subject}: [${rule}] ${ruleText(rule)}`;
-    const text = `${marker(key)}\n${INCIDENT_INTRO}\n\n${violations.map(line).join('')}`;
+    // The sentence is for a key whose every violation is a record with no seal (P-06, `no seal`); the intro stays whole, for a record that lost its seal in a change is still reverted or corrected.
+    const unsealed = violations.every(({ rule, detail }) => rule === 'P-06' && detail === 'no seal');
+    const text = `${marker(key)}\n${INCIDENT_INTRO}${unsealed ? ` ${INCIDENT_FIRST_SEAL}` : ''}\n\n${violations.map(line).join('')}`;
     if (found.length === 0) act('open', key, undefined, title, text, {}, violations);
     else if (open.length === 0) act('reopen', key, found[0].number, title, text, {}, violations);
     else {

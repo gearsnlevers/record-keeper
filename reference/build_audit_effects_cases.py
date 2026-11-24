@@ -34,6 +34,10 @@ TEXT = {
 }
 INTRO = ('The audit of the default branch found this. It is updated on every run and closed when the violation no longer stands. '
          'To resolve it: revert the commit, add an erratum to the record, or add a note to its Known deviations that names the commit.')
+# What a record that has no seal line at all is told as well (docs/audit-effects.md, "The sentence for a record with no seal").
+FIRST_SEAL = ('A record that has never been sealed gets its first seal from `seal --adopt` in a pull request instead '
+              '([adopting with records that already exist](https://github.com/gearsnlevers/record-keeper/blob/main/docs/install.md#adopting-with-records-that-already-exist)); '
+              'the audit closes this issue when the seals are merged.')
 RESOLVED = 'No violation of this kind stands. Closed by the audit.'
 
 
@@ -96,7 +100,8 @@ def labels(value, ids):
 # ---- the expected plan, written with the words of the page ------------------------------------------------------------------------------
 def mark(key): return f'<!-- record-keeper:incident {key} -->'
 def vline(place, where, rule, detail=''): return f'- {place}: {where}: [{rule}] {TEXT[rule]}' + (f' ({detail})' if detail else '') + '\n'
-def body(key, *lines): return mark(key) + '\n' + INTRO + '\n\n' + ''.join(lines)
+def sealless(violations): return len(violations) > 0 and all(v['rule'] == 'P-06' and v['detail'] == 'no seal' for v in violations)
+def body(key, *lines, first_seal=False): return mark(key) + '\n' + INTRO + (' ' + FIRST_SEAL if first_seal else '') + '\n\n' + ''.join(lines)
 def label_of(key):
     subject = key.split(':')[0]
     return 'the repository' if subject == '-' else 'other files' if subject == 'other' else subject
@@ -115,11 +120,11 @@ def key_of(v):
 
 def OPEN(violations, head=None, key=None, lines=None):
     key = key or key_of(violations[0])
-    b = body(key, *(lines if lines is not None else [line_of(v, head=head) for v in violations]))
+    b = body(key, *(lines if lines is not None else [line_of(v, head=head) for v in violations]), first_seal=sealless(violations))
     return ({'action': 'open', 'key': key, 'title': title(key), 'body': b}, {'at': NOW, 'event': 'opened', 'key': key, 'violations': [{k: v for k, v in x.items() if k != 'line'} for x in violations]})
 def WITH_NUMBER(action, event, number, violations, head=None, key=None):
     key = key or key_of(violations[0])
-    b = body(key, *[line_of(v, head=head) for v in violations])
+    b = body(key, *[line_of(v, head=head) for v in violations], first_seal=sealless(violations))
     return ({'action': action, 'key': key, 'number': number, 'title': title(key), 'body': b}, {'at': NOW, 'event': event, 'key': key, 'violations': violations})
 def REOPEN(number, violations, **kw): return WITH_NUMBER('reopen', 'reopened', number, violations, **kw)
 def UPDATE(number, violations, **kw): return WITH_NUMBER('update', 'changed', number, violations, **kw)
@@ -137,7 +142,7 @@ def PLAN(head, frm, judged, violations, acts=(), excused=0):
 def issue(number, key, state='open', text=None, ttl=None, login='github-actions[bot]', kind='Bot', violations=None, head=None):
     """An issue of the repository as GitHub returns it; by default the very issue the audit would write for the violations."""
     if text is None:
-        text = body(key, *[line_of(v, head=head) for v in violations]) if violations is not None else mark(key) + '\n' + 'old text\n'
+        text = body(key, *[line_of(v, head=head) for v in violations], first_seal=sealless(violations)) if violations is not None else mark(key) + '\n' + 'old text\n'
     return {'number': number, 'state': state, 'title': title(key) if ttl is None else ttl, 'body': text, 'user': None if login is None else {'login': login, 'type': kind}}
 
 
@@ -399,6 +404,37 @@ case('e29-a-file-that-is-not-a-record', 'A row of the index for a record that do
 case('e30-a-character-that-hides-text', 'A workflow with a right-to-left override in its name: the line shows it as \\u{202e}.',
      [ROOT(), commit('c1', [put('.github/workflows/x‮.yml', 'name: Records integrity\n')])], frm='c0', issues=[],
      plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([lv('@c1@', 'commit', None, 'P-15', '.github/workflows/x‮.yml')])]))
+
+
+# ---- the sentence for a record that has no seal line at all -------------------------------------------------------------------------------
+# A record that says accepted and has no seal at the tip is the violation P-06 `no seal` (a repository that has installed the kit and has records from before): its issue
+# says where the answer is. The three ways out stay in the text. Every other key is written as before, and so is a key that has another detail of P-06 among its violations.
+UNSEALED = {**owned(), f'{D}/{name(3)}': rec(3, 'accepted')}   # the kit is adopted at c0, so that the whole audit run can be played from the history to the requests
+FIRST = [commit('c0', dump(UNSEALED)), commit('c1', [rput(7, rec(7)), index(ROWS + [(7, 'proposed')])])]
+NS3 = lv('@c1@', 'state', name(3), 'P-06', 'no seal')
+case('e31-a-record-without-a-seal-is-told-where-its-first-seal-comes-from', 'A record that says accepted and has no seal line is in the tree at the start: its issue has the sentence about the first seal, after the text of every issue.',
+     FIRST, frm='c0', issues=[], plan=PLAN('@c1@', '@c0@', 1, 1, [OPEN([NS3], head='@c1@')]))
+UNSEALED2 = {**UNSEALED, f'{D}/{name(8)}': rec(8, 'superseded by 0003'), f'{D}/{name(9)}': rec(9, 'accepted')}
+NS8, NS9 = lv('@c1@', 'state', name(8), 'P-06', 'no seal'), lv('@c1@', 'state', name(9), 'P-06', 'no seal')
+case('e32-each-record-without-a-seal-has-its-own-issue-with-the-sentence', 'Three records without a seal (accepted, superseded and accepted): three issues, each with the sentence.',
+     [commit('c0', dump(UNSEALED2)), commit('c1', [rput(7, rec(7)), index(ROWS + [(7, 'proposed')])])], frm='c0', issues=[],
+     plan=PLAN('@c1@', '@c0@', 1, 3, [OPEN([NS3], head='@c1@'), OPEN([NS8], head='@c1@'), OPEN([NS9], head='@c1@')]))
+K03 = '0003:P-06'
+case('e33-an-issue-of-the-earlier-text-is-updated-once', 'The open issue of the key has the text that every incident had before the sentence: it is updated with the sentence, and the title stays.',
+     FIRST, frm='c0', issues=[issue(11, K03, text=body(K03, line_of(NS3, head='@c1@')))], plan=PLAN('@c1@', '@c0@', 1, 1, [UPDATE(11, [NS3], head='@c1@')]))
+case('e34-an-issue-with-the-sentence-is-left-alone', 'The open issue of the key already has the text with the sentence: nothing is done, and the run still fails.',
+     FIRST, frm='c0', issues=[issue(11, K03, violations=[NS3], head='@c1@')], plan=PLAN('@c1@', '@c0@', 1, 1, []))
+case('e35-a-closed-issue-is-reopened-with-the-sentence', 'A closed issue of the key is reopened with the text that has the sentence.',
+     FIRST, frm='c0', issues=[issue(11, K03, 'closed', text=body(K03, line_of(NS3, head='@c1@')))], plan=PLAN('@c1@', '@c0@', 1, 1, [REOPEN(11, [NS3], head='@c1@')]))
+case('e36-the-seals-are-merged-and-the-issue-is-closed', 'The record has its seal at the tip: no violation stands, and the open issue is closed with the resolved text.',
+     [commit('c0', dump(UNSEALED)), commit('c1', [rput(3, rec(3, 'accepted', True)), index([(r[0], 'accepted') if r[0] == 3 else r for r in ROWS])])], frm='c0', issues=[issue(11, K03, violations=[NS3], head='@c1@')],
+     plan=PLAN('@c1@', '@c0@', 1, 0, [CLOSE(K03, 11)]))
+LOST = [ROOT(), commit('c1', [rput(2, rec(2, 'accepted'))])]
+case('e37-a-record-that-lost-its-seal-in-a-change', 'A push removes the seal line of a sealed record. Its P-06 is a `no seal` too, and the line cannot tell it from a record that was never sealed: the key has the sentence, which says that it is for a record that never was, and the three ways stay in the text. The other key, P-02, has the text of every issue.',
+     LOST, frm='c0', issues=[], plan=PLAN('@c1@', '@c0@', 1, 2, [OPEN([lv('@c1@', 'commit', name(2), 'P-02', 'line 6')]), OPEN([lv('@c1@', 'commit', name(2), 'P-06', 'no seal')])]))
+case('e38-a-key-that-has-another-detail-of-p-06-has-no-sentence', 'The seal of a record is broken by a push (`seal does not match`), and the next push removes the seal line (`no seal`): the key holds both, and a record that once had a seal is not told that it has never been sealed.',
+     [ROOT(), commit('c1', [TAMPER]), commit('c2', [rput(2, rec(2, 'accepted'))])], frm='c0', issues=[],
+     plan=PLAN('@c2@', '@c0@', 2, 3, [OPEN([V02]), OPEN([V06, lv('@c2@', 'commit', name(2), 'P-06', 'no seal')])]))
 
 
 # ---- run every case: build the history, run the reference, compare with the plan written above ---------------------------------------------------
