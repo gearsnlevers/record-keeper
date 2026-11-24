@@ -72,8 +72,8 @@ def without(*topics):
     return [topic for topic in ALL if topic not in topics]
 
 
-def finding(code, detail=''):
-    return {'code': code, 'severity': SEVERITY[code], 'detail': detail}
+def finding(code, detail='', severity=None):
+    return {'code': code, 'severity': SEVERITY[code] if severity is None else severity, 'detail': detail}
 
 
 def case(id, note, edit=None, findings=(), passed=None, looked=()):
@@ -310,6 +310,42 @@ case('r-28', 'branch protection could be read and requires the check, and the ru
      [('not-checked', 'strict: the check is required by branch protection, and not by a ruleset')], without('check-strict', 'bypass'))
 case('r-23', 'a default branch with a slash in its name', lambda s: (g(s).update({'repo': {'ok': True, 'branch': 'release/next'}}), set_rules()(s)),
      [('check-not-required', 'release/next')], without('check-required', 'check-strict', 'bypass'))
+
+# ---- the pull request that installs the kit: the ruleset is set after its merge, so the finding is a notice there -------------------------------------------------
+def installing(base=None, pin=None, event='pull_request', rules=None):
+    """A run in which no rule requires the check: `base` is what was read of the pin of the base (left out of the input when None, as when it was not asked for)."""
+    def edit(state):
+        state['event'] = event
+        state['release']['secrets'] = []   # the secret is not what these cases are about
+        if base is not None:
+            state['basePin'] = {'state': base}
+        if pin is not None:
+            state['pin'].clear()
+            state['pin'].update(pin)
+        set_rules(*(rules or ()))(state)
+    return edit
+
+
+NO_RULE = without('check-required', 'check-strict', 'bypass', 'secret')
+case('r-31', 'the pull request that installs the kit: the head has a pin, the base has none, and the check is not required yet: a notice, because the ruleset is set after the merge', installing('absent'),
+     [('check-not-required', 'main', 'notice')], NO_RULE)
+case('r-32', 'the base has a pin: the kit is installed there, and the check is not required: the error', installing('present'), [('check-not-required', 'main')], NO_RULE)
+case('r-33', 'the pin of the base could not be read: the error', installing('not-read'), [('check-not-required', 'main')], NO_RULE)
+case('r-34', 'the pin of the base was not asked for (the key is left out): the error', installing(), [('check-not-required', 'main')], NO_RULE)
+case('r-35', 'a run on a schedule never takes it for a first adoption, whatever the base says: the error', installing('absent', event='schedule'), [('check-not-required', 'main')], NO_RULE)
+for number, event in enumerate(['workflow_dispatch', 'push', None]):
+    case('r-36%s' % 'abc'[number], 'a run with the event %s never takes it for a first adoption: the error' % ('(none: by hand)' if event is None else event), installing('absent', event=event), [('check-not-required', 'main')], NO_RULE)
+case('r-37', 'the head has no pin either: this pull request does not install the kit, so the error, and the missing pin', installing('absent', pin={'state': 'absent'}),
+     [('check-not-required', 'main'), ('pin-missing', '')], without('check-required', 'check-strict', 'bypass', 'pin', 'manifest', 'managed-files', 'secret'))
+case('r-38', 'the pin of the head is one that the updater does not read: it is a pin all the same, and the other findings are shown with the notice', installing('absent', pin={'state': 'refused', 'code': 'pin-line'}),
+     [('pin-unusable', 'pin-line'), ('check-not-required', 'main', 'notice')], without('check-required', 'check-strict', 'bypass', 'pin', 'manifest', 'managed-files', 'secret'))
+case('r-39', 'a ruleset that requires the check: no finding at all, whatever the pin of the base says', installing('absent', rules=[(11, [CHECK], True)]), [], without('secret'))
+case('r-40', 'branch protection that could be read and does not require the check: the same notice', lambda s: (installing('absent')(s), g(s).update({'classic': {'ok': True, 'requires': False}})),
+     [('check-not-required', 'main', 'notice')], NO_RULE)
+case('r-41', 'branch protection that could not be read: only the notice that it was not read, whatever the base says', lambda s: (installing('absent')(s), g(s).update({'classic': {'ok': False, 'why': 'timeout'}})),
+     [('not-checked', 'branch protection: timeout')], NO_RULE)
+case('r-42', 'the notice does not hide the others: a warning is shown before it', lambda s: (installing('absent')(s), s['codeowners'].update({'state': 'absent', 'path': ''})),
+     [('codeowners-missing', ''), ('check-not-required', 'main', 'notice')], [topic for topic in NO_RULE if topic != 'codeowners'])
 
 # ---- --local, and the repository of the kit -----------------------------------------------------------------------------------------------------------
 case('l-0', 'with --local nothing that GitHub holds is judged, and it is said once', local, [('not-checked', 'github: the command line says --local')],

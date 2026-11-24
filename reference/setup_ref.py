@@ -7,7 +7,7 @@ no code with setup-check.mjs: it reads what the runner read, as plain data, and 
   matches(pattern, file)   -> bool
   owners_of(rules, file)   -> [owner]
 
-The input of `decide` is the one that setup-check.mjs `decide` takes, as JSON (test/fixtures/setup/README.md says what each part is). The texts of the findings are
+The input of `decide` is the one that setup-check.mjs `decide` takes, as JSON (test/fixtures/setup/README.md says what each part is; `basePin` may be left out). The texts of the findings are
 not part of the second implementation: a finding is its code, its severity and its detail."""
 import calendar
 import datetime
@@ -200,8 +200,8 @@ def decide(input):
     passed = []
     not_looked_at = []
 
-    def add(code, detail=''):
-        found.append({'code': code, 'severity': SEVERITY[code], 'detail': detail})
+    def add(code, detail='', severity=None):
+        found.append({'code': code, 'severity': SEVERITY[code] if severity is None else severity, 'detail': detail})
 
     def unchecked(topic, why):
         add('not-checked', '%s: %s' % (topic, why))
@@ -287,7 +287,10 @@ def decide(input):
         if len(requiring) == 0 and not github['classic']['ok']:
             unchecked('branch protection', github['classic']['why'])
         elif len(requiring) == 0 and not classic:
-            add('check-not-required', branch)
+            # the pull request that installs the kit: the head has a pin and the base has none. `basePin` is left out of the input when the base was not asked for.
+            base_pin = input.get('basePin')
+            installing = input['event'] == 'pull_request' and input['pin']['state'] != 'absent' and base_pin is not None and base_pin['state'] == 'absent'
+            add('check-not-required', branch, 'notice' if installing else None)
         else:
             passed.append('check-required')
             strict = release['upToDate'] if release['state'] == 'read' and release['upToDate'] is not None else True
