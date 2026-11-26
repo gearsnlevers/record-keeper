@@ -813,9 +813,10 @@ const SETTINGS = new Map([
   ['owners', { kind: 'list', form: 'owner', field: 'owners' }],
   ['approvals', { kind: 'single', form: 'count', field: 'approvals' }],
   ['witnesses', { kind: 'list', form: 'owner', field: 'witnesses' }],
+  ['shared-changes', { kind: 'single', form: 'refuse-or-allow', field: 'sharedChanges' }],
 ]);
 
-const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [] });
+const defaultSettings = () => ({ folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [], sharedChanges: 'refuse' });
 
 const SETTING_KEY = /^([A-Za-z][A-Za-z0-9_-]*):/;
 const SETTING_ENTRY = /^[A-Za-z][A-Za-z0-9_-]*:(?: +([^]*))?$/;
@@ -931,11 +932,12 @@ const FORMS = {
   key: (value) => typeof value === 'string' && KEY_NAME.test(value),
   owner: (value, before) => isOwner(value) && !before.some((other) => isOwner(other) && ownerOf(other).id === ownerOf(value).id),
   count: (value) => typeof value === 'number' && value >= 1 && value <= 99,
+  'refuse-or-allow': (value) => value === 'refuse' || value === 'allow',
 };
 
 /**
  * Reads the bytes of a settings file. Returns { settings, problems }: `settings` is { folder, sharedFolder, extraKeys, owners,
- * approvals, witnesses } (an owner and a witness are { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
+ * approvals, witnesses, sharedChanges } (an owner and a witness are { login, id }), each at its default when the file does not set it or has a problem with it, and `problems` are { line, rule, detail } in the
  * order of the lines (line is null when a problem has none).
  */
 export function parseSettings(bytes) {
@@ -1445,7 +1447,7 @@ export function checkChange(repo, baseRev, headRev, options = {}) {
  */
 export function judgeChange(repo, base, head, { author, reviews, reviewed, cases, since, now = Date.now(), assume = false, cache = new Map() } = {}) {
   const read = readSettings(base);
-  const { folder, sharedFolder, extraKeys } = read.settings;
+  const { folder, sharedFolder, extraKeys, sharedChanges } = read.settings;
   const named = reviewed ?? head.commit;
   const approval = reviews === undefined ? null : countApprovals({ owners: read.settings.owners, needed: read.settings.approvals, head: named, author, reviews });
   const needs = { cases: new Map(), clock: false };
@@ -1510,7 +1512,7 @@ export function judgeChange(repo, base, head, { author, reviews, reviewed, cases
     if (compareSealed(record, next.bytes) === null) superseding.add(name);
   }
   const shared = `${folder}/${sharedFolder}`;
-  for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
+  if (sharedChanges !== 'allow') for (const path of changed) if (path === shared || path.startsWith(`${shared}/`)) problems.push({ file: path.slice(folder.length + 1), rule: 'P-08' });
   const isWorkflow = (path) => path.startsWith(`${WORKFLOW_FOLDER}/`) && !path.slice(WORKFLOW_FOLDER.length + 1).includes('/') && /\.ya?ml$/i.test(path) && !WORKFLOW_FILES.includes(path);
   const added = changed.filter((path) => isWorkflow(path) && /^(?:file|executable) /.test(leavesOfHead.get(path) ?? ''));
   head.prefetch(added);
@@ -2402,8 +2404,8 @@ function runConfig(args) {
     if (!(error instanceof Unreadable)) throw error;
     return { code: 2, stdout: '', stderr: `record-keeper: ${error.message}\n` };
   }
-  const { folder, sharedFolder, extraKeys, owners, approvals, witnesses } = read.settings;
-  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\nwitnesses: [${witnesses.map(({ login, id }) => `${login}/${id}`).join(', ')}]\n`;
+  const { folder, sharedFolder, extraKeys, owners, approvals, witnesses, sharedChanges } = read.settings;
+  const shown = `folder: ${folder}\nshared-folder: ${sharedFolder}\nextra-keys: [${extraKeys.join(', ')}]\nowners: [${owners.map(({ login, id }) => `${login}/${id}`).join(', ')}]\napprovals: ${approvals}\nwitnesses: [${witnesses.map(({ login, id }) => `${login}/${id}`).join(', ')}]\nshared-changes: ${sharedChanges}\n`;
   const count = `${SETTINGS_PATH}: ${problemWord(read.problems.length)}\n`;
   return read.problems.length === 0 ? { code: 0, stdout: shown + count, stderr: '' } : { code: 1, stdout: shown, stderr: read.problems.map(settingLine).join('') + count };
 }

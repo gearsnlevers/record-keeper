@@ -3,8 +3,8 @@ Usage: config_oracle.py <in.jsonl> [more.jsonl ...]   (PyYAML in process, Psych 
 import json, os, subprocess, sys, yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-NAMES = {'folder': 'folder', 'shared-folder': 'sharedFolder', 'extra-keys': 'extraKeys', 'owners': 'owners', 'approvals': 'approvals', 'witnesses': 'witnesses'}
-DEFAULT = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
+NAMES = {'folder': 'folder', 'shared-folder': 'sharedFolder', 'extra-keys': 'extraKeys', 'owners': 'owners', 'approvals': 'approvals', 'witnesses': 'witnesses', 'shared-changes': 'sharedChanges'}
+DEFAULT = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': [], 'sharedChanges': 'refuse'}
 
 
 def accepted(paths):

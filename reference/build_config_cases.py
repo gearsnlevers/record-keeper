@@ -5,14 +5,14 @@ sys.path.insert(0, os.path.dirname(__file__))
 import config_ref as ref
 from commit_lib import build_repo
 
-D = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': []}
+D = {'folder': 'docs/decisions', 'sharedFolder': 'shared', 'extraKeys': [], 'owners': [], 'approvals': 2, 'witnesses': [], 'sharedChanges': 'refuse'}
 SP = '.github/record-keeper/settings.yml'
 
 
-def S(folder=None, shared=None, keys=None, owners=None, approvals=2, witnesses=None):
+def S(folder=None, shared=None, keys=None, owners=None, approvals=2, witnesses=None, sharing='refuse'):
     return {'folder': folder or D['folder'], 'sharedFolder': shared or D['sharedFolder'], 'extraKeys': list(keys or []),
             'owners': [{'login': l, 'id': i} for l, i in (owners or [])], 'approvals': approvals,
-            'witnesses': [{'login': l, 'id': i} for l, i in (witnesses or [])]}
+            'witnesses': [{'login': l, 'id': i} for l, i in (witnesses or [])], 'sharedChanges': sharing}
 
 
 texts = []
@@ -177,6 +177,33 @@ T('w09-all-six', 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\now
 T('w10-bad-witnesses-leave-the-rest', 'owners: [alice/1001]\nwitnesses: [x]\n', S(owners=[('alice', 1001)]), [P(2, 'S-07', 'x')], 'a problem in witnesses leaves the default and the other settings are read')
 T('w11-no-value', 'witnesses:\n', S(), [P(1, 'S-06', 'witnesses')], 'no value is not a list')
 T('w12-quoted-witness', "witnesses: ['carol/1003']\n", S(witnesses=[('carol', 1003)]), [], 'quoted items are the same strings')
+# ---------------------------------------------------------------- shared-changes
+T('sc01-allow', 'shared-changes: allow\n', S(sharing='allow'), [], 'the value that leaves changes in the shared folder to the repository')
+T('sc02-refuse-explicit', 'shared-changes: refuse\n', S(), [], 'the default written out: the same settings as no line')
+T('sc03-quoted-values', "shared-changes: \"allow\"\n", S(sharing='allow'), [], 'a double-quoted value is the same string')
+T('sc04-single-quoted-refuse', "shared-changes: 'refuse'\n", S(), [], 'a single-quoted value is the same string')
+T('sc05-comment-and-spaces', 'shared-changes:   allow   # the repository checks it\n', S(sharing='allow'), [], 'spaces around the value and a comment after it')
+T('sc06-crlf', 'shared-changes: allow\r\nfolder: docs/adr\r\n', S('docs/adr', sharing='allow'), [], 'line ends')
+T('sc07-beside-shared-folder', 'shared-folder: core\nshared-changes: allow\n', S(shared='core', sharing='allow'), [], 'the two settings of the shared folder are independent: the name and what a change in it means')
+T('sc08-all-seven', 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos]\nowners: [alice/1001]\napprovals: 1\nwitnesses: [carol/1003]\nshared-changes: allow\n',
+  S('docs/adr', 'core', ['repos'], [('alice', 1001)], 1, [('carol', 1003)], 'allow'), [], 'every setting')
+T('sc09-deny', 'shared-changes: deny\n', S(), [P(1, 'S-07', 'deny')], 'a word that is not one of the two values')
+T('sc10-capital', 'shared-changes: Allow\n', S(), [P(1, 'S-07', 'Allow')], 'the values are compared exactly')
+T('sc11-quoted-capital', 'shared-changes: "REFUSE"\n', S(), [P(1, 'S-07', 'REFUSE')], 'a quoted value is compared exactly too')
+T('sc12-empty-string', "shared-changes: ''\n", S(), [P(1, 'S-07', '')], 'an empty string is not a value')
+T('sc13-integer', 'shared-changes: 1\n', S(), [P(1, 'S-07', '1')], 'a number is not a value')
+T('sc14-allow-with-a-space', 'shared-changes: "allow "\n', S(), [P(1, 'S-07', 'allow ')], 'a value with a space after it is not allow')
+T('sc15-yes-is-not-in-the-subset', 'shared-changes: yes\n', S(), [P(1, 'S-03', 'shared-changes: yes')], 'yes is a word that YAML reads as a boolean: not in the subset, so S-03 and not S-07')
+T('sc16-true-is-not-in-the-subset', 'shared-changes: true\n', S(), [P(1, 'S-03', 'shared-changes: true')], 'so is true')
+T('sc17-list', 'shared-changes: [allow]\n', S(), [P(1, 'S-06', 'shared-changes')], 'a list for a single value')
+T('sc18-empty-list', 'shared-changes: []\n', S(), [P(1, 'S-06', 'shared-changes')], 'the empty list too')
+T('sc19-no-value', 'shared-changes:\n', S(), [P(1, 'S-06', 'shared-changes')], 'no value is not a value')
+T('sc20-twice', 'shared-changes: allow\nshared-changes: refuse\n', S(), [P(1, 'S-04', 'shared-changes'), P(2, 'S-04', 'shared-changes')], 'a key set twice takes its default, whichever values the lines have')
+T('sc21-twice-the-same', 'shared-changes: allow\nshared-changes: allow\n', S(), [P(1, 'S-04', 'shared-changes'), P(2, 'S-04', 'shared-changes')], 'the same value twice is still twice: refuse, not allow')
+T('sc22-bad-leaves-the-rest', 'shared-folder: core\nshared-changes: deny\napprovals: 1\n', S(shared='core', approvals=1), [P(2, 'S-07', 'deny')], 'a bad value leaves the default for this key and the rest is read')
+T('sc23-key-case', 'Shared-changes: allow\nshared_changes: allow\n', S(), [P(1, 'S-05', 'Shared-changes'), P(2, 'S-05', 'shared_changes')], 'the key is compared exactly: other spellings are not settings')
+T('sc24-broken-line-counts-as-the-key', 'shared-changes: allow\nshared-changes: [a\n', S(), [P(1, 'S-04', 'shared-changes'), P(2, 'S-03', 'shared-changes: [a')], 'a line that is not in the subset still counts as a line of the key: the readable line is S-04, the broken one keeps its S-03, and the key has its default')
+
 T('s04e-extra-keys-twice', 'extra-keys: [a]\nextra-keys: [b]\n', S(), [P(1, 'S-04', 'extra-keys'), P(2, 'S-04', 'extra-keys')], 'a list set twice')
 T('s04f-others-unaffected', 'folder: a\nshared-folder: s\nfolder: b\nextra-keys: [k]\n', S(None, 's', ['k']), [P(1, 'S-04', 'folder'), P(3, 'S-04', 'folder')], 'the other keys are read')
 T('s04g-unknown-twice', 'branches: [a]\nbranches: [b]\n', S(), [P(1, 'S-05', 'branches'), P(2, 'S-05', 'branches')], 'an unknown key is S-05 on each line and never S-04')
@@ -358,6 +385,8 @@ TR('t16-problems-carry-the-file', [{'path': SP, 'content': 'branches: [a]\nfolde
 TR('t17-github-dir-with-links-around', [{'path': '.github/record-keeper/settings.yml', 'content': GOOD}, {'path': '.github/link', 'link': 'record-keeper'}], GOOD_S, [], 'a link beside the folder changes nothing')
 TR('t18-file-and-sibling-folder', [{'path': '.github/record-keeper/settings.yml', 'content': GOOD}, {'path': '.github/record-keeper/other', 'content': 'x\n'}], GOOD_S, [], 'other files in the folder change nothing')
 TR('t20-owners-in-a-tree', [{'path': SP, 'content': 'owners: [alice/1001, bob/1002]\napprovals: 2\n'}], S(owners=[('alice', 1001), ('bob', 1002)]), [], 'owners and approvals are read from a commit')
+TR('t21-shared-changes-in-a-tree', [{'path': SP, 'content': 'shared-folder: core\nshared-changes: allow\n'}], S(shared='core', sharing='allow'), [], 'the setting is read from a commit like the others')
+TR('t22-shared-changes-bad-in-a-tree', [{'path': SP, 'content': 'shared-changes: deny\n'}], S(), [P(1, 'S-07', 'deny')], 'a bad value in a commit: S-07 with the settings path as the file, and the default')
 TR('t19-bad-utf8-file', [{'path': SP, 'content': b'folder: \xff\n'}], S(), [P(None, 'S-02', 'not UTF-8')], 'bytes that are not UTF-8, read from a blob')
 
 # ---------------------------------------------------------------- check against the reference

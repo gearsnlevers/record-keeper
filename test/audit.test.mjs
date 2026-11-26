@@ -215,3 +215,53 @@ describe('the command audit', () => {
     assert.equal(git(repo, ['count-objects', '-v']) + git(repo, ['for-each-ref']), before);
   });
 });
+
+describe('the setting shared-changes', () => {
+  const judged = (id) => {
+    const { repo, ids } = built.get(id);
+    const meta = histories.find((h) => h.id === id);
+    const got = audit(repo, ids[meta.head ?? meta.commits.at(-1).id], { from: resolve(meta.from, ids) });
+    return { got, ids, repo, meta };
+  };
+  const shape = (id) => {
+    const { got, ids } = judged(id);
+    return got.violations.map((violation) => [labelOf(ids, violation.commit), violation.file, violation.rule]);
+  };
+
+  test('allow in the settings of the first parent of a commit: a change in the shared folder is not a violation', () => {
+    assert.deepEqual(shape('h50-shared-changes-allow-at-the-base'), []);
+    assert.equal(judged('h50-shared-changes-allow-at-the-base').got.judged, 3);
+  });
+
+  test('refuse, no key, and no settings at the first parent: the same change is P-08', () => {
+    for (const id of ['h51-shared-changes-refuse-at-the-base', 'h52-shared-changes-no-key-at-the-base', 'h53-shared-changes-no-settings-at-the-base']) {
+      assert.deepEqual(shape(id), [['c1', 'shared/0001-shared.md', 'P-08']], id);
+    }
+  });
+
+  test('each commit is judged by the settings of its first parent: the commit that adds allow is refused, the next one is not; the commit that takes it away is not, the next one is', () => {
+    assert.deepEqual(shape('h54-shared-changes-allow-and-the-edit-in-one-commit'), [['c1', 'shared/0001-shared.md', 'P-08']]);
+    assert.deepEqual(shape('h55-shared-changes-allow-taken-away-and-the-edit-in-one-commit'), [['c2', 'shared/0002-new.md', 'P-08']]);
+  });
+
+  test('the settings of the tip take no part, and a merge commit is judged by its first parent', () => {
+    const { got, ids } = judged('h57-shared-changes-allow-in-a-merge-commit-is-judged-by-the-first-parent');
+    assert.deepEqual(got.violations, []);
+    assert.deepEqual(got.acts.map((act) => [labelOf(ids, act.commit), act.kind]), [['c3', 'settings']]);
+  });
+
+  test('allow takes away P-08 and nothing else', () => {
+    assert.deepEqual(shape('h56-shared-changes-allow-leaves-the-other-rules'), [['c1', '0002-second.md', 'P-02'], ['c1', '0002-second.md', 'P-06']]);
+  });
+
+  test('the command: exit 0 for the allowed history, and the line of P-08 for the refused one', () => {
+    const args = (id) => {
+      const { repo, ids, meta } = judged(id);
+      return ['audit', '--repo', repo, '--head', ids[meta.head ?? meta.commits.at(-1).id], '--from', resolve(meta.from, ids)];
+    };
+    assert.deepEqual(run(args('h50-shared-changes-allow-at-the-base')), { code: 0, stdout: 'audit: 0 violations, 0 excused, 3 commits judged\n', stderr: '' });
+    const refused = run(args('h51-shared-changes-refuse-at-the-base'));
+    assert.equal(refused.code, 1);
+    assert.match(refused.stderr, /^[0-9a-f]{12}: docs\/decisions\/shared\/0001-shared\.md: \[P-08\] is in the shared folder, which this version does not check\naudit: 1 violation, 0 excused, 1 commit judged\n$/);
+  });
+});

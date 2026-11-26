@@ -273,6 +273,33 @@ history('h46-a-note-cannot-excuse-the-state-of-the-tip', 'The tip reports an ite
         violations=[v('c2', 'P-19', name(2), 'README.md', kind='state')], acts=[ac('c2', 'deviation', f'{D}/{name(2)}', 7)], cases=[cs('c2', 'pull', 7)])
 
 
+# ---- the setting shared-changes: each commit is judged by the settings of its first parent ----------------------------------------------------------
+SETP = '.github/record-keeper/settings.yml'
+SHARED_FILES = {f'{D}/shared/0001-shared.md': rec(1, 'accepted', True), f'{D}/shared/README.md': '# shared\n'}
+SH1 = f'{D}/shared/0001-shared.md'
+SH_EDIT = put(SH1, rec(1, 'accepted', True, consequences='- Other.'))
+SH_ADD = put(f'{D}/shared/0002-new.md', rec(2, 'accepted', True))
+SH_WORLD = lambda settings: {**W, **SHARED_FILES, **({SETP: settings} if settings is not None else {})}
+P08 = lambda c: v(c, 'P-08', 'shared/0001-shared.md')
+history('h50-shared-changes-allow-at-the-base', 'The settings of the first parent say allow: an edit, an addition and a deletion in the shared folder are not violations.',
+        [ROOT(SH_WORLD('shared-changes: allow\n')), commit('c1', [SH_EDIT]), commit('c2', [SH_ADD]), commit('c3', [drop(SH1)])], frm='c0', judged=3)
+history('h51-shared-changes-refuse-at-the-base', 'The settings of the first parent say refuse: the same edit is P-08.',
+        [ROOT(SH_WORLD('shared-changes: refuse\n')), commit('c1', [SH_EDIT])], frm='c0', judged=1, violations=[P08('c1')])
+history('h52-shared-changes-no-key-at-the-base', 'The settings of the first parent are there and have no key for it: P-08, as with no settings at all.',
+        [ROOT(SH_WORLD('extra-keys: [repos]\n')), commit('c1', [SH_EDIT])], frm='c0', judged=1, violations=[P08('c1')])
+history('h53-shared-changes-no-settings-at-the-base', 'No settings at the first parent: the default, so P-08.',
+        [ROOT(SH_WORLD(None)), commit('c1', [SH_EDIT])], frm='c0', judged=1, violations=[P08('c1')])
+history('h54-shared-changes-allow-and-the-edit-in-one-commit', 'One commit adds allow to the settings and edits a file of the shared folder: the first parent decides, so it is P-08, and the settings are an act. The next commit is judged by the settings that this one made, and is clean.',
+        [ROOT(SH_WORLD(None)), commit('c1', [put(SETP, 'shared-changes: allow\n'), SH_EDIT]), commit('c2', [SH_ADD])], frm='c0', judged=2, violations=[P08('c1')], acts=[ac('c1', 'settings', SETP)])
+history('h55-shared-changes-allow-taken-away-and-the-edit-in-one-commit', 'One commit sets refuse and edits a file of the shared folder: the first parent says allow, so that commit is clean, and the next edit is P-08.',
+        [ROOT(SH_WORLD('shared-changes: allow\n')), commit('c1', [put(SETP, 'shared-changes: refuse\n'), SH_EDIT]), commit('c2', [SH_ADD])], frm='c0', judged=2, violations=[v('c2', 'P-08', 'shared/0002-new.md')], acts=[ac('c1', 'settings', SETP)])
+history('h56-shared-changes-allow-leaves-the-other-rules', 'allow at the base: an edit of a sealed record in the same commit as an edit in the shared folder is P-02 and P-06 and not P-08.',
+        [ROOT(SH_WORLD('shared-changes: allow\n')), commit('c1', [SH_EDIT, TAMPER])], frm='c0', judged=1, violations=[v('c1', 'P-02', name(2), 'line 17'), v('c1', 'P-06', name(2), 'seal does not match')])
+history('h57-shared-changes-allow-in-a-merge-commit-is-judged-by-the-first-parent', 'A merge commit is the net change against its first parent: a side branch sets refuse, the first parent says allow, so the edit in the shared folder on the first-parent line is clean, and the merge is the act of the settings.',
+        [ROOT(SH_WORLD('shared-changes: allow\n')), commit('c1', [put(SETP, 'shared-changes: refuse\n')], parents=['c0']), commit('c2', [SH_EDIT], parents=['c0']), commit('c3', [put(SETP, 'shared-changes: refuse\n')], parents=['c2', 'c1'], message='Merge pull request #9 from a/b')],
+        head='c3', frm='c0', judged=2, acts=[ac('c3', 'settings', SETP, 9)])
+
+
 def run():
     work = tempfile.mkdtemp(prefix='audit-cases-')
     out, failed = [], 0

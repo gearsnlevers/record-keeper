@@ -148,6 +148,58 @@ describe('the named tests of the design', () => {
   });
 });
 
+describe('the setting shared-changes', () => {
+  const at = (id) => cases.findIndex((c) => c.id === id);
+  const judged = (id) => checkChange(big, `b${at(id)}`, `h${at(id)}`);
+  const shape = ({ problems }) => problems.map(({ file, rule }) => [file, rule]);
+  const P08 = [['shared/0001-shared.md', 'P-08']];
+
+  test('allow in the settings of the base: no P-08, and nothing else, for an edit, an addition, a deletion, a README and a folder with another name', () => {
+    for (const id of ['sc01-allow-edit', 'sc02-allow-add', 'sc03-allow-delete', 'sc04-allow-readme-of-the-shared-folder', 'sc05-allow-another-name', 'sc11-allow-with-other-good-changes']) {
+      const got = judged(id);
+      assert.deepEqual([got.problems, got.settings, got.acts], [[], [], []], id);
+    }
+  });
+
+  test('refuse, written out, no key, a value that is not one, and no settings at all: P-08 for the same edit', () => {
+    for (const id of ['sc08-refuse-written-out', 'sc09-settings-without-the-key', 'sc10-refuse-with-other-changes', 'sc19-a-bad-value-is-refuse', 'i02-shared-record-edited']) {
+      assert.deepEqual(shape(judged(id)), id === 'i02-shared-record-edited' ? [['shared/0001-shared.md', 'P-08']] : P08, id);
+    }
+    assert.deepEqual(judged('sc19-a-bad-value-is-refuse').settings.map(({ rule }) => rule), ['S-07']);
+    assert.deepEqual(shape(judged('sc06-refuse-another-name')), [['core/0001-core.md', 'P-08']]);
+  });
+
+  test('the settings of the base decide: a change that adds allow is still refused, and one that takes allow away is not', () => {
+    const adds = judged('sc15-the-change-cannot-allow-itself');
+    assert.deepEqual(shape(adds), P08);
+    assert.deepEqual(adds.acts.map(({ kind }) => kind), ['settings']);
+    const removes = judged('sc16-the-change-cannot-take-allow-away');
+    assert.deepEqual(removes.problems, []);
+    assert.deepEqual(removes.acts.map(({ kind }) => kind), ['settings']);
+    const alone = judged('sc17-allow-then-the-edit-in-the-next-change');
+    assert.deepEqual([alone.problems, alone.acts.map(({ kind }) => kind)], [[], ['settings']]);
+  });
+
+  test('allow takes away P-08 and nothing else: the other rules still apply, in the same change', () => {
+    assert.deepEqual(shape(judged('sc12-allow-leaves-the-other-rules')), [['0002-second.md', 'P-02'], ['0002-second.md', 'P-06']]);
+    assert.deepEqual(shape(judged('sc13-refuse-and-the-same-edit-of-a-sealed-record')), [['0002-second.md', 'P-02'], ['0002-second.md', 'P-06'], ['shared/0001-shared.md', 'P-08']]);
+    assert.deepEqual(shape(judged('sc14-allow-leaves-a-subfolder-that-is-not-shared')), [['common', 'V-06']]);
+    assert.deepEqual(shape(judged('sc07-allow-names-the-folder-only')), [['shared', 'V-06']]);
+    assert.deepEqual(shape(judged('sc20-allow-and-a-stale-head')), [[null, 'P-09']]);
+    assert.deepEqual(judged('sc18-allow-stays-with-a-problem-elsewhere-in-the-settings').settings.map(({ line, rule }) => [line, rule]), [[2, 'S-05']]);
+  });
+
+  test('the command says so: exit 0 and the count with allow, exit 1 and the line of P-08 without', () => {
+    const go = (id) => run(['check-pr', '--repo', big, '--base', `b${at(id)}`, '--head', `h${at(id)}`]);
+    assert.deepEqual(go('sc01-allow-edit'), { code: 0, stdout: 'docs/decisions: 0 problems\n', stderr: '' });
+    assert.deepEqual(go('sc08-refuse-written-out'), { code: 1, stdout: '', stderr: `docs/decisions/shared/0001-shared.md: [P-08] ${CHANGE_RULES['P-08']}\ndocs/decisions: 1 problem\n` });
+    const itself = go('sc15-the-change-cannot-allow-itself');
+    assert.equal(itself.code, 1);
+    assert.match(itself.stderr, /docs\/decisions\/shared\/0001-shared\.md: \[P-08\] /);
+    assert.match(itself.stderr, /\.github\/record-keeper\/settings\.yml: needs the owners' approval \(settings\)\n/);
+  });
+});
+
 describe('reading the commits', () => {
   test('the working tree, the index and a stash take no part', () => {
     const work = path.join(scratch, 'work');

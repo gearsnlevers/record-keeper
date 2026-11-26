@@ -380,7 +380,7 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
     if not root and subprocess.run(['git', '-C', repo, 'merge-base', '--is-ancestor', base, head], env=env, capture_output=True).returncode != 0:
         return {'settings': [], 'problems': [(None, 'P-09', '')], 'acts': [], 'needs': {'cases': [], 'clock': False}}
     settings, base_settings = config_ref.read_settings(repo, base)
-    folder, shared, extra = settings['folder'], settings['sharedFolder'], settings['extraKeys']
+    folder, shared, extra, shared_changes = settings['folder'], settings['sharedFolder'], settings['extraKeys'], settings['sharedChanges']
     prefix = folder + '/'
     leaves = lambda entries: {p: (m, s) for p, (m, t, s) in entries.items() if t != 'tree'}
     lb, lh = leaves(be), leaves(he)
@@ -425,7 +425,7 @@ def check_pr(repo, base_rev, head_rev, cases=None, since=None, now=0, assume=Fal
     same = lambda name: be.get(prefix + name) == he.get(prefix + name)
     sh = prefix + shared
     for p in changed:
-        if p == sh or p.startswith(sh + '/'): problems.append((p[len(prefix):], 'P-08', ''))
+        if shared_changes != 'allow' and (p == sh or p.startswith(sh + '/')): problems.append((p[len(prefix):], 'P-08', ''))
     for p in changed:
         name = p[len('.github/workflows/'):] if p.startswith('.github/workflows/') else None
         if name is None or '/' in name or not re.search(r'\.ya?ml$', name, re.I) or p in WORKFLOW_FILES: continue

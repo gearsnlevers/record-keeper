@@ -2462,6 +2462,328 @@
     "path": "docs/decisions/template.md",
     "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
    }
+  ],
+  "shared-allowed": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-changes: allow\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/shared/0001-shared.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/shared/README.md",
+    "content": "# shared\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-refused": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-changes: refuse\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/shared/0001-shared.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/shared/README.md",
+    "content": "# shared\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-no-key": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "extra-keys: [repos]\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/shared/0001-shared.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/shared/README.md",
+    "content": "# shared\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-bad-value": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-changes: deny\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/shared/0001-shared.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/shared/README.md",
+    "content": "# shared\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-allowed-with-a-problem": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-changes: allow\nbranches: [a]\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/shared/0001-shared.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/shared/README.md",
+    "content": "# shared\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-allowed-core": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-folder: core\nshared-changes: allow\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/core/0001-core.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/core/README.md",
+    "content": "# core\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
+  ],
+  "shared-core-refused": [
+   {
+    "path": ".github/record-keeper/settings.yml",
+    "content": "shared-folder: core\n"
+   },
+   {
+    "path": "docs/decisions/0001-first.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/0002-second.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+   },
+   {
+    "path": "docs/decisions/0003-third.md",
+    "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Effect 3.\n\n## Alternatives considered\n\n- Not 3.\n"
+   },
+   {
+    "path": "docs/decisions/0004-fourth.md",
+    "content": "---\nstatus: rejected\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The fourth decision\n\n## Context and problem statement\n\nWhy 4.\n\n## Decision\n\n- Rule 4.\n\n## Consequences\n\n- Effect 4.\n\n## Alternatives considered\n\n- Not 4.\n"
+   },
+   {
+    "path": "docs/decisions/0005-fifth.md",
+    "content": "---\nstatus: superseded by 0006\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:d29f6164aa15da0a40260d729ac09106c822aa5943c67b21546a7f0fa73fd9cd\n---\n\n# The fifth decision\n\n## Context and problem statement\n\nWhy 5.\n\n## Decision\n\n- Rule 5.\n\n## Consequences\n\n- Effect 5.\n\n## Alternatives considered\n\n- Not 5.\n"
+   },
+   {
+    "path": "docs/decisions/0006-sixth.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nsupersedes:\n  - 0005\nseal: sha256-g1:b12a7a2d906cf85d294df4a14aa0e7ec3bf5646c762f92591442adb9227fdc3a\n---\n\n# The sixth decision\n\n## Context and problem statement\n\nWhy 6.\n\n## Decision\n\n- Rule 6.\n\n## Consequences\n\n- Effect 6.\n\n## Alternatives considered\n\n- Not 6.\n"
+   },
+   {
+    "path": "docs/decisions/README.md",
+    "content": "# Decision records\n\nSome words about the records.\n\n## Index\n\n| # | Title | Status |\n| - | - | - |\n| 0001 | [The first decision](0001-first.md) | accepted |\n| 0002 | [The second decision](0002-second.md) | accepted |\n| 0003 | [The third decision](0003-third.md) | proposed |\n| 0004 | [The fourth decision](0004-fourth.md) | rejected |\n| 0005 | [The fifth decision](0005-fifth.md) | superseded by 0006 |\n| 0006 | [The sixth decision](0006-sixth.md) | accepted |\n"
+   },
+   {
+    "path": "docs/decisions/core/0001-core.md",
+    "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:4751a4c618fda26dca2f7d8b466c0782cf59cd965acaef8138af12515a048087\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Effect 1.\n\n## Alternatives considered\n\n- Not 1.\n"
+   },
+   {
+    "path": "docs/decisions/core/README.md",
+    "content": "# core\n"
+   },
+   {
+    "path": "docs/decisions/template.md",
+    "content": "---\nstatus: proposed\ndate: YYYY-MM-DD\ndecision-makers:\n  - maintainers\napplies-to:\n  - path/or/glob/**\nissues:\n  - owner/repo#123\n---\n\n# Short title of the decision\n\n## Context and problem statement\n\nWhat forced a decision?\n\n## Decision\n\nWhat we decided, as rules.\n\n## Consequences\n\nWhat changes.\n\n## Alternatives considered\n\nOptional.\n"
+   }
   ]
  },
  "cases": [
@@ -16681,6 +17003,472 @@
     ]
    },
    "note": "The adoption: the skill, the block and CLAUDE.md are added to a repository that has none of them. Acts of the skill and of AGENTS.md; CLAUDE.md is no act."
+  },
+  {
+   "id": "sc01-allow-edit",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "The settings of the base say allow and a file in the shared folder is edited: nothing to report."
+  },
+  {
+   "id": "sc02-allow-add",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0002-new.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow, and a file is added to the shared folder."
+  },
+  {
+   "id": "sc03-allow-delete",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "remove": "docs/decisions/shared/0001-shared.md"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow, and a file of the shared folder is deleted (a record of the folder would be P-01, a file of the shared folder is not one)."
+  },
+  {
+   "id": "sc04-allow-readme-of-the-shared-folder",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/README.md",
+     "content": "# changed\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow, and the README.md of the shared folder is edited."
+  },
+  {
+   "id": "sc05-allow-another-name",
+   "base": "shared-allowed-core",
+   "changes": [
+    {
+     "write": "docs/decisions/core/0001-core.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow and shared-folder: core: a file of core is edited, and nothing is reported."
+  },
+  {
+   "id": "sc06-refuse-another-name",
+   "base": "shared-core-refused",
+   "changes": [
+    {
+     "write": "docs/decisions/core/0001-core.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "core/0001-core.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "shared-folder: core without the key: the same edit is P-08, with the path relative to the records folder."
+  },
+  {
+   "id": "sc07-allow-names-the-folder-only",
+   "base": "shared-allowed-core",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-x.md",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "shared",
+      "rule": "V-06"
+     }
+    ],
+    "acts": []
+   },
+   "note": "allow and shared-folder: core, and the folder called shared is edited: it is not the shared folder, so it is a subfolder of the records folder (V-06) and P-08 does not apply to it."
+  },
+  {
+   "id": "sc08-refuse-written-out",
+   "base": "shared-refused",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The settings of the base say refuse: the same edit is P-08, as without the key."
+  },
+  {
+   "id": "sc09-settings-without-the-key",
+   "base": "shared-no-key",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The settings of the base are there and do not have the key: refuse."
+  },
+  {
+   "id": "sc10-refuse-with-other-changes",
+   "base": "with-shared",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0003-third.md",
+     "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Y.\n\n## Alternatives considered\n\n- Not 3.\n"
+    },
+    {
+     "write": "src/a.js",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "Without allow, a change in the shared folder together with a good change elsewhere: only the shared path is reported."
+  },
+  {
+   "id": "sc11-allow-with-other-good-changes",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0003-third.md",
+     "content": "---\nstatus: proposed\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\n---\n\n# The third decision\n\n## Context and problem statement\n\nWhy 3.\n\n## Decision\n\n- Rule 3.\n\n## Consequences\n\n- Y.\n\n## Alternatives considered\n\n- Not 3.\n"
+    },
+    {
+     "write": "src/a.js",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow, and a change in the shared folder together with good changes elsewhere: nothing to report."
+  },
+  {
+   "id": "sc12-allow-leaves-the-other-rules",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2, changed.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 17"
+     },
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     }
+    ],
+    "acts": []
+   },
+   "note": "allow, a change in the shared folder and a sealed record edited: the edit is reported as before, the shared path is not."
+  },
+  {
+   "id": "sc13-refuse-and-the-same-edit-of-a-sealed-record",
+   "base": "shared-refused",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/0002-second.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:3c21f75e6d9b79f0f334071972b2ca9b71a523edfc6c5b46006138de509e2d88\n---\n\n# The second decision\n\n## Context and problem statement\n\nWhy 2.\n\n## Decision\n\n- Rule 2, changed.\n\n## Consequences\n\n- Effect 2.\n\n## Alternatives considered\n\n- Not 2.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "0002-second.md",
+      "rule": "P-02",
+      "detail": "line 17"
+     },
+     {
+      "file": "0002-second.md",
+      "rule": "P-06",
+      "detail": "seal does not match"
+     },
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "Without allow, the same two changes: the shared path is reported as well."
+  },
+  {
+   "id": "sc14-allow-leaves-a-subfolder-that-is-not-shared",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    },
+    {
+     "write": "docs/decisions/common/0001-x.md",
+     "content": "x\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "common",
+      "rule": "V-06"
+     }
+    ],
+    "acts": []
+   },
+   "note": "allow does not make every subfolder a shared folder: another subfolder is V-06 as before."
+  },
+  {
+   "id": "sc15-the-change-cannot-allow-itself",
+   "base": "with-shared",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "shared-changes: allow\n"
+    },
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "A change that adds shared-changes: allow to the settings and edits a file of the shared folder in the same change: the settings of the base decide, so it is P-08, and the change of the settings is an act."
+  },
+  {
+   "id": "sc16-the-change-cannot-take-allow-away",
+   "base": "shared-allowed",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "shared-changes: refuse\n"
+    },
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The base says allow, and the change sets refuse and edits a file of the shared folder: the settings of the base decide, so nothing is reported for the shared path, and the change of the settings is an act."
+  },
+  {
+   "id": "sc17-allow-then-the-edit-in-the-next-change",
+   "base": "with-shared",
+   "changes": [
+    {
+     "write": ".github/record-keeper/settings.yml",
+     "content": "shared-changes: allow\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": [
+     {
+      "kind": "settings",
+      "path": ".github/record-keeper/settings.yml"
+     }
+    ]
+   },
+   "note": "The change that sets allow, alone: an act of the settings and nothing else."
+  },
+  {
+   "id": "sc18-allow-stays-with-a-problem-elsewhere-in-the-settings",
+   "base": "shared-allowed-with-a-problem",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [
+     {
+      "line": 2,
+      "rule": "S-05",
+      "detail": "branches"
+     }
+    ],
+    "problems": [],
+    "acts": []
+   },
+   "note": "The settings of the base say allow and have a problem on another line: that problem is reported, the key is read as usual and the shared path is not reported."
+  },
+  {
+   "id": "sc19-a-bad-value-is-refuse",
+   "base": "shared-bad-value",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [
+     {
+      "line": 1,
+      "rule": "S-07",
+      "detail": "deny"
+     }
+    ],
+    "problems": [
+     {
+      "file": "shared/0001-shared.md",
+      "rule": "P-08"
+     }
+    ],
+    "acts": []
+   },
+   "note": "The settings of the base have a value that is not allowed: S-07, the key has its default, and the shared path is P-08."
+  },
+  {
+   "id": "sc20-allow-and-a-stale-head",
+   "base": "shared-allowed",
+   "parent": "ahead",
+   "changes": [
+    {
+     "write": "docs/decisions/shared/0001-shared.md",
+     "content": "---\nstatus: accepted\ndate: 2026-10-01\ndecision-makers:\n  - maintainers\nseal: sha256-g1:c0da26fcb499875dae71de909366a0a0d043db915c55b46e759a65686f1359a0\n---\n\n# The first decision\n\n## Context and problem statement\n\nWhy 1.\n\n## Decision\n\n- Rule 1.\n\n## Consequences\n\n- Other.\n\n## Alternatives considered\n\n- Not 1.\n"
+    }
+   ],
+   "expect": {
+    "settings": [],
+    "problems": [
+     {
+      "file": null,
+      "rule": "P-09"
+     }
+    ],
+    "acts": []
+   },
+   "note": "allow, and the base is not an ancestor of the head: P-09 as always."
+  },
+  {
+   "id": "sc21-allow-and-no-change",
+   "base": "shared-allowed",
+   "parent": "same",
+   "changes": [],
+   "expect": {
+    "settings": [],
+    "problems": [],
+    "acts": []
+   },
+   "note": "allow and nothing changes: nothing to report."
   }
  ]
 }

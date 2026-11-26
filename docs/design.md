@@ -267,6 +267,7 @@ Some records bind more than one repository. Frodo calls them *core* records and 
 - **Numbers are allocated across the listed repositories.** `record-keeper new --shared` takes the next number that is free in every repository it lists, including open pull requests, so that two pull requests cannot both claim the same one.
 - **Mirror pull requests come later.** A shared record is decided once, in the repository where it originates; the kit then opens a mirror pull request in each other repository that `repos:` lists, and a maintainer merges each. This is what core 0018 turned down as too costly to build (a sync workflow to write and keep); the kit writes it once for everyone. It needs a token that can open pull requests in the other repositories.
 - **Compaction of a shared record** is proposed once and carried to every copy by the same mirror pull requests.
+- **`shared-changes` is a step before any of this, and it is not shared-record support.** The setting `shared-changes: allow` only makes the pull request check and the audit raise no P-08 for a change in the shared folder: the kit still does not read those records, seal them, compare their copies or audit them, and `applies-to` still does not look into the folder. It leaves them to the repository's own check, so that a repository that already has one can adopt the kit before the kit reads shared records (M6 and M9), and the default (`refuse`) stays as it was. It is read from the base of a change like the rest of the settings, so the change that adds it cannot use it.
 
 ## Configuration
 
@@ -285,6 +286,7 @@ channel: stable
 ```yaml
 folder: docs/decisions            # where the records live; any folder works, but see "Where the records live"
 shared-folder: shared             # the subfolder of `folder` for records that bind several repositories
+shared-changes: refuse            # refuse (P-08) or allow: with allow the kit leaves changes in the shared folder to the repository's own check
 owners: [alice/1001, bob/1002]    # accounts as login/id, matched by the numeric ID: they approve an erratum, an acceptance, a deviation entry and a change to the settings (M2.4 wrote it as one word; docs/settings.md says why)
 approvals: 2                      # how many owners must approve: 2 by default; 1 is the single-owner mode ("Single-owner mode"), which the setup check reports once, on the pull request that starts it
 witnesses: []                     # accounts that are told, by mention, of every announced act but cannot approve; worth having in the single-owner mode
