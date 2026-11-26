@@ -1,6 +1,6 @@
 # Record Keeper: design
 
-Status: the design as it was decided (written 2026-10-28, revised 2026-10-29 after a threat review). The kit is released and v1.1.0 is the current release: layers 1 to 4 below are built, and the pages that follow this one say what the released kit does. The reaction, the compactor and the shared records are later and not built. Decision [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is the protocol; this page is how the kit enforces it.
+Status: the design as it was decided (written 2026-10-28, revised 2026-10-29 after a threat review). The kit is released and v1.2.0 is the current release: layers 1 to 4 below are built, and the pages that follow this one say what the released kit does. The reaction, the compactor and the shared records are later and not built. Decision [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is the protocol; this page is how the kit enforces it.
 
 ## Why
 

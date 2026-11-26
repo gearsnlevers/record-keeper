@@ -1,6 +1,6 @@
 # Reading a records folder from a commit
 
-Status: describes the released kit (v1.1.0 is the current release; written in M2.1). This page says how the kit reads the records folder of a commit, and which problems a commit can have that a folder on disk cannot show. It is not part of the protocol. Like [the format of a record](record-format.md), a rule here changes what the kit accepts from then on and never what a seal means; a repository takes a changed rule by taking the kit release that carries it.
+Status: describes the released kit (v1.2.0 is the current release; written in M2.1). This page says how the kit reads the records folder of a commit, and which problems a commit can have that a folder on disk cannot show. It is not part of the protocol. Like [the format of a record](record-format.md), a rule here changes what the kit accepts from then on and never what a seal means; a repository takes a changed rule by taking the kit release that carries it.
 
 The pull request check and the audit judge what is committed. A checkout can differ from the commit in ways a reader does not see: a filter or an encoding rewrites bytes, a symbolic link is followed, an executable bit is set, a diff is hidden, another folder holds records that other tools read. So the kit reads the commit itself, through git, and not a working copy.
 
