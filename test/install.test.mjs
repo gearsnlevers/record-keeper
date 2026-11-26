@@ -157,7 +157,7 @@ describe('the templates', () => {
   });
 
   test('the settings template has every key of the page, in the order of the page, commented out at its default', () => {
-    assert.deepEqual(rows.map(([key]) => key), ['folder', 'shared-folder', 'extra-keys', 'owners', 'approvals', 'witnesses']);
+    assert.deepEqual(rows.map(([key]) => key), ['folder', 'shared-folder', 'extra-keys', 'owners', 'approvals', 'witnesses', 'shared-changes']);
     const lines = read('templates/settings.yml').split('\n');
     const keys = lines.filter((line) => /^# [a-z-]+: /.test(line)).map((line) => /^# ([a-z-]+): (\S+(?: \S+)*?)\s+# /.exec(line));
     assert.ok(keys.every((m) => m !== null));
@@ -187,7 +187,7 @@ describe('the templates', () => {
       [0, 'docs/decisions: 0 problems\n']);
     const config = run('config', '--commit', 'HEAD');
     assert.equal(config.status, 0, config.stderr);
-    assert.equal(config.stdout, 'folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\n.github/record-keeper/settings.yml: 0 problems\n');
+    assert.equal(config.stdout, 'folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: refuse\n.github/record-keeper/settings.yml: 0 problems\n');
   });
 
   test('a first record can be added by hand: a row under the empty index is read, and so is a second', () => {
@@ -365,7 +365,7 @@ describe('a repository with the layout of a consumer', () => {
     assert.deepEqual(await exec([program, 'validate'], { cwd: dir }), { code: 0, stdout: 'docs/decisions: 0 problems\n', stderr: '' });
     const config = await exec([program, 'config', '--commit', 'HEAD'], { cwd: dir });
     assert.equal(config.code, 0, config.stderr);
-    assert.equal(config.stdout, 'folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: [alice/1001, bob/1002]\napprovals: 1\nwitnesses: []\n.github/record-keeper/settings.yml: 0 problems\n');
+    assert.equal(config.stdout, 'folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: [alice/1001, bob/1002]\napprovals: 1\nwitnesses: []\nshared-changes: refuse\n.github/record-keeper/settings.yml: 0 problems\n');
     write(dir, 'docs/decisions/0001-first.md', `---\nstatus: proposed\ndate: 2026-11-17\ndecision-makers:\n  - maintainers\n---\n\n# First\n\n## Context and problem statement\n\nWhy.\n\n## Decision\n\n- Rule.\n\n## Consequences\n\n- Effect.\n`);
     const sealed = await exec([program, 'seal', 'docs/decisions/0001-first.md'], { cwd: dir });
     assert.equal(sealed.code, 0, sealed.stderr);

@@ -39,7 +39,7 @@ The 255 items of the `applies-to` lists in the records of the maintainers' repos
 
 - **It does not know that code moved.** A file deleted and a new one with the same name satisfy it; a record that names `src/a.ts` is still satisfied when `src/a.ts` is replaced by a different program. It sees paths, not meaning.
 - **It does not follow a rename.** A rename that keeps a matching file elsewhere (`src/**` and the file moves to `src/old/a.ts`) passes; one that leaves the pattern fails.
-- **It does not judge a record without `applies-to`,** a record that is not accepted, or the records of the shared folder (P-08 stops a change there).
+- **It does not judge a record without `applies-to`,** a record that is not accepted, or the records of the shared folder (P-08 stops a change there, unless the settings say `shared-changes: allow`, which leaves the change to the repository; the items of `applies-to` do not look into the folder either way).
 - **It does not stop a pattern that is too wide.** `**` matches every file; whether a record should bind everything is for its authors.
 - **It does not read a list that the format refuses.** A `applies-to` that is a single value or a mixed entry (V-14, V-16) has no items.
 

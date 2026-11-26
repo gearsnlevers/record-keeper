@@ -8,3 +8,4 @@
 # owners: []                    # the accounts that approve acts, as login/id, for example [alice/1001, bob/1002]
 # approvals: 2                  # how many owners must approve an act; 1 is the single-owner mode
 # witnesses: []                 # accounts that are told of every announced act but cannot approve, as login/id
+# shared-changes: refuse        # refuse (P-08) or allow: with allow the kit leaves changes in the shared folder to the repository's own check

@@ -1077,6 +1077,51 @@ case('m42-first-adoption-commit', 'The adoption: the skill, the block and CLAUDE
      changes=[put(SK, 'a skill\n'), put(AG, BLK + '\n'), put(CL, '@AGENTS.md\n')], acts=[INS(SK), INS(AG)])
 
 
+# ---- the setting shared-changes: what a change in the shared folder is when the settings of the base say allow --------------------------------------
+# The shared folder is still not read: with allow the check raises no P-08 for a path in it and says nothing else about it.
+SH1 = f'{D}/shared/0001-shared.md'
+SH_EDIT = put(SH1, rec(1, 'accepted', True, consequences='- Other.'))
+TREES['shared-allowed'] = {**TREES['with-shared'], SET: 'shared-changes: allow\n'}
+TREES['shared-refused'] = {**TREES['with-shared'], SET: 'shared-changes: refuse\n'}
+TREES['shared-no-key'] = {**TREES['with-shared'], SET: 'extra-keys: [repos]\n'}
+TREES['shared-bad-value'] = {**TREES['with-shared'], SET: 'shared-changes: deny\n'}
+TREES['shared-allowed-with-a-problem'] = {**TREES['with-shared'], SET: 'shared-changes: allow\nbranches: [a]\n'}
+TREES['shared-allowed-core'] = {**TREES['world'], SET: 'shared-folder: core\nshared-changes: allow\n', f'{D}/core/0001-core.md': rec(1, 'accepted', True), f'{D}/core/README.md': '# core\n'}
+TREES['shared-core-refused'] = {**TREES['shared-allowed-core'], SET: 'shared-folder: core\n'}
+case('sc01-allow-edit', 'The settings of the base say allow and a file in the shared folder is edited: nothing to report.', base='shared-allowed', changes=[SH_EDIT])
+case('sc02-allow-add', 'allow, and a file is added to the shared folder.', base='shared-allowed', changes=[put(f'{D}/shared/0002-new.md', rec(2, 'accepted', True))])
+case('sc03-allow-delete', 'allow, and a file of the shared folder is deleted (a record of the folder would be P-01, a file of the shared folder is not one).', base='shared-allowed', changes=[drop(SH1)])
+case('sc04-allow-readme-of-the-shared-folder', 'allow, and the README.md of the shared folder is edited.', base='shared-allowed', changes=[put(f'{D}/shared/README.md', '# changed\n')])
+case('sc05-allow-another-name', 'allow and shared-folder: core: a file of core is edited, and nothing is reported.', base='shared-allowed-core', changes=[put(f'{D}/core/0001-core.md', rec(1, 'accepted', True, consequences='- Other.'))])
+case('sc06-refuse-another-name', 'shared-folder: core without the key: the same edit is P-08, with the path relative to the records folder.', base='shared-core-refused',
+     changes=[put(f'{D}/core/0001-core.md', rec(1, 'accepted', True, consequences='- Other.'))], problems=[p('core/0001-core.md', 'P-08')])
+case('sc07-allow-names-the-folder-only', 'allow and shared-folder: core, and the folder called shared is edited: it is not the shared folder, so it is a subfolder of the records folder (V-06) and P-08 does not apply to it.', base='shared-allowed-core',
+     changes=[put(f'{D}/shared/0001-x.md', 'x\n')], problems=[p('shared', 'V-06')])
+case('sc08-refuse-written-out', 'The settings of the base say refuse: the same edit is P-08, as without the key.', base='shared-refused', changes=[SH_EDIT], problems=[p('shared/0001-shared.md', 'P-08')])
+case('sc09-settings-without-the-key', 'The settings of the base are there and do not have the key: refuse.', base='shared-no-key', changes=[SH_EDIT], problems=[p('shared/0001-shared.md', 'P-08')])
+case('sc10-refuse-with-other-changes', 'Without allow, a change in the shared folder together with a good change elsewhere: only the shared path is reported.', base='with-shared',
+     changes=[SH_EDIT, rput(3, rec(3, consequences='- Y.')), put('src/a.js', 'x\n')], problems=[p('shared/0001-shared.md', 'P-08')])
+case('sc11-allow-with-other-good-changes', 'allow, and a change in the shared folder together with good changes elsewhere: nothing to report.', base='shared-allowed',
+     changes=[SH_EDIT, rput(3, rec(3, consequences='- Y.')), put('src/a.js', 'x\n')])
+case('sc12-allow-leaves-the-other-rules', 'allow, a change in the shared folder and a sealed record edited: the edit is reported as before, the shared path is not.', base='shared-allowed',
+     changes=[SH_EDIT, rput(2, rec(2, 'accepted', True).replace('- Rule 2.', '- Rule 2, changed.'))], problems=[p(name(2), 'P-02', 'line 17'), p(name(2), 'P-06', 'seal does not match')])
+case('sc13-refuse-and-the-same-edit-of-a-sealed-record', 'Without allow, the same two changes: the shared path is reported as well.', base='shared-refused',
+     changes=[SH_EDIT, rput(2, rec(2, 'accepted', True).replace('- Rule 2.', '- Rule 2, changed.'))], problems=[p(name(2), 'P-02', 'line 17'), p(name(2), 'P-06', 'seal does not match'), p('shared/0001-shared.md', 'P-08')])
+case('sc14-allow-leaves-a-subfolder-that-is-not-shared', 'allow does not make every subfolder a shared folder: another subfolder is V-06 as before.', base='shared-allowed',
+     changes=[SH_EDIT, put(f'{D}/common/0001-x.md', 'x\n')], problems=[p('common', 'V-06')])
+case('sc15-the-change-cannot-allow-itself', 'A change that adds shared-changes: allow to the settings and edits a file of the shared folder in the same change: the settings of the base decide, so it is P-08, and the change of the settings is an act.', base='with-shared',
+     changes=[put(SET, 'shared-changes: allow\n'), SH_EDIT], problems=[p('shared/0001-shared.md', 'P-08')], acts=[a('settings', SET)])
+case('sc16-the-change-cannot-take-allow-away', 'The base says allow, and the change sets refuse and edits a file of the shared folder: the settings of the base decide, so nothing is reported for the shared path, and the change of the settings is an act.', base='shared-allowed',
+     changes=[put(SET, 'shared-changes: refuse\n'), SH_EDIT], acts=[a('settings', SET)])
+case('sc17-allow-then-the-edit-in-the-next-change', 'The change that sets allow, alone: an act of the settings and nothing else.', base='with-shared', changes=[put(SET, 'shared-changes: allow\n')], acts=[a('settings', SET)])
+case('sc18-allow-stays-with-a-problem-elsewhere-in-the-settings', 'The settings of the base say allow and have a problem on another line: that problem is reported, the key is read as usual and the shared path is not reported.', base='shared-allowed-with-a-problem',
+     changes=[SH_EDIT], settings=[(2, 'S-05', 'branches')])
+case('sc19-a-bad-value-is-refuse', 'The settings of the base have a value that is not allowed: S-07, the key has its default, and the shared path is P-08.', base='shared-bad-value', changes=[SH_EDIT],
+     settings=[(1, 'S-07', 'deny')], problems=[p('shared/0001-shared.md', 'P-08')])
+case('sc20-allow-and-a-stale-head', 'allow, and the base is not an ancestor of the head: P-09 as always.', base='shared-allowed', parent='ahead', changes=[SH_EDIT], problems=[p(None, 'P-09')])
+case('sc21-allow-and-no-change', 'allow and nothing changes: nothing to report.', base='shared-allowed', parent='same')
+
+
 def main():
     work = tempfile.mkdtemp(prefix='change-cases-')
     repo = os.path.join(work, 'r.git')

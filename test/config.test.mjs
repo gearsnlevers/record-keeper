@@ -119,13 +119,14 @@ describe('the page and the rules', () => {
 
   test('name the settings that the code reads, with their defaults', () => {
     const defaults = parseSettings(Buffer.alloc(0)).settings;
-    assert.deepEqual(defaults, { folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [] });
+    assert.deepEqual(defaults, { folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [], sharedChanges: 'refuse' });
     assert.match(page, /\| `folder` \| single \| `docs\/decisions` \|/);
     assert.match(page, /\| `shared-folder` \| single \| `shared` \|/);
     assert.match(page, /\| `extra-keys` \| list \| `\[\]` \|/);
     assert.match(page, /\| `owners` \| list \| `\[\]` \|/);
     assert.match(page, /\| `approvals` \| single \| `2` \|/);
     assert.match(page, /\| `witnesses` \| list \| `\[\]` \|/);
+    assert.match(page, /\| `shared-changes` \| single \| `refuse` \|/);
   });
 
   test('keep the path of the settings file', () => {
@@ -140,7 +141,7 @@ describe('the page and the rules', () => {
     assert.deepEqual(got.settings, parseSettings(Buffer.alloc(0)).settings);
     const uncommented = parseSettings(Buffer.from(template.replace(/^# /gm, '')));
     assert.deepEqual(uncommented.problems, []);
-    assert.deepEqual(uncommented.settings, { folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [] });
+    assert.deepEqual(uncommented.settings, { folder: 'docs/decisions', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [], sharedChanges: 'refuse' });
   });
 });
 
@@ -182,7 +183,7 @@ describe('reading the settings of a commit', () => {
   test('is not changed by a filter or an attribute of the repository', () => {
     const odd = path.join(scratch, 'attributes.git');
     buildRepo(odd, [['main', [['.gitattributes', '100644', '* working-tree-encoding=UTF-16\n*.yml filter=nope\n'], [SETTINGS_PATH, '100644', 'folder: docs/adr\n']]]]);
-    assert.deepEqual(readSettings(openCommit(odd, 'main')), { settings: { folder: 'docs/adr', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [] }, problems: [] });
+    assert.deepEqual(readSettings(openCommit(odd, 'main')), { settings: { folder: 'docs/adr', sharedFolder: 'shared', extraKeys: [], owners: [], approvals: 2, witnesses: [], sharedChanges: 'refuse' }, problems: [] });
   });
 
   test('says "not a revision" as Unreadable', () => {
@@ -210,7 +211,7 @@ describe('the config command', () => {
     const dir = commit('none', {});
     assert.deepEqual(run(['config', '--commit', 'HEAD', '--repo', dir]), {
       code: 0,
-      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\n${SETTINGS_PATH}: 0 problems\n`,
+      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: refuse\n${SETTINGS_PATH}: 0 problems\n`,
       stderr: '',
     });
   });
@@ -219,7 +220,7 @@ describe('the config command', () => {
     const dir = commit('set', { [SETTINGS_PATH]: 'folder: docs/adr\nshared-folder: core\nextra-keys: [repos, window]\n' });
     assert.deepEqual(run(['config', '--repo', dir, '--commit', 'HEAD']), {
       code: 0,
-      stdout: `folder: docs/adr\nshared-folder: core\nextra-keys: [repos, window]\nowners: []\napprovals: 2\nwitnesses: []\n${SETTINGS_PATH}: 0 problems\n`,
+      stdout: `folder: docs/adr\nshared-folder: core\nextra-keys: [repos, window]\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: refuse\n${SETTINGS_PATH}: 0 problems\n`,
       stderr: '',
     });
   });
@@ -228,16 +229,31 @@ describe('the config command', () => {
     const dir = commit('owners', { [SETTINGS_PATH]: 'owners: [bob/1002, "1a/7", alice/1001]\napprovals: 1\n' });
     assert.deepEqual(run(['config', '--repo', dir, '--commit', 'HEAD']), {
       code: 0,
-      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: [bob/1002, 1a/7, alice/1001]\napprovals: 1\nwitnesses: []\n${SETTINGS_PATH}: 0 problems\n`,
+      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: [bob/1002, 1a/7, alice/1001]\napprovals: 1\nwitnesses: []\nshared-changes: refuse\n${SETTINGS_PATH}: 0 problems\n`,
       stderr: '',
     });
+  });
+
+  test('prints shared-changes last, as the file says, and as refuse when the file has no good value for it', () => {
+    const allowed = commit('allowed', { [SETTINGS_PATH]: 'shared-folder: core\nshared-changes: allow\n' });
+    assert.deepEqual(run(['config', '--repo', allowed, '--commit', 'HEAD']), {
+      code: 0,
+      stdout: `folder: docs/decisions\nshared-folder: core\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: allow\n${SETTINGS_PATH}: 0 problems\n`,
+      stderr: '',
+    });
+    for (const [name, text, problem] of [['deny', 'shared-changes: deny\n', '1: [S-07]'], ['list', 'shared-changes: [allow]\n', '1: [S-06]'], ['twice', 'shared-changes: allow\nshared-changes: allow\n', '1: [S-04]']]) {
+      const got = run(['config', '--repo', commit(`shared-changes-${name}`, { [SETTINGS_PATH]: text }), '--commit', 'HEAD']);
+      assert.equal(got.code, 1, name);
+      assert.ok(got.stdout.endsWith('witnesses: []\nshared-changes: refuse\n'), name);
+      assert.ok(got.stderr.includes(`${SETTINGS_PATH}:${problem}`), name);
+    }
   });
 
   test('prints the settings on stdout and the problems on stderr, and exits 1', () => {
     const dir = commit('bad', { [SETTINGS_PATH]: 'folder: docs/adr\nbranches: [a]\nextra-keys: [\'bad key\']\n  stray\n' });
     assert.deepEqual(run(['config', '--commit', 'HEAD', '--repo', dir]), {
       code: 1,
-      stdout: 'folder: docs/adr\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\n',
+      stdout: 'folder: docs/adr\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: refuse\n',
       stderr: [
         `${SETTINGS_PATH}:2: [S-05] ${SETTINGS_RULES['S-05']} (branches)`,
         `${SETTINGS_PATH}:3: [S-07] ${SETTINGS_RULES['S-07']} (bad key)`,
@@ -255,7 +271,7 @@ describe('the config command', () => {
     git(dir, ['commit', '-q', '-m', 'link']);
     assert.deepEqual(run(['config', '--commit', 'HEAD', '--repo', dir]), {
       code: 1,
-      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\n`,
+      stdout: `folder: docs/decisions\nshared-folder: shared\nextra-keys: []\nowners: []\napprovals: 2\nwitnesses: []\nshared-changes: refuse\n`,
       stderr: `${SETTINGS_PATH}: [S-01] ${SETTINGS_RULES['S-01']} (.github/record-keeper)\n${SETTINGS_PATH}: 1 problem\n`,
     });
   });

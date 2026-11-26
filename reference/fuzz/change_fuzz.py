@@ -85,6 +85,7 @@ def random_record(rng, n, count):
 
 OWNER_LINES = ['owners: [alice/1001]', 'owners: [alice/1001, bob/1002]', 'owners: [bob/1002, alice/1001]', 'owners: []', 'owners: [alice/1001, bob/1002, carol/1003]']
 APPROVAL_LINES = ['approvals: 1', 'approvals: 2', 'approvals: 3']
+SHARED_CHANGES_LINES = ['shared-changes: allow', 'shared-changes: refuse', 'shared-changes: allow', 'shared-changes: deny', 'shared-changes: [allow]', 'shared-changes:']
 
 
 def world(rng):
@@ -96,6 +97,7 @@ def world(rng):
     if rng.random() < 0.05: settings.append(rng.choice(['branches: [a]', 'folder: 2024', 'shared-folder: x/y', 'extra-keys: nope', 'owners: [bad]', 'approvals: 0']))
     if rng.random() < 0.3: settings.append(rng.choice(OWNER_LINES))
     if rng.random() < 0.15: settings.append(rng.choice(APPROVAL_LINES))
+    if rng.random() < 0.2: settings.append(rng.choice(SHARED_CHANGES_LINES))
     if settings: files['.github/record-keeper/settings.yml'] = '\n'.join(settings) + '\n'
     count = rng.randint(0, 7)
     numbers = list(range(1, count + 1))
@@ -231,7 +233,7 @@ def mutate(rng, folder, files):
             if rng.random() < 0.7: f[q] = record(rng, 1, 'accepted', True)
             else: f.pop(q, None)
         elif what == 'settings':
-            choice = rng.choice(['folder: records\n', 'extra-keys: [repos]\n', 'branches: [a]\n', 'folder: docs/decisions\n', None, '', 'shared-folder: common\n', 'folder: [a]\n', 'owners: [alice/1001]\n', 'owners: [alice/1001, bob/1002]\napprovals: 1\n', 'owners: [bob/1002, alice/1001]\n', 'owners: [alicia/1001, bob/1002]\n', 'approvals: 3\n', 'approvals: 1\n', 'owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n', 'owners: [bad]\n', '\ufeffowners: [alice/1001]\n'])
+            choice = rng.choice(['folder: records\n', 'extra-keys: [repos]\n', 'branches: [a]\n', 'folder: docs/decisions\n', None, '', 'shared-folder: common\n', 'folder: [a]\n', 'owners: [alice/1001]\n', 'owners: [alice/1001, bob/1002]\napprovals: 1\n', 'owners: [bob/1002, alice/1001]\n', 'owners: [alicia/1001, bob/1002]\n', 'approvals: 3\n', 'approvals: 1\n', 'owners: [alice/1001, bob/1002, carol/1003]\napprovals: 2\n', 'owners: [bad]\n', '\ufeffowners: [alice/1001]\n', 'shared-changes: allow\n', 'shared-changes: refuse\n', 'shared-changes: allow\nshared-folder: common\n'])
             if choice is None: f.pop('.github/record-keeper/settings.yml', None)
             else: f['.github/record-keeper/settings.yml'] = choice
         elif what == 'pin': f['.github/record-keeper.yml'] = rng.choice(['source: a/b\n', 'x: y\n'])

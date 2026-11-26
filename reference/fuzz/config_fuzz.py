@@ -4,8 +4,8 @@ import json, os, random, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import config_ref as ref
 
-KEYS = ['folder', 'shared-folder', 'extra-keys', 'owners', 'Folder', 'approvals', 'x', 'constructor', 'toString', 'a-b_c', 'k' * 45, 'folder ', '_x', '1', '"folder"', 'extra_keys', 'witnesses']
-PLAIN = ['docs/adr', 'a', 'repos', '.github/x', '_x', 'docs/decisions', 'a.b', 'a-b_c', 'x/y/z', '.git', '.GIT/a', 'a/../b', 'a//b', 'docs/', '/docs', '.', '..', '...', '.a', '._1', '_1', 'n1', 'abc123', 'a/.git/b', 'core', 'shared']
+KEYS = ['folder', 'shared-folder', 'extra-keys', 'owners', 'Folder', 'approvals', 'x', 'constructor', 'toString', 'a-b_c', 'k' * 45, 'folder ', '_x', '1', '"folder"', 'extra_keys', 'witnesses', 'shared-changes', 'shared_changes']
+PLAIN = ['docs/adr', 'a', 'repos', '.github/x', '_x', 'docs/decisions', 'a.b', 'a-b_c', 'x/y/z', '.git', '.GIT/a', 'a/../b', 'a//b', 'docs/', '/docs', '.', '..', '...', '.a', '._1', '_1', 'n1', 'abc123', 'a/.git/b', 'core', 'shared', 'allow', 'refuse', 'Allow', 'deny']
 RESERVED = ['null', 'Null', 'true', 'False', 'yes', 'NO', 'on', 'Off', 'y', 'N', '.inf', '.NaN', '~', '1', '0', '12', '1.5', '0x1f', '0o7', '1e3', '2001-01-01', '1:30', '-1', '+1', '=', '<<', '.5', '-.inf', 'nulll', 'yess']
 QUOTED = ["'x'", '"x"', "''", '""', "'it''s'", '"a\\"b"', '"a\\\\b"', '"a\\nb"', "'a\tb'", '"docs/ü"', "'a #b'", '"a: b"', "'unterminated", '"unterminated', "'a'''", "'a''", '"a\\"', "'folder'", '"no"', "'yes'", '"null"', "'1'", '"/"', '" "', "'.git'", '"a/b"', "'a b'"]
 ODD = ['{a: b}', '[[a]]', '&a x', '*a', '!!str x', '|', '>', '- a', '? a', ': a', '%x', '@a', '`a`', '[a,]', '[,]', '[a b]', '[a: b]', '[ ]', '[]', '[ a , b ]', '[a,b,c]', "[a, 'b', \"c\"]", '[null]', '[yes, no]', '[1]', '["a#b"]', '[a #x]', '[a] b', '[a', 'a]', '[a,,b]', '[ , ]', "['', '']"]
@@ -42,8 +42,9 @@ def line(r):
     k = r.random()
     if CLEAN:
         if k < 0.1: return r.choice(['', '# c'])
-        key = r.choice(['folder', 'shared-folder', 'extra-keys', 'folder', 'shared-folder', 'extra-keys', 'owners', 'approvals', 'owners', 'approvals', 'Folder'])
+        key = r.choice(['folder', 'shared-folder', 'extra-keys', 'folder', 'shared-folder', 'extra-keys', 'owners', 'approvals', 'owners', 'approvals', 'Folder', 'shared-changes', 'shared-changes'])
         if key == 'owners': val = r.choice(VALID_OWNER_LISTS)
+        elif key == 'shared-changes': val = r.choice(['allow', 'refuse', '"allow"', "'refuse'", 'allow', 'refuse', 'deny', 'Allow', '"yes"', '[allow]'])
         elif key == 'approvals': val = r.choice(['1', '2', '3', '10', '99', '1', '2'])
         else: val = value(r)
         return key + (': ' if r.random() < 0.95 else r.choice(SEPS)) + val + (r.choice(TAILS) if r.random() < 0.1 else '')
