@@ -6,7 +6,7 @@ Two files make the run. `.github/workflows/records-audit.yml` is the workflow. `
 
 ## What the workflow is
 
-- **Three triggers:** `schedule` (every night at 03:17 UTC), `push` to the default branch (`main` in this repository), and `workflow_dispatch` with the input `dry-run` (a boolean, false by default). A scheduled workflow runs from the default branch, and so does a push to it; nothing a pull request holds is ever run by this workflow.
+- **Three triggers:** `schedule` (every night at 03:17 UTC, and the run comes hours after that minute, see [what was verified](#what-was-verified-on-github)), `push` to the default branch (`main` in this repository), and `workflow_dispatch` with the input `dry-run` (a boolean, false by default). A scheduled workflow runs from the default branch, and so does a push to it; nothing a pull request holds is ever run by this workflow.
 - **One job, named `Records audit`,** with no `if:`. It is not a required check: nothing waits for it, and it fails while a violation stands.
 - **A token that writes what it must and no more:** `contents: write` (the log branch), `issues: write` (the incident issues), `pull-requests: read` (the reviews) and `checks: read` (when the check first ran), and nothing else. The permissions of the workflow are none; the job asks for these four.
 - **One run at a time.** The concurrency group is `records-audit` and a run in progress is never cancelled. A run that waits is replaced by a newer one that waits: each run audits the whole history, so the newest is enough.
@@ -113,6 +113,10 @@ On 2026-11-14:
 On 2026-11-15, asked of the two owners (only an owner can see their own notifications):
 
 - **E19, were the owners told?** Yes: all nine reached the second owner and eight of the nine reached the first. **The second owner** (`volker-bornagainpatriots`) has all nine in the inbox, #47 to #55, each with the reason `mention` (the filter "Mentioned" says 9), as the owner's screenshot shows. **The first owner** (`vscheuber`) has eight: #47, #48, #49, #51, #52, #53, #54 and #55, each with the reason `mention` and an `updated_at` of 17:42:48Z to 17:43:11Z, 20 to 35 seconds after the issues were opened. This was read from the inbox and again from `GET /notifications?all=true`, which agree. **#50 (`Act: code (#37)`) is not among them**, and its body names both owners exactly like the others. Whether it was cleared by the owner or never sent is not known. So a mention reached the owners within a minute, and **one was missing for one owner**: a notification can fail to arrive, and the issue, which stays open until an owner closes it, is the record that an act was announced.
+
+From the runs that the schedule started on 2026-11-23, 24 and 25, in eight repositories (this one and seven that run the kit), read afterwards (read only):
+
+- **The scheduled runs come hours after the minute in the cron line, by a long and rather constant time.** The audit (`17 3 * * *`, twelve runs) was created between 12:30 and 13:54 UTC, which is 9 hours 14 minutes to 10 hours 36 minutes late; the nine runs of this repository from 2026-11-14 to 2026-11-22 had been created between 10:37 and 12:01 UTC, 7 hours 20 minutes to 8 hours 44 minutes late (E15 is the first). The updater (`41 5 * * *`, nine runs) was created between 15:59 and 16:30 UTC and [the setup check](setup-check.md#the-workflow) (`37 7 * * *`, twelve runs) between 18:08 and 19:28 UTC, so the updater came about ten to eleven hours late and the setup check ten to twelve. **The cause is not known.** What a reader needs: a scheduled run that has not come before the evening is not a failure, and the same workflow can be started at once by hand (`workflow_dispatch`). A run that a push started was not late (E16).
 
 **Still to run:** that a witness who is not an owner is told; the repository has none yet.
 
