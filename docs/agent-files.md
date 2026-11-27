@@ -154,7 +154,7 @@ A change to the skill or to the block is the act **`instructions`**, the last of
 
 - **It is met by the owners' ordinary approval** ([approvals](approvals.md)), like the workflow files, the programs, the settings and the pin. It is not an act of the bar for an amendment: the rules that agents read are guarded as the workflow files are, and no stricter.
 - **It is announced** ([announcements](announcements.md)): the audit opens one issue, written by the bot, for each commit that carries an approved act of this kind, with the diff of the file, and mentions the owners and the witnesses. An update pull request that brings a new skill or block is announced with its other acts. The diff is the diff of the whole file, so an owner sees the text outside the block too.
-- **The audit does not compare the files with a release.** That is the setup check's work, as it is for the workflow files. The audit finds that the files changed and that the owners approved ([the audit](audit.md#what-it-does-not-do)); design threat 17 ("hashed by the audit like the workflow files") is met by both together ([the choices](#choices-in-this-draft-for-you-to-decide), 12).
+- **The audit does not compare the files with a release.** That is the setup check's work, as it is for the workflow files. The audit finds that the files changed and that the owners approved ([the audit](audit.md#what-this-does-not-do)); design threat 17 ("hashed by the audit like the workflow files") is met by both together ([the choices](#choices-in-this-draft-for-you-to-decide), 12).
 - **Nothing else changes in the check.** The records README is judged by the rules of the records folder, as before.
 
 ## The setup check
