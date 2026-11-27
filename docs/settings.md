@@ -94,7 +94,7 @@ A line has at most one problem. When a key has a problem its setting has its def
 
 ## What changes for the repositories
 
-None of the maintainers' repositories has a settings file yet, so each one reads as the defaults, which are what `validate` assumed: its results are those of the earlier version.
+A repository without a settings file reads as the defaults, which are what `validate` assumed before the file existed: its results are those of the earlier version. When this page was written (M2.2, 2026-11-06) none of the maintainers' repositories had a settings file, so each one read as the defaults. A repository that installs the kit has one, because the owners are written in it first ([first adoption](install.md#first-adoption)); by 2026-11-27 eight of the maintainers' repositories had installed the kit.
 
 ## What this does not do
 

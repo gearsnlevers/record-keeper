@@ -35,7 +35,7 @@ A problem has a file (or none, for a folder other than the checked one), a rule 
 
 ## What changes for the repositories
 
-Read as commits of their default branches, the records folders of the maintainers' repositories (the Issue Concierge, frodo-lib, frodo-cli, the tap, the umbrella repository, the five action repositories, and this one) have no T problem: none has an executable record, an attribute for its records folder, or a second folder of records. Each gives the same V problems as the folder on disk, taken from an extracted copy of the same commit.
+When this page was written (M2.1, 2026-11-04), the records folders of the maintainers' repositories (eleven, this one among them), read as commits of their default branches, had no T problem: none had an executable record, an attribute for its records folder, or a second folder of records. Each gave the same V problems as the folder on disk, taken from an extracted copy of the same commit. That was the state then, before any of them had adopted the kit.
 
 ## What this does not do
 
@@ -47,7 +47,7 @@ Read as commits of their default branches, the records folders of the maintainer
 
 1. **The commit is read through git, never checked out.** `--commit` needs `git` on the path; `validate` of a folder needs nothing. A reader that works from a checkout cannot see what the commit holds, and a checkout is what a filter or a link changes.
 2. **T-01 refuses the executable mode.** A record is text, and a mode change is a change no reader of the text sees. The cost is a file system that marks every file executable, where one command (`git update-index --chmod=-x`) puts it right. This is the weakest rule here; the alternative is to drop it.
-3. **T-02 refuses every attribute except `text` and `eol`.** `filter`, `ident` and `working-tree-encoding` rewrite the bytes a working copy shows; `diff` (also through `binary`) and `linguist-generated` hide a change from a reviewer's diff; and the list of attributes that some tool honours is open-ended, so a short list of bad ones would miss the next. `text` and `eol` are allowed because g1 ignores line endings: they change neither a seal nor the words a reader sees, and refusing them would refuse the common `* text=auto`. None of the maintainers' repositories sets an attribute for its records folder today.
+3. **T-02 refuses every attribute except `text` and `eol`.** `filter`, `ident` and `working-tree-encoding` rewrite the bytes a working copy shows; `diff` (also through `binary`) and `linguist-generated` hide a change from a reviewer's diff; and the list of attributes that some tool honours is open-ended, so a short list of bad ones would miss the next. `text` and `eol` are allowed because g1 ignores line endings: they change neither a seal nor the words a reader sees, and refusing them would refuse the common `* text=auto`. When this page was written, none of the maintainers' repositories set an attribute for its records folder.
 4. **T-03 uses a fixed list of conventional folders.** The point is that a second folder of records is a place where records bind, as far as another tool or an agent is concerned, and the kit does not judge it. The list stays fixed; a setting for more folders can be added when a repository needs one. A repository whose records live in a folder that is not on the list gets T-03 only for the folders that are.
 5. **A symbolic link, a submodule or anything else in the folder is V-04, as on disk,** and a symbolic link in front of the folder (`docs` pointing elsewhere) makes the folder missing, not followed.
 
