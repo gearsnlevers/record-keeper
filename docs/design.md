@@ -267,7 +267,7 @@ Some records bind more than one repository. Frodo calls them *core* records and 
 - **Numbers are allocated across the listed repositories.** `record-keeper new --shared` takes the next number that is free in every repository it lists, including open pull requests, so that two pull requests cannot both claim the same one.
 - **Mirror pull requests come later.** A shared record is decided once, in the repository where it originates; the kit then opens a mirror pull request in each other repository that `repos:` lists, and a maintainer merges each. This is what core 0018 turned down as too costly to build (a sync workflow to write and keep); the kit writes it once for everyone. It needs a token that can open pull requests in the other repositories.
 - **Compaction of a shared record** is proposed once and carried to every copy by the same mirror pull requests.
-- **`shared-changes` is a step before any of this, and it is not shared-record support.** The setting `shared-changes: allow` only makes the pull request check and the audit raise no P-08 for a change in the shared folder: the kit still does not read those records, seal them, compare their copies or audit them, and `applies-to` still does not look into the folder. It leaves them to the repository's own check, so that a repository that already has one can adopt the kit before the kit reads shared records (M6 and M9), and the default (`refuse`) stays as it was. It is read from the base of a change like the rest of the settings, so the change that adds it cannot use it.
+- **`shared-changes` is a step before any of this, and it is not shared-record support.** The setting `shared-changes: allow` only makes the pull request check and the audit raise no P-08 for a change in the shared folder: the kit still does not read those records, seal them, compare their copies or audit them, and `applies-to` still does not look into the folder. It leaves them to the repository's own check, so that a repository that already has one can adopt the kit before the kit reads shared records (M9), and the default (`refuse`) stays as it was. It is read from the base of a change like the rest of the settings, so the change that adds it cannot use it.
 
 ## Configuration
 
@@ -319,8 +319,8 @@ Today the Concierge validates its records with its own script and its own tests;
 ## Adoption
 
 1. **Issue Concierge first.** It installs the kit in one pull request, and seals its existing records in a second one that adds only `seal:` keys (written by `seal --adopt`, [install](install.md#adopting-with-records-that-already-exist)) and deletes its own validator, which would reject the key. It is the first consumer and the test of the migration.
-2. **frodo-lib and frodo-cli after** the kit has proven itself there. They replace their two validators and the weekly comparison of shared records; a seal makes a copied record verifiable, so the comparison becomes a check of seals.
-3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In each of them the change that seals the records also renames `core/` to `shared/` and updates the citations, and frodo-lib, which stays on `decisions/` for now, only gets the rename. The shared records are verified across frodo-cli, frodo-lib and the tap, which replaces the weekly comparison of two repositories.
+2. **The three repositories that keep shared records after** the kit has proven itself there (M6). Each replaces its validator with the kit's `validate` for every record outside the shared folder, and keeps its own check for the shared folder, which its settings name (`shared-folder: core`) and leave to that check (`shared-changes: allow`). The weekly comparison of the copies of the shared records stays for now: the kit does not read, seal or compare shared records yet. When it does (M9), a seal makes a copied record verifiable, so the comparison becomes a check of seals.
+3. The Frodo repositories are governed by their own maintainers: adopting is a pull request they review. In M6 the change that seals the records leaves `core/` as it is, and the settings name it. The rename to `shared/`, with the citations, is for later (M9), and so is the verification of the shared records across the three repositories, which would replace the weekly comparison of two repositories.
 
 ## Prerequisites and what was verified
 
@@ -341,7 +341,7 @@ Today the Concierge validates its records with its own script and its own tests;
 | M3 | Release, updater and the setup check | a first release that a repository can install, and check |
 | M4 | The Concierge adopts it | its validator deleted, its records sealed |
 | M5 | The reaction: the revert pull request | layer 5 |
-| M6 | frodo-lib, frodo-cli and the tap adopt it, with the shared-record check across them | their validators and the weekly comparison deleted; `core/` renamed to `shared/` |
+| M6 | A library, a command-line tool and a Homebrew tap, which keep records binding all three in `core/`, adopt it one after the other, with `shared-folder: core` and `shared-changes: allow` | their validators replaced by the kit's `validate` for every record outside `core/`, their own check kept for `core/` only; the weekly comparison of the copies and the name `core/` stay (the rename to `shared/`, the kit reading shared records, the comparison across the three and the mirror pull requests are for later, M9) |
 | M7 | The compactor scan: signals for generalizing and for consolidating, the `window:` key, the "Records to review" issue, `accept` and `resolve` | report mode |
 | M8 | The compactor agent: assessment and draft proposals; its engine and credentials are decided here | assist mode |
 | M9 | Shared records: number allocation across repositories and the mirror pull requests | one decision, mirrored |
@@ -355,7 +355,7 @@ Taken by the maintainer on 2026-10-28:
 - The reaction to a violation is a **revert pull request that a person merges**, not a bypass bot. A direct revert can be reconsidered later.
 - The first release includes **the nightly audit and the log**, not only the check. The revert pull request follows.
 - **The Concierge adopts first**, the Frodo repositories after.
-- **Records that bind several repositories are called *shared***, not core, with the folder name a setting. Frodo renames `core/` to `shared/` when it adopts the kit, in the same change that seals the records.
+- **Records that bind several repositories are called *shared***, not core, with the folder name a setting. Frodo renames `core/` to `shared/` when it adopts the kit, in the same change that seals the records. (Decided otherwise since: the rename is for later, M9, and the three repositories adopt the kit with `shared-folder: core`, M6.)
 - **The kit opens the mirror pull requests** for a shared record, as a later feature; merging stays with a person.
 - **The records of the maintainer's repositories all live in one location**, `docs/decisions`, **except frodo-lib for now**, which keeps `decisions/` until its documentation generation stops emptying `docs/`. Others may configure theirs.
 - **The essence compactor** is part of the kit: it finds records whose subject has moved on and proposes a generalized record that supersedes them (the maintainer's idea, same day).

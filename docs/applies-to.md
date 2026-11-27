@@ -21,7 +21,7 @@ An **item** is the text of one entry of the list, as the format page defines ite
 - The paths are read from the commit, not from a checkout.
 - **An item cannot start with a star.** Generation g1 refuses a value that starts with `&`, `*`, `!`, `|` or `>` (G1-13), so a sealed list has no item such as `**/README.md` or `*.md`: it starts with a folder or a file name. The rules read the dialect in full all the same.
 
-The 255 items of the `applies-to` lists in the records of the maintainers' repositories (66 different ones) are file names, `folder/**`, and three of the form `src/**/*.ts`; none uses `?`, a bracket, a brace or a negation. Every plain item names a file. The dialect is the least that reads them all.
+When this page was written (M2.7c, 2026-11-07) the 255 items of the `applies-to` lists in the records of the maintainers' repositories (66 different ones) were file names, `folder/**`, and three of the form `src/**/*.ts`; none used `?`, a bracket, a brace or a negation. Every plain item named a file. The dialect is the least that reads them all.
 
 ## The rules
 
