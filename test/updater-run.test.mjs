@@ -1311,7 +1311,7 @@ describe('a request that fails', () => {
     assert.equal(state.requests.filter((r) => r.path.endsWith('/releases')).length, 1);
   });
 
-  test('a connection that fails is repeated, and a request that writes is never repeated', async () => {
+  test('a connection that fails is repeated for a request that reads', async () => {
     const { state, work } = await world();
     let calls = 0;
     const flaky = (url, init) => {
@@ -1321,12 +1321,6 @@ describe('a request that fails', () => {
     const got = await call(['--dry-run'], state, work, { fetch: flaky });
     assert.equal(got.code, 0, got.stderr);
     assert.equal(calls, 3);
-    const ok = await world();
-    ok.state.fault = (entry) => (entry.method === 'POST' ? { status: 503, body: { message: 'unavailable' } } : null);
-    const failed = await call([], ok.state, ok.work);
-    assert.equal(failed.code, 1);
-    assert.match(failed.stderr, /^updater: failed: POST \/repos\/o\/r\/pulls answered 503/);
-    assert.equal(ok.state.requests.filter((r) => r.method === 'POST').length, 1, 'the pull request was not asked for twice');
   });
 
   test('a connection that does not come back is a failure that says why', async () => {
@@ -1380,6 +1374,228 @@ describe('a request that fails', () => {
       assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: GITHUB_REPOSITORY must be owner/name\n'], String(repo));
     }
     assert.equal(state.requests.length, 0);
+  });
+});
+
+// ---- the pull request that GitHub fails to make ---------------------------------------------------------------------------------------------------
+
+// A request that writes is repeated by no function of the runner, and the request that makes the pull request has one exception: when GitHub answers 5xx or the
+// connection fails, the run waits, looks for the pull request first (GitHub may have made it in spite of the error) and asks again once, only if there is none.
+describe('the request that makes the pull request fails', () => {
+  const PULLS = '/repos/o/r/pulls';
+  const GET_PULLS = `GET ${PULLS}`;
+  const POST_PULLS = `POST ${PULLS}`;
+  const isCreation = (entry) => entry.method === 'POST' && entry.path === PULLS;
+  const posts = (state) => state.requests.filter(isCreation);
+  const lookups = (state) => state.requests.filter((r) => r.method === 'GET' && r.path === PULLS);
+  const reset = () => Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNRESET', message: 'socket hang up' } });
+  /** What a run did, in order: the looks at the pull requests, the writes, and the waits. */
+  const trace = (inner = guardedFetch) => {
+    const events = [];
+    return {
+      events,
+      fetch: (url, init) => {
+        const { pathname } = new URL(url);
+        if (init.method !== 'GET' || pathname === PULLS) events.push(`${init.method} ${pathname}`);
+        return inner(url, init);
+      },
+      sleep: async (ms) => { events.push(`wait ${ms}`); },
+    };
+  };
+  /** The server makes the pull request, and the answer is lost on the way: the run is told `how` (a status, or the connection that fails). Only the first one is lost. */
+  const loseAnswer = (how) => {
+    let lost = false;
+    return async (url, init) => {
+      const response = await guardedFetch(url, init);
+      if (lost || init.method !== 'POST' || new URL(url).pathname !== PULLS) return response;
+      lost = true;
+      await response.arrayBuffer();
+      if (how === 'connection') throw reset();
+      return new Response(JSON.stringify({ message: 'Server Error' }), { status: how });
+    };
+  };
+
+  test('GitHub made the pull request in spite of the answer 5xx: the run waits, finds it, asks for no second one and updates it', async () => {
+    for (const status of [500, 502, 503, 504]) {
+      const { state, work } = await world();
+      state.nextPull = 20;
+      const seen = trace(loseAnswer(status));
+      const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      assert.equal(got.code, 0, `${status}: ${got.stderr}`);
+      assert.equal(got.stderr, '');
+      assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, 'PATCH /repos/o/r/pulls/20'], `${status}: the wait comes before the look, and the look before anything else`);
+      assert.equal(posts(state).length, 1, 'the pull request was asked for once');
+      assert.equal(state.pulls.length, 1);
+      assert.match(got.stdout, new RegExp(`\nPOST /repos/o/r/pulls answered ${status}: `));
+      assert.match(got.stdout, /; GitHub may have made the pull request all the same, so the run waits 5 seconds and looks for it\nGitHub answered the error, and the pull request #20 exists: it is the one this run wanted\nopened pull request #20\n$/);
+      // it is the pull request of this run: the number is the one that GitHub gave, and it has the title and the body of this run
+      const patch = state.requests.find((r) => r.method === 'PATCH');
+      assert.deepEqual(patch.body, { title: posts(state)[0].body.title, body: posts(state)[0].body.body });
+      assert.deepEqual([state.pulls[0].number, state.pulls[0].title], [20, 'chore: update Record Keeper v1.0.0 to v1.1.0']);
+    }
+  });
+
+  test('the connection fails after the request was sent, and GitHub made the pull request: the run finds it and asks for no second one', async () => {
+    const { state, work } = await world();
+    const seen = trace(loseAnswer('connection'));
+    const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+    assert.equal(got.code, 0, got.stderr);
+    assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, 'PATCH /repos/o/r/pulls/1']);
+    assert.equal(posts(state).length, 1);
+    assert.equal(state.pulls.length, 1);
+    assert.match(got.stdout, /POST \/repos\/o\/r\/pulls failed: socket hang up; GitHub may have made the pull request all the same, .*\nGitHub answered the error, and the pull request #1 exists: it is the one this run wanted\nopened pull request #1\n$/);
+  });
+
+  test('GitHub did not make the pull request: the run waits, looks, finds none and asks again, once', async () => {
+    for (const how of [502, 'connection']) {
+      const { state, work } = await world();
+      let asked = 0;
+      // the first request does not reach the server: a status of the server, or a connection that fails before the request is sent
+      state.fault = (entry) => (how !== 'connection' && isCreation(entry) && asked++ === 0 ? { status: how, body: { message: 'Bad Gateway' } } : null);
+      let dropped = false;
+      const drop = (url, init) => {
+        if (how === 'connection' && !dropped && init.method === 'POST') {
+          dropped = true;
+          return Promise.reject(reset());
+        }
+        return guardedFetch(url, init);
+      };
+      const seen = trace(drop);
+      const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      assert.equal(got.code, 0, `${how}: ${got.stderr}`);
+      assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, POST_PULLS], String(how));
+      assert.equal(posts(state).length, how === 'connection' ? 1 : 2, 'the server saw the request that reached it');
+      assert.equal(state.pulls.length, 1);
+      assert.match(got.stdout, /\nthere is no pull request of the branch: the request is made once more\nopened pull request #1\n$/);
+      assert.equal(state.requests.filter((r) => r.method === 'PATCH').length, 0, 'a pull request that was just made is not updated');
+    }
+    // the second request is the first one again
+    const { state, work } = await world();
+    let asked = 0;
+    state.fault = (entry) => (isCreation(entry) && asked++ === 0 ? { status: 500 } : null);
+    assert.equal((await call([], state, work)).code, 0);
+    assert.deepEqual(posts(state)[1].body, posts(state)[0].body);
+  });
+
+  test('both requests fail: the message is the one of the second answer, it says that the run tried twice, and there is no third request', async () => {
+    const { state, work, bare } = await world();
+    // only the first two requests are answered with an error: a third one, if the run made it, would be answered 201, and the run would end green
+    let asked = 0;
+    state.fault = (entry) => (isCreation(entry) && (asked += 1) <= 2 ? { status: asked === 1 ? 500 : 502, body: { message: asked === 1 ? 'first answer' : 'second answer' } } : null);
+    const seen = trace();
+    const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, 'updater: failed: POST /repos/o/r/pulls answered 502: {"message":"second answer"} (tried twice: the first try failed too, and no pull request was found between the two)\n');
+    assert.equal(posts(state).length, 2, 'no third request');
+    assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, POST_PULLS]);
+    assert.match(got.stdout, /POST \/repos\/o\/r\/pulls answered 500: \{"message":"first answer"\}; GitHub may have made the pull request all the same/, 'the first answer is in the output of the run');
+    assert.equal(state.pulls.length, 0);
+    assert.ok(refsOf(bare).includes(`refs/heads/${BRANCH}`), 'the branch is pushed, as the page says');
+  });
+
+  test('the connection fails twice: the message says what happened to the second request, and that the run tried twice', async () => {
+    const { state, work } = await world();
+    // the first two requests fail; a third one would reach the server and make the pull request
+    let sent = 0;
+    const down = (url, init) => (init.method === 'POST' && (sent += 1) <= 2 ? Promise.reject(reset()) : guardedFetch(url, init));
+    const seen = trace(down);
+    const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, 'updater: failed: POST /repos/o/r/pulls failed: socket hang up (tried twice: the first try failed too, and no pull request was found between the two)\n');
+    assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, POST_PULLS]);
+  });
+
+  test('the second request answers a 4xx: the run fails with that answer, and says that it tried twice', async () => {
+    const { state, work } = await world();
+    let asked = 0;
+    state.fault = (entry) => {
+      if (!isCreation(entry) || (asked += 1) > 2) return null;
+      return asked === 1 ? { status: 500, body: { message: 'Server Error' } } : { status: 422, body: { message: 'A pull request already exists' } };
+    };
+    const got = await call([], state, work);
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, 'updater: failed: POST /repos/o/r/pulls answered 422: {"message":"A pull request already exists"} (tried twice: the first try failed too, and no pull request was found between the two)\n');
+    assert.equal(posts(state).length, 2);
+  });
+
+  test('the look for the pull request fails: the run fails, says that the look failed and that the pull request may or may not exist, and asks for nothing more', async () => {
+    const { state, work } = await world();
+    let looks = 0;
+    state.fault = (entry) => {
+      if (isCreation(entry)) return { status: 500, body: { message: 'post fault' } };
+      if (entry.method === 'GET' && entry.path === PULLS && (looks += 1) > 1) return { status: 500, body: { message: 'look fault' } };
+      return null;
+    };
+    const seen = trace();
+    const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+    assert.equal(got.code, 1);
+    assert.equal(got.stderr, `updater: failed: POST /repos/o/r/pulls answered 500: {"message":"post fault"}, and the look for the pull request that GitHub may have made all the same failed too (GET /repos/o/r/pulls?state=open&head=o%3A${encodeURIComponent(BRANCH)}&base=main&per_page=100 answered 500: {"message":"look fault"}): the pull request may or may not exist, and the branch ${BRANCH} is pushed; run the updater again\n`);
+    assert.equal(posts(state).length, 1, 'the request was not made again: the run does not know whether the pull request exists');
+    assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS, 'wait 5000', GET_PULLS, 'wait 1000', GET_PULLS, 'wait 2000', GET_PULLS], 'the look is a read: it is repeated as every read is, after the wait');
+    assert.equal(state.requests.filter((r) => r.method === 'PATCH').length, 0);
+  });
+
+  test('an answer that is no 5xx fails at once: no wait, no look, no second request', async () => {
+    const answers = [
+      [422, {}], [404, {}], [401, {}], [409, {}], [499, {}],
+      [403, { 'x-ratelimit-remaining': '0' }], [403, { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1800000000' }], [429, { 'x-ratelimit-remaining': '0' }],
+      [403, { 'retry-after': '3' }], [429, { 'retry-after': '3' }], [403, {}],
+    ];
+    for (const [status, headers] of answers) {
+      const { state, work } = await world();
+      // only the first request is refused: a run that asked again would be answered 201
+      let asked = 0;
+      state.fault = (entry) => (isCreation(entry) && (asked += 1) === 1 ? { status, headers, body: { message: 'no' } } : null);
+      const seen = trace();
+      const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      const what = `${status} ${JSON.stringify(headers)}`;
+      assert.equal(got.code, 1, what);
+      assert.match(got.stderr, new RegExp(`^updater: failed: POST /repos/o/r/pulls answered ${status}`), what);
+      assert.ok(!got.stderr.includes('tried twice') && !got.stdout.includes('GitHub may have made'), what);
+      assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS], `${what}: one look before the request, and nothing after it`);
+      assert.equal(posts(state).length, 1, what);
+      assert.equal(lookups(state).length, 1, what);
+    }
+  });
+
+  test('an answer 201 that is no pull request is a failure, and the request is not repeated', async () => {
+    const { state, work } = await world();
+    state.fault = (entry) => (isCreation(entry) ? { status: 201, body: Buffer.from('<html>') } : null);
+    const seen = trace();
+    const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+    assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: the answer to the new pull request is not a pull request\n']);
+    assert.deepEqual(seen.events, [GET_PULLS, POST_PULLS]);
+  });
+
+  test('no other write is repeated: not the update of a pull request that exists, not the comment, not the closing', async () => {
+    // the update of the title and body of a pull request that exists
+    {
+      const { state, work } = await world();
+      state.pulls.push({ number: 12, state: 'open', title: 'old', body: 'old', head: { ref: BRANCH }, base: { ref: 'main' } });
+      state.fault = (entry) => (entry.method === 'PATCH' ? { status: 503, body: { message: 'unavailable' } } : null);
+      const seen = trace();
+      const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: PATCH /repos/o/r/pulls/12 answered 503: {"message":"unavailable"}\n']);
+      assert.deepEqual(seen.events, [GET_PULLS, 'PATCH /repos/o/r/pulls/12']);
+    }
+    // the comment that closes an update pull request, and the closing
+    {
+      const state = await github();
+      release(state, 'v1.0.0', V1);
+      const { work } = adopted();
+      state.pulls.push({ number: 7, state: 'open', title: 'old', body: 'old', head: { ref: BRANCH }, base: { ref: 'main' } });
+      state.nextPull = 8;
+      state.fault = (entry) => (entry.path.endsWith('/comments') ? { status: 502, body: { message: 'bad gateway' } } : null);
+      const seen = trace();
+      const got = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      assert.deepEqual([got.code, got.stderr], [1, 'updater: failed: POST /repos/o/r/issues/7/comments answered 502: {"message":"bad gateway"}\n']);
+      assert.deepEqual(seen.events, [GET_PULLS, 'POST /repos/o/r/issues/7/comments']);
+      state.fault = (entry) => (entry.method === 'PATCH' ? { status: 502, body: { message: 'bad gateway' } } : null);
+      const closing = await call([], state, work, { fetch: seen.fetch, sleep: seen.sleep });
+      assert.deepEqual([closing.code, closing.stderr], [1, 'updater: failed: PATCH /repos/o/r/pulls/7 answered 502: {"message":"bad gateway"}\n']);
+      assert.equal(state.requests.filter((r) => r.method === 'PATCH').length, 1);
+      assert.equal(state.comments.length, 1, 'the first run made no comment (its request failed); the second made one, and was not asked to make it twice');
+    }
   });
 });
 

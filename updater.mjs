@@ -40,6 +40,8 @@ export const DEFAULT_API = 'https://api.github.com';
 export const TIMEOUT_MS = 30_000;
 const ATTEMPTS = 3;
 const MAX_WAIT_SECONDS = 60;
+/** How long the run waits before it looks for a pull request that GitHub may have made while it answered an error to the request that makes it. */
+const RECOVER_WAIT_MS = 5000;
 const PER_PAGE = 30;
 const USAGE = `Usage:
   updater.mjs [--dry-run] [--target <tag>]
@@ -118,8 +120,16 @@ export class Refused extends Error {
   }
 }
 
-/** A run that failed for a reason outside the rules: the network, git, a write. */
-export class Failed extends Error {}
+/**
+ * A run that failed for a reason outside the rules: the network, git, a write. `outcomeUnknown` is true for a request that may have been done in spite of the
+ * failure: the connection failed after the request may have been sent, or GitHub answered 5xx. A 4xx is an answer that says it was not done.
+ */
+export class Failed extends Error {
+  constructor(message, { outcomeUnknown = false } = {}) {
+    super(message);
+    this.outcomeUnknown = outcomeUnknown;
+  }
+}
 
 // The code points that can hide a line, a command or the end of a name: controls, soft hyphen, the marks of direction, the separators and the byte order mark.
 const HIDING = [[0x00, 0x1f], [0x7f, 0x9f], [0xad, 0xad], [0x61c, 0x61c], [0x180e, 0x180e], [0x200b, 0x200f], [0x2028, 0x202e], [0x2060, 0x206f], [0xfeff, 0xfeff], [0xfff9, 0xfffb], [0xfffe, 0xffff]];
@@ -738,7 +748,9 @@ export function mayFollow(base, location, from) {
 /**
  * One request to the API. A redirect is never followed here, so the token cannot be sent to another place (a download that GitHub sends on is followed by the
  * caller, once, without the token). A GET is repeated, at most `ATTEMPTS` times in all, when the connection failed, GitHub answered 5xx or asked to wait for a
- * moment (the secondary limit); a request that writes is never repeated.
+ * moment (the secondary limit); a request that writes is never repeated here, because a second one may make a second pull request or a second comment. It says
+ * on the `Failed` that it throws (`outcomeUnknown`) when the write may have been done all the same; the one write that is repeated, the pull request that is
+ * made, is repeated by `createPull`, after a look for what the first one made.
  */
 export async function request(context, method, target, { accept = 'application/vnd.github+json', body, ok = [200], limit = LIMITS.page, redirects = false, authorize = true } = {}) {
   const url = target.startsWith('http') ? target : context.base + target;
@@ -764,7 +776,7 @@ export async function request(context, method, target, { accept = 'application/v
         await context.sleep(1000 * attempt);
         continue;
       }
-      throw new Failed(`${method} ${where} failed: ${printable(error.cause?.message || error.cause?.code || error.message).slice(0, 200)}`);
+      throw new Failed(`${method} ${where} failed: ${printable(error.cause?.message || error.cause?.code || error.message).slice(0, 200)}`, { outcomeUnknown: true });
     }
     if (redirects && [301, 302, 303, 307, 308].includes(response.status)) {
       await response.body?.cancel();
@@ -785,7 +797,7 @@ export async function request(context, method, target, { accept = 'application/v
         const reset = Number(response.headers.get('x-ratelimit-reset'));
         throw new Failed(`${method} ${where} answered ${response.status}: the rate limit is used up${Number.isFinite(reset) && reset > 0 && reset < 1e11 ? ` and resets at ${new Date(reset * 1000).toISOString()}` : ''}; run again later, with a token`);
       }
-      throw new Failed(`${method} ${where} answered ${response.status}${said === '' ? '' : `: ${said}`}`);
+      throw new Failed(`${method} ${where} answered ${response.status}${said === '' ? '' : `: ${said}`}`, { outcomeUnknown: response.status >= 500 });
     }
     const read = await readBounded(response, limit);
     return { status: response.status, headers: response.headers, bytes: read.bytes, over: read.over, location: null };
@@ -966,14 +978,42 @@ async function openPull(context, defaultBranch) {
   return mine.sort((a, b) => a.number - b.number)[0] ?? null;
 }
 
-/** The one pull request of the update branch: updated when it is open, made when it is not. */
-async function upsertPull(context, defaultBranch, title, body) {
-  const open = await openPull(context, defaultBranch);
-  if (open !== null) {
-    await request(context, 'PATCH', `/repos/${context.repo}/pulls/${open.number}`, { body: { title, body } });
-    return { number: open.number, created: false };
+const updatePull = (context, number, title, body) => request(context, 'PATCH', `/repos/${context.repo}/pulls/${number}`, { body: { title, body } });
+
+/**
+ * Asks GitHub to make the pull request: { number, found }, where `found` says that the number is one that GitHub made while it answered an error. This is the one
+ * write of the run that is ever repeated, and only when the first answer does not say whether the pull request was made (`outcomeUnknown`: 5xx, or a connection that
+ * failed). A second request may make a second pull request, so the run waits, looks for the open pull request of the branch first, and asks again, once, only when
+ * there is none. A 4xx, a rate limit and every other write fail at the first answer.
+ */
+async function createPull(context, defaultBranch, title, body, say) {
+  const ask = () => request(context, 'POST', `/repos/${context.repo}/pulls`, { body: { title, body, head: BRANCH, base: defaultBranch, maintainer_can_modify: false }, ok: [201] });
+  let answer;
+  try {
+    answer = await ask();
+  } catch (first) {
+    if (!(first instanceof Failed) || !first.outcomeUnknown) throw first;
+    say(`${first.message}; GitHub may have made the pull request all the same, so the run waits ${RECOVER_WAIT_MS / 1000} seconds and looks for it`);
+    await context.sleep(RECOVER_WAIT_MS);
+    let there;
+    try {
+      there = await openPull(context, defaultBranch);
+    } catch (lookup) {
+      if (!(lookup instanceof Failed)) throw lookup;
+      throw new Failed(`${first.message}, and the look for the pull request that GitHub may have made all the same failed too (${lookup.message}): the pull request may or may not exist, and the branch ${BRANCH} is pushed; run the updater again`);
+    }
+    if (there !== null) {
+      say(`GitHub answered the error, and the pull request #${there.number} exists: it is the one this run wanted`);
+      return { number: there.number, found: true };
+    }
+    say('there is no pull request of the branch: the request is made once more');
+    try {
+      answer = await ask();
+    } catch (second) {
+      if (!(second instanceof Failed)) throw second;
+      throw new Failed(`${second.message} (tried twice: the first try failed too, and no pull request was found between the two)`);
+    }
   }
-  const answer = await request(context, 'POST', `/repos/${context.repo}/pulls`, { body: { title, body, head: BRANCH, base: defaultBranch, maintainer_can_modify: false }, ok: [201] });
   let made = null;
   try {
     made = JSON.parse(answer.bytes.toString('utf8'));
@@ -981,6 +1021,19 @@ async function upsertPull(context, defaultBranch, title, body) {
     // not JSON: the check below says so
   }
   if (!isObject(made) || !Number.isSafeInteger(made.number)) throw new Failed('the answer to the new pull request is not a pull request');
+  return { number: made.number, found: false };
+}
+
+/** The one pull request of the update branch: updated when it is open, made when it is not. */
+async function upsertPull(context, defaultBranch, title, body, say) {
+  const open = await openPull(context, defaultBranch);
+  if (open !== null) {
+    await updatePull(context, open.number, title, body);
+    return { number: open.number, created: false };
+  }
+  const made = await createPull(context, defaultBranch, title, body, say);
+  // A pull request that GitHub made while it answered an error is updated as every open one is, so that it has the title and the body of this run.
+  if (made.found) await updatePull(context, made.number, title, body);
   return { number: made.number, created: true };
 }
 
@@ -1013,7 +1066,7 @@ async function publish(context, update, contents, notes, defaultBranch, say) {
       pushBranch(context, BRANCH, commit);
       say(`pushed ${BRANCH} (${commit.slice(0, 7)})`);
     }
-    const pull = await upsertPull(context, defaultBranch, renderTitle(update.from, update.to), renderBody(update, notes));
+    const pull = await upsertPull(context, defaultBranch, renderTitle(update.from, update.to), renderBody(update, notes), say);
     say(`${pull.created ? 'opened' : 'updated'} pull request #${pull.number}`);
   } finally {
     // Whatever happened on the update branch, the working tree goes back to where it was. It was clean when the branch was made, so nothing of a person's is lost.
