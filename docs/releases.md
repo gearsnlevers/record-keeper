@@ -122,6 +122,8 @@ GitHub can make the releases of a repository immutable: "where the assets and as
 
 **Tried on `v1.0.0`, 2026-11-22.** The setting is available for a public repository of an organisation on the Free plan: the `PUT` returned and a `GET` read `enabled: true`. With the setting on, the release is immutable (`isImmutable` of `gh release view`), and with GitHub CLI 2.97.0 `gh release verify v1.0.0` prints `Release v1.0.0 verified!` after it loads the attestation from the GitHub API, and `gh release verify-asset v1.0.0 release-manifest.json` prints `Verification succeeded` for the downloaded manifest. This is the claim of [the design](design.md#delivery-and-versions) that releases are attested, checked on one release. Without the setting, the first release had no attestation. Not known: the oldest version of the GitHub CLI that has the two commands (the page does not say), and what the setting does for a private repository or another plan. No program of the kit calls the two commands; a person does.
 
+**Tried on `v1.3.0`, 2026-11-27 (UTC).** The `Release` workflow cut it after a dry run. With GitHub CLI 2.97.0 `gh release verify v1.3.0` prints `Release v1.3.0 verified!` and `gh release verify-asset v1.3.0 release-manifest.json` prints `Verification succeeded`. The manifest names the commit `65fa46a24d92a98d365dc0863bdc2d1e07ded7cd`, which is the merge of the change that added the setting `shared-changes` and is the commit that the tag points at, and it is byte for byte the manifest of the dry run.
+
 ## What a repository can verify
 
 | Check | How | What it shows | Status |
