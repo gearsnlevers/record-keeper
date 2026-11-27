@@ -1,6 +1,6 @@
 # Generation g1: the canonical form of a record
 
-Status: normative, in the released kit (v1.2.0 is the current release). Record [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is accepted, so this page does not change: a different canonical form is a new generation and a new page, and only a clarification that moves no test vector may be made here, with the owners' approval.
+Status: normative, in the released kit (v1.3.0 is the current release). Record [0001](decisions/0001-accepted-records-are-sealed-and-change-only-by-supersession-or-erratum.md) is accepted, so this page does not change: a different canonical form is a new generation and a new page, and only a clarification that moves no test vector may be made here, with the owners' approval.
 
 A seal is `sha256-g1:` followed by 64 lowercase hexadecimal digits. This page says exactly how those digits are computed from the bytes of a record, so that anyone can recompute a seal with any tool, and what makes a record unfit to be sealed at all. The [test vectors](../test/vectors/g1/README.md) fix the answer for every case below.
 
