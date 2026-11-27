@@ -6,7 +6,7 @@ Status: describes the released kit (v1.3.0 is the current release; written in M1
 
 ## Why one list of rules
 
-The format is checked today by five copies that have drifted apart: the validator of the Issue Concierge, of frodo-lib, of the tap and of the umbrella repository (one script, copied and changed), and a separate test in frodo-cli. They agree on most of it and differ on a dozen points, listed in "What changes for the repositories". This page keeps the shared core and decides each difference once. The design extracts the kit's validator from the Concierge's script, so that script was the starting point of the list; no rule below is specific to it or to any other repository.
+When this page was written (M1, 2026-11-03) the format was checked by five copies that had drifted apart: the validators of four repositories (one script, copied and changed) and a separate test in a fifth. They agreed on most of it and differed on a dozen points, listed in "What changes for the repositories". This page keeps the shared core and decides each difference once. The design extracts the kit's validator from the Concierge's script, so that script was the starting point of the list; no rule below is specific to it or to any other repository.
 
 ## Definitions
 
@@ -22,7 +22,7 @@ The format is checked today by five copies that have drifted apart: the validato
 
 ## The rules
 
-A problem has a file (or none, for the folder), a rule and a message. The problems of a folder are a list in which the same rule may occur several times, as the column "Once per" says. The column "Today" says which of the five copies already enforce something like the rule: C the Concierge, L frodo-lib, K frodo-cli, T the tap, U the umbrella; "new" means none does.
+A problem has a file (or none, for the folder), a rule and a message. The problems of a folder are a list in which the same rule may occur several times, as the column "Once per" says. The column "Today" says which of the five copies enforced something like the rule when this page was written (M1, 2026-11-03): C the Concierge, L frodo-lib, K frodo-cli, T the tap, U the umbrella; "new" means none did.
 
 | Rule | A problem is reported when | Once per | Today |
 | ---- | -------------------------- | -------- | ----- |
@@ -96,7 +96,7 @@ The e-mail pattern (V-12), matched anywhere in the text:
 
 ## What changes for the repositories
 
-Run on the records that the maintainers' repositories have today (the numbers are from the day the rules were written):
+Run on the records that the maintainers' repositories had on the day the rules were written (M1, 2026-11-03), before any of them had adopted the kit:
 
 | Repository | Records | Problems | What they are |
 | ---------- | ------- | -------- | ------------- |
@@ -106,7 +106,7 @@ Run on the records that the maintainers' repositories have today (the numbers ar
 | the tap | none | none | Its records are all shared records. |
 | Record Keeper itself | 1 | 1 | V-03: its records folder has no `template.md` yet. |
 
-Where the five copies differ and this page chooses: frodo-cli counts the length one line stricter, so two frodo-lib records (at exactly 60 lines) would fail its count; frodo-cli forbids the names of coding tools in a record, which five Concierge records contain by necessity, so that rule is not kept; only frodo-cli judges the index by its title, its status as a whole cell and its Index heading, which this page extends to all because all five READMEs already comply; the tap, frodo-lib and the umbrella have no e-mail check and the Concierge does, which is kept because records are public and no existing record matches it.
+Where the five copies differed that day and this page chooses: frodo-cli counted the length one line stricter, so two frodo-lib records (at exactly 60 lines) would fail its count; frodo-cli forbade the names of coding tools in a record, which five Concierge records contain by necessity, so that rule is not kept; only frodo-cli judged the index by its title, its status as a whole cell and its Index heading, which this page extends to all because all five READMEs already complied; the tap, frodo-lib and the umbrella had no e-mail check and the Concierge had, which is kept because records are public and no existing record matched it.
 
 ## Not checked here
 
